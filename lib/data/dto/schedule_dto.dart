@@ -1,6 +1,4 @@
-
-
-class Scheduledto {
+class ScheduleDto {
   final String id;
   final String packageId;
   final String title;
@@ -8,8 +6,7 @@ class Scheduledto {
   final String imageUrl;
   final String order;
 
-
-  Scheduledto({
+  ScheduleDto({
     required this.id,
     required this.packageId,
     required this.title,
@@ -18,8 +15,8 @@ class Scheduledto {
     required this.order,
   });
 
-  factory Scheduledto.fromJson(Map<String, dynamic> json) {
-    return Scheduledto(
+  factory ScheduleDto.fromJson(Map<String, dynamic> json) {
+    return ScheduleDto(
       id: json['id'] as String,
       packageId: json['packageId'] as String,
       title: json['title'] as String,

@@ -1,21 +1,21 @@
 import 'package:dio/dio.dart';
 import 'package:wetravel/data/dto/banner_dto.dart';
 
-abstract class BannerRemoteDataSource {
-  Future<List<Bannerdto>> getBanners();
+abstract class BannerDataSource {
+  Future<List<BannerDto>> getBanners();
 }
 
-class BannerRemoteDataSourceImpl implements BannerRemoteDataSource {
+class BannerDataSourceImpl implements BannerDataSource {
   final Dio dio;
 
-  BannerRemoteDataSourceImpl({required this.dio});
+  BannerDataSourceImpl({required this.dio});
 
   @override
-  Future<List<Bannerdto>> getBanners() async {
+  Future<List<BannerDto>> getBanners() async {
     try {
       final response = await dio.get('AIzaSyD9FXUs9pi8RkbNx5smRb3ozstlyv5bVIE');
       final List<dynamic> jsonList = response.data;
-      return jsonList.map((json) => Bannerdto.fromJson(json)).toList();
+      return jsonList.map((json) => BannerDto.fromJson(json)).toList();
     } catch (e) {
       // 에러 처리
       rethrow;

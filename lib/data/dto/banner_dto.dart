@@ -1,6 +1,4 @@
-
-
-class Bannerdto {
+class BannerDto {
   final String id;
   final String linkUrl;
   final String imageUrl;
@@ -11,7 +9,7 @@ class Bannerdto {
   final bool isHidden;
   final int order;
 
-  Bannerdto({
+  BannerDto({
     required this.id,
     required this.linkUrl,
     required this.imageUrl,
@@ -23,8 +21,8 @@ class Bannerdto {
     required this.order,
   });
 
-  factory Bannerdto.fromJson(Map<String, dynamic> json) {
-    return Bannerdto(
+  factory BannerDto.fromJson(Map<String, dynamic> json) {
+    return BannerDto(
       id: json['id'] as String,
       linkUrl: json['linkUrl'] as String,
       imageUrl: json['imageUrl'] as String,
