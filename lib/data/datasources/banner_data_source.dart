@@ -1,14 +1,14 @@
 import 'package:dio/dio.dart';
 import 'package:wetravel/data/dto/banner_dto.dart';
 
-abstract class BannerRemoteDataSource {
+abstract class BannerDataSource {
   Future<List<Bannerdto>> getBanners();
 }
 
-class BannerRemoteDataSourceImpl implements BannerRemoteDataSource {
+class BannerDataSourceImpl implements BannerDataSource {
   final Dio dio;
 
-  BannerRemoteDataSourceImpl({required this.dio});
+  BannerDataSourceImpl({required this.dio});
 
   @override
   Future<List<Bannerdto>> getBanners() async {
