@@ -38,13 +38,11 @@ dependencies:
   dio: ^5.7.0
   flutter_dotenv: ^5.2.1
   mocktail: ^1.0.4
+  firebase_core: ^3.10.0
+  firebase_storage: ^12.4.0
+  firebase_auth: ^5.4.0
   image_picker: ^1.1.2
-  firebase_storage: ^11.6.5
-  firebase_core: ^2.32.0
-  cloud_firestore: ^4.17.5  # Firestore 데이터베이스용
-  firebase_database: ^10.5.7  # Realtime Database용
-  firebase_auth: ^4.16.0 # 인증 기능용
-
+  change_app_package_name: ^1.4.0
 
 dev_dependencies:
   flutter_test:

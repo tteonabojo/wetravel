@@ -1,8 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore용
-import 'package:firebase_database/firebase_database.dart'; // Realtime Database용
-import 'firebase_options.dart';
+import 'package:flutter/material.dart';
+import 'package:wetravel/firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,9 +18,3 @@ class MyApp extends StatelessWidget {
     return MaterialApp();
   }
 }
-
-// Firestore 데이터베이스 사용 예시:
-final FirebaseFirestore firestore = FirebaseFirestore.instance;
-
-// Realtime Database 사용 예시:
-final FirebaseDatabase database = FirebaseDatabase.instance;

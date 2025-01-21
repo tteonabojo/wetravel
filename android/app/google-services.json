@@ -8,25 +8,6 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:386530691152:android:2eade6104f114a69392955",
-        "android_client_info": {
-          "package_name": "com.example.wetravel"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyD9FXUs9pi8RkbNx5smRb3ozstlyv5bVIE"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
         "mobilesdk_app_id": "1:386530691152:android:3247e550abac0fe3392955",
         "android_client_info": {
           "package_name": "com.tteonabojo.wetravel"
