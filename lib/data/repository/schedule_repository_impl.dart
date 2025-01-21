@@ -14,7 +14,8 @@ class ScheduleRepositoryImpl implements ScheduleRepository {
     try {
       final response = await dio.get('/schedules');
       final List<dynamic> jsonList = response.data;
-      final List<Scheduledto> scheduleDtos = jsonList.map((json) => Scheduledto.fromJson(json)).toList();
+      final List<ScheduleDto> scheduleDtos =
+          jsonList.map((json) => ScheduleDto.fromJson(json)).toList();
       return scheduleDtos.map((dto) => ScheduleEntity.fromDto(dto)).toList();
     } catch (e) {
       // 에러 처리

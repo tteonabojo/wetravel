@@ -14,7 +14,8 @@ class BannerRepositoryImpl implements BannerRepository {
     try {
       final response = await dio.get('/banners');
       final List<dynamic> jsonList = response.data;
-      final List<Bannerdto> bannerDtos = jsonList.map((json) => Bannerdto.fromJson(json)).toList();
+      final List<BannerDto> bannerDtos =
+          jsonList.map((json) => BannerDto.fromJson(json)).toList();
       return bannerDtos.map((dto) => BannerEntity.fromDto(dto)).toList();
     } catch (e) {
       // 에러 처리 (예: 로그 출력, 사용자에게 알림)

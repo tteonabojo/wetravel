@@ -23,7 +23,7 @@ class BannerEntity {
     required this.order,
   });
 
-  factory BannerEntity.fromDto(Bannerdto dto) {
+  factory BannerEntity.fromDto(BannerDto dto) {
     return BannerEntity(
       id: dto.id,
       linkUrl: dto.linkUrl,
