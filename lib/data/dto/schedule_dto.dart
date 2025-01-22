@@ -26,7 +26,6 @@ class ScheduleDto {
     );
   }
 
-  get isHidden => null;
 
   Map<String, dynamic> toJson() {
     return {
