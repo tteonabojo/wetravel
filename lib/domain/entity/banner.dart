@@ -33,7 +33,7 @@ class Banner {
       endDate: DateTime.parse(dto.endDate as String),
       isHidden: dto.isHidden,
       company: dto.company,
-      description: dto.descripion,
+      description: dto.description,
       order: dto.order,
     );
   }
