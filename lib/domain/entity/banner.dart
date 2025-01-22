@@ -1,6 +1,6 @@
 import 'package:wetravel/data/dto/banner_dto.dart';
 
-class BannerEntity {
+class Banner {
   final String id;
   final String linkUrl;
   final String imageUrl;
@@ -11,7 +11,7 @@ class BannerEntity {
   final String description;
   final int order;
 
-  BannerEntity({
+  Banner({
     required this.id,
     required this.linkUrl,
     required this.imageUrl,
@@ -23,8 +23,8 @@ class BannerEntity {
     required this.order,
   });
 
-  factory BannerEntity.fromDto(BannerDto dto) {
-    return BannerEntity(
+  factory Banner.fromDto(BannerDto dto) {
+    return Banner(
       id: dto.id,
       linkUrl: dto.linkUrl,
       imageUrl: dto.imageUrl,

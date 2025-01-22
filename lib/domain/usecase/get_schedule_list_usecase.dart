@@ -1,4 +1,4 @@
-import 'package:wetravel/domain/entity/schedule_entity.dart';
+import 'package:wetravel/domain/entity/schedule.dart';
 import 'package:wetravel/domain/repository/schedule_repository.dart';
 
 class GetScheduleListUseCase {
@@ -6,7 +6,7 @@ class GetScheduleListUseCase {
 
   GetScheduleListUseCase(this.scheduleRepository);
 
-  Future<List<ScheduleEntity>> execute() async {
+  Future<List<Schedule>> execute() async {
     return await scheduleRepository.getSchedules();
   }
 }

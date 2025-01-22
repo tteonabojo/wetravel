@@ -1,4 +1,4 @@
-import 'package:wetravel/domain/entity/banner_entity.dart';
+import 'package:wetravel/domain/entity/banner.dart';
 
 class BannerUiModel {
   final String id;
@@ -23,7 +23,7 @@ class BannerUiModel {
     required this.order,
   });
 
-  factory BannerUiModel.fromEntity(BannerEntity entity) {
+  factory BannerUiModel.fromEntity(Banner entity) {
     return BannerUiModel(
       id: entity.id,
       linkUrl: entity.linkUrl,

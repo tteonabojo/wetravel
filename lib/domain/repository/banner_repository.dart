@@ -1,5 +1,5 @@
-import 'package:wetravel/domain/entity/banner_entity.dart';
+import 'package:wetravel/domain/entity/banner.dart';
 
 abstract class BannerRepository {
-  Future<List<BannerEntity>> getBanners();
+  Future<List<Banner>> getBanners();
 }

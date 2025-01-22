@@ -1,4 +1,4 @@
-import 'package:wetravel/domain/entity/banner_entity.dart';
+import 'package:wetravel/domain/entity/banner.dart';
 import 'package:wetravel/domain/repository/banner_repository.dart';
 
 class GetBannerListUseCase {
@@ -6,7 +6,7 @@ class GetBannerListUseCase {
 
   GetBannerListUseCase(this.bannerRepository);
 
-  Future<List<BannerEntity>> execute() async {
+  Future<List<Banner>> execute() async {
     return await bannerRepository.getBanners();
   }
 }
