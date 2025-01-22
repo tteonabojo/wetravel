@@ -3,7 +3,7 @@ class BannerDto {
   final String linkUrl;
   final String imageUrl;
   final String company;
-  final String descripion;
+  final String description;
   final DateTime startDate;
   final DateTime endDate;
   final bool isHidden;
@@ -14,7 +14,7 @@ class BannerDto {
     required this.linkUrl,
     required this.imageUrl,
     required this.company,
-    required this.descripion,
+    required this.description,
     required this.startDate,
     required this.endDate,
     required this.isHidden,
@@ -27,7 +27,7 @@ class BannerDto {
       linkUrl: json['linkUrl'] as String,
       imageUrl: json['imageUrl'] as String,
       company: json['company'] as String,
-      descripion: json['descripion'] as String,
+      description: json['description'] as String,
       startDate: json['startDate'] as DateTime,
       endDate: json['endDate'] as DateTime,
       isHidden: json['isHidden'] as bool,
@@ -41,7 +41,7 @@ class BannerDto {
       'linkUrl': linkUrl,
       'imageUrl': imageUrl,
       'company': company,
-      'descripion': descripion,
+      'descripion': description,
       'startDate': startDate,
       'endDate': endDate,
       'isHidden': isHidden,
