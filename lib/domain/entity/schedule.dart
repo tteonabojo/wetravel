@@ -1,6 +1,6 @@
 import 'package:wetravel/data/dto/schedule_dto.dart';
 
-class ScheduleEntity {
+class Schedule {
   final String id;
   final String
       packageId; // Assuming a package ID is associated with the schedule
@@ -10,7 +10,7 @@ class ScheduleEntity {
   final int order;
   final bool isHidden; // Flag to indicate if the schedule is hidden
 
-  ScheduleEntity({
+  Schedule({
     required this.id,
     required this.packageId,
     required this.title,
@@ -20,7 +20,7 @@ class ScheduleEntity {
     this.isHidden = false, // Set default value for isHidden
   });
 
-  factory ScheduleEntity.fromDto(ScheduleDto dto) => ScheduleEntity(
+  factory Schedule.fromDto(ScheduleDto dto) => Schedule(
         id: dto.id,
         packageId: dto.packageId,
         title: dto.title,

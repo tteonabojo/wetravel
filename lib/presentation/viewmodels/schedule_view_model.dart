@@ -1,9 +1,8 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wetravel/domain/entity/schedule_entity.dart';
+import 'package:wetravel/domain/entity/schedule.dart';
 import 'package:wetravel/presentation/provider/schedule_provider.dart';
 
-class ScheduleViewModel extends StateNotifier<AsyncValue<List<ScheduleEntity>>> {
+class ScheduleViewModel extends StateNotifier<AsyncValue<List<Schedule>>> {
   ScheduleViewModel(this._ref) : super(const AsyncValue.loading());
 
   final Ref _ref;

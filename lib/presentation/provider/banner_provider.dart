@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wetravel/domain/entity/banner_entity.dart';
+import 'package:wetravel/domain/entity/banner.dart';
 import 'package:wetravel/data/repository/banner_repository_impl.dart';
 
-final bannerProvider = FutureProvider<List<BannerEntity>>((ref) async {
+final bannerProvider = FutureProvider<List<Banner>>((ref) async {
   final repository = ref.watch(bannerRepositoryProvider);
   return await repository.getBanners();
 });

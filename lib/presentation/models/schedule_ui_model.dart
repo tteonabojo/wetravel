@@ -1,4 +1,4 @@
-import 'package:wetravel/domain/entity/schedule_entity.dart';
+import 'package:wetravel/domain/entity/schedule.dart';
 
 class ScheduleUiModel {
   final String id;
@@ -17,7 +17,7 @@ class ScheduleUiModel {
     required this.order,
   });
 
-  factory ScheduleUiModel.fromEntity(ScheduleEntity entity) {
+  factory ScheduleUiModel.fromEntity(Schedule entity) {
     return ScheduleUiModel(
       id: entity.id,
       packageId: entity.packageId,

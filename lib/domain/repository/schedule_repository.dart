@@ -1,5 +1,5 @@
-import 'package:wetravel/domain/entity/schedule_entity.dart';
+import 'package:wetravel/domain/entity/schedule.dart';
 
 abstract class ScheduleRepository {
-  Future<List<ScheduleEntity>> getSchedules();
+  Future<List<Schedule>> getSchedules();
 }
