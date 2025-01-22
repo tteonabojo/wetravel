@@ -60,11 +60,13 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyDvcVJB3KxiSqQbV-JD8FnlemHB_h0kjoI',
-    appId: '1:386530691152:ios:ee44d815bd7511dc392955',
+    appId: '1:386530691152:ios:ab211b9047bdddf1392955',
     messagingSenderId: '386530691152',
     projectId: 'wetravel-bebad',
     databaseURL: 'https://wetravel-bebad-default-rtdb.firebaseio.com',
     storageBucket: 'wetravel-bebad.firebasestorage.app',
-    iosBundleId: 'com.tteonabojo.wetravel',
+    iosClientId: '386530691152-lipcg3e988u34ii6uji67oofmn5qj2vs.apps.googleusercontent.com',
+    iosBundleId: 'com.tteonabojo.weetravel',
   );
+
 }
