@@ -28,8 +28,8 @@ class BannerDto {
       imageUrl: json['imageUrl'] as String,
       company: json['company'] as String,
       description: json['description'] as String,
-      startDate: json['startDate'] as DateTime,
-      endDate: json['endDate'] as DateTime,
+      startDate: DateTime.parse(json['startDate']), // 문자열 -> DateTime 변환
+      endDate: DateTime.parse(json['endDate']), // 문자열 -> DateTime 변환
       isHidden: json['isHidden'] as bool,
       order: json['order'] as int,
     );
