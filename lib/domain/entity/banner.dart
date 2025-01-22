@@ -7,8 +7,8 @@ class Banner {
   final DateTime startDate;
   final DateTime endDate;
   final bool isHidden;
-  final String company;
-  final String description;
+  final String? company;
+  final String? description;
   final int order;
 
   Banner({
@@ -33,7 +33,7 @@ class Banner {
       endDate: DateTime.parse(dto.endDate as String),
       isHidden: dto.isHidden,
       company: dto.company,
-      description: dto.descripion,
+      description: dto.description,
       order: dto.order,
     );
   }

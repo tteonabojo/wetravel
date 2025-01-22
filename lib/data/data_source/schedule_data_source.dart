@@ -16,7 +16,7 @@ class ScheduleDataSourceImpl implements ScheduleDataSource {
       final response = await dio.get(
           'AIzaSyD9FXUs9pi8RkbNx5smRb3ozstlyv5bVIE'); // 실제 API 엔드포인트에 맞게 수정
       final List<dynamic> jsonList = response.data;
-      return jsonList.map((json) => ScheduleDto.fromMap(json)).toList();
+      return jsonList.map((json) => ScheduleDto.fromJson(json)).toList();
     } catch (e) {
       // 에러 처리
       rethrow;
