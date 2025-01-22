@@ -44,7 +44,7 @@ class PackageDto {
           imageUrl: map['imageUrl'] as String,
           keywordList: List<String>.from(map['keywordList'] as List),
           schedule: (map['schedule'] as List)
-              .map((e) => ScheduleDto.fromJson(e as Map<String, dynamic>))
+              .map((e) => ScheduleDto.fromMap(e as Map<String, dynamic>))
               .toList(),
           createdAt: (map['createdAt']).toDate(),
           updatedAt: (map['updatedAt']).toDate(),

@@ -15,7 +15,7 @@ class ScheduleDto {
     required this.order,
   });
 
-  factory ScheduleDto.fromJson(Map<String, dynamic> json) {
+  factory ScheduleDto.fromMap(Map<String, dynamic> json) {
     return ScheduleDto(
       id: json['id'] as String,
       packageId: json['packageId'] as String,
@@ -24,18 +24,5 @@ class ScheduleDto {
       imageUrl: json['imageUrl'] as String,
       order: json['order'] as String,
     );
-  }
-
-  get isHidden => null;
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'packageId': packageId,
-      'title': title,
-      'content': content,
-      'imageUrl': imageUrl,
-      'order': order,
-    };
   }
 }
