@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:wetravel/domain/entity/user.dart';
 import 'package:wetravel/domain/usecase/fetch_users_usecase.dart';
-import 'package:wetravel/presentation/pages/user_list/user_list_view_model.dart';
+import 'package:wetravel/presentation/pages/test/user_list/user_list_view_model.dart';
 import 'package:wetravel/presentation/provider/user_provider.dart';
 
 class MockFetchUsersUsecase extends Mock implements FetchUsersUsecase {}
