@@ -23,18 +23,16 @@ class Banner {
     required this.order,
   });
 
-  factory Banner.fromDto(BannerDto dto) {
-    return Banner(
-      id: dto.id,
-      linkUrl: dto.linkUrl,
-      imageUrl: dto.imageUrl,
-      // 날짜 형식 변환 (예시)
-      startDate: DateTime.parse(dto.startDate as String),
-      endDate: DateTime.parse(dto.endDate as String),
-      isHidden: dto.isHidden,
-      company: dto.company,
-      description: dto.description,
-      order: dto.order,
-    );
-  }
+  factory Banner.fromDto(BannerDto dto) => Banner(
+        id: dto.id,
+        linkUrl: dto.linkUrl,
+        imageUrl: dto.imageUrl,
+        // 날짜 형식 변환 (예시)
+        startDate: DateTime.parse(dto.startDate as String),
+        endDate: DateTime.parse(dto.endDate as String),
+        isHidden: dto.isHidden,
+        company: dto.company,
+        description: dto.description,
+        order: dto.order,
+      );
 }

@@ -51,8 +51,8 @@ class BannerDto {
       imageUrl: json['imageUrl'] as String,
       company: json['company'] as String,
       description: json['description'] as String,
-      startDate: json['startDate'] as DateTime,
-      endDate: json['endDate'] as DateTime,
+      startDate: DateTime.parse(json['startDate']),
+      endDate: DateTime.parse(json['endDate']),
       isHidden: json['isHidden'] as bool,
       order: json['order'] as int,
     );
@@ -65,8 +65,8 @@ class BannerDto {
       'imageUrl': imageUrl,
       'company': company,
       'description': description,
-      'startDate': startDate,
-      'endDate': endDate,
+      'startDate': startDate.toIso8601String(),
+      'endDate': endDate.toIso8601String(),
       'isHidden': isHidden,
       'order': order,
     };
