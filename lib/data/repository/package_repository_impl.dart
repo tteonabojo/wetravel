@@ -27,7 +27,7 @@ class PackageRepositoryImpl implements PackageRepository {
                         title: schedule.title,
                         content: schedule.content,
                         imageUrl: schedule.imageUrl,
-                        order: schedule.order as int, // 기본값 설정
+                        order: int.parse(schedule.order), // 기본값 설정
                       ))
                   .toList(),
               createdAt: e.createdAt,

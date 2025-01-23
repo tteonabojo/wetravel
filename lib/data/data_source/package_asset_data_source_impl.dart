@@ -11,7 +11,7 @@ class PackageAssetDataSourceImpl implements PackageDataSource {
   Future<List<PackageDto>> fetchPackages() async {
     final jsonString =
         await _assetBundle.loadString('assets/json/packages.json');
-    final list = jsonDecode(jsonString);
-    return [PackageDto.fromJson(list)];
+    List list = jsonDecode(jsonString);
+    return list.map((ele) => PackageDto.fromJson(ele)).toList();
   }
 }

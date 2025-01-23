@@ -10,7 +10,7 @@ class UserAssetDataSourceImpl implements UserDataSource {
   @override
   Future<List<UserDto>> fetchUsers() async {
     final jsonString = await _assetBundle.loadString('assets/json/users.json');
-    final list = jsonDecode(jsonString);
-    return [UserDto.fromJson(list)];
+    List list = jsonDecode(jsonString);
+    return list.map((ele) => UserDto.fromJson(ele)).toList();
   }
 }
