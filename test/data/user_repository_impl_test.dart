@@ -30,6 +30,8 @@ void main() {
               isGuide: true,
               createdAt: DateTime.now(),
               updatedAt: DateTime.now(),
+              deletedAt: DateTime.now(),
+              scrapList: [],
             )
           ]);
       final result = await userRepositoryImpl.fetchUsers();
