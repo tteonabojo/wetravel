@@ -2,8 +2,8 @@ class BannerDto {
   final String id;
   final String linkUrl;
   final String imageUrl;
-  final String company;
-  final String description;
+  final String? company;
+  final String? description;
   final DateTime startDate;
   final DateTime endDate;
   final bool isHidden;
@@ -20,6 +20,29 @@ class BannerDto {
     required this.isHidden,
     required this.order,
   });
+
+  BannerDto copyWith({
+    String? id,
+    String? linkUrl,
+    String? imageUrl,
+    String? company,
+    String? description,
+    DateTime? startDate,
+    DateTime? endDate,
+    bool? isHidden,
+    int? order,
+  }) =>
+      BannerDto(
+        id: id ?? this.id,
+        linkUrl: linkUrl ?? this.linkUrl,
+        imageUrl: imageUrl ?? this.imageUrl,
+        company: company ?? this.company,
+        description: description ?? this.description,
+        startDate: startDate ?? this.startDate,
+        endDate: endDate ?? this.endDate,
+        isHidden: isHidden ?? this.isHidden,
+        order: order ?? this.order,
+      );
 
   factory BannerDto.fromJson(Map<String, dynamic> json) {
     return BannerDto(
@@ -41,9 +64,9 @@ class BannerDto {
       'linkUrl': linkUrl,
       'imageUrl': imageUrl,
       'company': company,
-      'descripion': description,
-      'startDate': startDate,
-      'endDate': endDate,
+      'description': description,
+      'startDate': startDate.toIso8601String(),
+      'endDate': endDate.toIso8601String(),
       'isHidden': isHidden,
       'order': order,
     };

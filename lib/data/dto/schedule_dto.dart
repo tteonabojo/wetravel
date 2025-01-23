@@ -2,8 +2,8 @@ class ScheduleDto {
   final String id;
   final String packageId;
   final String title;
-  final String content;
-  final String imageUrl;
+  final String? content;
+  final String? imageUrl;
   final String order;
 
   ScheduleDto({
@@ -15,26 +15,38 @@ class ScheduleDto {
     required this.order,
   });
 
-  factory ScheduleDto.fromJson(Map<String, dynamic> json) {
-    return ScheduleDto(
-      id: json['id'] as String,
-      packageId: json['packageId'] as String,
-      title: json['title'] as String,
-      content: json['content'] as String,
-      imageUrl: json['imageUrl'] as String,
-      order: json['order'] as String,
-    );
-  }
+  ScheduleDto copyWith({
+    String? id,
+    String? packageId,
+    String? title,
+    String? content,
+    String? imageUrl,
+    String? order,
+  }) =>
+      ScheduleDto(
+        id: id ?? this.id,
+        packageId: packageId ?? this.packageId,
+        title: title ?? this.title,
+        content: content ?? this.content,
+        imageUrl: imageUrl ?? this.imageUrl,
+        order: order ?? this.order,
+      );
 
+  factory ScheduleDto.fromJson(Map<String, dynamic> json) => ScheduleDto(
+        id: json["id"],
+        packageId: json["packageId"],
+        title: json["title"],
+        content: json["content"],
+        imageUrl: json["imageUrl"],
+        order: json["order"],
+      );
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'packageId': packageId,
-      'title': title,
-      'content': content,
-      'imageUrl': imageUrl,
-      'order': order,
-    };
-  }
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "packageId": packageId,
+        "title": title,
+        "content": content,
+        "imageUrl": imageUrl,
+        "order": order,
+      };
 }

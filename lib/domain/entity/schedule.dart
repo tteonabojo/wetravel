@@ -4,8 +4,8 @@ class Schedule {
   final String id;
   final String packageId;
   final String title;
-  final String content;
-  final String imageUrl;
+  final String? content;
+  final String? imageUrl;
   final int order;
 
   Schedule({

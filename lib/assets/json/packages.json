@@ -1,0 +1,167 @@
+[
+    {
+      "id": "pkg_1",
+      "userId": "user_1",
+      "title": "제주도 3박 4일 여행",
+      "location": "제주도",
+      "description": "푸른 바다와 아름다운 자연을 만끽하는 제주도 여행",
+      "duration": "3박 4일",
+      "imageUrl": "https://example.com/jeju.jpg",
+      "keywordList": ["제주도", "여행", "바다", "힐링"],
+      "schedule": [
+        {
+          "id": "sch_1",
+          "packageId": "pkg_1",
+          "title": "도착 및 에코랜드 테마파크",
+          "content": "제주공항 도착 후 에코랜드 테마파크 관람",
+          "imageUrl": "https://example.com/ecoland.jpg",
+          "order": "1"
+        },
+        {
+          "id": "sch_2",
+          "packageId": "pkg_1",
+          "title": "성산일출봉 & 섭지코지",
+          "content": "성산일출봉에서 일출 감상 후 섭지코지 산책",
+          "imageUrl": "https://example.com/seongsan.jpg",
+          "order": "2"
+        }
+      ],
+      "createdAt": "2023-10-26T10:00:00Z",
+      "updatedAt": "2023-10-26T10:00:00Z",
+      "deletedAt": null,
+      "reportCount": 0,
+      "isHidden": false
+    },
+    {
+      "id": "pkg_2",
+      "userId": "user_2",
+      "title": "혼자 떠나는 부산 여행",
+      "location": "부산",
+      "description": "혼자만의 시간을 즐기는 부산 여행",
+      "duration": "2박 3일",
+      "imageUrl": "https://example.com/busan.jpg",
+      "keywordList": ["부산", "혼자여행", "바다", "맛집"],
+      "schedule": [
+        {
+          "id": "sch_3",
+          "packageId": "pkg_2",
+          "title": "해운대 & 광안리",
+          "content": "해운대 해수욕장과 광안리 해수욕장 방문",
+          "imageUrl": "https://example.com/haeundae.jpg",
+          "order": "1"
+        },
+        {
+          "id": "sch_4",
+          "packageId": "pkg_2",
+          "title": "감천문화마을 & 자갈치시장",
+          "content": "감천문화마을에서 사진 찍고 자갈치시장에서 맛있는 저녁 식사",
+          "imageUrl": "https://example.com/gamcheon.jpg",
+          "order": "2"
+        }
+      ],
+      "createdAt": "2023-10-27T12:30:00Z",
+      "updatedAt": "2023-10-27T12:30:00Z",
+      "deletedAt": null,
+      "reportCount": 0,
+      "isHidden": false
+    },
+    {
+      "id": "pkg_3",
+      "userId": "user_3",
+      "title": "가족과 함께 떠나는 강원도 여행",
+      "location": "강원도",
+      "description": "설악산과 동해바다를 즐기는 가족 여행",
+      "duration": "4박 5일",
+      "imageUrl": "https://example.com/gangwondo.jpg",
+      "keywordList": ["강원도", "가족여행", "설악산", "바다"],
+      "schedule": [
+        {
+          "id": "sch_5",
+          "packageId": "pkg_3",
+          "title": "설악산 국립공원",
+          "content": "케이블카 탑승 및 설악산 등반",
+          "imageUrl": "https://example.com/seoraksan.jpg",
+          "order": "1"
+        },
+        {
+          "id": "sch_6",
+          "packageId": "pkg_3",
+          "title": "낙산사 & 속초 해수욕장",
+          "content": "낙산사 방문 후 속초 해수욕장에서 휴식",
+          "imageUrl": "https://example.com/naksan.jpg",
+          "order": "2"
+        }
+      ],
+      "createdAt": "2023-10-28T15:00:00Z",
+      "updatedAt": "2023-10-28T15:00:00Z",
+      "deletedAt": null,
+      "reportCount": 0,
+      "isHidden": false
+    },
+    {
+      "id": "pkg_4",
+      "userId": "user_4",
+      "title": "서울 맛집 투어",
+      "location": "서울",
+      "description": "서울의 숨겨진 맛집들을 찾아 떠나는 여행",
+      "duration": "1박 2일",
+      "imageUrl": "https://example.com/seoul.jpg",
+      "keywordList": ["서울", "맛집", "먹방", "데이트"],
+      "schedule": [
+        {
+          "id": "sch_7",
+          "packageId": "pkg_4",
+          "title": "익선동 & 북촌 한옥마을",
+          "content": "익선동에서 핫플레이스 방문 후 북촌 한옥마을에서 전통 체험",
+          "imageUrl": "https://example.com/ikseon.jpg",
+          "order": "1"
+        },
+        {
+          "id": "sch_8",
+          "packageId": "pkg_4",
+          "title": "강남 & 홍대",
+          "content": "강남에서 쇼핑 후 홍대에서 맛집 탐방",
+          "imageUrl": "https://example.com/gangnam.jpg",
+          "order": "2"
+        }
+      ],
+      "createdAt": "2023-10-29T09:00:00Z",
+      "updatedAt": "2023-10-29T09:00:00Z",
+      "deletedAt": null,
+      "reportCount": 0,
+      "isHidden": false
+    },
+    {
+      "id": "pkg_5",
+      "userId": "user_5",
+      "title": "전주 한옥마을 & 맛집 여행",
+      "location": "전주",
+      "description": "전주 한옥마을의 고즈넉함과 맛있는 음식을 즐기는 여행",
+      "duration": "2박 3일",
+      "imageUrl": "https://example.com/jeonju.jpg",
+      "keywordList": ["전주", "한옥마을", "맛집", "전통"],
+      "schedule": [
+        {
+          "id": "sch_9",
+          "packageId": "pkg_5",
+          "title": "전주 한옥마을",
+          "content": "한옥마을散策 및 전통문화 체험",
+          "imageUrl": "https://example.com/jeonjuhanok.jpg",
+          "order": "1"
+        },
+        {
+          "id": "sch_10",
+          "packageId": "pkg_5",
+          "title": "전주 맛집 탐방",
+          "content": "콩나물국밥, 비빔밥 등 전주 대표 음식 맛보기",
+          "imageUrl": "https://example.com/jeonjumatjip.jpg",
+          "order": "2"
+        }
+      ],
+      "createdAt": "2023-10-30T11:00:00Z",
+      "updatedAt": "2023-10-30T11:00:00Z",
+      "deletedAt": null,
+      "reportCount": 0,
+      "isHidden": false
+    }
+  ]
