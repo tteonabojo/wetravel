@@ -36,6 +36,7 @@ void main() {
               ]);
       final result = await packageRepositoryImpl.fetchPackages();
       expect(result.length, 1);
+      expect(result[0].title, 'title');
     },
   );
 }
