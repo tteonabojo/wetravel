@@ -43,3 +43,7 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# .env file 업로드 제외
+assets/.env
+android/app/google-services.json
