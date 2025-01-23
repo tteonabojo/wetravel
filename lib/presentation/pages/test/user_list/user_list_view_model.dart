@@ -11,6 +11,7 @@ class UserListViewModel extends Notifier<List<User>?> {
 
   Future<void> fetchUsers() async {
     state = await ref.watch(fetchUsersUsecaseProvider).execute();
+    print(state);
   }
 }
 
