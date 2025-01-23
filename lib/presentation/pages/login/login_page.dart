@@ -15,35 +15,73 @@ class _LoginPageState extends State<LoginPage> {
   String? _appleUserName;
   String? _googleUserName;
 
-  void changeAppleUserName(String? name) {
+  void changeUserName(String? name, {required bool isApple}) {
     setState(() {
-      _appleUserName = name;
+      if (isApple) {
+        _appleUserName = name;
+      } else {
+        _googleUserName = name;
+      }
     });
   }
 
-  void changeGoogleUserName(String? name) {
-    setState(() {
-      _googleUserName = name;
-    });
-  }
+  Future<UserCredential> signInWithProvider({required String provider}) async {
+    print('signInWith$provider');
+    try {
+      if (provider == 'Google') {
+        final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+        print(googleUser);
+        changeUserName(googleUser?.displayName, isApple: false);
 
-  Future<UserCredential> signInWithGoogle() async {
-    print('signInWithGoogle');
-    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-    print(googleUser);
+        final GoogleSignInAuthentication? googleAuth =
+            await googleUser?.authentication;
 
-    // Obtain the auth details from the request
-    final GoogleSignInAuthentication? googleAuth =
-        await googleUser?.authentication;
+        final credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth?.accessToken,
+          idToken: googleAuth?.idToken,
+        );
 
-    // Create a new credential
-    final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth?.accessToken,
-      idToken: googleAuth?.idToken,
-    );
+        return await FirebaseAuth.instance.signInWithCredential(credential);
+      } else if (provider == 'Apple') {
+        final appleCredential = await SignInWithApple.getAppleIDCredential(
+          scopes: [
+            AppleIDAuthorizationScopes.email,
+            AppleIDAuthorizationScopes.fullName,
+          ],
+          webAuthenticationOptions: WebAuthenticationOptions(
+            clientId: 'com.tteonabojo.weetravel.service',
+            redirectUri: kIsWeb
+                ? Uri.parse('https://wetravel-bebad.web.app/__/auth/handler')
+                : Uri.parse(
+                    'https://wetravel-bebad.firebaseapp.com/__/auth/handler',
+                  ),
+          ),
+        );
 
-    // Once signed in, return the UserCredential
-    return await FirebaseAuth.instance.signInWithCredential(credential);
+        print(appleCredential.authorizationCode);
+
+        final oAuthProvider = OAuthProvider('apple.com');
+        final credential = oAuthProvider.credential(
+          idToken: appleCredential.identityToken,
+          accessToken: appleCredential.authorizationCode,
+        );
+
+        final userCredential =
+            await FirebaseAuth.instance.signInWithCredential(credential);
+        final user = userCredential.user;
+        print('User: ${user}');
+        print('Email: ${user?.email}');
+
+        changeUserName(user?.email, isApple: true);
+
+        return userCredential;
+      } else {
+        throw Exception('Unsupported provider: $provider');
+      }
+    } catch (e) {
+      print('Error during $provider sign in: $e');
+      throw Exception('$provider Sign-In failed: $e');
+    }
   }
 
   @override
@@ -54,44 +92,8 @@ class _LoginPageState extends State<LoginPage> {
         children: [
           Center(
             child: ElevatedButton(
-              onPressed: () async {
-                print('press');
-                final appleCredential =
-                    await SignInWithApple.getAppleIDCredential(
-                  scopes: [
-                    AppleIDAuthorizationScopes.email,
-                    AppleIDAuthorizationScopes.fullName,
-                  ],
-                  webAuthenticationOptions: WebAuthenticationOptions(
-                    clientId: 'com.example.wetravel',
-                    redirectUri: kIsWeb
-                        ? Uri.parse(
-                            'https://wetravel-bebad.web.app/__/auth/handler')
-                        : Uri.parse(
-                            'https://wetravel-bebad.firebaseapp.com/__/auth/handler',
-                          ),
-                  ),
-                );
-
-                print(appleCredential.authorizationCode);
-
-                final oAuthProvider = OAuthProvider('apple.com');
-                final credential = oAuthProvider.credential(
-                  idToken: appleCredential.identityToken,
-                  accessToken: appleCredential.authorizationCode,
-                );
-
-                try {
-                  final userCredential = await FirebaseAuth.instance
-                      .signInWithCredential(credential);
-                  final user = userCredential.user;
-                  print('User: ${user}');
-                  print('Email: ${user?.email}');
-
-                  changeAppleUserName(user?.email);
-                } catch (e) {
-                  print('Error during Firebase sign in: $e');
-                }
+              onPressed: () {
+                signInWithProvider(provider: 'Apple');
               },
               child: Text("Sign in with Apple"),
             ),
@@ -104,7 +106,7 @@ class _LoginPageState extends State<LoginPage> {
           Center(
             child: ElevatedButton(
               onPressed: () {
-                signInWithGoogle();
+                signInWithProvider(provider: 'Google');
               },
               child: Text("Sign in with google"),
             ),
