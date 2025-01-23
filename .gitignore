@@ -47,3 +47,4 @@ app.*.map.json
 # .env file 업로드 제외
 assets/.env
 android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
