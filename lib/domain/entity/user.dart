@@ -5,14 +5,14 @@ class User {
   final String email;
   final String password;
   final String name;
-  final String imageUrl;
-  final String introduction;
+  final String? imageUrl;
+  final String? introduction;
   final String loginType;
   final bool isGuide;
   final DateTime createdAt;
-  final DateTime updatedAt;
+  final DateTime? updatedAt;
   final DateTime? deletedAt;
-  final List<Package> scrapList;
+  final List<Package>? scrapList;
 
   User({
     required this.id,

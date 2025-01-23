@@ -1,0 +1,72 @@
+[
+    {
+      "id": "1",
+      "email": "user1@gmail.com",
+      "password": "password123",
+      "name": "User 1",
+      "imageUrl": "https://example.com/user1_image.jpg",
+      "introduction": "I am a software engineer who loves traveling and meeting new people.",
+      "loginType": "EMAIL",
+      "isGuide": false,
+      "createdAt": "2023-01-01 00:00:00",
+      "updatedAt": "2023-01-01 00:00:00",
+      "deletedAt": null,
+      "scrapList": []
+    },
+    {
+      "id": "2",
+      "email": "user2@gmail.com",
+      "password": "password456",
+      "name": "User 2",
+      "imageUrl": "https://example.com/user2_image.jpg",
+      "introduction": "I am a student who is passionate about traveling and learning new things.",
+      "loginType": "EMAIL",
+      "isGuide": false,
+      "createdAt": "2023-01-02 00:00:00",
+      "updatedAt": "2023-01-02 00:00:00",
+      "deletedAt": null,
+      "scrapList": []
+    },
+    {
+      "id": "3",
+      "email": "user3@gmail.com",
+      "password": "password789",
+      "name": "User 3",
+      "imageUrl": "https://example.com/user3_image.jpg",
+      "introduction": "I am a teacher who loves traveling and sharing my experiences with others.",
+      "loginType": "EMAIL",
+      "isGuide": true,
+      "createdAt": "2023-01-03 00:00:00",
+      "updatedAt": "2023-01-03 00:00:00",
+      "deletedAt": null,
+      "scrapList": []
+    },
+    {
+      "id": "4",
+      "email": "user4@gmail.com",
+      "password": "password901",
+      "name": "User 4",
+      "imageUrl": "https://example.com/user4_image.jpg",
+      "introduction": "I am a doctor who loves traveling and helping others.",
+      "loginType": "EMAIL",
+      "isGuide": false,
+      "createdAt": "2023-01-04 00:00:00",
+      "updatedAt": "2023-01-04 00:00:00",
+      "deletedAt": null,
+      "scrapList": []
+    },
+    {
+      "id": "5",
+      "email": "user5@gmail.com",
+      "password": "password102",
+      "name": "User 5",
+      "imageUrl": "https://example.com/user5_image.jpg",
+      "introduction": "I am a lawyer who loves traveling and exploring new places.",
+      "loginType": "EMAIL",
+      "isGuide": false,
+      "createdAt": "2023-01-05 00:00:00",
+      "updatedAt": "2023-01-05 00:00:00",
+      "deletedAt": null,
+      "scrapList": []
+    }
+  ]

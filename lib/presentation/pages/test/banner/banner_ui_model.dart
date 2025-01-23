@@ -7,8 +7,8 @@ class BannerUiModel {
   final String startDateStr;
   final String endDateStr;
   final bool isHidden;
-  final String company;
-  final String description;
+  final String? company;
+  final String? description;
   final int order;
 
   BannerUiModel({
