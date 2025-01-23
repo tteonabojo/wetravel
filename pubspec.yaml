@@ -45,6 +45,7 @@ dependencies:
   change_app_package_name: ^1.4.0
   sign_in_with_apple: ^6.1.4
   google_sign_in: ^6.2.2
+  mockito: ^5.4.5
 
 dev_dependencies:
   flutter_test:
