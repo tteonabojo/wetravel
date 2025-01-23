@@ -2,8 +2,8 @@ class BannerDto {
   final String id;
   final String linkUrl;
   final String imageUrl;
-  final String company;
-  final String descripion;
+  final String? company;
+  final String? description;
   final DateTime startDate;
   final DateTime endDate;
   final bool isHidden;
@@ -14,12 +14,35 @@ class BannerDto {
     required this.linkUrl,
     required this.imageUrl,
     required this.company,
-    required this.descripion,
+    required this.description,
     required this.startDate,
     required this.endDate,
     required this.isHidden,
     required this.order,
   });
+
+  BannerDto copyWith({
+    String? id,
+    String? linkUrl,
+    String? imageUrl,
+    String? company,
+    String? description,
+    DateTime? startDate,
+    DateTime? endDate,
+    bool? isHidden,
+    int? order,
+  }) =>
+      BannerDto(
+        id: id ?? this.id,
+        linkUrl: linkUrl ?? this.linkUrl,
+        imageUrl: imageUrl ?? this.imageUrl,
+        company: company ?? this.company,
+        description: description ?? this.description,
+        startDate: startDate ?? this.startDate,
+        endDate: endDate ?? this.endDate,
+        isHidden: isHidden ?? this.isHidden,
+        order: order ?? this.order,
+      );
 
   factory BannerDto.fromJson(Map<String, dynamic> json) {
     return BannerDto(
@@ -27,9 +50,9 @@ class BannerDto {
       linkUrl: json['linkUrl'] as String,
       imageUrl: json['imageUrl'] as String,
       company: json['company'] as String,
-      descripion: json['descripion'] as String,
-      startDate: json['startDate'] as DateTime,
-      endDate: json['endDate'] as DateTime,
+      description: json['description'] as String,
+      startDate: DateTime.parse(json['startDate']), // 문자열 -> DateTime 변환
+      endDate: DateTime.parse(json['endDate']), // 문자열 -> DateTime 변환
       isHidden: json['isHidden'] as bool,
       order: json['order'] as int,
     );
@@ -41,9 +64,9 @@ class BannerDto {
       'linkUrl': linkUrl,
       'imageUrl': imageUrl,
       'company': company,
-      'descripion': descripion,
-      'startDate': startDate,
-      'endDate': endDate,
+      'description': description,
+      'startDate': startDate.toIso8601String(),
+      'endDate': endDate.toIso8601String(),
       'isHidden': isHidden,
       'order': order,
     };
