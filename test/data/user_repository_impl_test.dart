@@ -15,7 +15,6 @@ void main() {
       userRepositoryImpl = UserRepositoryImpl(mockUserDataSource);
     },
   );
-
   test(
     "UserRepositoryImpl test : fetchUsers",
     () async {
@@ -31,9 +30,10 @@ void main() {
               isGuide: true,
               createdAt: DateTime.now(),
               updatedAt: DateTime.now(),
+              deletedAt: DateTime.now(),
+              scrapList: [],
             )
           ]);
-
       final result = await userRepositoryImpl.fetchUsers();
       expect(result.length, 1);
       expect(result[0].email, 'email');

@@ -22,7 +22,6 @@ void main() {
       "scrapList": []
     }
 """;
-
       final user = UserDto.fromJson(jsonDecode(sampleJsonString));
       expect(user.email, "user1@gmail.com");
     },

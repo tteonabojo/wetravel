@@ -16,9 +16,7 @@ void main() {
       "duration": "2박 3일",
       "imageUrl": "https://example.com/jeonju.jpg",
       "keywordList": ["전주", "한옥마을", "맛집", "전통"],
-      "schedule": [
-        
-      ],
+      "schedule": [],
       "createdAt": "2023-10-30T11:00:00Z",
       "updatedAt": "2023-10-30T11:00:00Z",
       "deletedAt": null,
@@ -26,7 +24,6 @@ void main() {
       "isHidden": false
     }
 """;
-
       final package = PackageDto.fromJson(jsonDecode(sampleJsonString));
       expect(package.location, "전주");
     },

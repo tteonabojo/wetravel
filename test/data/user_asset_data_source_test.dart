@@ -14,7 +14,6 @@ void main() {
       userAssetDataSourceImpl = UserAssetDataSourceImpl(mockAssetBundle);
     },
   );
-
   test(
     'UserAssetDataSourceImpl : fetchUsers return data test',
     () async {
@@ -24,7 +23,7 @@ void main() {
       "email": "user1@gmail.com",
       "password": "password123",
       "name": "User 1",
-      "imageUrl": "https://example.com/user1_image.jpg",
+      "imageUrl": "https://picsum.photos/200/300",
       "introduction": "I am a software engineer who loves traveling and meeting new people.",
       "loginType": "EMAIL",
       "isGuide": false,
@@ -34,7 +33,6 @@ void main() {
       "scrapList": []
     }
 """);
-
       final result = await userAssetDataSourceImpl.fetchUsers();
       expect(result.length, 1);
     },
