@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:wetravel/data/data_source/user_data_source.dart';
@@ -28,9 +29,9 @@ void main() {
               introduction: 'introduction',
               loginType: 'loginType',
               isGuide: true,
-              createdAt: DateTime.now(),
-              updatedAt: DateTime.now(),
-              deletedAt: DateTime.now(),
+              createdAt: Timestamp.now(),
+              updatedAt: Timestamp.now(),
+              deletedAt: Timestamp.now(),
               scrapList: [],
             )
           ]);

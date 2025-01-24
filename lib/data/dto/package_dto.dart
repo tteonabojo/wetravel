@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wetravel/data/dto/schedule_dto.dart';
 
 class PackageDto {
@@ -10,9 +11,9 @@ class PackageDto {
   final String? imageUrl;
   final List<String>? keywordList;
   final List<ScheduleDto>? schedule;
-  final DateTime createdAt;
-  final DateTime? updatedAt;
-  final DateTime? deletedAt;
+  final Timestamp createdAt;
+  final Timestamp? updatedAt;
+  final Timestamp? deletedAt;
   final int reportCount;
   final bool isHidden;
 
@@ -43,8 +44,8 @@ class PackageDto {
     String? imageUrl,
     List<String>? keywordList,
     List<ScheduleDto>? schedule,
-    DateTime? createdAt,
-    DateTime? updatedAt,
+    Timestamp? createdAt,
+    Timestamp? updatedAt,
     dynamic deletedAt,
     int? reportCount,
     bool? isHidden,
@@ -79,10 +80,10 @@ class PackageDto {
           schedule: (json['schedule'] as List)
               .map((e) => ScheduleDto.fromJson(e as Map<String, dynamic>))
               .toList(),
-          createdAt: DateTime.parse(json['createdAt']),
-          updatedAt: DateTime.parse(json['updatedAt']),
+          createdAt: Timestamp.fromDate(DateTime.parse(json['createdAt'])),
+          updatedAt: Timestamp.fromDate(DateTime.parse(json['updatedAt'])),
           deletedAt: json['deletedAt'] != null
-              ? DateTime.parse(json['deletedAt'])
+              ? Timestamp.fromDate(DateTime.parse(json['deletedAt']))
               : null,
           reportCount: json['reportCount'] as int,
           isHidden: json['isHidden'] as bool,
@@ -98,8 +99,8 @@ class PackageDto {
         "imageUrl": imageUrl,
         "keywordList": keywordList?.map((x) => x).toList() ?? [],
         "schedule": schedule?.map((x) => x.toJson()).toList() ?? [],
-        "createdAt": createdAt.toIso8601String(),
-        "updatedAt": updatedAt?.toIso8601String(),
+        "createdAt": createdAt,
+        "updatedAt": updatedAt,
         "deletedAt": deletedAt,
         "reportCount": reportCount,
         "isHidden": isHidden,

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wetravel/domain/entity/schedule.dart';
 
 class Package {
@@ -10,9 +11,9 @@ class Package {
   final String? imageUrl;
   final List<String>? keywordList;
   final List<Schedule>? schedule;
-  final DateTime createdAt;
-  final DateTime? updatedAt;
-  final DateTime? deletedAt;
+  final Timestamp createdAt;
+  final Timestamp? updatedAt;
+  final Timestamp? deletedAt;
   final int reportCount;
   final bool isHidden;
 

@@ -3,7 +3,6 @@
 // ViewModel 내에서는 Provider에 의해서 UseCase 공급받을것.
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/data/data_source/user_data_source_impl.dart';
 import 'package:wetravel/data/data_source/user_data_source.dart';
