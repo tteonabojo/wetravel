@@ -1,17 +1,18 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wetravel/data/dto/package_dto.dart';
 
 class UserDto {
   final String id;
   final String email;
-  final String password;
-  final String name;
+  final String? password;
+  final String? name;
   final String? imageUrl;
   final String? introduction;
   final String loginType;
   final bool isGuide;
-  final DateTime createdAt;
-  final DateTime? updatedAt;
-  final DateTime? deletedAt;
+  final Timestamp createdAt;
+  final Timestamp? updatedAt;
+  final Timestamp? deletedAt;
   final List<PackageDto>? scrapList;
 
   UserDto({
@@ -38,8 +39,8 @@ class UserDto {
     String? introduction,
     String? loginType,
     bool? isGuide,
-    DateTime? createdAt,
-    DateTime? updatedAt,
+    Timestamp? createdAt,
+    Timestamp? updatedAt,
     dynamic deletedAt,
     List<PackageDto>? scrapList,
   }) =>
@@ -68,14 +69,13 @@ class UserDto {
           introduction: json['introduction'] as String,
           loginType: json['loginType'] as String,
           isGuide: json['isGuide'] as bool,
-          createdAt: DateTime.parse(json['createdAt']),
-          updatedAt: DateTime.parse(json['updatedAt']),
-          deletedAt: json['deletedAt'] != null
-              ? DateTime.parse(json['deletedAt'])
-              : null,
-          scrapList: (json['scrapList'] as List)
-              .map((e) => PackageDto.fromJson(e as Map<String, dynamic>))
-              .toList(),
+          createdAt: json['createdAt'],
+          updatedAt: json['updatedAt'],
+          deletedAt: json['deletedAt'],
+          scrapList:
+              (json['scrapList'] == null ? [] : json['scrapList'] as List)
+                  .map((e) => PackageDto.fromJson(e as Map<String, dynamic>))
+                  .toList(),
         );
   Map<String, dynamic> toJson() => {
         "id": id,
@@ -86,8 +86,8 @@ class UserDto {
         "introduction": introduction,
         "loginType": loginType,
         "isGuide": isGuide,
-        "createdAt": createdAt.toIso8601String(),
-        "updatedAt": updatedAt?.toIso8601String(),
+        "createdAt": createdAt,
+        "updatedAt": updatedAt,
         "deletedAt": deletedAt,
         "scrapList": scrapList?.map((x) => x.toJson()).toList() ?? [],
       };

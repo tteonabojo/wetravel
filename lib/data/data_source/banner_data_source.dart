@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:wetravel/data/dto/banner_dto.dart';
 
 abstract class BannerDataSource {
@@ -13,7 +14,7 @@ class BannerDataSourceImpl implements BannerDataSource {
   @override
   Future<List<BannerDto>> getBanners() async {
     try {
-      final response = await dio.get('AIzaSyD9FXUs9pi8RkbNx5smRb3ozstlyv5bVIE');
+      final response = await dio.get(dotenv.env['ANDROID_API_KEY']!);
       final List<dynamic> jsonList = response.data;
       return jsonList.map((json) => BannerDto.fromJson(json)).toList();
     } catch (e) {

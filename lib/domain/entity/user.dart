@@ -1,17 +1,18 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wetravel/domain/entity/package.dart';
 
 class User {
   final String id;
   final String email;
-  final String password;
-  final String name;
+  final String? password;
+  final String? name;
   final String? imageUrl;
   final String? introduction;
   final String loginType;
   final bool isGuide;
-  final DateTime createdAt;
-  final DateTime? updatedAt;
-  final DateTime? deletedAt;
+  final Timestamp createdAt;
+  final Timestamp? updatedAt;
+  final Timestamp? deletedAt;
   final List<Package>? scrapList;
 
   User({

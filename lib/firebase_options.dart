@@ -3,6 +3,7 @@
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 /// Default [FirebaseOptions] for use with your Firebase apps.
 ///
@@ -49,24 +50,28 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyD9FXUs9pi8RkbNx5smRb3ozstlyv5bVIE',
-    appId: '1:386530691152:android:3247e550abac0fe3392955',
-    messagingSenderId: '386530691152',
-    projectId: 'wetravel-bebad',
-    databaseURL: 'https://wetravel-bebad-default-rtdb.firebaseio.com',
-    storageBucket: 'wetravel-bebad.firebasestorage.app',
-  );
+  static FirebaseOptions get android {
+    return FirebaseOptions(
+      apiKey: dotenv.env['ANDROID_API_KEY']!,
+      appId: '1:386530691152:android:3247e550abac0fe3392955',
+      messagingSenderId: '386530691152',
+      projectId: 'wetravel-bebad',
+      databaseURL: 'https://wetravel-bebad-default-rtdb.firebaseio.com',
+      storageBucket: 'wetravel-bebad.firebasestorage.app',
+    );
+  }
 
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDvcVJB3KxiSqQbV-JD8FnlemHB_h0kjoI',
-    appId: '1:386530691152:ios:ab211b9047bdddf1392955',
-    messagingSenderId: '386530691152',
-    projectId: 'wetravel-bebad',
-    databaseURL: 'https://wetravel-bebad-default-rtdb.firebaseio.com',
-    storageBucket: 'wetravel-bebad.firebasestorage.app',
-    iosClientId: '386530691152-lipcg3e988u34ii6uji67oofmn5qj2vs.apps.googleusercontent.com',
-    iosBundleId: 'com.tteonabojo.weetravel',
-  );
-
+  static FirebaseOptions get ios {
+    return FirebaseOptions(
+      apiKey: dotenv.env['IOS_API_KEY']!,
+      appId: '1:386530691152:ios:ab211b9047bdddf1392955',
+      messagingSenderId: '386530691152',
+      projectId: 'wetravel-bebad',
+      databaseURL: 'https://wetravel-bebad-default-rtdb.firebaseio.com',
+      storageBucket: 'wetravel-bebad.firebasestorage.app',
+      iosClientId:
+          '386530691152-lipcg3e988u34ii6uji67oofmn5qj2vs.apps.googleusercontent.com',
+      iosBundleId: 'com.tteonabojo.weetravel',
+    );
+  }
 }
