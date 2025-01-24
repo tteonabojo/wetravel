@@ -10,6 +10,7 @@ import 'package:wetravel/data/data_source/user_data_source.dart';
 import 'package:wetravel/data/repository/user_repository_impl.dart';
 import 'package:wetravel/domain/repository/user_repository.dart';
 import 'package:wetravel/domain/usecase/fetch_users_usecase.dart';
+import 'package:wetravel/domain/usecase/sign_in_with_provider_usecase.dart';
 
 final _userDataSourceProvider = Provider<UserDataSource>((ref) {
   return UserDataSourceImpl(FirebaseFirestore.instance);
@@ -28,3 +29,8 @@ final fetchUsersUsecaseProvider = Provider(
     return FetchUsersUsecase(userRepo);
   },
 );
+
+final signInWithProviderUsecaseProvider = Provider((ref) {
+  final userRepo = ref.read(_userRepositoryProvider);
+  return SignInWithProviderUsecase(userRepo);
+});
