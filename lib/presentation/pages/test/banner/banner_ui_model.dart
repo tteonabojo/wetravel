@@ -1,11 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wetravel/domain/entity/banner.dart';
 
 class BannerUiModel {
   final String id;
   final String linkUrl;
   final String imageUrl;
-  final String startDateStr;
-  final String endDateStr;
+  final Timestamp startDateStr;
+  final Timestamp endDateStr;
   final bool isHidden;
   final String? company;
   final String? description;
@@ -28,8 +29,8 @@ class BannerUiModel {
       id: entity.id,
       linkUrl: entity.linkUrl,
       imageUrl: entity.imageUrl,
-      startDateStr: entity.startDate.toIso8601String(),
-      endDateStr: entity.endDate.toIso8601String(),
+      startDateStr: entity.startDate,
+      endDateStr: entity.endDate,
       isHidden: entity.isHidden,
       company: entity.company,
       description: entity.description,

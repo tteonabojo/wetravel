@@ -1,11 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class BannerDto {
   final String id;
   final String linkUrl;
   final String imageUrl;
   final String? company;
   final String? description;
-  final DateTime startDate;
-  final DateTime endDate;
+  final Timestamp startDate;
+  final Timestamp endDate;
   final bool isHidden;
   final int order;
 
@@ -27,8 +29,8 @@ class BannerDto {
     String? imageUrl,
     String? company,
     String? description,
-    DateTime? startDate,
-    DateTime? endDate,
+    Timestamp? startDate,
+    Timestamp? endDate,
     bool? isHidden,
     int? order,
   }) =>
@@ -51,8 +53,8 @@ class BannerDto {
       imageUrl: json['imageUrl'] as String,
       company: json['company'] as String,
       description: json['description'] as String,
-      startDate: DateTime.parse(json['startDate']),
-      endDate: DateTime.parse(json['endDate']),
+      startDate: Timestamp.fromDate(DateTime.parse(json['startDate'])),
+      endDate: Timestamp.fromDate(DateTime.parse(json['endDate'])),
       isHidden: json['isHidden'] as bool,
       order: json['order'] as int,
     );
@@ -65,8 +67,8 @@ class BannerDto {
       'imageUrl': imageUrl,
       'company': company,
       'description': description,
-      'startDate': startDate.toIso8601String(),
-      'endDate': endDate.toIso8601String(),
+      'startDate': startDate,
+      'endDate': endDate,
       'isHidden': isHidden,
       'order': order,
     };

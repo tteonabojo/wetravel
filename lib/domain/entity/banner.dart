@@ -1,11 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wetravel/data/dto/banner_dto.dart';
 
 class Banner {
   final String id;
   final String linkUrl;
   final String imageUrl;
-  final DateTime startDate;
-  final DateTime endDate;
+  final Timestamp startDate;
+  final Timestamp endDate;
   final bool isHidden;
   final String? company;
   final String? description;
@@ -28,8 +29,8 @@ class Banner {
         linkUrl: dto.linkUrl,
         imageUrl: dto.imageUrl,
         // 날짜 형식 변환 (예시)
-        startDate: DateTime.parse(dto.startDate as String),
-        endDate: DateTime.parse(dto.endDate as String),
+        startDate: Timestamp.fromDate(DateTime.parse(dto.startDate as String)),
+        endDate: Timestamp.fromDate(DateTime.parse(dto.endDate as String)),
         isHidden: dto.isHidden,
         company: dto.company,
         description: dto.description,
