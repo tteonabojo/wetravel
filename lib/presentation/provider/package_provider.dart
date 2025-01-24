@@ -4,14 +4,14 @@
 
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wetravel/data/data_source/package_asset_data_source_impl.dart';
+import 'package:wetravel/data/data_source/package_data_source_impl.dart';
 import 'package:wetravel/data/data_source/package_data_source.dart';
 import 'package:wetravel/data/repository/package_repository_impl.dart';
 import 'package:wetravel/domain/repository/package_repository.dart';
 import 'package:wetravel/domain/usecase/fetch_packages_usecase.dart';
 
 final _packageDataSourceProvider = Provider<PackageDataSource>((ref) {
-  return PackageAssetDataSourceImpl(rootBundle);
+  return PackageDataSourceImpl(rootBundle);
 });
 
 final _packageRepositoryProvider = Provider<PackageRepository>(

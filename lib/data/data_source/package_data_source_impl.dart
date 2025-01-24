@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:wetravel/data/data_source/package_data_source.dart';
 import 'package:wetravel/data/dto/package_dto.dart';
 
-class PackageAssetDataSourceImpl implements PackageDataSource {
-  PackageAssetDataSourceImpl(this._assetBundle);
+class PackageDataSourceImpl implements PackageDataSource {
+  PackageDataSourceImpl(this._assetBundle);
   final AssetBundle _assetBundle;
 
   @override

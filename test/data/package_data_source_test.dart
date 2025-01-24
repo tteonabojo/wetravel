@@ -1,17 +1,17 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:wetravel/data/data_source/package_asset_data_source_impl.dart';
+import 'package:wetravel/data/data_source/package_data_source_impl.dart';
 
 class MockAssetBundle extends Mock implements AssetBundle {}
 
 void main() {
   late final MockAssetBundle mockAssetBundle;
-  late final PackageAssetDataSourceImpl packageAssetDataSourceImpl;
+  late final PackageDataSourceImpl packageDataSourceImpl;
   setUp(
     () async {
       mockAssetBundle = MockAssetBundle();
-      packageAssetDataSourceImpl = PackageAssetDataSourceImpl(mockAssetBundle);
+      packageDataSourceImpl = PackageDataSourceImpl(mockAssetBundle);
     },
   );
   test(
@@ -35,7 +35,7 @@ void main() {
       "isHidden": false
     }
 """);
-      final result = await packageAssetDataSourceImpl.fetchPackages();
+      final result = await packageDataSourceImpl.fetchPackages();
       expect(result.length, 1);
     },
   );
