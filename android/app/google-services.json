@@ -15,7 +15,7 @@
       },
       "oauth_client": [
         {
-          "client_id": "386530691152-p194n8emm4vj5gjf5jqfpk49fhuqi82e.apps.googleusercontent.com",
+          "client_id": "386530691152-81bv7e65jv8mg7ch94fej6lo5b4befs3.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
@@ -28,14 +28,14 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "386530691152-p194n8emm4vj5gjf5jqfpk49fhuqi82e.apps.googleusercontent.com",
+              "client_id": "386530691152-81bv7e65jv8mg7ch94fej6lo5b4befs3.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "386530691152-rbqcjg3novfgiu3329dk41nqc307af2d.apps.googleusercontent.com",
+              "client_id": "386530691152-lipcg3e988u34ii6uji67oofmn5qj2vs.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.tteonabojo.wetravel"
+                "bundle_id": "com.tteonabojo.weetravel"
               }
             }
           ]

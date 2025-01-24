@@ -3,8 +3,8 @@ import 'package:wetravel/data/dto/package_dto.dart';
 class UserDto {
   final String id;
   final String email;
-  final String password;
-  final String name;
+  final String? password;
+  final String? name;
   final String? imageUrl;
   final String? introduction;
   final String loginType;

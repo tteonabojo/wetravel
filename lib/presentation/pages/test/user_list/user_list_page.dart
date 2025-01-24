@@ -40,7 +40,7 @@ class UserListPage extends StatelessWidget {
                       child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(user.name),
+                      Text(user.name!),
                       Text(user.email),
                       Text(user.introduction!),
                     ],
