@@ -29,18 +29,22 @@ class _LoginPageState extends State<LoginPage> {
     print('signInWith$provider');
     try {
       if (provider == 'Google') {
+        // 구글 로그인 요청
         final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-        print(googleUser);
         changeUserName(googleUser?.displayName, isApple: false);
 
+        // googleUser 객체에서 인증 정보 획득
         final GoogleSignInAuthentication? googleAuth =
             await googleUser?.authentication;
 
+        // GoogleAuthProvider.credential는 로그인을 위해 필요한 자격 증명 생성
         final credential = GoogleAuthProvider.credential(
-          accessToken: googleAuth?.accessToken,
-          idToken: googleAuth?.idToken,
+          accessToken: googleAuth?.accessToken, // google api 접근 허용 토큰
+          idToken: googleAuth?.idToken, // JWT, firebase에서 사용자의 신원 확인 토큰
         );
 
+        print(googleUser?.email);
+        print(credential);
         return await FirebaseAuth.instance.signInWithCredential(credential);
       } else if (provider == 'Apple') {
         final appleCredential = await SignInWithApple.getAppleIDCredential(
@@ -59,6 +63,7 @@ class _LoginPageState extends State<LoginPage> {
         );
 
         print(appleCredential.authorizationCode);
+        print(appleCredential.email);
 
         final oAuthProvider = OAuthProvider('apple.com');
         final credential = oAuthProvider.credential(

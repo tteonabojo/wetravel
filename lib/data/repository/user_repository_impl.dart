@@ -26,4 +26,30 @@ class UserRepositoryImpl implements UserRepository {
         )
         .toList();
   }
+
+  @override
+  Future<User> signInWithProvider({required provider}) {
+    // TODO: implement signInWithProvider
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<bool> signOut() {
+    // TODO: implement signOut
+    throw UnimplementedError();
+  }
+
+  // 추후 구현
+  @override
+  Future<bool> signUp({required String email, required String password}) {
+    // TODO: implement signUp
+    throw UnimplementedError();
+  }
+
+  // 추후 구현
+  @override
+  Future<User> signIn({required String email, required String password}) {
+    // TODO: implement signIn
+    throw UnimplementedError();
+  }
 }
