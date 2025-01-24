@@ -1,23 +1,27 @@
-import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:wetravel/core/constants/auth_providers.dart';
 import 'package:wetravel/data/data_source/user_data_source.dart';
 import 'package:wetravel/data/dto/user_dto.dart';
 
-class UserAssetDataSourceImpl implements UserDataSource {
-  UserAssetDataSourceImpl(this._assetBundle);
-  final AssetBundle _assetBundle;
+class UserDataSourceImpl implements UserDataSource {
+  UserDataSourceImpl(this._firestore);
+  final FirebaseFirestore _firestore;
 
   @override
   Future<List<UserDto>> fetchUsers() async {
-    final jsonString = await _assetBundle.loadString('assets/json/users.json');
-    List list = jsonDecode(jsonString);
-    return list.map((ele) => UserDto.fromJson(ele)).toList();
+    FirebaseFirestore firestore = _firestore;
+    final collectionRef = firestore.collection('user');
+    final snapshot = await collectionRef.get();
+    final documentSnapshot = snapshot.docs;
+    for (var docSnapshot in documentSnapshot) {
+      print(docSnapshot.id);
+      print(docSnapshot.data());
+    }
+    return documentSnapshot.map((e) => UserDto.fromJson(e.data())).toList();
   }
 
   @override

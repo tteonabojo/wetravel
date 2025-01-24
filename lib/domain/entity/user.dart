@@ -3,8 +3,8 @@ import 'package:wetravel/domain/entity/package.dart';
 class User {
   final String id;
   final String email;
-  final String password;
-  final String name;
+  final String? password;
+  final String? name;
   final String? imageUrl;
   final String? introduction;
   final String loginType;
