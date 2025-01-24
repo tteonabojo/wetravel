@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wetravel/domain/entity/package.dart';
 
 class User {
@@ -9,9 +10,9 @@ class User {
   final String? introduction;
   final String loginType;
   final bool isGuide;
-  final DateTime createdAt;
-  final DateTime? updatedAt;
-  final DateTime? deletedAt;
+  final Timestamp createdAt;
+  final Timestamp? updatedAt;
+  final Timestamp? deletedAt;
   final List<Package>? scrapList;
 
   User({

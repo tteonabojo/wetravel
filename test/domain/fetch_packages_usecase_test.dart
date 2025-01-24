@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:wetravel/domain/entity/package.dart';
@@ -31,8 +32,8 @@ void main() {
                   imageUrl: 'imageUrl',
                   keywordList: [],
                   schedule: [],
-                  createdAt: DateTime.now(),
-                  updatedAt: DateTime.now(),
+                  createdAt: Timestamp.now(),
+                  updatedAt: Timestamp.now(),
                 )
               ]);
 
