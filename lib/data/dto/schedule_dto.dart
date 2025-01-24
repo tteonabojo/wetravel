@@ -10,8 +10,8 @@ class ScheduleDto {
     required this.id,
     required this.packageId,
     required this.title,
-    required this.content,
-    required this.imageUrl,
+    this.content,
+    this.imageUrl,
     required this.order,
   });
 
@@ -32,15 +32,17 @@ class ScheduleDto {
         order: order ?? this.order,
       );
 
+  /// JSON 데이터에서 객체 생성
   factory ScheduleDto.fromJson(Map<String, dynamic> json) => ScheduleDto(
-        id: json["id"],
-        packageId: json["packageId"],
-        title: json["title"],
-        content: json["content"],
-        imageUrl: json["imageUrl"],
-        order: json["order"],
+        id: json["id"] as String? ?? 'unknown', // 기본값 'unknown'
+        packageId: json["packageId"] as String? ?? 'unknown', // 기본값 'unknown'
+        title: json["title"] as String? ?? 'No Title', // 기본값 'No Title'
+        content: json["content"] as String?, // 선택적 필드
+        imageUrl: json["imageUrl"] as String?, // 선택적 필드
+        order: json["order"] as String? ?? '0', // 기본값 '0'
       );
 
+  /// 객체를 JSON으로 변환
   Map<String, dynamic> toJson() => {
         "id": id,
         "packageId": packageId,
