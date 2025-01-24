@@ -18,8 +18,7 @@ void main() {
   });
 
   group('ScheduleAssetDataSourceImpl', () {
-    test('should return schedules on valid JSON', () async {
-      // Arrange
+    test('JSON이 유효할떄 스케쥴을 반환하도록 하는 확인작업', () async {
       const jsonString = '''
       [
         {"id": "1", "title": "M", "date": "2025-01-23", "description": "D"},
@@ -29,17 +28,14 @@ void main() {
       when(() => mockAssetBundle.loadString('assets/data/schedules.json'))
           .thenAnswer((_) async => jsonString);
 
-      // Act
       final result = await dataSource.getSchedules();
 
-      // Assert
       expect(result, hasLength(2));
       expect(result[0].id, "1");
       expect(result[0].title, "M");
     });
 
-    test('should throw FormatException on invalid JSON', () async {
-      // Arrange
+    test('잘못된 JSON일 경우 FormatException가 나오도록 확인', () async {
       const invalidJson = '''
       [
         {"id": "1", "title": "M", "date": "2025-01-23"}
@@ -47,16 +43,13 @@ void main() {
       when(() => mockAssetBundle.loadString('assets/data/schedules.json'))
           .thenAnswer((_) async => invalidJson);
 
-      // Act & Assert
       expect(() => dataSource.getSchedules(), throwsA(isA<FormatException>()));
     });
 
-    test('should throw FlutterError when file not found', () async {
-      // Arrange
+    test('파일을 찾을 수 없는 경우 FlutterError가 나오도록 확인', () async {
       when(() => mockAssetBundle.loadString('assets/data/schedules.json'))
           .thenThrow(FlutterError('File not found'));
 
-      // Act & Assert
       expect(() => dataSource.getSchedules(), throwsA(isA<FlutterError>()));
     });
   });
