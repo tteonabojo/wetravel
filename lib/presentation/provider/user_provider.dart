@@ -4,7 +4,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wetravel/data/data_source/user_data_source_impl.dart';
+import 'package:wetravel/data/data_source/data_source_implement/user_data_source_impl.dart';
 import 'package:wetravel/data/data_source/user_data_source.dart';
 import 'package:wetravel/data/repository/user_repository_impl.dart';
 import 'package:wetravel/domain/repository/user_repository.dart';

@@ -9,7 +9,7 @@ class UserDataSourceImpl implements UserDataSource {
   @override
   Future<List<UserDto>> fetchUsers() async {
     FirebaseFirestore firestore = _firestore;
-    final collectionRef = firestore.collection('user');
+    final collectionRef = firestore.collection('users');
     final snapshot = await collectionRef.get();
     final documentSnapshot = snapshot.docs;
     for (var docSnapshot in documentSnapshot) {
