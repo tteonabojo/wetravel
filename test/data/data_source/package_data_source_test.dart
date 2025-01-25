@@ -1,25 +1,20 @@
-import 'package:flutter/services.dart';
+import 'dart:convert';
+import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
-import 'package:wetravel/data/data_source/package_data_source_impl.dart';
-
-class MockAssetBundle extends Mock implements AssetBundle {}
+import 'package:wetravel/data/data_source/data_source_implement/package_data_source_impl.dart';
 
 void main() {
-  late final MockAssetBundle mockAssetBundle;
+  late final FakeFirebaseFirestore fakeFirebaseFirestore;
   late final PackageDataSourceImpl packageDataSourceImpl;
   setUp(
     () async {
-      mockAssetBundle = MockAssetBundle();
-      packageDataSourceImpl = PackageDataSourceImpl(mockAssetBundle);
-    },
-  );
-  test(
-    'PackageAssetDataSourceImpl : fetchUsers return data test',
-    () async {
-      when(() => mockAssetBundle.loadString(any())).thenAnswer((_) async => """
+      fakeFirebaseFirestore = FakeFirebaseFirestore();
+      packageDataSourceImpl = PackageDataSourceImpl(fakeFirebaseFirestore);
+      final collectionRef = fakeFirebaseFirestore.collection('packages');
+      final documentRef = collectionRef.doc('1');
+      documentRef.set(jsonDecode("""
 {
-      "id": "pkg_1",
+      "id": "1",
       "userId": "user_1",
       "title": "제주도 3박 4일 여행",
       "location": "제주도",
@@ -34,7 +29,12 @@ void main() {
       "reportCount": 0,
       "isHidden": false
     }
-""");
+"""));
+    },
+  );
+  test(
+    'PackageDataSourceImpl : fetchUsers return data test',
+    () async {
       final result = await packageDataSourceImpl.fetchPackages();
       expect(result.length, 1);
     },
