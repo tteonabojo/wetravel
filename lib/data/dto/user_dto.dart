@@ -63,17 +63,25 @@ class UserDto {
       : this(
           id: json['id'] as String,
           email: json['email'] as String,
-          password: json['password'] as String,
+          password: json['password'],
           name: json['name'] as String,
           imageUrl: json['imageUrl'] as String,
           introduction: json['introduction'] as String,
           loginType: json['loginType'] as String,
           isGuide: json['isGuide'] as bool,
-          createdAt: Timestamp.fromDate(DateTime.parse(json['createdAt'])),
-          updatedAt: Timestamp.fromDate(DateTime.parse(json['updatedAt'])),
+          createdAt: (json['createdAt'] is Timestamp)
+              ? json['createdAt'] as Timestamp
+              : Timestamp.fromDate(DateTime.parse(json['createdAt'])),
+          updatedAt: (json['updatedAt'] is Timestamp)
+              ? json['updatedAt'] as Timestamp
+              : (json['updatedAt'] != null
+                  ? Timestamp.fromDate(DateTime.parse(json['updatedAt']))
+                  : null),
           deletedAt: json['deletedAt'] == null
               ? null
-              : Timestamp.fromDate(DateTime.parse(json['deletedAt'])),
+              : (json['deletedAt'] is Timestamp
+                  ? json['deletedAt'] as Timestamp
+                  : Timestamp.fromDate(DateTime.parse(json['deletedAt']))),
           scrapList:
               (json['scrapList'] == null ? [] : json['scrapList'] as List)
                   .map((e) => PackageDto.fromJson(e as Map<String, dynamic>))
@@ -91,6 +99,6 @@ class UserDto {
         "createdAt": createdAt,
         "updatedAt": updatedAt,
         "deletedAt": deletedAt,
-        "scrapList": scrapList?.map((x) => x.toJson()).toList() ?? [],
+        // "scrapList": scrapList?.map((x) => x.toJson()).toList() ?? [],
       };
 }
