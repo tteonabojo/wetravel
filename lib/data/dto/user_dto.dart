@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wetravel/data/dto/package_dto.dart';
+import 'package:wetravel/domain/entity/user.dart';
 
 class UserDto {
   final String id;
@@ -63,15 +64,17 @@ class UserDto {
       : this(
           id: json['id'] as String,
           email: json['email'] as String,
-          password: json['password'] as String,
-          name: json['name'] as String,
-          imageUrl: json['imageUrl'] as String,
-          introduction: json['introduction'] as String,
+          password: json['password'] as String?,
+          name: json['name'] as String?,
+          imageUrl: json['imageUrl'] as String?,
+          introduction: json['introduction'] as String?,
           loginType: json['loginType'] as String,
           isGuide: json['isGuide'] as bool,
-          createdAt: json['createdAt'],
-          updatedAt: json['updatedAt'],
-          deletedAt: json['deletedAt'],
+          createdAt: json['createdAt'] as Timestamp,
+          updatedAt:
+              json['updatedAt'] != null ? json['updatedAt'] as Timestamp : null,
+          deletedAt:
+              json['deletedAt'] != null ? json['updatedAt'] as Timestamp : null,
           scrapList:
               (json['scrapList'] == null ? [] : json['scrapList'] as List)
                   .map((e) => PackageDto.fromJson(e as Map<String, dynamic>))
@@ -91,4 +94,21 @@ class UserDto {
         "deletedAt": deletedAt,
         "scrapList": scrapList?.map((x) => x.toJson()).toList() ?? [],
       };
+
+  User toEntity() {
+    return User(
+      id: id,
+      email: email,
+      password: password,
+      name: name,
+      imageUrl: imageUrl,
+      introduction: introduction,
+      loginType: loginType,
+      isGuide: isGuide,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      deletedAt: deletedAt,
+      scrapList: null, // TODO: 수정 필요 할듯
+    );
+  }
 }

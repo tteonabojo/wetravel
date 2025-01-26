@@ -93,7 +93,9 @@ class UserDataSourceImpl implements UserDataSource {
             'id': currentUser.uid,
             'email': currentUser.email,
             'name': currentUser.displayName ?? '',
-            'loginType': [provider],
+            'loginType': provider,
+            'isGuide': false,
+            'createdAt': Timestamp.fromDate(DateTime.now()),
           };
 
           await userRef.set(userData);
