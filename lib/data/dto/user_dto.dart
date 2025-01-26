@@ -41,7 +41,7 @@ class UserDto {
     bool? isGuide,
     Timestamp? createdAt,
     Timestamp? updatedAt,
-    dynamic deletedAt,
+    Timestamp? deletedAt,
     List<PackageDto>? scrapList,
   }) =>
       UserDto(
@@ -69,9 +69,11 @@ class UserDto {
           introduction: json['introduction'] as String,
           loginType: json['loginType'] as String,
           isGuide: json['isGuide'] as bool,
-          createdAt: json['createdAt'],
-          updatedAt: json['updatedAt'],
-          deletedAt: json['deletedAt'],
+          createdAt: Timestamp.fromDate(DateTime.parse(json['createdAt'])),
+          updatedAt: Timestamp.fromDate(DateTime.parse(json['updatedAt'])),
+          deletedAt: json['deletedAt'] == null
+              ? null
+              : Timestamp.fromDate(DateTime.parse(json['deletedAt'])),
           scrapList:
               (json['scrapList'] == null ? [] : json['scrapList'] as List)
                   .map((e) => PackageDto.fromJson(e as Map<String, dynamic>))

@@ -46,19 +46,18 @@ class BannerDto {
         order: order ?? this.order,
       );
 
-  factory BannerDto.fromJson(Map<String, dynamic> json) {
-    return BannerDto(
-      id: json['id'] as String,
-      linkUrl: json['linkUrl'] as String,
-      imageUrl: json['imageUrl'] as String,
-      company: json['company'] as String,
-      description: json['description'] as String,
-      startDate: Timestamp.fromDate(DateTime.parse(json['startDate'])),
-      endDate: Timestamp.fromDate(DateTime.parse(json['endDate'])),
-      isHidden: json['isHidden'] as bool,
-      order: json['order'] as int,
-    );
-  }
+  BannerDto.fromJson(Map<String, dynamic> json)
+      : this(
+          id: json['id'] as String,
+          linkUrl: json['linkUrl'] as String,
+          imageUrl: json['imageUrl'] as String,
+          company: json['company'] as String,
+          description: json['description'] as String,
+          startDate: Timestamp.fromDate(DateTime.parse(json['startDate'])),
+          endDate: Timestamp.fromDate(DateTime.parse(json['endDate'])),
+          isHidden: json['isHidden'] as bool,
+          order: json['order'] as int,
+        );
 
   Map<String, dynamic> toJson() {
     return {

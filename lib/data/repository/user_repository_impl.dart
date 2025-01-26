@@ -42,7 +42,7 @@ class UserRepositoryImpl implements UserRepository {
                                 title: e.title,
                                 content: e.content,
                                 imageUrl: e.imageUrl,
-                                order: e.order as int,
+                                order: e.order,
                               ))
                           .toList(),
                       createdAt: package.createdAt,

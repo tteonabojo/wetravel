@@ -8,17 +8,17 @@ void main() {
     () {
       const sampleJsonString = """
 {
-      "id": "schedule_2",
-      "packageId": "pkg_18",
-      "title": "속초해수욕장",
-      "content": "속초의 탁트인 바다전경을 소개해드립니다.",
+      "id": "sch_3",
+      "packageId": "pkg_2",
+      "title": "해운대 해수욕장",
+      "content": "부산의 대표 해수욕장인 해운대에서 바다를 즐깁니다.",
       "imageUrl": "https://example.com/haeundae.jpg",
-      "order": "1"
+      "order": 1
     }
 """;
 
       final schedule = ScheduleDto.fromJson(jsonDecode(sampleJsonString));
-      expect(schedule.title, "속초해수욕장");
+      expect(schedule.title, "해운대 해수욕장");
     },
   );
 }

@@ -1,25 +1,26 @@
-import 'package:dio/dio.dart';
-import 'package:wetravel/data/dto/banner_dto.dart';
+import 'package:wetravel/data/data_source/banner_data_source.dart';
 import 'package:wetravel/domain/entity/banner.dart';
-import 'package:wetravel/domain/repository/banner_repository.dart'; // BannerEntity 클래스 추가
+import 'package:wetravel/domain/repository/banner_repository.dart';
 
 class BannerRepositoryImpl implements BannerRepository {
-  final Dio dio;
-
-  BannerRepositoryImpl({required this.dio});
+  BannerRepositoryImpl(this._bannerDataSource);
+  final BannerDataSource _bannerDataSource;
 
   @override
-  Future<List<Banner>> getBanners() async {
-    try {
-      final response = await dio.get('/banners');
-      final List<dynamic> jsonList = response.data;
-      final List<BannerDto> bannerDtos =
-          jsonList.map((json) => BannerDto.fromJson(json)).toList();
-      return bannerDtos.map((dto) => Banner.fromDto(dto)).toList();
-    } catch (e) {
-      // 에러 처리 (예: 로그 출력, 사용자에게 알림)
-      print('Error fetching banners: $e');
-      rethrow;
-    }
+  Future<List<Banner>> fetchBanners() async {
+    final result = await _bannerDataSource.fetchBanners();
+    return result
+        .map((e) => Banner(
+              id: e.id,
+              linkUrl: e.linkUrl,
+              imageUrl: e.imageUrl,
+              startDate: e.startDate,
+              endDate: e.endDate,
+              isHidden: e.isHidden,
+              company: e.company,
+              description: e.description,
+              order: e.order,
+            ))
+        .toList();
   }
 }
