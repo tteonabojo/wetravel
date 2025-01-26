@@ -16,6 +16,8 @@ class User {
   final Timestamp? deletedAt;
   final List<Package>? scrapList;
 
+  String? displayName;
+
   User({
     required this.id,
     required this.email,
@@ -28,7 +30,7 @@ class User {
     required this.createdAt,
     required this.updatedAt,
     this.deletedAt,
-    this.scrapList = const [],
+    this.scrapList,
   });
 
   factory User.fromDto(UserDto dto) {
@@ -43,6 +45,35 @@ class User {
       isGuide: dto.isGuide,
       createdAt: dto.createdAt,
       updatedAt: dto.updatedAt,
+    );
+  }
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "email": email,
+        "password": password,
+        "name": name,
+        "imageUrl": imageUrl,
+        "introduction": introduction,
+        "loginType": loginType,
+        "isGuide": isGuide,
+        "createdAt": createdAt,
+        "updatedAt": updatedAt,
+        "deletedAt": deletedAt,
+      };
+  UserDto toDto() {
+    return UserDto(
+      id: id,
+      email: email,
+      password: password,
+      name: name,
+      imageUrl: imageUrl,
+      introduction: introduction,
+      loginType: loginType,
+      isGuide: isGuide,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      deletedAt: deletedAt,
+      scrapList: scrapList?.map((package) => package.toDto()).toList(),
     );
   }
 }

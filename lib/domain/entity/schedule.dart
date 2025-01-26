@@ -1,3 +1,5 @@
+import 'package:wetravel/data/dto/schedule_dto.dart';
+
 class Schedule {
   final String id;
   final String packageId;
@@ -14,4 +16,14 @@ class Schedule {
     required this.imageUrl,
     required this.order,
   });
+  ScheduleDto toDto() {
+    return ScheduleDto(
+      id: id,
+      packageId: packageId,
+      title: title,
+      content: content,
+      imageUrl: imageUrl,
+      order: order,
+    );
+  }
 }
