@@ -1,10 +1,15 @@
 import 'package:flutter/foundation.dart';
-import 'package:wetravel/domain/usecase/sign_in_usecase.dart';
+import 'package:wetravel/domain/usecase/sign_in_with_apple_usecase.dart';
+import 'package:wetravel/domain/usecase/sign_in_with_google_usecase.dart';
 
 class LoginViewModel extends ChangeNotifier {
-  final SignInUseCase _signInUseCase;
+  final SignInWithGoogleUseCase _signInWithGoogleUseCase;
+  final SignInWithAppleUseCase _signInWithAppleUseCase;
 
-  LoginViewModel(this._signInUseCase);
+  LoginViewModel(
+    this._signInWithGoogleUseCase,
+    this._signInWithAppleUseCase,
+  );
 
   String? _appleUserName;
   String? _googleUserName;
@@ -14,23 +19,15 @@ class LoginViewModel extends ChangeNotifier {
   String? get googleUserName => _googleUserName;
   bool get isLoggedIn => _isLoggedIn;
 
-  void changeUserName(String? name, {required bool isApple}) {
-    if (isApple) {
-      _appleUserName = name;
-    } else {
-      _googleUserName = name;
-    }
-    notifyListeners();
-  }
-
+  /// 구글/애플 로그인 처리
   Future<void> signInWithProvider({required String provider}) async {
     try {
       if (provider == 'Google') {
-        final userCredential = await _signInUseCase.signInWithGoogle();
-        changeUserName(userCredential?.user?.displayName, isApple: false);
+        final user = await _signInWithGoogleUseCase.execute();
+        _googleUserName = user?.name;
       } else if (provider == 'Apple') {
-        final userCredential = await _signInUseCase.signInWithApple();
-        changeUserName(userCredential?.user?.email, isApple: true);
+        final user = await _signInWithAppleUseCase.execute();
+        _appleUserName = user?.name;
       } else {
         throw Exception('Unsupported provider: $provider');
       }
@@ -38,7 +35,8 @@ class LoginViewModel extends ChangeNotifier {
       _isLoggedIn = true;
       notifyListeners();
     } catch (e) {
-      throw Exception('$provider Sign-In failed: $e');
+      print('Sign-In failed: $e');
+      throw Exception('$provider Sign-In failed');
     }
   }
 }

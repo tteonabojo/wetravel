@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/presentation/pages/test/user_info/user_info_page.dart';
-import 'package:wetravel/presentation/provider/login_provider.dart';
+import 'package:wetravel/presentation/provider/login_view_model_provider.dart';
 
 class LoginPage extends ConsumerWidget {
   const LoginPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // LoginViewModel 가져오기
     final viewModel = ref.watch(loginViewModelProvider);
 
     return Scaffold(
@@ -53,7 +52,7 @@ class LoginPage extends ConsumerWidget {
                   (route) => false,
                 );
               },
-              child: const Text("UserInfoPage로 이동"),
+              child: const Text("User Info Page로 이동"),
             ),
         ],
       ),
