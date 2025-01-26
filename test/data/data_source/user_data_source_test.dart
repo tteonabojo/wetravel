@@ -33,8 +33,8 @@ void main() {
   test(
     'UserDataSourceImpl : fetchUsers return data test',
     () async {
-      final result = await userDataSourceImpl.fetchUsers();
-      expect(result.length, 1);
+      final result = await userDataSourceImpl.fetchUser();
+      expect(result, 1);
     },
   );
 }

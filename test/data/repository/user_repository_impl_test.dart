@@ -17,27 +17,26 @@ void main() {
     },
   );
   test(
-    "UserRepositoryImpl test : fetchUsers",
+    "UserRepositoryImpl test : fetchUser",
     () async {
-      when(() => mockUserDataSource.fetchUsers()).thenAnswer((_) async => [
-            UserDto(
-              id: 'id',
-              email: 'email',
-              password: 'password',
-              name: 'name',
-              imageUrl: 'imageUrl',
-              introduction: 'introduction',
-              loginType: 'loginType',
-              isGuide: true,
-              createdAt: Timestamp.now(),
-              updatedAt: Timestamp.now(),
-              deletedAt: Timestamp.now(),
-              scrapList: [],
-            )
-          ]);
-      final result = await userRepositoryImpl.fetchUsers();
-      expect(result.length, 1);
-      expect(result[0].email, 'email');
+      when(() => mockUserDataSource.fetchUser())
+          .thenAnswer((_) async => UserDto(
+                id: 'id',
+                email: 'email',
+                password: 'password',
+                name: 'name',
+                imageUrl: 'imageUrl',
+                introduction: 'introduction',
+                loginType: 'loginType',
+                isGuide: true,
+                createdAt: Timestamp.now(),
+                updatedAt: Timestamp.now(),
+                deletedAt: Timestamp.now(),
+                scrapList: [],
+              ));
+      final result = await userRepositoryImpl.fetchUser();
+      expect(result?.name, 'name');
+      expect(result!.email, 'email');
     },
   );
 }
