@@ -1,4 +1,5 @@
 import 'package:wetravel/data/data_source/user_data_source.dart';
+import 'package:wetravel/data/dto/user_dto.dart';
 import 'package:wetravel/domain/entity/package.dart';
 import 'package:wetravel/domain/entity/schedule.dart';
 import 'package:wetravel/domain/entity/user.dart';
@@ -52,5 +53,31 @@ class UserRepositoryImpl implements UserRepository {
           ),
         )
         .toList();
+  }
+
+  @override
+  Future<User> signInWithProvider({required provider}) async {
+    final result = await _userDataSource.signInWithProvider(provider: provider);
+    return result.toEntity();
+  }
+
+  @override
+  Future<bool> signOut() {
+    // TODO: implement signOut
+    throw UnimplementedError();
+  }
+
+  // 추후 구현
+  @override
+  Future<bool> signUp({required String email, required String password}) {
+    // TODO: implement signUp
+    throw UnimplementedError();
+  }
+
+  // 추후 구현
+  @override
+  Future<User> signIn({required String email, required String password}) {
+    // TODO: implement signIn
+    throw UnimplementedError();
   }
 }
