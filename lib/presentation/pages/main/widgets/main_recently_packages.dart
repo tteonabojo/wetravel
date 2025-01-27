@@ -3,6 +3,7 @@ import 'package:wetravel/presentation/pages/main/widgets/main_label.dart';
 import 'package:wetravel/presentation/widgets/package_item.dart';
 
 class MainRecentlyPackages extends StatelessWidget {
+  /// 메인 페이지 최근에 본 패키지 영역
   const MainRecentlyPackages({super.key});
 
   @override
