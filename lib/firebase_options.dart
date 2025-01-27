@@ -51,8 +51,12 @@ class DefaultFirebaseOptions {
   }
 
   static FirebaseOptions get android {
+    final apiKey = dotenv.env['FIREBASE_API_KEY'];
+    if (apiKey == null)
+      throw Exception('FIREBASE_API_KEY not found in .env file');
+
     return FirebaseOptions(
-      apiKey: dotenv.env['ANDROID_API_KEY']!,
+      apiKey: apiKey,
       appId: '1:386530691152:android:3247e550abac0fe3392955',
       messagingSenderId: '386530691152',
       projectId: 'wetravel-bebad',
@@ -62,8 +66,12 @@ class DefaultFirebaseOptions {
   }
 
   static FirebaseOptions get ios {
+    final apiKey = dotenv.env['FIREBASE_API_KEY'];
+    if (apiKey == null)
+      throw Exception('FIREBASE_API_KEY not found in .env file');
+
     return FirebaseOptions(
-      apiKey: dotenv.env['IOS_API_KEY']!,
+      apiKey: apiKey,
       appId: '1:386530691152:ios:ab211b9047bdddf1392955',
       messagingSenderId: '386530691152',
       projectId: 'wetravel-bebad',
