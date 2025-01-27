@@ -1,7 +1,7 @@
 import 'package:wetravel/domain/entity/user.dart';
 
 abstract interface class UserRepository {
-  Future<List<User>> fetchUsers();
+  Future<User?> fetchUser();
 
   /// 일반 회원가입
   Future<bool> signUp({required String email, required String password});

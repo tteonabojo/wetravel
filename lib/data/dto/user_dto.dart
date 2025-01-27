@@ -42,7 +42,7 @@ class UserDto {
     bool? isGuide,
     Timestamp? createdAt,
     Timestamp? updatedAt,
-    dynamic deletedAt,
+    Timestamp? deletedAt,
     List<PackageDto>? scrapList,
   }) =>
       UserDto(
@@ -92,7 +92,7 @@ class UserDto {
         "createdAt": createdAt,
         "updatedAt": updatedAt,
         "deletedAt": deletedAt,
-        "scrapList": scrapList?.map((x) => x.toJson()).toList() ?? [],
+        // "scrapList": scrapList?.map((x) => x.toJson()).toList() ?? [],
       };
 
   User toEntity() {

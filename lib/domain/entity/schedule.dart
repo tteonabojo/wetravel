@@ -16,13 +16,14 @@ class Schedule {
     required this.imageUrl,
     required this.order,
   });
-
-  factory Schedule.fromDto(ScheduleDto dto) => Schedule(
-        id: dto.id,
-        packageId: dto.packageId,
-        title: dto.title,
-        content: dto.content,
-        imageUrl: dto.imageUrl,
-        order: int.parse(dto.order),
-      );
+  ScheduleDto toDto() {
+    return ScheduleDto(
+      id: id,
+      packageId: packageId,
+      title: title,
+      content: content,
+      imageUrl: imageUrl,
+      order: order,
+    );
+  }
 }
