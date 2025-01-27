@@ -33,7 +33,7 @@ void main() {
     },
   );
   test(
-    'PackageDataSourceImpl : fetchUsers return data test',
+    'PackageDataSourceImpl : fetchUser return data test',
     () async {
       final result = await packageDataSourceImpl.fetchPackages();
       expect(result.length, 1);

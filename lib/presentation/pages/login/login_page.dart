@@ -1,60 +1,71 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wetravel/presentation/pages/test/user_info/user_info_page.dart';
-import 'package:wetravel/presentation/provider/login_view_model_provider.dart';
+import 'package:wetravel/core/constants/auth_providers.dart';
+import 'package:wetravel/presentation/pages/login/login_page_view_model.dart';
+import 'package:wetravel/presentation/pages/stack/stack_page.dart';
 
-class LoginPage extends ConsumerWidget {
+class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final viewModel = ref.watch(loginViewModelProvider);
+  ConsumerState<LoginPage> createState() => _LoginPageState();
+}
 
+class _LoginPageState extends ConsumerState<LoginPage> {
+  void signInWithProvider({required provider}) async {
+    await ref
+        .read(loginPageViewModel.notifier)
+        .signInWithProvider(provider: provider);
+    final user = ref.read(loginPageViewModel);
+    if (user?.email != null) {
+      print(user?.email);
+      // TODO: 메인 페이지로 이동
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return StackPage();
+      }));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Center(
-            child: ElevatedButton(
-              onPressed: () {
-                viewModel.signInWithProvider(provider: 'Apple');
-              },
-              child: const Text("Sign in with Apple"),
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Center(
+              child: Container(
+                height: 200,
+                width: 200,
+                color: Colors.grey,
+                child: Center(
+                  child: Text('Logo'),
+                ),
+              ),
             ),
-          ),
-          Text(
-            viewModel.appleUserName != null
-                ? "${viewModel.appleUserName}"
-                : "Apple 유저 정보:",
-            style: const TextStyle(fontSize: 16),
-          ),
-          const SizedBox(height: 20),
-          Center(
-            child: ElevatedButton(
-              onPressed: () {
-                viewModel.signInWithProvider(provider: 'Google');
-              },
-              child: const Text("Sign in with Google"),
-            ),
-          ),
-          Text(
-            viewModel.googleUserName != null
-                ? "${viewModel.googleUserName}"
-                : "Google 유저 정보:",
-            style: const TextStyle(fontSize: 16),
-          ),
-          if (viewModel.isLoggedIn)
             ElevatedButton(
-              onPressed: () {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => const UserInfoPage()),
-                  (route) => false,
-                );
-              },
-              child: const Text("User Info Page로 이동"),
-            ),
-        ],
+                onPressed: () {
+                  signInWithProvider(provider: AuthProviders.apple);
+                },
+                child: Row(
+                  children: [
+                    Icon(Icons.local_airport),
+                    Text('apple'),
+                  ],
+                )),
+            ElevatedButton(
+                onPressed: () {
+                  signInWithProvider(provider: AuthProviders.google);
+                },
+                child: Row(
+                  children: [
+                    Icon(Icons.local_airport),
+                    Text('google'),
+                  ],
+                )),
+          ],
+        ),
       ),
     );
   }

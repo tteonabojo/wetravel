@@ -3,11 +3,15 @@ import 'package:wetravel/domain/entity/user.dart';
 abstract interface class UserRepository {
   Future<User?> fetchUser();
 
-  Future<User?> signInWithGoogle();
+  /// 일반 회원가입
+  Future<bool> signUp({required String email, required String password});
 
-  Future<User?> signInWithApple();
+  /// 일반 로그인
+  Future<User> signIn({required String email, required String password});
 
-  Future<User?> getUserById(String userId);
+  /// 소셜 로그인
+  Future<User> signInWithProvider({required provider});
 
-  Future<void> saveUser(User user);
+  /// 로그아웃
+  Future<bool> signOut();
 }

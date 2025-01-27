@@ -31,7 +31,7 @@ void main() {
     },
   );
   test(
-    'UserDataSourceImpl : fetchUsers return data test',
+    'UserDataSourceImpl : fetchUser return data test',
     () async {
       final result = await userDataSourceImpl.fetchUser();
       expect(result, 1);

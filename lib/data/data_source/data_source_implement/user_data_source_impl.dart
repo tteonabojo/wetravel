@@ -1,5 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'package:wetravel/core/constants/auth_providers.dart';
 import 'package:wetravel/data/data_source/user_data_source.dart';
 import 'package:wetravel/data/dto/user_dto.dart';
 
@@ -7,104 +11,110 @@ class UserDataSourceImpl implements UserDataSource {
   UserDataSourceImpl(this._firestore);
   final FirebaseFirestore _firestore;
 
-  // 현재 로그인된 사용자 정보 불러오기
   @override
-  Future<UserDto?> fetchUser() async {
+  Future<List<UserDto>> fetchUser() async {
+    FirebaseFirestore firestore = _firestore;
+    final collectionRef = firestore.collection('user');
+    final snapshot = await collectionRef.get();
+    final documentSnapshot = snapshot.docs;
+    for (var docSnapshot in documentSnapshot) {
+      print(docSnapshot.id);
+      print(docSnapshot.data());
+    }
+    return documentSnapshot.map((e) => UserDto.fromJson(e.data())).toList();
+  }
+
+  @override
+  Future<UserDto> signInWithProvider({required provider}) async {
     try {
-      final user = FirebaseAuth.instance.currentUser; // 현재 로그인된 사용자 정보 가져오기
-      if (user == null) {
-        throw Exception('No user is currently logged in.');
-      }
+      UserCredential? userCredential;
+      AuthCredential? credential;
 
-      final userId = user.uid;
-      final docRef = _firestore.collection('users').doc(userId);
-      final snapshot = await docRef.get();
+      if (provider == AuthProviders.google) {
+        // 구글 로그인 자격 증명 생성
+        final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+        if (googleUser == null) throw Exception('로그인 취소');
 
-      // 기존 사용자 데이터가 존재하는지 확인
-      if (snapshot.exists) {
-        // 기존 사용자 데이터 불러오기
-        print('User exists in Firestore, loading data...');
-        return UserDto.fromJson(snapshot.data()!);
-      } else {
-        // 신규 사용자 등록
-        print('New user, creating document...');
+        final GoogleSignInAuthentication googleAuth =
+            await googleUser.authentication;
 
-        // 사용자 정보를 새로 등록
-        final userDto = UserDto(
-          id: userId,
-          email: user.email ?? '',
-          password: '',
-          name: user.displayName, // 구글 닉네임
-          imageUrl: user.photoURL ?? '',
-          introduction: '',
-          loginType: 'google',
-          isGuide: false,
-          createdAt: Timestamp.now(),
-          updatedAt: null,
-          deletedAt: null,
-          scrapList: [], // 초기화된 scrapList
+        credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
+      } else if (provider == AuthProviders.apple) {
+        // 애플 로그인 자격 증명 생성
+        final appleCredential = await SignInWithApple.getAppleIDCredential(
+          scopes: [
+            AppleIDAuthorizationScopes.email,
+            AppleIDAuthorizationScopes.fullName,
+          ],
+          webAuthenticationOptions: WebAuthenticationOptions(
+            clientId: 'com.tteonabojo.weetravel.service',
+            redirectUri: kIsWeb
+                ? Uri.parse('https://wetravel-bebad.web.app/__/auth/handler')
+                : Uri.parse(
+                    'https://wetravel-bebad.firebaseapp.com/__/auth/handler'),
+          ),
         );
 
-        // 새 사용자 데이터 Firestore에 저장
-        await docRef.set(userDto.toJson());
-
-        // scrapList 서브컬렉션 생성
-        final scrapListRef = docRef.collection('scrapList');
-        for (var packageDto in userDto.scrapList!) {
-          await scrapListRef.doc(packageDto.id).set(packageDto.toJson());
-        }
-
-        return userDto;
-      }
-    } catch (e) {
-      print('Error fetching user: $e');
-      rethrow;
-    }
-  }
-
-  // 특정 userId로 사용자 데이터 불러오기
-  @override
-  Future<UserDto?> fetchUserById(String userId) async {
-    try {
-      final docRef = _firestore.collection('users').doc(userId);
-      final snapshot = await docRef.get();
-
-      // 사용자 데이터가 존재하면 반환
-      if (snapshot.exists) {
-        return UserDto.fromJson(snapshot.data()!);
+        final oAuthProvider = OAuthProvider(AuthProviders.apple);
+        credential = oAuthProvider.credential(
+          accessToken: appleCredential.authorizationCode,
+          idToken: appleCredential.identityToken,
+        );
       } else {
-        return null; // 사용자가 존재하지 않으면 null 반환
+        throw Exception('지원되지 않는 제공자');
       }
-    } catch (e) {
-      print('Error fetching user by ID: $e');
-      rethrow;
-    }
-  }
 
-  @override
-  Future<void> saveUser(UserDto userDto) async {
-    try {
-      final docRef = _firestore.collection('users').doc(userDto.id);
+      // 유저 로그인
+      userCredential =
+          await FirebaseAuth.instance.signInWithCredential(credential);
+      User? currentUser = FirebaseAuth.instance.currentUser;
 
-      // 사용자 정보 저장
-      await docRef.set(userDto.toJson(), SetOptions(merge: true));
+      // 계정 통합
+      // // 유저의 provider 목록
+      // final currentProviders =
+      //     currentUser?.providerData.map((p) => p.providerId).toList() ?? [];
+      //
+      // // 유저의 provider에 선택한 provider가 없는 경우 추가
+      // if (!currentProviders.contains(provider)) {
+      //   await currentUser?.linkWithCredential(credential);
+      // }
 
-      // scrapList를 서브컬렉션으로 저장
-      final scrapListRef = docRef.collection('scrapList');
+      // Firestore 사용자 정보 생성 혹은 업데이트
+      if (currentUser != null) {
+        final firestore = FirebaseFirestore.instance;
+        final userRef = firestore.collection('users').doc(currentUser.uid);
+        final userDoc = await userRef.get();
 
-      // scrapList가 null이라면 빈 배열로 처리하고 서브컬렉션을 생성
-      if (userDto.scrapList != null && userDto.scrapList!.isNotEmpty) {
-        for (var packageDto in userDto.scrapList!) {
-          await scrapListRef.doc(packageDto.id).set(packageDto.toJson());
+        if (!userDoc.exists) {
+          final userData = {
+            'id': currentUser.uid,
+            'email': currentUser.email,
+            'name': currentUser.displayName ?? '',
+            'loginType': provider,
+            'isGuide': false,
+            'createdAt': Timestamp.fromDate(DateTime.now()),
+          };
+
+          await userRef.set(userData);
         }
-      } else if (userDto.scrapList == null || userDto.scrapList!.isEmpty) {
-        // scrapList가 비어있다면 빈 서브컬렉션 생성 (빈 문서 추가)
-        await scrapListRef
-            .doc('empty')
-            .set({'status': 'empty'}); // 'empty'라는 ID로 빈 문서를 추가
+        // 계정 통합 기능이 생긴 다음 필요 할 듯, 지금은 로그인 한다 해서 업데이트 할 정보가 없음
+        // }else {
+        //   final userData = {
+        //     'loginType': FieldValue.arrayUnion([provider]),
+        //   };
+        //   await userRef.set(userData, SetOptions(merge: true));
+        // }
+
+        final updatedUserDoc = await userRef.get();
+        return UserDto.fromJson(updatedUserDoc.data() ?? {});
       }
+
+      throw Exception('사용자 정보를 찾을 수 없음');
     } catch (e) {
-      print('Error saving user: $e');
+      print('로그인 중 오류 발생: $e');
       rethrow;
     }
   }
