@@ -3,6 +3,7 @@ import 'package:wetravel/presentation/pages/main/widgets/main_label.dart';
 import 'package:wetravel/presentation/widgets/package_item.dart';
 
 class MainPopularPackages extends StatelessWidget {
+  /// 메인 페이지 인기 패키지 영역
   const MainPopularPackages({super.key});
 
   @override
