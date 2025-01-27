@@ -11,7 +11,7 @@ class GuideFilterChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 12.0),
       child: Chip(
         label: Text(label),
-        backgroundColor: Colors.grey[300],
+        backgroundColor: const Color.fromRGBO(12, 13, 14, 0.5),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),

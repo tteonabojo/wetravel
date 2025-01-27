@@ -20,59 +20,90 @@ class PackageCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
       child: Card(
-        child: ListTile(
-          contentPadding: EdgeInsets.zero,
-          leading: SizedBox(
-            width: 90,
-            height: 90,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.network(
-                'https://picsum.photos/100',
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          title: Text(
-            title,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-          ),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4.0),
-                child: Text(
-                  keywords.join(' · '),
-                  style: TextStyle(color: Colors.grey, fontSize: 16),
+        margin: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // 왼쪽 여백을 추가한 이미지
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0),  // 왼쪽 여백 추가
+              child: ClipRRect(
+                borderRadius: BorderRadius.horizontal(left: Radius.circular(8)),
+                child: Image.network(
+                  'https://picsum.photos/150',
+                  width: 120,
+                  height: 120,
+                  fit: BoxFit.cover,
                 ),
               ),
-              Row(
-                children: [
-                  Icon(Icons.location_on, color: Colors.red),
-                  SizedBox(width: 8),
-                  Text(
-                    location,
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ],
+            ),
+            // 오른쪽 텍스트 영역
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 제목
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    SizedBox(height: 8),
+                    // 키워드
+                    Text(
+                      keywords.join(' · '),
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 14,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    SizedBox(height: 8),
+                    // 위치
+                    Row(
+                      children: [
+                        Icon(Icons.location_on, color: Colors.red, size: 16),
+                        SizedBox(width: 4),
+                        Text(
+                          location,
+                          style: TextStyle(fontSize: 14),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 8),
+                    // 작성자
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 12,
+                          backgroundImage:
+                              NetworkImage('https://picsum.photos/50'),
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          author,
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-              SizedBox(height: 4),
-              Row(
-                children: [
-                  CircleAvatar(
-                    radius: 16,
-                    backgroundImage: NetworkImage('https://picsum.photos/50'),
-                  ),
-                  SizedBox(width: 8),
-                  Text(
-                    author,
-                    style: TextStyle(color: Colors.grey, fontSize: 14),
-                  ),
-                ],
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
