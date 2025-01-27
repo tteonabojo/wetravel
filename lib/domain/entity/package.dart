@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:wetravel/data/dto/package_dto.dart';
 import 'package:wetravel/domain/entity/schedule.dart';
 
 class Package {
@@ -33,4 +34,40 @@ class Package {
     this.reportCount = 0,
     this.isHidden = false,
   });
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "userId": userId,
+        "title": title,
+        "location": location,
+        "description": description,
+        "duration": duration,
+        "imageUrl": imageUrl,
+        "keywordList": List<dynamic>.from(keywordList!.map((x) => x)),
+        "schedule": List<dynamic>.from(schedule!.map((x) => x)),
+        "createdAt": createdAt,
+        "updatedAt": updatedAt,
+        "deletedAt": deletedAt,
+        "reportCount": reportCount,
+        "isHidden": isHidden,
+      };
+
+  PackageDto toDto() {
+    return PackageDto(
+      id: id,
+      userId: userId,
+      title: title,
+      location: location,
+      description: description,
+      duration: duration,
+      imageUrl: imageUrl,
+      keywordList: keywordList ?? [],
+      schedule: schedule?.map((s) => s.toDto()).toList() ?? [],
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      deletedAt: deletedAt,
+      reportCount: reportCount,
+      isHidden: isHidden,
+    );
+  }
 }
