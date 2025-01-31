@@ -1,3 +1,5 @@
+import 'package:wetravel/domain/entity/schedule.dart';
+
 class ScheduleDto {
   final String id;
   final String packageId;
@@ -52,4 +54,15 @@ class ScheduleDto {
         "imageUrl": imageUrl,
         "order": order,
       };
+
+  Schedule toEntity() {
+    return Schedule(
+      id: id,
+      packageId: packageId,
+      title: title,
+      content: content,
+      imageUrl: imageUrl,
+      order: order,
+    );
+  }
 }

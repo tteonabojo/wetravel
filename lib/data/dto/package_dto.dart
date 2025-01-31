@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wetravel/data/dto/schedule_dto.dart';
+import 'package:wetravel/domain/entity/package.dart';
 
 class PackageDto {
   final String id;
@@ -11,6 +12,7 @@ class PackageDto {
   final String? imageUrl;
   final List<String>? keywordList;
   final List<ScheduleDto>? schedule;
+  final List<String>? scheduleIdList;
   final Timestamp createdAt;
   final Timestamp? updatedAt;
   final Timestamp? deletedAt;
@@ -22,13 +24,14 @@ class PackageDto {
     required this.userId,
     required this.title,
     required this.location,
-    required this.description,
-    required this.duration,
-    required this.imageUrl,
-    required this.keywordList,
-    required this.schedule,
+    this.description,
+    this.duration,
+    this.imageUrl,
+    this.keywordList,
+    this.schedule,
+    this.scheduleIdList,
     required this.createdAt,
-    required this.updatedAt,
+    this.updatedAt,
     this.deletedAt,
     this.reportCount = 0,
     this.isHidden = false,
@@ -44,6 +47,7 @@ class PackageDto {
     String? imageUrl,
     List<String>? keywordList,
     List<ScheduleDto>? schedule,
+    List<String>? scheduleIdList,
     Timestamp? createdAt,
     Timestamp? updatedAt,
     dynamic deletedAt,
@@ -60,6 +64,7 @@ class PackageDto {
         imageUrl: imageUrl ?? this.imageUrl,
         keywordList: keywordList ?? this.keywordList,
         schedule: schedule ?? this.schedule,
+        scheduleIdList: scheduleIdList ?? this.scheduleIdList,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
         deletedAt: deletedAt ?? this.deletedAt,
@@ -80,6 +85,7 @@ class PackageDto {
           schedule: (json['schedule'] as List)
               .map((e) => ScheduleDto.fromJson(e as Map<String, dynamic>))
               .toList(),
+          scheduleIdList: List<String>.from(json['scheduleIdList']),
           createdAt: Timestamp.fromDate(DateTime.parse(json['createdAt'])),
           updatedAt: Timestamp.fromDate(DateTime.parse(json['updatedAt'])),
           deletedAt: json['deletedAt'] != null
@@ -99,10 +105,31 @@ class PackageDto {
         "imageUrl": imageUrl,
         "keywordList": keywordList?.map((x) => x).toList() ?? [],
         "schedule": schedule?.map((x) => x.toJson()).toList() ?? [],
+        "scheduleIdList": scheduleIdList?.map((x) => x).toList() ?? [],
         "createdAt": createdAt,
         "updatedAt": updatedAt,
         "deletedAt": deletedAt,
         "reportCount": reportCount,
         "isHidden": isHidden,
       };
+
+  Package toEntity() {
+    return Package(
+      id: id,
+      userId: userId,
+      title: title,
+      location: location,
+      description: description,
+      duration: duration,
+      imageUrl: imageUrl,
+      keywordList: keywordList,
+      schedule: schedule?.map((s) => s.toEntity()).toList(),
+      scheduleIdList: scheduleIdList,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      deletedAt: deletedAt,
+      reportCount: reportCount,
+      isHidden: isHidden,
+    );
+  }
 }
