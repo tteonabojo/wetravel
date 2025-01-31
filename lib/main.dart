@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/presentation/pages/login/login_page.dart';
-import 'package:wetravel/presentation/pages/main/main_page.dart';
+import 'package:wetravel/theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,10 +20,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-      ),
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.themeData,
       home: LoginPage(),
     );
   }
