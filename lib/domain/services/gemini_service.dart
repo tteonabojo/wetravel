@@ -44,12 +44,12 @@ class GeminiService {
 아래 형식을 정확히 지켜서 답변해주세요.
 
 여행 정보:
-- 여행 시기: ${survey.travelTiming}
+- 여행 시기: ${survey.travelPeriod}
 - 여행 기간: ${survey.travelDuration}
-- 동행인: ${survey.companion}
-- 여행 스타일: ${survey.travelStyle}
-- 선호하는 숙소: ${survey.accommodation}
-- 고려사항: ${survey.concerns}
+- 동행인: ${survey.companions}
+- 여행 스타일: ${survey.travelStyles}
+- 선호하는 숙소: ${survey.accommodationTypes}
+- 고려사항: ${survey.considerations}
 
 답변 형식:
 1. 도시이름 (국가)
