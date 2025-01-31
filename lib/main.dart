@@ -1,13 +1,15 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wetravel/presentation/pages/survey/survey_page.dart';
+import 'package:wetravel/presentation/pages/login/login_page.dart';
+import 'package:wetravel/theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // .env 파일 로드
-  await dotenv.load(fileName: "assets/.env");
+  await Firebase.initializeApp(); // firebase 초기화
+  await dotenv.load(fileName: "assets/.env"); // .env 파일 로드
 
   runApp(const ProviderScope(child: MyApp()));
 }
@@ -18,11 +20,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-      ),
-      home: const SurveyPage(),
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.themeData,
+      home: LoginPage(),
     );
   }
 }
