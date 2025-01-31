@@ -15,20 +15,22 @@ class UserDto {
   final Timestamp? updatedAt;
   final Timestamp? deletedAt;
   final List<PackageDto>? scrapList;
+  final List<String>? scrapIdList;
 
   UserDto({
     required this.id,
     required this.email,
-    required this.password,
-    required this.name,
-    required this.imageUrl,
-    required this.introduction,
+    this.password,
+    this.name,
+    this.imageUrl,
+    this.introduction,
     required this.loginType,
     required this.isGuide,
     required this.createdAt,
-    required this.updatedAt,
+    this.updatedAt,
     this.deletedAt,
     this.scrapList = const [],
+    this.scrapIdList = const [],
   });
 
   UserDto copyWith({
@@ -44,6 +46,7 @@ class UserDto {
     Timestamp? updatedAt,
     Timestamp? deletedAt,
     List<PackageDto>? scrapList,
+    List<String>? scrapIdList,
   }) =>
       UserDto(
         id: id ?? this.id,
@@ -58,6 +61,7 @@ class UserDto {
         updatedAt: updatedAt ?? this.updatedAt,
         deletedAt: deletedAt ?? this.deletedAt,
         scrapList: scrapList ?? this.scrapList,
+        scrapIdList: scrapIdList ?? this.scrapIdList,
       );
 
   UserDto.fromJson(Map<String, dynamic> json)
@@ -75,10 +79,14 @@ class UserDto {
               json['updatedAt'] != null ? json['updatedAt'] as Timestamp : null,
           deletedAt:
               json['deletedAt'] != null ? json['updatedAt'] as Timestamp : null,
-          scrapList:
-              (json['scrapList'] == null ? [] : json['scrapList'] as List)
+          scrapList: json['scrapList'] != null
+              ? (json['scrapList'] as List)
                   .map((e) => PackageDto.fromJson(e as Map<String, dynamic>))
-                  .toList(),
+                  .toList()
+              : [],
+          scrapIdList: json['scrapIdList'] != null
+              ? List<String>.from(json['scrapIdList'] as List)
+              : [],
         );
   Map<String, dynamic> toJson() => {
         "id": id,
@@ -92,7 +100,8 @@ class UserDto {
         "createdAt": createdAt,
         "updatedAt": updatedAt,
         "deletedAt": deletedAt,
-        // "scrapList": scrapList?.map((x) => x.toJson()).toList() ?? [],
+        "scrapList": scrapList?.map((e) => e.toJson()).toList(),
+        "scrapIdList": scrapIdList,
       };
 
   User toEntity() {
@@ -108,7 +117,8 @@ class UserDto {
       createdAt: createdAt,
       updatedAt: updatedAt,
       deletedAt: deletedAt,
-      scrapList: null, // TODO: 수정 필요 할듯
+      scrapList: scrapList?.map((e) => e.toEntity()).toList(),
+      scrapIdList: scrapIdList,
     );
   }
 }
