@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class MainBanner extends StatelessWidget {
@@ -11,7 +12,12 @@ class MainBanner extends StatelessWidget {
       width: double.infinity,
       color: Colors.black45,
       child: Center(
-        child: Text('banner'),
+        child: GestureDetector(
+            onTap: () {
+              // TODO:마이페이지에 로그아웃 기능 구현 후 삭제
+              FirebaseAuth.instance.signOut();
+            },
+            child: Text('banner')),
       ),
     );
   }
