@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:wetravel/core/constants/app_colors.dart';
+import 'package:wetravel/core/constants/app_icons.dart';
 
 class CustomBottomNavigationBar extends StatelessWidget {
   final int selectedIndex;
@@ -12,28 +15,59 @@ class CustomBottomNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: BottomNavigationBar(
-        items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.airplanemode_inactive),
-            activeIcon: Icon(Icons.airplanemode_active),
-            label: '',
+    return BottomNavigationBar(
+      backgroundColor: Colors.white,
+      items: <BottomNavigationBarItem>[
+        BottomNavigationBarItem(
+          icon: SvgPicture.asset(
+            AppIcons.home,
+            color: AppColors.grayScale_550,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.airplanemode_inactive),
-            activeIcon: Icon(Icons.airplanemode_active),
-            label: '',
+          activeIcon: SvgPicture.asset(
+            AppIcons.home,
+            color: AppColors.primary_450,
           ),
-        ],
-        currentIndex: selectedIndex,
-        selectedItemColor: Color(0xFF03C3A7),
-        unselectedItemColor: Colors.grey,
-        onTap: onItemTapped,
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-        type: BottomNavigationBarType.fixed,
-      ),
+          label: '홈',
+        ),
+        BottomNavigationBarItem(
+          icon: SvgPicture.asset(
+            AppIcons.squarePlus,
+            color: AppColors.grayScale_550,
+          ),
+          activeIcon: SvgPicture.asset(
+            AppIcons.squarePlus,
+            color: AppColors.primary_450,
+          ),
+          label: '여행 시작',
+        ),
+        BottomNavigationBarItem(
+          icon: SvgPicture.asset(
+            AppIcons.crown,
+            color: AppColors.grayScale_550,
+          ),
+          activeIcon: SvgPicture.asset(
+            AppIcons.crown,
+            color: AppColors.primary_450,
+          ),
+          label: '가이드',
+        ),
+        BottomNavigationBarItem(
+          icon: SvgPicture.asset(
+            AppIcons.userRound,
+            color: AppColors.grayScale_550,
+          ),
+          activeIcon: SvgPicture.asset(
+            AppIcons.userRound,
+            color: AppColors.primary_450,
+          ),
+          label: '마이페이지',
+        ),
+      ],
+      currentIndex: selectedIndex,
+      onTap: onItemTapped,
+      showSelectedLabels: false,
+      showUnselectedLabels: false,
+      type: BottomNavigationBarType.fixed,
     );
   }
 }

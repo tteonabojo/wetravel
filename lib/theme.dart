@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:wetravel/constants/app_colors.dart';
-import 'package:wetravel/constants/app_typography.dart';
+import 'package:wetravel/core/constants/app_colors.dart';
+import 'package:wetravel/core/constants/app_typography.dart';
 
 class AppTheme {
   static ThemeData themeData = ThemeData(
     useMaterial3: true,
     fontFamily: 'Pretendard',
-    scaffoldBackgroundColor: Colors.white,
+    scaffoldBackgroundColor: AppColors.grayScale_050,
     highlightColor: AppColors.primary_450,
     colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary_450),
     elevatedButtonTheme: ElevatedButtonThemeData(

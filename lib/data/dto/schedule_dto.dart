@@ -65,4 +65,15 @@ class ScheduleDto {
       order: order,
     );
   }
+
+  factory ScheduleDto.fromEntity(Schedule schedule) {
+    return ScheduleDto(
+      id: schedule.id,
+      packageId: schedule.packageId,
+      title: schedule.title,
+      content: schedule.content,
+      imageUrl: schedule.imageUrl,
+      order: schedule.order,
+    );
+  }
 }

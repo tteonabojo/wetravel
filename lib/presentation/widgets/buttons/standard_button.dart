@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:wetravel/constants/app_typography.dart';
-import 'package:wetravel/constants/app_colors.dart';
+import 'package:wetravel/core/constants/app_typography.dart';
+import 'package:wetravel/core/constants/app_colors.dart';
 
 enum ButtonType { primary, secondary }
 
@@ -26,6 +26,7 @@ class StandardButton extends StatefulWidget {
 
   @override
   State<StandardButton> createState() => _ButtonState();
+
   factory StandardButton.primary({
     required final ButtonSizeType sizeType,
     VoidCallback? onPressed,
@@ -61,51 +62,57 @@ class StandardButton extends StatefulWidget {
 
 class _ButtonState extends State<StandardButton> {
   bool _isPressed = false;
+  bool _isHovered = false;
 
-  void _onPressed({required bool isPressed}) {
-    if (_isPressed == isPressed) return;
+  void _setPressedState(bool isPressed) {
+    if (mounted) {
+      setState(() => _isPressed = isPressed);
+    }
+  }
 
-    setState(() => _isPressed = isPressed);
+  void _handleTapUp() {
+    Future.delayed(const Duration(milliseconds: 100), () {
+      _setPressedState(false);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    // 버튼 누르고 뗄 때를 감지함
-    return GestureDetector(
-      // 버튼에서 손 떼는 순간
-      onTapUp: (_) {
-        _onPressed(isPressed: false);
-        widget.onPressed?.call();
-      },
-      // 버튼 누르는 순간
-      onTapDown: (_) => _onPressed(isPressed: true),
-      // 버튼 누르다가 갑자기 취소되는 순간
-      onTapCancel: () => _onPressed(isPressed: false),
-      // 버튼 누르고 뗄 때의 색상변화
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        height: widget.sizeType == ButtonSizeType.normal ? 52 : 40,
-        decoration: _getDecoration(),
-        padding: EdgeInsets.symmetric(horizontal: 30),
-        alignment: Alignment.center,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (widget.text != null)
-              Text(
-                widget.text ?? '',
-                style: _getTypograph(),
-              ),
-            if (widget.icon != null) ...[
-              const SizedBox(width: 8), // 텍스트와 아이콘 사이 간격 8px
-              SizedBox(
-                width: widget.sizeType == ButtonSizeType.normal ? 20 : 16,
-                height: widget.sizeType == ButtonSizeType.normal ? 20 : 16,
-                child: Image.asset(widget.icon!),
-              ),
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: GestureDetector(
+        onTapDown: (_) => _setPressedState(true),
+        onTapUp: (_) {
+          _handleTapUp();
+          widget.onPressed?.call();
+        },
+        onTapCancel: () => _setPressedState(false),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          height: widget.sizeType == ButtonSizeType.normal ? 52 : 40,
+          decoration: _getDecoration(),
+          padding: const EdgeInsets.symmetric(horizontal: 30),
+          alignment: Alignment.center,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (widget.text != null)
+                Text(
+                  widget.text ?? '',
+                  style: _getTypograph(),
+                ),
+              if (widget.icon != null) ...[
+                const SizedBox(width: 8), // 텍스트와 아이콘 사이 간격 8px
+                SizedBox(
+                  width: widget.sizeType == ButtonSizeType.normal ? 20 : 16,
+                  height: widget.sizeType == ButtonSizeType.normal ? 20 : 16,
+                  child: Image.asset(widget.icon!),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
@@ -113,8 +120,8 @@ class _ButtonState extends State<StandardButton> {
 
   Decoration _getDecoration() {
     final borderRadius = BorderRadius.circular(12);
+
     if (widget.isDisabled) {
-      // Disabled 상태의 색상
       switch (widget.buttonType) {
         case ButtonType.primary:
           return BoxDecoration(
@@ -127,8 +134,9 @@ class _ButtonState extends State<StandardButton> {
             borderRadius: borderRadius,
           );
       }
-    } else if (_isPressed) {
-      // Hover 상태의 색상
+    }
+
+    if (_isPressed || _isHovered) {
       switch (widget.buttonType) {
         case ButtonType.primary:
           return BoxDecoration(
@@ -144,23 +152,22 @@ class _ButtonState extends State<StandardButton> {
             ),
           );
       }
-    } else {
-      // Default 상태의 색상
-      switch (widget.buttonType) {
-        case ButtonType.primary:
-          return BoxDecoration(
+    }
+
+    switch (widget.buttonType) {
+      case ButtonType.primary:
+        return BoxDecoration(
+          color: AppColors.primary_450,
+          borderRadius: borderRadius,
+        );
+      case ButtonType.secondary:
+        return BoxDecoration(
+          color: Colors.white,
+          borderRadius: borderRadius,
+          border: Border.all(
             color: AppColors.primary_450,
-            borderRadius: borderRadius,
-          );
-        case ButtonType.secondary:
-          return BoxDecoration(
-            color: Colors.white,
-            borderRadius: borderRadius,
-            border: Border.all(
-              color: AppColors.primary_450,
-            ),
-          );
-      }
+          ),
+        );
     }
   }
 
@@ -168,31 +175,25 @@ class _ButtonState extends State<StandardButton> {
     final TextStyle textStyle;
     final Color textColor;
 
-    // 글꼴 스타일 설정
     switch (widget.sizeType) {
       case ButtonSizeType.normal:
-        textStyle = AppTypography.buttonLabelMedium; // normal 버튼의 텍스트 스타일
+        textStyle = AppTypography.buttonLabelMedium;
         break;
       case ButtonSizeType.medium:
-        textStyle = AppTypography.buttonLabelSmall; // medium 버튼의 텍스트 스타일
+        textStyle = AppTypography.buttonLabelSmall;
         break;
     }
 
-    // 글자 색상 설정
     switch (widget.buttonType) {
       case ButtonType.primary:
-        textColor = Colors.white; // primary 버튼은 항상 흰색 텍스트
+        textColor = Colors.white;
         break;
       case ButtonType.secondary:
-        if (widget.isDisabled) {
-          textColor = AppColors.primary_250; // disabled 상태의 텍스트 색상
-        } else {
-          textColor = AppColors.primary_450; // default 및 hover 상태의 텍스트 색상
-        }
+        textColor =
+            widget.isDisabled ? AppColors.primary_250 : AppColors.primary_450;
         break;
     }
 
-    // 최종 텍스트 스타일 반환
     return textStyle.copyWith(color: textColor);
   }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:wetravel/constants/app_colors.dart';
-import 'package:wetravel/constants/app_shadow.dart';
-import 'package:wetravel/constants/app_typography.dart';
+import 'package:wetravel/core/constants/app_colors.dart';
+import 'package:wetravel/core/constants/app_shadow.dart';
+import 'package:wetravel/core/constants/app_typography.dart';
 
 class CardAiMainContainer extends StatelessWidget {
   final String imagePath;

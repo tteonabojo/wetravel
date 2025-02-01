@@ -1,3 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart' as FirebaseAuth;
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wetravel/data/data_source/user_data_source.dart';
 import 'package:wetravel/domain/entity/user.dart';
 import 'package:wetravel/domain/repository/user_repository.dart';
@@ -6,9 +8,13 @@ import 'package:wetravel/data/dto/user_dto.dart';
 class UserRepositoryImpl implements UserRepository {
   UserRepositoryImpl(
     this._userDataSource,
+    this._firebaseFirestore,
+    this._firebaseAuth,
   );
 
   final UserDataSource _userDataSource;
+  final FirebaseFirestore _firebaseFirestore;
+  final FirebaseAuth.FirebaseAuth _firebaseAuth;
 
   @override
   Future<User?> fetchUser() async {

@@ -1,6 +1,5 @@
 import 'package:wetravel/data/data_source/package_data_source.dart';
 import 'package:wetravel/domain/entity/package.dart';
-import 'package:wetravel/domain/entity/schedule.dart';
 import 'package:wetravel/domain/repository/package_repository.dart';
 
 class PackageRepositoryImpl implements PackageRepository {
@@ -20,19 +19,18 @@ class PackageRepositoryImpl implements PackageRepository {
               duration: e.duration,
               imageUrl: e.imageUrl,
               keywordList: e.keywordList,
-              schedule: e.schedule
-                  ?.map((schedule) => Schedule(
-                        id: schedule.id,
-                        packageId: schedule.packageId,
-                        title: schedule.title,
-                        content: schedule.content,
-                        imageUrl: schedule.imageUrl,
-                        order: schedule.order,
-                      ))
-                  .toList(),
+              scheduleIdList: e.scheduleIdList,
               createdAt: e.createdAt,
               updatedAt: e.updatedAt,
+              deletedAt: e.deletedAt,
+              reportCount: e.reportCount,
+              isHidden: e.isHidden,
             ))
         .toList();
+  }
+
+  @override
+  Future<void> addPackage(Map<String, dynamic> packageData) {
+    return _packageDataSource.addPackage(packageData);
   }
 }

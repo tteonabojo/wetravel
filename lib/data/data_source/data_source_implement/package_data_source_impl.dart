@@ -8,8 +8,7 @@ class PackageDataSourceImpl implements PackageDataSource {
 
   @override
   Future<List<PackageDto>> fetchPackages() async {
-    FirebaseFirestore firestore = _firestore;
-    final collectionRef = firestore.collection('packages');
+    final collectionRef = _firestore.collection('packages');
     final snapshot = await collectionRef.get();
     final documentSnapshot = snapshot.docs;
     for (var docSnapshot in documentSnapshot) {
@@ -17,5 +16,10 @@ class PackageDataSourceImpl implements PackageDataSource {
       print(docSnapshot.data());
     }
     return documentSnapshot.map((e) => PackageDto.fromJson(e.data())).toList();
+  }
+
+  @override
+  Future<void> addPackage(Map<String, dynamic> packageData) async {
+    await _firestore.collection('packages').add(packageData);
   }
 }

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:wetravel/constants/app_colors.dart';
-import 'package:wetravel/constants/app_icons.dart';
-import 'package:wetravel/constants/app_typography.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:wetravel/core/constants/app_colors.dart';
+import 'package:wetravel/core/constants/app_icons.dart';
+import 'package:wetravel/core/constants/app_typography.dart';
 
 enum SocialLoginType { apple, google }
 
@@ -57,7 +58,7 @@ class SocialLoginButton extends StatelessWidget {
             left: 32,
             top: 0,
             bottom: 0,
-            child: AppIcons.apple,
+            child: SvgPicture.asset(AppIcons.apple),
           ),
           const Center(
             child: Text(
@@ -89,7 +90,7 @@ class SocialLoginButton extends StatelessWidget {
             left: 32,
             top: 0,
             bottom: 0,
-            child: AppIcons.google,
+            child: SvgPicture.asset(AppIcons.google),
           ),
           const Center(
             child: Text(
