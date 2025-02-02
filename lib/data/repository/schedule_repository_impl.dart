@@ -13,7 +13,10 @@ class ScheduleRepositoryImpl implements ScheduleRepository {
         .map((e) => Schedule(
               id: e.id,
               packageId: e.packageId,
+              day: e.day,
+              time: e.time,
               title: e.title,
+              location: e.location,
               content: e.content,
               imageUrl: e.imageUrl,
               order: e.order,
