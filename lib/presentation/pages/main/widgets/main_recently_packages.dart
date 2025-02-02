@@ -20,11 +20,20 @@ class MainRecentlyPackages extends StatelessWidget {
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: [
-                PackageItem(),
+                PackageItem(
+                  title: '원숭이들이 있는 온천 여행',
+                  location: '도쿄',
+                ),
                 SizedBox(width: 20),
-                PackageItem(),
+                PackageItem(
+                  title: '원숭이들이 있는 온천 여행',
+                  location: '도쿄',
+                ),
                 SizedBox(width: 20),
-                PackageItem(),
+                PackageItem(
+                  title: '원숭이들이 있는 온천 여행',
+                  location: '도쿄',
+                ),
                 SizedBox(width: 20),
               ],
             ),
