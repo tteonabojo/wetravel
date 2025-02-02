@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:wetravel/domain/entity/survey_response.dart';
-import 'package:wetravel/presentation/providers/recommendation_provider.dart';
+import 'package:wetravel/presentation/provider/recommendation_provider.dart';
 
 class AIRecommendationPage extends ConsumerWidget {
   final SurveyResponse survey;
