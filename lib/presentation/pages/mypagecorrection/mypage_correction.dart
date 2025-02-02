@@ -126,7 +126,42 @@ class _InputFieldState extends State<CustomInputField> {
   }
 }
 
-class MyPageCorrection extends StatelessWidget {
+class MyPageCorrection extends StatefulWidget {
+  final Color buttonColor; // 버튼 색상
+
+  MyPageCorrection({super.key, this.buttonColor = Colors.blue});
+
+  @override
+  _MyPageCorrectionState createState() => _MyPageCorrectionState();
+}
+
+class _MyPageCorrectionState extends State<MyPageCorrection> {
+  bool isNicknameValid = false;
+  bool isEmailValid = false;
+  bool isIntroValid = false;
+
+  void _onNicknameChanged(String value) {
+    setState(() {
+      isNicknameValid = value.isNotEmpty;
+    });
+  }
+
+  void _onEmailChanged(String value) {
+    setState(() {
+      isEmailValid = value.isNotEmpty && value.contains('@');
+    });
+  }
+
+  void _onIntroChanged(String value) {
+    setState(() {
+      isIntroValid = value.isNotEmpty;
+    });
+  }
+
+  bool get isFormValid {
+    return isNicknameValid && isEmailValid && isIntroValid;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -168,6 +203,7 @@ class MyPageCorrection extends StatelessWidget {
               obscureText: false,
               maxLength: 15,
               labelText: '닉네임',
+              onChanged: _onNicknameChanged,
             ),
             SizedBox(height: 20), // 여백 20
             CustomInputField(
@@ -176,6 +212,7 @@ class MyPageCorrection extends StatelessWidget {
               obscureText: false,
               maxLength: 20,
               labelText: '이메일주소',
+              onChanged: _onEmailChanged,
             ),
             SizedBox(height: 20), // 여백 20
             Container(
@@ -185,7 +222,37 @@ class MyPageCorrection extends StatelessWidget {
                 obscureText: false,
                 maxLength: 100,
                 labelText: '자기소개',
-                minLines: 6, // 최소 3줄로 시작, 필요에 따라 늘어남
+                minLines: 6, // 최소 6줄로 시작, 필요에 따라 늘어남
+                onChanged: _onIntroChanged,
+              ),
+            ),
+            SizedBox(height: 16), // 하단바와 버튼 사이에 여백
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              width: double.infinity, // 가로 너비 꽉 채움
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isFormValid
+                      ? AppColors.primary_450 // 버튼 색상
+                      : AppColors.primary_250, // 비활성화 색상
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12), // 모서리 R값 12
+                  ),
+                  padding: EdgeInsets.symmetric(vertical: 16), // 위아래 여백 16
+                ),
+                onPressed: isFormValid
+                    ? () {
+                        // 등록 버튼 클릭 시 동작
+                      }
+                    : null, // 비활성화된 상태일 때는 null
+                child: Text(
+                  '등록',
+                  style: TextStyle(
+                    fontSize: 16, // 폰트 사이즈 16
+                    color: Colors.white, // 텍스트 색상
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
           ],
