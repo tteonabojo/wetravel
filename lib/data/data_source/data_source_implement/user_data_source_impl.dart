@@ -11,17 +11,26 @@ class UserDataSourceImpl implements UserDataSource {
   UserDataSourceImpl(this._firestore);
   final FirebaseFirestore _firestore;
 
-  @override
-  Future<List<UserDto>> fetchUser() async {
-    FirebaseFirestore firestore = _firestore;
-    final collectionRef = firestore.collection('user');
-    final snapshot = await collectionRef.get();
-    final documentSnapshot = snapshot.docs;
-    for (var docSnapshot in documentSnapshot) {
-      print(docSnapshot.id);
-      print(docSnapshot.data());
+  Future<UserDto> fetchUser() async {
+    try {
+      User? currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) {
+        throw Exception('사용자가 로그인되지 않았습니다.');
+      }
+      final userRef = _firestore.collection('users').doc(currentUser.uid);
+      final userDoc = await userRef.get();
+      if (userDoc.exists) {
+        print("Found user: ${userDoc.id}");
+        print("User data: ${userDoc.data()}");
+        return UserDto.fromJson(userDoc.data() ?? {});
+      } else {
+        print("No user found in Firestore");
+        throw Exception('유저 정보를 찾을 수 없습니다.');
+      }
+    } catch (e) {
+      print("Error fetching user: $e");
+      rethrow;
     }
-    return documentSnapshot.map((e) => UserDto.fromJson(e.data())).toList();
   }
 
   @override
@@ -96,6 +105,7 @@ class UserDataSourceImpl implements UserDataSource {
             'loginType': provider,
             'isGuide': false,
             'createdAt': Timestamp.fromDate(DateTime.now()),
+            'imageUrl': currentUser.photoURL ?? '',
           };
 
           await userRef.set(userData);

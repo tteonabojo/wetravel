@@ -1,3 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart' as FirebaseAuth;
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wetravel/data/data_source/user_data_source.dart';
 import 'package:wetravel/domain/entity/user.dart';
 import 'package:wetravel/domain/repository/user_repository.dart';
@@ -6,20 +8,30 @@ import 'package:wetravel/data/dto/user_dto.dart';
 class UserRepositoryImpl implements UserRepository {
   UserRepositoryImpl(
     this._userDataSource,
+    this._firebaseFirestore,
+    this._firebaseAuth,
   );
 
   final UserDataSource _userDataSource;
+  final FirebaseFirestore _firebaseFirestore;
+  final FirebaseAuth.FirebaseAuth _firebaseAuth;
 
   @override
-  Future<User?> fetchUser() async {
-    try {
-      return await _userDataSource.fetchUser().then((userDto) {
-        return userDto == null ? null : User.fromDto(userDto as UserDto);
-      });
-    } catch (e) {
-      print('Error fetching user in repository: $e');
-      rethrow;
+  Future<User> fetchUser() async {
+    final userId = _firebaseAuth.currentUser?.uid;
+    if (userId == null) {
+      throw Exception("No user is logged in.");
     }
+
+    final docSnapshot =
+        await _firebaseFirestore.collection('users').doc(userId).get();
+
+    if (!docSnapshot.exists) {
+      throw Exception('User not found');
+    }
+
+    // UserDto에서 User로 변환
+    return User.fromDto(UserDto.fromJson(docSnapshot.data() ?? {}));
   }
 
   @override
