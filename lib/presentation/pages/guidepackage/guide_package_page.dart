@@ -32,7 +32,7 @@ class GuidePackagePage extends StatelessWidget {
               padding: EdgeInsets.symmetric(vertical: 8.0),
               children: [
                 PackageCard(
-                  title: '원숭이들이 있는 온천 여행을 떠나보자 가보자 이넘들아 가보자구요!!',
+                  title: '원숭이들이 있는 온천 여행을 떠나보자!',
                   subtitle: '2박 3일 · 혼자 · 액티비티',
                   location: '도쿄',
                   author: '나는 이구역짱',
@@ -66,4 +66,11 @@ class GuidePackagePage extends StatelessWidget {
       ),
     );
   }
+}
+
+void main() {
+  runApp(MaterialApp(
+    debugShowCheckedModeBanner: false,
+    home: GuidePackagePage(),
+  ));
 }

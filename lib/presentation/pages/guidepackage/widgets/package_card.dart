@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wetravel/presentation/pages/guidepackagedetailpage/guide_package_detail_page.dart';
 
 class PackageCard extends StatelessWidget {
@@ -86,7 +87,11 @@ class PackageCard extends StatelessWidget {
                       SizedBox(height: 8),
                       Row(
                         children: [
-                          Icon(Icons.location_on, color: Colors.red, size: 16),
+                          SvgPicture.asset(
+                            'assets/icons/map_pin.svg',
+                            width: 24,
+                            height: 24,
+                          ),
                           SizedBox(width: 4),
                           Text(
                             location,

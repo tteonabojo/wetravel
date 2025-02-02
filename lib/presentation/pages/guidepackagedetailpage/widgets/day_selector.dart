@@ -15,11 +15,11 @@ class DaySelector extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () => onDaySelected(day),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: selectedDay == day ? Colors.grey[800] : Colors.grey,
-                    foregroundColor: Colors.white,
+                    backgroundColor: selectedDay == day ? Color(0xFF54595f) : Color(0xFFE9EBEC),
+                    foregroundColor: selectedDay == day ? Colors.white : Color(0xFF858c93),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
                   ),
-                  child: Text(day, style: TextStyle(fontSize: 12)),
+                  child: Text(day, style: TextStyle(fontSize: 14)),
                 ),
               ))
           .toList(),

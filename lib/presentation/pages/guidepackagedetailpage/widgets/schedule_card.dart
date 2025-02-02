@@ -20,24 +20,24 @@ class ScheduleCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      padding: const EdgeInsets.only(bottom: 12.0), // 카드들 사이의 간격 12로 설정
       child: Card(
-        elevation: 2.0,
+        color: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(time, style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold)),
+              Text(time, style: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8.0),
-              Text(title, style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold)),
+              Text(title, style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold)),
               const SizedBox(height: 4.0),
               Row(
                 children: [
                   const Icon(Icons.location_on, size: 16.0, color: Colors.grey),
                   const SizedBox(width: 4.0),
-                  Text(location, style: TextStyle(fontSize: 14.0, color: Colors.grey)),
+                  Text(location, style: const TextStyle(fontSize: 14.0, color: Colors.grey)),
                 ],
               ),
               const SizedBox(height: 8.0),
@@ -46,12 +46,18 @@ class ScheduleCard extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('상세 내용', style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold, color: Colors.grey)),
+                    Expanded(
+                      child: Text(
+                        isDetailsVisible
+                            ? details
+                            : '${details.substring(0, details.length > 25 ? 25 : details.length)}...',
+                        style: const TextStyle(fontSize: 14.0, color: Colors.black87),
+                      ),
+                    ),
                     Icon(isDetailsVisible ? Icons.expand_less : Icons.expand_more, color: Colors.grey),
                   ],
                 ),
               ),
-              if (isDetailsVisible) Padding(padding: const EdgeInsets.only(top: 8.0), child: Text(details)),
             ],
           ),
         ),

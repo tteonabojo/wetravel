@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wetravel/presentation/pages/guidepackagedetailpage/widgets/schedule_card.dart';
 import 'package:wetravel/presentation/pages/guidepackagedetailpage/widgets/day_selector.dart';
-
+import 'package:wetravel/presentation/pages/guideprofile/guide_profile_page.dart';
 
 class GuidePackageDetailPage extends StatefulWidget {
   final String title;
@@ -46,6 +46,14 @@ class _GuidePackageDetailPageState extends State<GuidePackageDetailPage> {
         'details': '역사적인 유물과 전시물을 관람합니다.',
       },
     ],
+    'Day 3': [
+      {
+        'time': '오전 10:00',
+        'title': '공항으로 간다',
+        'location': '제주도 공항',
+        'details': '집으로 돌아가기위해 공항으로 돌아가요!.',
+      },
+    ],
   };
 
   final Map<String, bool> detailsVisibility = {};
@@ -53,93 +61,142 @@ class _GuidePackageDetailPageState extends State<GuidePackageDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 250.0,
-            pinned: true,
-            flexibleSpace: FlexibleSpaceBar(
-              background: Image.network(
-                'https://picsum.photos/500',
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
-          SliverList(
-            delegate: SliverChildListDelegate(
-              [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 24,
-                            backgroundImage: NetworkImage('https://picsum.photos/50'),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(widget.author, style: TextStyle(fontSize: 16, color: Colors.grey)),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        widget.title,
-                        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 4),
-                      if (widget.keywords.isNotEmpty)
-                        Text(widget.keywords.first, style: TextStyle(color: Colors.grey, fontSize: 14)),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          SvgPicture.asset('assets/icons/map_pin.svg', width: 24, height: 24),
-                          const SizedBox(width: 6),
-                        ],
-                      ),
-                      DaySelector(
-                        selectedDay: selectedDay,
-                        onDaySelected: (day) => setState(() => selectedDay = day),
-                      ),
-                    ],
+      appBar: AppBar(
+        leading: BackButton(), // 뒤로 가기 버튼 고정
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 배경색이 적용되는 컨테이너 시작
+            Container(
+              color: Colors.white, // 배경색 적용
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Image.network(
+                    'https://picsum.photos/500',
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: 260,
                   ),
-                ),
-                if (selectedDay != null)
-                  ...schedule[selectedDay]!.map(
-                    (item) => ScheduleCard(
-                      time: item['time']!,
-                      title: item['title']!,
-                      location: item['location']!,
-                      details: item['details']!,
-                      isDetailsVisible: detailsVisibility['${item['time']}-${item['title']}'] ?? false,
-                      onToggleDetails: () {
-                        setState(() {
-                          detailsVisibility['${item['time']}-${item['title']}'] =
-                              !(detailsVisibility['${item['time']}-${item['title']}'] ?? false);
-                        });
-                      },
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => GuideProfilePage(author: widget.author),
+                              ),
+                            );
+                          },
+                          child: Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 14,
+                                backgroundImage: NetworkImage('https://picsum.photos/50'),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                widget.author,
+                                style: const TextStyle(fontSize: 14, color: Color(0xFF0c0d0e)),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          widget.title,
+                          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 4),
+                        if (widget.keywords.isNotEmpty)
+                          Text(widget.keywords.first, style: TextStyle(color: Color(0xFF6c727a), fontSize: 14)),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            SvgPicture.asset('assets/icons/map_pin.svg', width: 24, height: 24),
+                            const SizedBox(width: 6),
+                            Text(
+                              widget.location,
+                              style: const TextStyle(fontSize: 16, color: Color(0xFF6c727a)),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(border: Border(top: BorderSide(color: Colors.grey[300]!))),
-        padding: const EdgeInsets.all(16.0),
-        child: ElevatedButton(
-          onPressed: () => print("일정 담기"),
-          style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 16.0),
-            backgroundColor: Colors.blue,
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
-          ),
-          child: const Text('일정 담기', style: TextStyle(fontSize: 18)),
+            // 일정 선택 부분 시작
+            Padding(
+              padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  DaySelector(
+                    selectedDay: selectedDay,
+                    onDaySelected: (day) => setState(() => selectedDay = day),
+                  ),
+                  const SizedBox(height: 16),
+                  if (selectedDay != null)
+                    ...schedule[selectedDay]!.map(
+                      (item) => ScheduleCard(
+                        time: item['time']!,
+                        title: item['title']!,
+                        location: item['location']!,
+                        details: item['details']!,
+                        isDetailsVisible: detailsVisibility['${item['time']}-${item['title']}'] ?? false,
+                        onToggleDetails: () {
+                          setState(() {
+                            detailsVisibility['${item['time']}-${item['title']}'] =
+                                !(detailsVisibility['${item['time']}-${item['title']}'] ?? false);
+                          });
+                        },
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
-    );
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.only(bottom: 18.0),
+        child: Container(
+        decoration: BoxDecoration(
+          border: Border(
+            top: BorderSide(color: Colors.grey[300]!),
+          ),
+        ),
+        padding: const EdgeInsets.all(10.0),
+        child: ElevatedButton(
+          onPressed: () {
+            print("일정 담기");
+            if (selectedDay != null) {
+              List<Map<String, String>> selectedSchedule = schedule[selectedDay]!;
+              print("Selected Schedule for $selectedDay: $selectedSchedule");
+            }
+          },
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 16.0),
+            backgroundColor: const Color(0xFF4876EE), // 메인 컬러
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12.0),
+            ),
+          ),
+          child: const Text(
+            '일정 담기',
+            style: TextStyle(fontSize: 18),
+          ),
+        ),
+      ),
+    ));
   }
 }
