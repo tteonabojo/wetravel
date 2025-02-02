@@ -10,6 +10,8 @@ class CustomInputField extends StatefulWidget {
   final Function(String)? onChanged;
   final int maxLength; // 최대 글자 수
   final String labelText; // 고정 라벨 텍스트 추가
+  final int minLines; // 최소 줄 수
+  final int? maxLines; // 최대 줄 수
 
   const CustomInputField({
     super.key,
@@ -19,6 +21,8 @@ class CustomInputField extends StatefulWidget {
     this.onChanged,
     required this.maxLength,
     required this.labelText, // labelText 필수
+    this.minLines = 1, // 기본 최소 줄 수 설정
+    this.maxLines, // 최대 줄 수는 지정하지 않으면 자유롭게 늘어남
   });
 
   @override
@@ -38,7 +42,6 @@ class _InputFieldState extends State<CustomInputField> {
   @override
   void dispose() {
     _controller.removeListener(_updateCurrentLength); // 리스너 제거
-
     _controller.dispose();
     super.dispose();
   }
@@ -77,24 +80,22 @@ class _InputFieldState extends State<CustomInputField> {
             obscureText: widget.obscureText,
             onChanged: widget.onChanged,
             style: TextStyle(
-              // 입력 글씨 색상 설정
               color: AppColors.grayScale_750,
             ),
+            maxLines: widget.maxLines, // 입력 줄 수 제한
+            minLines: widget.minLines, // 최소 줄 수 설정
             decoration: InputDecoration(
               hintText: widget.hintText,
               hintStyle: AppTypography.body1.copyWith(
-                // 힌트 글씨 색상 설정
                 color: AppColors.grayScale_350,
               ),
               focusedBorder: OutlineInputBorder(
-                // 입력 중 테두리 스타일
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(
                   color: AppColors.primary_450,
                 ),
               ),
               enabledBorder: OutlineInputBorder(
-                // 비활성 테두리 스타일
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(
                   color: AppColors.grayScale_150,
@@ -178,13 +179,13 @@ class MyPageCorrection extends StatelessWidget {
             ),
             SizedBox(height: 20), // 여백 20
             Container(
-              height: 144, // 자기소개 박스 높이 설정
               child: CustomInputField(
                 hintText: '멋진 소개를 부탁드려요!',
                 keyboardType: TextInputType.text,
                 obscureText: false,
                 maxLength: 100,
                 labelText: '자기소개',
+                minLines: 6, // 최소 3줄로 시작, 필요에 따라 늘어남
               ),
             ),
           ],
