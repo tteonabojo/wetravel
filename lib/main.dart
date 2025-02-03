@@ -1,6 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/presentation/pages/survey/city_selection_page.dart';
 import 'package:wetravel/presentation/pages/recommendation/ai_recommendation_page.dart';
@@ -11,6 +13,8 @@ import 'package:wetravel/presentation/pages/schedule/ai_schedule_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(
+      widgetsBinding: WidgetsFlutterBinding.ensureInitialized()); // 스플래시 유지
 
   await Firebase.initializeApp(); // firebase 초기화
   await dotenv.load(fileName: "assets/.env"); // .env 파일 로드

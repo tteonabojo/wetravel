@@ -15,22 +15,24 @@ class User {
   final Timestamp? updatedAt;
   final Timestamp? deletedAt;
   final List<Package>? scrapList;
+  final List<String>? scrapIdList;
 
   String? displayName;
 
   User({
     required this.id,
     required this.email,
-    required this.password,
-    required this.name,
-    required this.imageUrl,
-    required this.introduction,
+    this.password,
+    this.name,
+    this.imageUrl,
+    this.introduction,
     required this.loginType,
     required this.isGuide,
     required this.createdAt,
-    required this.updatedAt,
+    this.updatedAt,
     this.deletedAt,
     this.scrapList,
+    this.scrapIdList,
   });
 
   factory User.fromDto(UserDto dto) {
@@ -45,6 +47,9 @@ class User {
       isGuide: dto.isGuide,
       createdAt: dto.createdAt,
       updatedAt: dto.updatedAt,
+      deletedAt: dto.deletedAt,
+      scrapList: dto.scrapList?.map((e) => e.toEntity()).toList(),
+      scrapIdList: dto.scrapIdList,
     );
   }
   Map<String, dynamic> toJson() => {
@@ -59,6 +64,8 @@ class User {
         "createdAt": createdAt,
         "updatedAt": updatedAt,
         "deletedAt": deletedAt,
+        "scrapList": scrapList?.map((e) => e.toJson()).toList(),
+        "scrapIdList": scrapIdList,
       };
   UserDto toDto() {
     return UserDto(
@@ -74,6 +81,7 @@ class User {
       updatedAt: updatedAt,
       deletedAt: deletedAt,
       scrapList: scrapList?.map((package) => package.toDto()).toList(),
+      scrapIdList: scrapIdList,
     );
   }
 }
