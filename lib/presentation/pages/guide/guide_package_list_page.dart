@@ -12,7 +12,17 @@ class GuidePackageListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<String> guidePackages = ["파리 3박 4일 투어", "제주도 힐링 여행", "도쿄 먹방 여행"];
+    final List<String> guidePackages = [
+      "파리 3박 4일 투어",
+      "제주도 힐링 여행",
+      "도쿄 먹방 여행",
+      "파리 3박 4일 투어",
+      "제주도 힐링 여행",
+      "도쿄 먹방 여행",
+      "파리 3박 4일 투어",
+      "제주도 힐링 여행",
+      "도쿄 먹방 여행",
+    ];
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -20,13 +30,15 @@ class GuidePackageListPage extends StatelessWidget {
         child: Column(
           spacing: 16,
           children: [
-            GuideInfo(),
+            SingleChildScrollView(
+              child: GuideInfo(),
+            ),
             ListView.separated(
               separatorBuilder: (context, index) {
                 return SizedBox(height: 8);
               },
               shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(), // 내부 스크롤 막음
+              physics: const NeverScrollableScrollPhysics(),
               itemCount: guidePackages.length,
               itemBuilder: (context, index) {
                 return PackageItem(

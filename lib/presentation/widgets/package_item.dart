@@ -37,24 +37,18 @@ class PackageItem extends StatelessWidget {
               ),
               shadows: AppShadow.generalShadow),
           child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 child: SizedBox(
                   height: 88,
                   child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Stack(
                         children: [
                           AspectRatio(
                             aspectRatio: 1,
                             child: Container(
-                              clipBehavior: Clip.antiAlias,
                               decoration: ShapeDecoration(
                                 image: DecorationImage(
                                   image: AssetImage(
@@ -84,10 +78,8 @@ class PackageItem extends StatelessWidget {
                                     child: Center(
                                       child: Text(
                                         '$rate',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                        style: AppTypography.headline6
+                                            .copyWith(color: Colors.white),
                                       ),
                                     ),
                                   ),
@@ -100,9 +92,7 @@ class PackageItem extends StatelessWidget {
                         child: SizedBox(
                           height: double.infinity,
                           child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            spacing: 2,
                             children: [
                               SizedBox(
                                 width: double.infinity,
@@ -112,23 +102,15 @@ class PackageItem extends StatelessWidget {
                                   style: AppTypography.headline5,
                                 ),
                               ),
-                              const SizedBox(height: 2),
                               SizedBox(
                                 width: double.infinity,
                                 height: 40,
                                 child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     SizedBox(
                                       width: double.infinity,
                                       child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
+                                        spacing: 8,
                                         children: [
                                           Text(
                                             '2박 3일',
@@ -136,30 +118,24 @@ class PackageItem extends StatelessWidget {
                                               color: AppColors.grayScale_650,
                                             ),
                                           ),
-                                          const SizedBox(width: 8),
                                           Container(
                                             width: 1,
                                             height: 8,
-                                            clipBehavior: Clip.antiAlias,
                                             decoration: BoxDecoration(
                                                 color: AppColors.grayScale_550),
                                           ),
-                                          const SizedBox(width: 8),
                                           Text(
                                             '혼자',
                                             style: AppTypography.body3.copyWith(
                                               color: AppColors.grayScale_650,
                                             ),
                                           ),
-                                          const SizedBox(width: 8),
                                           Container(
                                             width: 1,
                                             height: 8,
-                                            clipBehavior: Clip.antiAlias,
                                             decoration: BoxDecoration(
                                                 color: AppColors.grayScale_550),
                                           ),
-                                          const SizedBox(width: 8),
                                           Text(
                                             '액티비티',
                                             style: AppTypography.body3.copyWith(
@@ -172,23 +148,12 @@ class PackageItem extends StatelessWidget {
                                     SizedBox(
                                       width: double.infinity,
                                       child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
                                         children: [
                                           Container(
                                             width: 12,
                                             height: 12,
-                                            clipBehavior: Clip.antiAlias,
                                             decoration: BoxDecoration(),
                                             child: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
                                               children: [
                                                 Container(
                                                   decoration: BoxDecoration(),
@@ -221,19 +186,14 @@ class PackageItem extends StatelessWidget {
                                   ],
                                 ),
                               ),
-                              const SizedBox(height: 2),
                               SizedBox(
                                 width: double.infinity,
                                 child: Row(
                                   spacing: 4,
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Container(
                                       width: 16,
                                       height: 16,
-                                      clipBehavior: Clip.antiAlias,
                                       decoration: ShapeDecoration(
                                         image: DecorationImage(
                                           image: AssetImage(
@@ -269,19 +229,12 @@ class PackageItem extends StatelessWidget {
                 height: 28,
                 padding: AppSpacing.small4,
                 child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Container(
                       width: 20,
                       height: 20,
-                      clipBehavior: Clip.antiAlias,
                       decoration: BoxDecoration(),
                       child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           SvgPicture.asset(
                             AppIcons.trash,
