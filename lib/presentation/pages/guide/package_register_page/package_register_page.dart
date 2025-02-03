@@ -7,6 +7,7 @@ import 'package:wetravel/presentation/pages/guide/package_register_page/widgets/
 import 'package:wetravel/presentation/pages/guide/package_register_page/widgets/widgets/buttons/day_chip_button.dart';
 import 'package:wetravel/presentation/pages/guide/package_register_page/widgets/widgets/buttons/delete_day_button.dart';
 import 'package:wetravel/presentation/pages/guide/package_register_page/widgets/widgets/package_register_service.dart';
+import 'package:wetravel/presentation/pages/stack/stack_page.dart';
 import 'package:wetravel/presentation/widgets/buttons/standard_button.dart';
 
 class PackageRegisterPage extends StatefulWidget {
@@ -40,7 +41,7 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
     if (_schedules[_selectedDay - 1].length < 9) {
       setState(() {
         _schedules[_selectedDay - 1].add({
-          'time': '오전 09:00',
+          'time': '오전 9:00',
           'title': '제목',
           'location': '위치',
           'content': '설명',
@@ -96,12 +97,19 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
   final _packageRegisterService = PackageRegisterService();
 
   Future<void> _registerPackage() async {
+    if (_selectedImagePath.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('이미지를 등록해주세요.')),
+      );
+      return;
+    }
+
     bool hasSchedule =
         _schedules.any((daySchedules) => daySchedules.isNotEmpty);
 
     if (!hasSchedule) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('일정이 없으면 등록이 불가합니다.')),
+        const SnackBar(content: Text('일정을 등록해주세요.')),
       );
       return;
     }
@@ -135,6 +143,12 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('패키지 등록 성공')),
+      );
+
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => StackPage(initialIndex: 2)),
+        (route) => false,
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

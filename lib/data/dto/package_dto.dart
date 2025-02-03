@@ -78,11 +78,9 @@ class PackageDto {
           imageUrl: json['imageUrl'] as String,
           keywordList: List<String>.from(json['keywordList'] as List),
           scheduleIdList: List<String>.from(json['scheduleIdList']),
-          createdAt: Timestamp.fromDate(DateTime.parse(json['createdAt'])),
-          updatedAt: Timestamp.fromDate(DateTime.parse(json['updatedAt'])),
-          deletedAt: json['deletedAt'] != null
-              ? Timestamp.fromDate(DateTime.parse(json['deletedAt']))
-              : null,
+          createdAt: json['createdAt'],
+          updatedAt: json['updatedAt'],
+          deletedAt: json['deletedAt'],
           reportCount: json['reportCount'] as int,
           isHidden: json['isHidden'] as bool,
         );

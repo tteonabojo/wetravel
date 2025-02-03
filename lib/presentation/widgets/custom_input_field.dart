@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wetravel/core/constants/app_border_radius.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 
@@ -12,6 +13,7 @@ class CustomInputField extends StatefulWidget {
   final TextEditingController? controller;
   final int? maxLines;
   final int? minLines;
+  final String? Function(String?)? validator;
 
   const CustomInputField({
     super.key,
@@ -24,6 +26,7 @@ class CustomInputField extends StatefulWidget {
     this.controller,
     this.maxLines = 1,
     this.minLines = 1,
+    this.validator,
   });
 
   @override
@@ -82,6 +85,7 @@ class _InputFieldState extends State<CustomInputField> {
           keyboardType: widget.keyboardType,
           obscureText: widget.obscureText,
           onChanged: widget.onChanged,
+          validator: widget.validator,
           style: const TextStyle(color: AppColors.grayScale_750),
           maxLines: widget.maxLines,
           minLines: widget.minLines,
@@ -91,12 +95,20 @@ class _InputFieldState extends State<CustomInputField> {
               color: AppColors.grayScale_350,
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: AppBorderRadius.small12,
               borderSide: const BorderSide(color: AppColors.primary_450),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: AppBorderRadius.small12,
               borderSide: const BorderSide(color: AppColors.grayScale_150),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: AppBorderRadius.small12,
+              borderSide: const BorderSide(color: AppColors.red),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: AppBorderRadius.small12,
+              borderSide: const BorderSide(color: AppColors.red),
             ),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,

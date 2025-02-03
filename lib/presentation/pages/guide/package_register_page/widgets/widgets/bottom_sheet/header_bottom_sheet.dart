@@ -29,6 +29,8 @@ class _HeaderBottomSheetState extends State<HeaderBottomSheet> {
   late TextEditingController _titleController;
   late TextEditingController _locationController;
 
+  final _formKey = GlobalKey<FormState>();
+
   @override
   void initState() {
     super.initState();
@@ -50,47 +52,64 @@ class _HeaderBottomSheetState extends State<HeaderBottomSheet> {
           ),
           child: Padding(
             padding: const EdgeInsets.all(16),
-            child: Column(
-              spacing: 16,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CustomInputField(
-                  controller: _titleController,
-                  hintText: '제목을 입력하세요',
-                  keyboardType: TextInputType.text,
-                  maxLength: 15,
-                  labelText: '제목',
-                ),
-                KeywordSelection(
-                  onKeywordsSelected: (keywords) {
-                    setState(() {
-                      _selectedKeywords = keywords;
-                    });
-                  },
-                  initialSelectedKeywords: _selectedKeywords,
-                ),
-                const SizedBox(height: 12),
-                CustomInputField(
-                  controller: _locationController,
-                  hintText: '위치를 입력하세요',
-                  keyboardType: TextInputType.text,
-                  maxLength: 15,
-                  labelText: '위치',
-                ),
-                StandardButton.primary(
-                  sizeType: ButtonSizeType.normal,
-                  text: '등록',
-                  onPressed: () {
-                    widget.onSave(
-                      _titleController.text,
-                      _selectedKeywords,
-                      _locationController.text,
-                    );
-                    Navigator.pop(context);
-                    print('일정표 헤더 수정완료!');
-                  },
-                ),
-              ],
+            child: Form(
+              key: _formKey,
+              child: Column(
+                spacing: 8,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CustomInputField(
+                    controller: _titleController,
+                    hintText: '제목을 입력하세요',
+                    keyboardType: TextInputType.text,
+                    maxLength: 15,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return '제목을 입력해주세요.';
+                      }
+                      return null;
+                    },
+                    labelText: '제목',
+                  ),
+                  KeywordSelection(
+                    onKeywordsSelected: (keywords) {
+                      setState(() {
+                        _selectedKeywords = keywords;
+                      });
+                    },
+                    initialSelectedKeywords: _selectedKeywords,
+                  ),
+                  const SizedBox(height: 24),
+                  CustomInputField(
+                    controller: _locationController,
+                    hintText: '위치를 입력하세요',
+                    keyboardType: TextInputType.text,
+                    maxLength: 15,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return '위치를 입력해주세요.';
+                      }
+                      return null;
+                    },
+                    labelText: '위치',
+                  ),
+                  StandardButton.primary(
+                    sizeType: ButtonSizeType.normal,
+                    text: '등록',
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        widget.onSave(
+                          _titleController.text.trim(),
+                          _selectedKeywords,
+                          _locationController.text.trim(),
+                        );
+                        Navigator.pop(context);
+                        print('일정표 헤더 수정완료!');
+                      }
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         );

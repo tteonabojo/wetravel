@@ -25,6 +25,10 @@ class MainPopularPackages extends StatelessWidget {
                   rate: rate,
                   title: '원숭이들이 있는 온천 여행',
                   location: '도쿄',
+                  guideImageUrl: '',
+                  name: '나는 이구역짱',
+                  keywords: ['2박 3일', '혼자', '액티비티'],
+                  packageImageUrl: '',
                 );
               },
               separatorBuilder: (context, index) {

@@ -8,22 +8,33 @@ import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 
 class PackageItem extends StatelessWidget {
-  final Icon? icon;
-  final VoidCallback? onIconTap;
+  final Widget? icon; // 아이콘 커스터마이징
+  final VoidCallback? onIconTap; // 아이콘 클릭 동작
   final int? rate;
   final String title;
   final String location;
+  final String guideImageUrl;
+  final String packageImageUrl;
+  final String name;
+  final List<String> keywords;
 
-  const PackageItem(
-      {super.key,
-      this.icon,
-      this.onIconTap,
-      this.rate,
-      required this.title,
-      required this.location});
+  const PackageItem({
+    super.key,
+    this.icon,
+    this.onIconTap,
+    this.rate,
+    required this.title,
+    required this.location,
+    required this.guideImageUrl,
+    required this.packageImageUrl,
+    required this.name,
+    required this.keywords,
+  });
 
   @override
   Widget build(BuildContext context) {
+    assert(keywords.length == 3, "키워드 리스트는 반드시 3개의 요소를 가져야 합니다.");
+
     return Column(
       children: [
         Container(
@@ -37,268 +48,217 @@ class PackageItem extends StatelessWidget {
               ),
               shadows: AppShadow.generalShadow),
           child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: SizedBox(
-                  height: 88,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Stack(
-                        children: [
-                          AspectRatio(
-                            aspectRatio: 1,
-                            child: Container(
-                              clipBehavior: Clip.antiAlias,
-                              decoration: ShapeDecoration(
-                                image: DecorationImage(
-                                  image: AssetImage(
-                                      "assets/images/cherry_blossom.png"),
-                                  fit: BoxFit.cover,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: AppBorderRadius.small8,
-                                ),
-                              ),
-                            ),
-                          ),
-                          rate != null
-                              ? Positioned(
-                                  top: 0,
-                                  left: 0,
-                                  child: Container(
-                                    height: 28,
-                                    width: 28,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(8),
-                                        bottomRight: Radius.circular(8),
-                                      ),
-                                      color: Colors.black.withOpacity(0.5),
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        '$rate',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                )
-                              : SizedBox.shrink(),
-                        ],
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: SizedBox(
-                          height: double.infinity,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(
-                                width: double.infinity,
-                                height: 24,
-                                child: Text(
-                                  title,
-                                  style: AppTypography.headline5,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              SizedBox(
-                                width: double.infinity,
-                                height: 40,
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    SizedBox(
-                                      width: double.infinity,
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            '2박 3일',
-                                            style: AppTypography.body3.copyWith(
-                                              color: AppColors.grayScale_650,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Container(
-                                            width: 1,
-                                            height: 8,
-                                            clipBehavior: Clip.antiAlias,
-                                            decoration: BoxDecoration(
-                                                color: AppColors.grayScale_550),
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Text(
-                                            '혼자',
-                                            style: AppTypography.body3.copyWith(
-                                              color: AppColors.grayScale_650,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Container(
-                                            width: 1,
-                                            height: 8,
-                                            clipBehavior: Clip.antiAlias,
-                                            decoration: BoxDecoration(
-                                                color: AppColors.grayScale_550),
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Text(
-                                            '액티비티',
-                                            style: AppTypography.body3.copyWith(
-                                              color: AppColors.grayScale_650,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: double.infinity,
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          Container(
-                                            width: 12,
-                                            height: 12,
-                                            clipBehavior: Clip.antiAlias,
-                                            decoration: BoxDecoration(),
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                              children: [
-                                                Container(
-                                                  decoration: BoxDecoration(),
-                                                  child: SvgPicture.asset(
-                                                    AppIcons.mapPin,
-                                                    width: 12,
-                                                    height: 12,
-                                                    color:
-                                                        AppColors.grayScale_550,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Expanded(
-                                            child: SizedBox(
-                                              child: Text(
-                                                location,
-                                                style: AppTypography.body3
-                                                    .copyWith(
-                                                  color:
-                                                      AppColors.grayScale_650,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              SizedBox(
-                                width: double.infinity,
-                                child: Row(
-                                  spacing: 4,
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Container(
-                                      width: 16,
-                                      height: 16,
-                                      clipBehavior: Clip.antiAlias,
-                                      decoration: ShapeDecoration(
-                                        image: DecorationImage(
-                                          image: AssetImage(
-                                              "assets/images/sample_profile.jpg"),
-                                          fit: BoxFit.cover,
-                                        ),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: AppBorderRadius.small12,
-                                        ),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: SizedBox(
-                                        child: Text('나는 이구역짱',
-                                            style: AppTypography.body3.copyWith(
-                                              color: AppColors.grayScale_750,
-                                            )),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Container(
-                width: 28,
-                height: 28,
-                padding: AppSpacing.small4,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 20,
-                      height: 20,
-                      clipBehavior: Clip.antiAlias,
-                      decoration: BoxDecoration(),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          SvgPicture.asset(
-                            AppIcons.trash,
-                            width: 20,
-                            height: 20,
-                            color: AppColors.grayScale_550,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              _buildImageAndRating(),
+              _buildCustomIcon(),
             ],
           ),
         ),
       ],
     );
   }
+
+  Expanded _buildImageAndRating() {
+    return Expanded(
+      child: SizedBox(
+        height: 88,
+        child: Row(
+          spacing: 12,
+          children: [
+            Stack(
+              children: [
+                AspectRatio(
+                  aspectRatio: 1,
+                  child: Container(
+                    decoration: ShapeDecoration(
+                      image: DecorationImage(
+                        image: packageImageUrl.isNotEmpty
+                            ? NetworkImage(packageImageUrl)
+                            : AssetImage("assets/images/cherry_blossom.png")
+                                as ImageProvider,
+                        fit: BoxFit.cover,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: AppBorderRadius.small8,
+                      ),
+                    ),
+                  ),
+                ),
+                rate != null ? _buildRatingBadge() : SizedBox.shrink(),
+              ],
+            ),
+            _buildPackageDetails(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRatingBadge() {
+    return Container(
+      height: 28,
+      width: 28,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(8),
+          bottomRight: Radius.circular(8),
+        ),
+        color: Colors.black.withOpacity(0.5),
+      ),
+      child: Center(
+        child: Text(
+          '$rate',
+          style: AppTypography.headline6.copyWith(color: Colors.white),
+        ),
+      ),
+    );
+  }
+
+  Expanded _buildPackageDetails() {
+    return Expanded(
+      child: SizedBox(
+        height: double.infinity,
+        child: Column(
+          spacing: 2,
+          children: [
+            SizedBox(
+              width: double.infinity,
+              height: 24,
+              child: Text(
+                title,
+                style: AppTypography.headline5,
+              ),
+            ),
+            _buildPackageInfo(),
+            _buildGuideInfo(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  SizedBox _buildPackageInfo() {
+    return SizedBox(
+      width: double.infinity,
+      height: 40,
+      child: Column(
+        children: [
+          SizedBox(
+            width: double.infinity,
+            child: Row(
+              spacing: 8,
+              children: [
+                Text(
+                  keywords.isNotEmpty ? keywords[0] : '2박 3일', // 첫 번째 키워드
+                  style: AppTypography.body3.copyWith(
+                    color: AppColors.grayScale_650,
+                  ),
+                ),
+                _separator(),
+                Text(
+                  keywords.length > 1 ? keywords[1] : '혼자', // 두 번째 키워드
+                  style: AppTypography.body3.copyWith(
+                    color: AppColors.grayScale_650,
+                  ),
+                ),
+                _separator(),
+                Text(
+                  keywords.length > 2 ? keywords[2] : '액티비티', // 세 번째 키워드
+                  style: AppTypography.body3.copyWith(
+                    color: AppColors.grayScale_650,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          _buildLocationInfo(),
+        ],
+      ),
+    );
+  }
+
+  SizedBox _buildLocationInfo() {
+    return SizedBox(
+      width: double.infinity,
+      child: Row(
+        spacing: 2,
+        children: [
+          Row(
+            children: [
+              SvgPicture.asset(
+                AppIcons.mapPin,
+                width: 12,
+                color: AppColors.grayScale_550,
+              ),
+            ],
+          ),
+          Expanded(
+            child: SizedBox(
+              child: Text(
+                location,
+                style: AppTypography.body3.copyWith(
+                  color: AppColors.grayScale_650,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  SizedBox _buildGuideInfo() {
+    return SizedBox(
+      width: double.infinity,
+      child: Row(
+        spacing: 6,
+        children: [
+          Container(
+            width: 16,
+            height: 16,
+            decoration: ShapeDecoration(
+              image: DecorationImage(
+                image: guideImageUrl.isNotEmpty
+                    ? NetworkImage(guideImageUrl)
+                    : AssetImage("assets/images/sample_profile.jpg")
+                        as ImageProvider,
+                fit: BoxFit.cover,
+              ),
+              shape: CircleBorder(),
+            ),
+          ),
+          Expanded(
+            child: SizedBox(
+              child: Text(name,
+                  style: AppTypography.body3.copyWith(
+                    color: AppColors.grayScale_750,
+                  )),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCustomIcon() {
+    return GestureDetector(
+      onTap: onIconTap,
+      child: icon ??
+          SvgPicture.asset(
+            AppIcons.trash,
+            width: 20,
+            height: 20,
+            color: AppColors.grayScale_550,
+          ),
+    );
+  }
+}
+
+Container _separator() {
+  return Container(
+    width: 1,
+    height: 8,
+    decoration: BoxDecoration(color: AppColors.grayScale_550),
+  );
 }
