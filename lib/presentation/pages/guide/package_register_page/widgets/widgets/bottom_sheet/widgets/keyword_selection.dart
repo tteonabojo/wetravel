@@ -55,6 +55,7 @@ class _KeywordSelectionState extends State<KeywordSelection> {
             SizedBox(
               height: 200,
               child: CupertinoPicker(
+                backgroundColor: AppColors.grayScale_050,
                 scrollController: scrollController,
                 itemExtent: 40,
                 onSelectedItemChanged: (pickerIndex) {

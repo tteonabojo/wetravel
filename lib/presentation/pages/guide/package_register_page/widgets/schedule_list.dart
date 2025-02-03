@@ -70,6 +70,7 @@ class ScheduleList extends ConsumerWidget {
                     title: entry.value['title'] ?? '제목',
                     location: entry.value['location'] ?? '위치',
                     content: entry.value['content'] ?? '설명',
+                    time: entry.value['time'] ?? '오전 9:00',
                     onSave: (
                       title,
                       location,
