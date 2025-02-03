@@ -13,9 +13,9 @@ class _MyPageState extends State<MyPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Align(
+        title: const Align(
           alignment: Alignment.centerLeft,
-          child: const Text(
+          child: Text(
             '마이페이지',
             style: TextStyle(
               color: Colors.black,
@@ -35,7 +35,7 @@ class _MyPageState extends State<MyPage> {
             SizedBox(height: 20),
             _buildProfileBox(),
             SizedBox(height: 8),
-            _buildBoxWithText('문의하기'),
+            _buildInquiryBox(context), // 문의하기 버튼 수정
             SizedBox(height: 8),
             _buildBoxWithText('이용약관/개인정보 처리방침'),
             SizedBox(height: 8),
@@ -109,6 +109,53 @@ class _MyPageState extends State<MyPage> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildInquiryBox(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        _showInquiryDialog(context);
+      },
+      child: Container(
+        height: 56,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            '문의하기',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: Colors.black,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showInquiryDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('문의하기'),
+          content: Text('관리자 이메일: admin@example.com'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // 팝업 닫기
+              },
+              child: Text('확인'),
+            ),
+          ],
+        );
+      },
     );
   }
 
