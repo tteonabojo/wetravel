@@ -60,4 +60,30 @@ class GeminiService {
 추천 시 계절, 여행 기간, 동행인, 여행 스타일을 고려해서 적합한 도시를 추천해주세요.
 ''';
   }
+
+  Future<String> getTravelSchedule(SurveyResponse survey) async {
+    final prompt = '''
+여행 정보:
+- 도시: ${survey.selectedCity}
+- 여행 기간: ${survey.travelDuration}
+- 동행인: ${survey.companions.join(', ')}
+- 여행 스타일: ${survey.travelStyles.join(', ')}
+- 숙소 유형: ${survey.accommodationTypes.join(', ')}
+- 고려사항: ${survey.considerations.join(', ')}
+
+위 정보를 바탕으로 상세한 일정을 만들어주세요.
+각 일정은 다음과 같은 형식으로 작성해주세요:
+
+Day 1
+09:00 - [활동 내용] @ [장소]
+11:00 - [활동 내용] @ [장소]
+...
+
+응답은 위 형식만 포함해야 합니다.
+''';
+
+    final content = [Content.text(prompt)];
+    final response = await model.generateContent(content);
+    return response.text!;
+  }
 }

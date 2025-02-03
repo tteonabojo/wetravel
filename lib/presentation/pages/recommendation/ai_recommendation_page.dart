@@ -122,7 +122,18 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
                           Expanded(
                             child: ElevatedButton(
                               onPressed: () {
-                                // 일정 추천받기 기능
+                                // 현재 선택된 도시(1순위)를 포함하여 SurveyResponse 생성
+                                final updatedSurveyResponse =
+                                    surveyResponse.copyWith(
+                                  selectedCity:
+                                      recommendation.destinations[0], // 1순위 도시
+                                );
+
+                                Navigator.pushNamed(
+                                  context,
+                                  '/ai-schedule',
+                                  arguments: updatedSurveyResponse,
+                                );
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.blue,

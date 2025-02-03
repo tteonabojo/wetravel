@@ -5,6 +5,9 @@ import 'package:wetravel/data/data_source/schedule_data_source.dart';
 import 'package:wetravel/data/repository/schedule_repository_impl.dart';
 import 'package:wetravel/domain/repository/schedule_repository.dart';
 import 'package:wetravel/domain/usecase/fetch_schedules_usecase.dart';
+import 'package:wetravel/domain/entity/survey_response.dart';
+import 'package:wetravel/domain/entity/travel_schedule.dart';
+import 'package:wetravel/presentation/provider/recommendation_provider.dart';
 
 final _scheduleDataSourceProvider = Provider<ScheduleDataSource>((ref) {
   return ScheduleDataSourceImpl(FirebaseFirestore.instance);
@@ -23,3 +26,12 @@ final fetchSchedulesUsecaseProvider = Provider(
     return FetchSchedulesUsecase(scheduleRepo);
   },
 );
+
+final scheduleProvider = FutureProvider.autoDispose
+    .family<TravelSchedule, SurveyResponse>((ref, survey) async {
+  final geminiService = ref.read(geminiServiceProvider);
+  final response = await geminiService.getTravelSchedule(survey);
+  return TravelSchedule.fromGeminiResponse(response);
+});
+
+final selectedDayProvider = StateProvider.autoDispose<int>((ref) => 0);

@@ -7,6 +7,7 @@ import 'package:wetravel/presentation/pages/recommendation/ai_recommendation_pag
 import 'package:wetravel/presentation/pages/plan_selection/plan_selection_page.dart';
 import 'package:wetravel/presentation/pages/survey/survey_page.dart';
 import 'package:wetravel/theme.dart';
+import 'package:wetravel/presentation/pages/schedule/ai_schedule_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,6 +36,7 @@ class MyApp extends StatelessWidget {
         '/survey': (context) => const SurveyPage(),
         '/plan-selection': (context) => const PlanSelectionPage(),
         '/ai-recommendation': (context) => const AIRecommendationPage(),
+        '/ai-schedule': (context) => const AISchedulePage(),
       },
     );
   }
