@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:wetravel/constants/app_colors.dart';
-import 'package:wetravel/constants/app_typography.dart'; // AppColors 임포트 확인
+import 'package:wetravel/core/constants/app_colors.dart';
+import 'package:wetravel/core/constants/app_typography.dart'; // AppColors 임포트 확인
 
 class CustomInputField extends StatefulWidget {
   final String hintText;
