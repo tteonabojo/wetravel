@@ -1,5 +1,6 @@
 import 'package:wetravel/data/data_source/schedule_data_source.dart';
 import 'package:wetravel/domain/entity/schedule.dart';
+import 'package:wetravel/domain/entity/travel_schedule.dart';
 import 'package:wetravel/domain/repository/schedule_repository.dart';
 
 class ScheduleRepositoryImpl implements ScheduleRepository {
@@ -8,19 +9,13 @@ class ScheduleRepositoryImpl implements ScheduleRepository {
 
   @override
   Future<List<Schedule>> fetchSchedules() async {
-    final result = await _scheduleDataSource.fetchSchedules();
-    return result
-        .map((e) => Schedule(
-              id: e.id,
-              packageId: e.packageId,
-              day: e.day,
-              time: e.time,
-              title: e.title,
-              location: e.location,
-              content: e.content,
-              imageUrl: e.imageUrl,
-              order: e.order,
-            ))
-        .toList();
+    // 임시로 빈 리스트 반환
+    // TODO: 나중에 실제 Schedule 데이터를 가져오는 로직 구현
+    return [];
+  }
+
+  @override
+  Future<void> saveSchedule(String userId, TravelSchedule schedule) async {
+    await _scheduleDataSource.saveSchedule(userId, schedule);
   }
 }

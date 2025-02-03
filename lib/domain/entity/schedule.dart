@@ -7,8 +7,8 @@ class Schedule {
   final String time;
   final String title;
   final String location;
-  final String? content;
-  final String? imageUrl;
+  final String content;
+  final String imageUrl;
   final int order;
 
   Schedule({

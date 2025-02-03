@@ -81,8 +81,8 @@ class ScheduleDto {
       time: time,
       title: title,
       location: location,
-      content: content,
-      imageUrl: imageUrl,
+      content: content ?? '',
+      imageUrl: imageUrl ?? '',
       order: order,
     );
   }

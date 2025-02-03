@@ -6,6 +6,12 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/presentation/pages/login/login_page.dart';
 import 'package:wetravel/presentation/pages/stack/stack_page.dart';
+import 'package:wetravel/presentation/pages/survey/city_selection_page.dart';
+import 'package:wetravel/presentation/pages/survey/survey_page.dart';
+import 'package:wetravel/presentation/pages/recommendation/ai_recommendation_page.dart';
+import 'package:wetravel/presentation/pages/schedule/ai_schedule_page.dart';
+import 'package:wetravel/presentation/pages/new_trip/new_trip_page.dart';
+import 'package:wetravel/presentation/pages/plan_selection/plan_selection_page.dart';
 import 'package:wetravel/theme.dart';
 
 void main() async {
@@ -28,19 +34,23 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: AppTheme.themeData,
-      home: StreamBuilder<User?>(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, snapshot) {
-          User? user = snapshot.data;
-          if (snapshot.hasData) {
-            print(user);
-            return StackPage();
-          } else {
-            print(user);
-            return LoginPage();
-          }
-        },
-      ),
+      initialRoute: FirebaseAuth.instance.currentUser == null ? '/login' : '/',
+      routes: {
+        '/': (context) => const StackPage(),
+        '/login': (context) => const LoginPage(),
+        '/city-selection': (context) => const CitySelectionPage(),
+        '/survey': (context) => const SurveyPage(),
+        '/new-trip': (context) => const NewTripPage(),
+        '/plan-selection': (_) =>
+            const ProviderScope(child: PlanSelectionPage()),
+        '/ai-recommendation': (context) => const AIRecommendationPage(),
+        '/ai-schedule': (context) => const AISchedulePage(),
+      },
+      onUnknownRoute: (settings) {
+        return MaterialPageRoute(
+          builder: (context) => const StackPage(),
+        );
+      },
     );
   }
 }
