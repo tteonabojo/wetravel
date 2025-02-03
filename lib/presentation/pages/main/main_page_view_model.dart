@@ -4,14 +4,28 @@ import 'package:wetravel/presentation/provider/package_provider.dart';
 
 class MainPageState {
   final List<Package> recentPackages;
-  const MainPageState({required this.recentPackages});
+  final List<Package> popularPackages;
+
+  const MainPageState(
+      {required this.recentPackages, required this.popularPackages});
+
+  MainPageState copyWith({
+    List<Package>? recentPackages,
+    List<Package>? popularPackages,
+  }) {
+    return MainPageState(
+      recentPackages: recentPackages ?? this.recentPackages,
+      popularPackages: popularPackages ?? this.popularPackages,
+    );
+  }
 }
 
 class MainPageViewModel extends Notifier<MainPageState> {
   @override
   MainPageState build() {
     fetchRecentPackages();
-    return MainPageState(recentPackages: []);
+    fetchPopularPackages();
+    return MainPageState(recentPackages: [], popularPackages: []);
   }
 
   /// 최근에 본 패키지 목록
@@ -19,9 +33,20 @@ class MainPageViewModel extends Notifier<MainPageState> {
     try {
       final recentPackages =
           await ref.read(fetchRecentPackagesProvider).execute();
-      state = MainPageState(recentPackages: recentPackages);
+      state = state.copyWith(recentPackages: recentPackages);
     } catch (e) {
-      state = MainPageState(recentPackages: []);
+      state = state.copyWith(recentPackages: []);
+    }
+  }
+
+  /// 인기 있는 패키지 목록
+  Future<void> fetchPopularPackages() async {
+    try {
+      final popularPackages =
+          await ref.read(fetchPopularPackagesProvider).execute();
+      state = state.copyWith(popularPackages: popularPackages);
+    } catch (e) {
+      state = state.copyWith(popularPackages: []);
     }
   }
 }

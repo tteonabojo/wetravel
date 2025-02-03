@@ -95,4 +95,43 @@ class PackageDataSourceImpl implements PackageDataSource {
       return [];
     }
   }
+
+  @override
+  Future<List<PackageDto>> fetchPopularPackages() async {
+    try {
+      final packageSnapshot = await _firestore
+          .collection('packages')
+          .orderBy('viewCount', descending: true)
+          .limit(10)
+          .get();
+
+      final List userIds = packageSnapshot.docs
+          .map((package) => package.data()['userId'])
+          .toList();
+
+      final userSnapshot = await _firestore
+          .collection('users')
+          .where(FieldPath.documentId, whereIn: userIds)
+          .get();
+
+      final Map<String, Map<String, dynamic>> userMap = {};
+      for (var userDoc in userSnapshot.docs) {
+        userMap[userDoc.id] = userDoc.data() as Map<String, dynamic>;
+      }
+
+      return packageSnapshot.docs.map((doc) {
+        final packageData = doc.data();
+        final userId = packageData['userId'] as String;
+        final userData = userMap[userId];
+
+        return PackageDto.fromJson({
+          ...packageData,
+          'userName': userData?['name'],
+          'userImageUrl': userData?['imageUrl'],
+        });
+      }).toList();
+    } catch (e) {
+      return [];
+    }
+  }
 }

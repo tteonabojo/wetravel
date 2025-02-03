@@ -26,7 +26,7 @@ class _MainPageState extends ConsumerState<MainPage> {
             MainBanner(),
             SizedBox(height: 20),
             MainRecentlyPackages(recentPackages: vm.recentPackages),
-            MainPopularPackages(),
+            MainPopularPackages(popularPackages: vm.popularPackages),
           ],
         ),
       ),
