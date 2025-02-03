@@ -1,35 +1,39 @@
 class SurveyResponse {
-  final String? travelTiming; // 여행시기
-  final String? travelDuration; // 여행기간
-  final String? companion; // 동행인원
-  final String? travelStyle; // 여행스타일
-  final String? accommodation; // 숙소스타일
-  final String? concerns; // 기타 고려사항
+  final String travelPeriod; // 여행시기
+  final String travelDuration; // 여행기간
+  final List<String> companions; // 동행인원
+  final List<String> travelStyles; // 여행스타일
+  final List<String> accommodationTypes; // 숙소스타일
+  final List<String> considerations; // 기타 고려사항
+  final String? selectedCity; // 추가
 
   SurveyResponse({
-    this.travelTiming,
-    this.travelDuration,
-    this.companion,
-    this.travelStyle,
-    this.accommodation,
-    this.concerns,
+    required this.travelPeriod,
+    required this.travelDuration,
+    required this.companions,
+    required this.travelStyles,
+    required this.accommodationTypes,
+    required this.considerations,
+    this.selectedCity, // 선택적 파라미터로 추가
   });
 
   SurveyResponse copyWith({
-    String? travelTiming,
+    String? travelPeriod,
     String? travelDuration,
-    String? companion,
-    String? travelStyle,
-    String? accommodation,
-    String? concerns,
+    List<String>? companions,
+    List<String>? travelStyles,
+    List<String>? accommodationTypes,
+    List<String>? considerations,
+    String? selectedCity,
   }) {
     return SurveyResponse(
-      travelTiming: travelTiming ?? this.travelTiming,
+      travelPeriod: travelPeriod ?? this.travelPeriod,
       travelDuration: travelDuration ?? this.travelDuration,
-      companion: companion ?? this.companion,
-      travelStyle: travelStyle ?? this.travelStyle,
-      accommodation: accommodation ?? this.accommodation,
-      concerns: concerns ?? this.concerns,
+      companions: companions ?? this.companions,
+      travelStyles: travelStyles ?? this.travelStyles,
+      accommodationTypes: accommodationTypes ?? this.accommodationTypes,
+      considerations: considerations ?? this.considerations,
+      selectedCity: selectedCity ?? this.selectedCity,
     );
   }
 }

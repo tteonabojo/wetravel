@@ -7,29 +7,36 @@ final surveyProvider =
 });
 
 class SurveyNotifier extends StateNotifier<SurveyResponse> {
-  SurveyNotifier() : super(SurveyResponse());
+  SurveyNotifier()
+      : super(SurveyResponse(
+            travelPeriod: '',
+            travelDuration: '',
+            companions: [],
+            travelStyles: [],
+            accommodationTypes: [],
+            considerations: []));
 
-  void updateTravelTiming(String timing) {
-    state = state.copyWith(travelTiming: timing);
+  void updateTravelPeriod(String period) {
+    state = state.copyWith(travelPeriod: period);
   }
 
   void updateTravelDuration(String duration) {
     state = state.copyWith(travelDuration: duration);
   }
 
-  void updateCompanion(String companion) {
-    state = state.copyWith(companion: companion);
+  void updateCompanions(List<String> companions) {
+    state = state.copyWith(companions: companions);
   }
 
-  void updateTravelStyle(String style) {
-    state = state.copyWith(travelStyle: style);
+  void updateTravelStyles(List<String> styles) {
+    state = state.copyWith(travelStyles: styles);
   }
 
-  void updateAccommodation(String accommodation) {
-    state = state.copyWith(accommodation: accommodation);
+  void updateAccommodationTypes(List<String> types) {
+    state = state.copyWith(accommodationTypes: types);
   }
 
-  void updateConcerns(String concerns) {
-    state = state.copyWith(concerns: concerns);
+  void updateConsiderations(List<String> considerations) {
+    state = state.copyWith(considerations: considerations);
   }
 }

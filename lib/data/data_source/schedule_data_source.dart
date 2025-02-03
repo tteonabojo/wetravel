@@ -1,5 +1,6 @@
-import 'package:wetravel/data/dto/schedule_dto.dart';
+import 'package:wetravel/domain/entity/travel_schedule.dart';
 
-abstract interface class ScheduleDataSource {
-  Future<List<ScheduleDto>> fetchSchedules();
+abstract class ScheduleDataSource {
+  Future<void> saveSchedule(String userId, TravelSchedule schedule);
+  Future<List<TravelSchedule>> fetchSchedules(String userId);
 }
