@@ -31,7 +31,6 @@ void main() {
                   duration: 'duration',
                   imageUrl: 'imageUrl',
                   keywordList: [],
-                  schedule: [],
                   createdAt: Timestamp.now(),
                   updatedAt: Timestamp.now(),
                 )

@@ -28,6 +28,9 @@ void main() {
                   content: 'content',
                   imageUrl: 'imageUrl',
                   order: 1,
+                  day: 1,
+                  time: '',
+                  location: '',
                 )
               ]);
 

@@ -19,7 +19,7 @@ class _MainPageState extends State<MainPage> {
       child: Scaffold(
         body: Column(
           children: [
-            MainHeader(),
+            // MainHeader(),
             MainBanner(),
             SizedBox(height: 20),
             MainRecentlyPackages(),
