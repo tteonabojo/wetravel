@@ -75,11 +75,7 @@ class _SurveyPageState extends ConsumerState<SurveyPage> {
                           selectedCity: selectedCity,
                         );
 
-                        Navigator.pushReplacementNamed(
-                          context,
-                          '/ai-recommendation',
-                          arguments: surveyResponse,
-                        );
+                        Navigator.pushNamed(context, '/plan-selection');
                       }
                     }
                   },

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/domain/entity/survey_response.dart';
+import 'package:wetravel/domain/entity/travel_schedule.dart';
 import 'package:wetravel/presentation/provider/schedule_provider.dart';
 
 class AISchedulePage extends ConsumerWidget {
@@ -119,34 +120,48 @@ class AISchedulePage extends ConsumerWidget {
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () {
-                        // 다시 추천받기 기능
+                        Navigator.pop(context);
                       },
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Colors.blue),
-                      ),
-                      child: const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.refresh),
-                          SizedBox(width: 8),
-                          Text('다시 추천받기'),
-                        ],
-                      ),
+                      child: const Text('뒤로가기'),
                     ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // 일정 담기 기능
+                    child: Consumer(
+                      builder: (context, ref, child) {
+                        return ElevatedButton(
+                          onPressed: () async {
+                            try {
+                              final scheduleAsync =
+                                  ref.read(scheduleProvider(surveyResponse));
+                              if (scheduleAsync.hasValue) {
+                                final schedule = scheduleAsync.value!;
+                                // destination 설정
+                                final updatedSchedule = TravelSchedule(
+                                  destination:
+                                      surveyResponse.selectedCity ?? '',
+                                  days: schedule.days,
+                                );
+                                await ref.read(
+                                    saveScheduleProvider(updatedSchedule)
+                                        .future);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('일정이 저장되었습니다')),
+                                );
+                              }
+                            } catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('일정 저장 실패: $e')),
+                              );
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                          ),
+                          child: const Text('일정 담기',
+                              style: TextStyle(color: Colors.white)),
+                        );
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                      ),
-                      child: const Text(
-                        '일정 담기',
-                        style: TextStyle(color: Colors.white),
-                      ),
                     ),
                   ),
                 ],

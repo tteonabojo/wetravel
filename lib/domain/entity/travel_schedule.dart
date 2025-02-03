@@ -1,7 +1,11 @@
 class TravelSchedule {
+  final String destination;
   final List<DaySchedule> days;
 
-  TravelSchedule({required this.days});
+  TravelSchedule({
+    required this.destination,
+    required this.days,
+  });
 
   factory TravelSchedule.fromGeminiResponse(String response) {
     final List<DaySchedule> days = [];
@@ -44,7 +48,29 @@ class TravelSchedule {
       print('Error parsing schedule: $e');
     }
 
-    return TravelSchedule(days: days);
+    return TravelSchedule(
+      destination: '',
+      days: days,
+    );
+  }
+
+  // Firebase에서 데이터를 불러올 때 사용하는 팩토리 메서드
+  factory TravelSchedule.fromFirestore(Map<String, dynamic> data) {
+    final List<DaySchedule> days = (data['days'] as List).map((dayData) {
+      final schedules = (dayData['schedules'] as List).map((scheduleData) {
+        return ScheduleItem(
+          time: scheduleData['time'],
+          title: scheduleData['title'],
+          location: scheduleData['location'],
+        );
+      }).toList();
+      return DaySchedule(schedules: schedules);
+    }).toList();
+
+    return TravelSchedule(
+      destination: data['destination'],
+      days: days,
+    );
   }
 }
 

@@ -5,6 +5,15 @@ import 'package:wetravel/presentation/provider/recommendation_provider.dart';
 class CitySelectionPage extends ConsumerWidget {
   const CitySelectionPage({super.key});
 
+  // 국가별 도시 데이터
+  static const Map<String, List<String>> cityCategories = {
+    '일본': ['도쿄', '오사카', '시즈오카', '나고야', '삿포로', '후쿠오카', '교토', '나라'],
+    '한국': ['서울', '부산', '제주', '강릉', '여수', '경주'],
+    '동남아시아': ['방콕', '싱가포르', '발리', '세부', '다낭', '하노이', '호치민', '쿠알라룸푸르'],
+    '미국': ['뉴욕', '로스앤젤레스', '샌프란시스코', '라스베가스', '시애틀', '하와이'],
+    '유럽': ['파리', '런던', '로마', '바르셀로나', '암스테르담', '프라하', '비엔나', '베니스'],
+  };
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
@@ -77,72 +86,28 @@ class CitySelectionPage extends ConsumerWidget {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 30),
-                      const Text(
-                        '일본',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          _buildCityChip('도쿄', ref),
-                          _buildCityChip('후쿠오카', ref),
-                          _buildCityChip('시즈오카', ref),
-                          _buildCityChip('오사카', ref),
-                          _buildCityChip('나고야', ref),
-                          _buildCityChip('삿포로', ref),
-                          _buildCityChip('오키나와', ref),
-                        ],
-                      ),
-                      const SizedBox(height: 30),
-                      const Text(
-                        '일본',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          _buildCityChip('도쿄', ref),
-                          _buildCityChip('후쿠오카', ref),
-                          _buildCityChip('시즈오카', ref),
-                          _buildCityChip('오사카', ref),
-                          _buildCityChip('나고야', ref),
-                          _buildCityChip('삿포로', ref),
-                          _buildCityChip('오키나와', ref),
-                        ],
-                      ),
-                      const SizedBox(height: 30),
-                      const Text(
-                        '일본',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          _buildCityChip('도쿄', ref),
-                          _buildCityChip('후쿠오카', ref),
-                          _buildCityChip('시즈오카', ref),
-                          _buildCityChip('오사카', ref),
-                          _buildCityChip('나고야', ref),
-                          _buildCityChip('삿포로', ref),
-                          _buildCityChip('오키나와', ref),
-                        ],
-                      ),
+                      // 각 국가 카테고리별 도시 목록
+                      ...cityCategories.entries.map((entry) => Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(height: 30),
+                              Text(
+                                entry.key,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: entry.value
+                                    .map((city) => _buildCityChip(city, ref))
+                                    .toList(),
+                              ),
+                            ],
+                          )),
                     ],
                   ),
                 ),

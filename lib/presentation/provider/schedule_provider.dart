@@ -8,6 +8,7 @@ import 'package:wetravel/domain/usecase/fetch_schedules_usecase.dart';
 import 'package:wetravel/domain/entity/survey_response.dart';
 import 'package:wetravel/domain/entity/travel_schedule.dart';
 import 'package:wetravel/presentation/provider/recommendation_provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 final _scheduleDataSourceProvider = Provider<ScheduleDataSource>((ref) {
   return ScheduleDataSourceImpl(FirebaseFirestore.instance);
@@ -35,3 +36,13 @@ final scheduleProvider = FutureProvider.autoDispose
 });
 
 final selectedDayProvider = StateProvider.autoDispose<int>((ref) => 0);
+
+final saveScheduleProvider =
+    FutureProvider.autoDispose.family<void, TravelSchedule>(
+  (ref, schedule) async {
+    final scheduleRepo = ref.read(_scheduleRepositoryProvider);
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) throw Exception('User not logged in');
+    await scheduleRepo.saveSchedule(userId, schedule);
+  },
+);

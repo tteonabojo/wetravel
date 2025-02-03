@@ -73,6 +73,8 @@ class _StackPageState extends ConsumerState<StackPage> {
                 Center(child: Text('stack page Error: $error')),
           ),
           bottomNavigationBar: CustomBottomNavigationBar(
+            context: context,
+            ref: ref,
             selectedIndex: _selectedIndex,
             onItemTapped: _onItemTapped,
           ),
