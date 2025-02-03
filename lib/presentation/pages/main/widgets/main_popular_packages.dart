@@ -21,7 +21,11 @@ class MainPopularPackages extends StatelessWidget {
               itemCount: 10,
               itemBuilder: (BuildContext context, int index) {
                 int? rate = index <= 2 ? index + 1 : null; // 3등 까지 순위 표시
-                return PackageItem(rate: rate);
+                return PackageItem(
+                  rate: rate,
+                  title: '원숭이들이 있는 온천 여행',
+                  location: '도쿄',
+                );
               },
               separatorBuilder: (context, index) {
                 return SizedBox(height: 8);

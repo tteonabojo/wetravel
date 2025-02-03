@@ -11,9 +11,17 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Text('main'),
+    return SafeArea(
+      child: Scaffold(
+        body: Column(
+          children: [
+            // MainHeader(),
+            MainBanner(),
+            SizedBox(height: 20),
+            MainRecentlyPackages(),
+            MainPopularPackages(),
+          ],
+        ),
       ),
     );
   }

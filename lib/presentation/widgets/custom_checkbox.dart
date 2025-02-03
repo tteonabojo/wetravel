@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:wetravel/constants/app_colors.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:wetravel/core/constants/app_border_radius.dart';
+import 'package:wetravel/core/constants/app_colors.dart';
+import 'package:wetravel/core/constants/app_icons.dart';
 
 class CustomCheckbox extends StatefulWidget {
   final bool value;
@@ -26,19 +29,16 @@ class _CustomCheckboxState extends State<CustomCheckbox> {
         width: 20,
         height: 20,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(4),
+          borderRadius: AppBorderRadius.small4,
           border: Border.all(
             color:
                 widget.value ? AppColors.primary_450 : AppColors.grayScale_250,
           ),
           color: widget.value ? AppColors.primary_450 : Colors.transparent,
         ),
-        child: Center(
-          child: Icon(
-            Icons.check,
-            size: 16,
-            color: widget.value ? Colors.white : AppColors.grayScale_250,
-          ),
+        child: SvgPicture.asset(
+          AppIcons.check,
+          color: widget.value ? Colors.white : AppColors.grayScale_250,
         ),
       ),
     );

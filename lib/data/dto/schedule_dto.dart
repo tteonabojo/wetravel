@@ -1,7 +1,12 @@
+import 'package:wetravel/domain/entity/schedule.dart';
+
 class ScheduleDto {
   final String id;
   final String packageId;
+  final int day;
+  final String time;
   final String title;
+  final String location;
   final String? content;
   final String? imageUrl;
   final int order;
@@ -9,7 +14,10 @@ class ScheduleDto {
   ScheduleDto({
     required this.id,
     required this.packageId,
+    required this.day,
+    required this.time,
     required this.title,
+    required this.location,
     this.content,
     this.imageUrl,
     required this.order,
@@ -18,15 +26,21 @@ class ScheduleDto {
   ScheduleDto copyWith({
     String? id,
     String? packageId,
+    int? day,
+    String? time,
     String? title,
+    String? location,
     String? content,
     String? imageUrl,
-    String? order,
+    int? order,
   }) =>
       ScheduleDto(
         id: id ?? this.id,
         packageId: packageId ?? this.packageId,
+        day: day as int,
+        time: time ?? this.time,
         title: title ?? this.title,
+        location: location ?? this.location,
         content: content ?? this.content,
         imageUrl: imageUrl ?? this.imageUrl,
         order: order as int,
@@ -37,7 +51,10 @@ class ScheduleDto {
       : this(
           id: json["id"],
           packageId: json["packageId"],
+          day: json["day"],
+          time: json["time"],
           title: json["title"],
+          location: json["location"],
           content: json["content"],
           imageUrl: json["imageUrl"],
           order: json["order"],
@@ -47,9 +64,40 @@ class ScheduleDto {
   Map<String, dynamic> toJson() => {
         "id": id,
         "packageId": packageId,
+        "day": day,
+        "time": time,
         "title": title,
+        "location": location,
         "content": content,
         "imageUrl": imageUrl,
         "order": order,
       };
+
+  Schedule toEntity() {
+    return Schedule(
+      id: id,
+      packageId: packageId,
+      day: day,
+      time: time,
+      title: title,
+      location: location,
+      content: content,
+      imageUrl: imageUrl,
+      order: order,
+    );
+  }
+
+  factory ScheduleDto.fromEntity(Schedule schedule) {
+    return ScheduleDto(
+      id: schedule.id,
+      packageId: schedule.packageId,
+      day: schedule.day,
+      time: schedule.time,
+      title: schedule.title,
+      location: schedule.location,
+      content: schedule.content,
+      imageUrl: schedule.imageUrl,
+      order: schedule.order,
+    );
+  }
 }
