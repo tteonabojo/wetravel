@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -19,6 +18,9 @@ void main() async {
   await Firebase.initializeApp(); // firebase 초기화
   await dotenv.load(fileName: "assets/.env"); // .env 파일 로드
 
+  // 초기화가 완료되면 스플래시 화면 제거
+  FlutterNativeSplash.remove();
+
   runApp(
     const ProviderScope(
       child: MyApp(),
@@ -34,7 +36,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: AppTheme.themeData,
-      initialRoute: '/',
+      initialRoute: '/survey',
       routes: {
         '/': (context) => const CitySelectionPage(),
         '/survey': (context) => const SurveyPage(),
