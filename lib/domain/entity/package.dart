@@ -16,6 +16,7 @@ class Package {
   final Timestamp? deletedAt;
   final int reportCount;
   final bool isHidden;
+  final Timestamp? viewedAt;
 
   Package({
     required this.id,
@@ -32,6 +33,7 @@ class Package {
     this.deletedAt,
     this.reportCount = 0,
     this.isHidden = false,
+    this.viewedAt,
   });
 
   Map<String, dynamic> toJson() => {
@@ -49,6 +51,7 @@ class Package {
         "deletedAt": deletedAt,
         "reportCount": reportCount,
         "isHidden": isHidden,
+        "viewedAt": viewedAt,
       };
 
   PackageDto toDto() {
@@ -67,6 +70,7 @@ class Package {
       deletedAt: deletedAt,
       reportCount: reportCount,
       isHidden: isHidden,
+      viewedAt: viewedAt,
     );
   }
 }
