@@ -1,8 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:wetravel/core/constants/app_icons.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_icons.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
@@ -11,7 +10,6 @@ import 'package:wetravel/presentation/pages/login/login_page_view_model.dart';
 import 'package:wetravel/presentation/pages/login/widgets/indicator_circle.dart';
 import 'package:wetravel/presentation/pages/login/widgets/indicator_oval.dart';
 import 'package:wetravel/presentation/pages/stack/stack_page.dart';
-import 'package:wetravel/presentation/widgets/buttons/social_login_button.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -45,11 +43,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       body: Padding(
         padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),
         child: Column(
-          spacing: 16,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Spacer(),
