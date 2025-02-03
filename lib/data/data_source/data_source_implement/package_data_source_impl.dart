@@ -22,4 +22,16 @@ class PackageDataSourceImpl implements PackageDataSource {
   Future<void> addPackage(Map<String, dynamic> packageData) async {
     await _firestore.collection('packages').add(packageData);
   }
+
+  @override
+  Future<List<PackageDto>> fetchPackagesByUserId(String userId) async {
+    final snapshot = await _firestore
+        .collection('packages')
+        .where('userId', isEqualTo: userId)
+        .get();
+
+    return snapshot.docs.map((doc) {
+      return PackageDto.fromJson(doc.data());
+    }).toList();
+  }
 }

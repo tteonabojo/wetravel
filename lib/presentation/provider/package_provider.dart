@@ -7,6 +7,7 @@ import 'package:wetravel/data/repository/package_repository_impl.dart';
 import 'package:wetravel/domain/repository/package_repository.dart';
 import 'package:wetravel/domain/usecase/add_package_usecase.dart';
 import 'package:wetravel/domain/usecase/fetch_packages_usecase.dart';
+import 'package:wetravel/domain/usecase/fetch_user_packages_usecase.dart';
 
 final _packageDataSourceProvider = Provider<PackageDataSource>((ref) {
   return PackageDataSourceImpl(FirebaseFirestore.instance);
@@ -41,3 +42,10 @@ class PackageProvider {
     }
   }
 }
+
+final packageDataSourceProvider =
+    Provider((ref) => PackageDataSourceImpl(FirebaseFirestore.instance));
+final packageRepositoryProvider = Provider(
+    (ref) => PackageRepositoryImpl(ref.read(packageDataSourceProvider)));
+final fetchUserPackagesUsecaseProvider = Provider(
+    (ref) => FetchUserPackagesUseCase(ref.read(packageRepositoryProvider)));
