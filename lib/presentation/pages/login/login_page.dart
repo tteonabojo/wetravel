@@ -1,9 +1,10 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wetravel/constants/app_colors.dart';
-import 'package:wetravel/constants/app_icons.dart';
-import 'package:wetravel/constants/app_typography.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:wetravel/core/constants/app_colors.dart';
+import 'package:wetravel/core/constants/app_icons.dart';
+import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/core/constants/auth_providers.dart';
 import 'package:wetravel/presentation/pages/login/login_page_view_model.dart';
 import 'package:wetravel/presentation/pages/login/widgets/indicator_circle.dart';
@@ -123,7 +124,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    AppIcons.apple,
+                    SvgPicture.asset(AppIcons.apple),
                     Spacer(),
                     Text(
                       'Apple로 로그인',
@@ -150,7 +151,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    AppIcons.google,
+                    SvgPicture.asset(AppIcons.google),
                     Spacer(),
                     Text(
                       'Google로 로그인',

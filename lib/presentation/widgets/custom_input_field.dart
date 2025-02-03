@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:wetravel/constants/app_colors.dart';
-import 'package:wetravel/constants/app_typography.dart'; // AppColors 임포트 확인
+import 'package:wetravel/core/constants/app_colors.dart';
+import 'package:wetravel/core/constants/app_typography.dart';
 
 class CustomInputField extends StatefulWidget {
   final String hintText;
   final TextInputType keyboardType;
   final bool obscureText;
   final Function(String)? onChanged;
-  final int maxLength; // 최대 글자 수
-  final String labelText; // 고정 라벨 텍스트 추가
+  final int maxLength;
+  final String labelText;
+  final TextEditingController? controller;
+  final int? maxLines;
+  final int? minLines;
 
   const CustomInputField({
     super.key,
@@ -18,7 +20,10 @@ class CustomInputField extends StatefulWidget {
     this.obscureText = false,
     this.onChanged,
     required this.maxLength,
-    required this.labelText, // labelText 필수
+    required this.labelText,
+    this.controller,
+    this.maxLines = 1,
+    this.minLines = 1,
   });
 
   @override
@@ -27,33 +32,35 @@ class CustomInputField extends StatefulWidget {
 
 class _InputFieldState extends State<CustomInputField> {
   late final TextEditingController _controller;
+  int _currentLength = 0;
 
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController();
-    _controller.addListener(_updateCurrentLength); // 리스너 추가
+    // 외부 컨트롤러가 있으면 사용하고, 없으면 내부에서 생성
+    _controller = widget.controller ?? TextEditingController();
+    _controller.addListener(_updateCurrentLength);
   }
 
   @override
   void dispose() {
-    _controller.removeListener(_updateCurrentLength); // 리스너 제거
-
-    _controller.dispose();
+    _controller.removeListener(_updateCurrentLength);
+    if (widget.controller == null) {
+      // 외부 컨트롤러가 아닌 경우에만 dispose
+      _controller.dispose();
+    }
     super.dispose();
   }
-
-  int _currentLength = 0;
 
   void _updateCurrentLength() {
     setState(() {
       _currentLength = _controller.text.length;
       if (_currentLength > widget.maxLength) {
-        // 추가: 최대 글자 수 초과 시 텍스트 자르기
         _controller.text = _controller.text.substring(0, widget.maxLength);
         _currentLength = widget.maxLength;
-        _controller.selection =
-            TextSelection.fromPosition(TextPosition(offset: _currentLength));
+        _controller.selection = TextSelection.fromPosition(
+          TextPosition(offset: _currentLength),
+        );
       }
     });
   }
@@ -61,7 +68,7 @@ class _InputFieldState extends State<CustomInputField> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start, // 왼쪽 정렬
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           widget.labelText,
@@ -69,56 +76,45 @@ class _InputFieldState extends State<CustomInputField> {
             color: AppColors.grayScale_650,
           ),
         ),
-        Padding(padding: EdgeInsets.only(top: 8)),
-        Focus(
-          child: TextFormField(
-            controller: _controller,
-            keyboardType: widget.keyboardType,
-            obscureText: widget.obscureText,
-            onChanged: widget.onChanged,
-            style: TextStyle(
-              // 입력 글씨 색상 설정
-              color: AppColors.grayScale_750,
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: _controller,
+          keyboardType: widget.keyboardType,
+          obscureText: widget.obscureText,
+          onChanged: widget.onChanged,
+          style: const TextStyle(color: AppColors.grayScale_750),
+          maxLines: widget.maxLines,
+          minLines: widget.minLines,
+          decoration: InputDecoration(
+            hintText: widget.hintText,
+            hintStyle: AppTypography.body1.copyWith(
+              color: AppColors.grayScale_350,
             ),
-            decoration: InputDecoration(
-              hintText: widget.hintText,
-              hintStyle: AppTypography.body1.copyWith(
-                // 힌트 글씨 색상 설정
-                color: AppColors.grayScale_350,
-              ),
-              focusedBorder: OutlineInputBorder(
-                // 입력 중 테두리 스타일
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(
-                  color: AppColors.primary_450,
-                ),
-              ),
-              enabledBorder: OutlineInputBorder(
-                // 비활성 테두리 스타일
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(
-                  color: AppColors.grayScale_150,
-                ),
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 16,
-              ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppColors.primary_450),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppColors.grayScale_150),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 16,
             ),
           ),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Text(
-                '${_currentLength} / ${widget.maxLength}',
-                style: AppTypography.body2
-                    .copyWith(color: AppColors.grayScale_350),
+        Align(
+          alignment: Alignment.centerRight,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(
+              '$_currentLength / ${widget.maxLength}',
+              style: AppTypography.body2.copyWith(
+                color: AppColors.grayScale_350,
               ),
             ),
-          ],
+          ),
         ),
       ],
     );

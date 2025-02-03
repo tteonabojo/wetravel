@@ -25,6 +25,9 @@ void main() {
                   packageId: 'packageId',
                   title: 'title',
                   order: 1,
+                  day: 1,
+                  time: '',
+                  location: '',
                 )
               ]);
       final result = await scheduleRepositoryImpl.fetchSchedules();

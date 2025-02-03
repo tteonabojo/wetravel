@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wetravel/core/constants/app_colors.dart';
 
 class MainHeader extends StatelessWidget {
   /// 메인 페이지 로고 영역
@@ -9,7 +10,7 @@ class MainHeader extends StatelessWidget {
     return Container(
       height: 56,
       width: double.infinity,
-      color: Colors.grey,
+      color: AppColors.grayScale_050,
       alignment: Alignment.centerLeft,
       child: Row(
         children: [
