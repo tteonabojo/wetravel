@@ -4,6 +4,8 @@ import 'package:wetravel/domain/entity/package.dart';
 class PackageDto {
   final String id;
   final String userId;
+  final String? userName;
+  final String? userImageUrl;
   final String title;
   final String location;
   final String? description;
@@ -20,6 +22,8 @@ class PackageDto {
   PackageDto({
     required this.id,
     required this.userId,
+    this.userName,
+    this.userImageUrl,
     required this.title,
     required this.location,
     this.description,
@@ -37,6 +41,8 @@ class PackageDto {
   PackageDto copyWith({
     String? id,
     String? userId,
+    String? userName,
+    String? userImageUrl,
     String? title,
     String? location,
     String? description,
@@ -53,6 +59,8 @@ class PackageDto {
       PackageDto(
         id: id ?? this.id,
         userId: userId ?? this.userId,
+        userName: userName ?? this.userName,
+        userImageUrl: userId ?? this.userImageUrl,
         title: title ?? this.title,
         location: location ?? this.location,
         description: description ?? this.description,
@@ -71,6 +79,8 @@ class PackageDto {
       : this(
           id: json['id'] as String,
           userId: json['userId'] as String,
+          userName: json['userName'],
+          userImageUrl: json['userImageUrl'],
           title: json['title'] as String,
           location: json['location'] as String,
           description: json['description'] as String,
@@ -88,6 +98,8 @@ class PackageDto {
   Map<String, dynamic> toJson() => {
         "id": id,
         "userId": userId,
+        "userName": userName,
+        "userImageUrl": userImageUrl,
         "title": title,
         "location": location,
         "description": description,
@@ -106,6 +118,8 @@ class PackageDto {
     return PackageDto(
       id: package.id,
       userId: package.userId,
+      userName: package.userName,
+      userImageUrl: package.userImageUrl,
       title: package.title,
       location: package.location,
       description: package.description,
@@ -125,6 +139,8 @@ class PackageDto {
     return Package(
       id: id,
       userId: userId,
+      userName: userName,
+      userImageUrl: userImageUrl,
       title: title,
       location: location,
       description: description,

@@ -5,4 +5,6 @@ abstract interface class PackageRepository {
   Future<List<Package>> fetchPackagesByUserId(
       String userId); // 특정 사용자에 대한 패키지 가져오기
   Future<void> addPackage(Map<String, dynamic> packageData);
+
+  Future<List<Package>> fetchRecentPackages();
 }

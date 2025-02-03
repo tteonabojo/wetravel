@@ -1,4 +1,5 @@
 import 'package:wetravel/data/data_source/package_data_source.dart';
+import 'package:wetravel/data/dto/package_dto.dart';
 import 'package:wetravel/domain/entity/package.dart';
 import 'package:wetravel/domain/repository/package_repository.dart';
 
@@ -55,5 +56,11 @@ class PackageRepositoryImpl implements PackageRepository {
               isHidden: e.isHidden,
             ))
         .toList();
+  }
+
+  @override
+  Future<List<Package>> fetchRecentPackages() async {
+    final result = await _packageDataSource.fetchRecentPackages();
+    return result.map((e) => e.toEntity()).toList();
   }
 }
