@@ -16,7 +16,6 @@ class PackageDto {
   final Timestamp? deletedAt;
   final int reportCount;
   final bool isHidden;
-  final Timestamp? viewedAt;
 
   PackageDto({
     required this.id,
@@ -33,7 +32,6 @@ class PackageDto {
     this.deletedAt,
     this.reportCount = 0,
     this.isHidden = false,
-    this.viewedAt,
   });
 
   PackageDto copyWith({
@@ -51,7 +49,6 @@ class PackageDto {
     dynamic deletedAt,
     int? reportCount,
     bool? isHidden,
-    Timestamp? viewedAt,
   }) =>
       PackageDto(
         id: id ?? this.id,
@@ -68,7 +65,6 @@ class PackageDto {
         deletedAt: deletedAt ?? this.deletedAt,
         reportCount: reportCount ?? this.reportCount,
         isHidden: isHidden ?? this.isHidden,
-        viewedAt: viewedAt ?? this.viewedAt,
       );
 
   PackageDto.fromJson(Map<String, dynamic> json)
@@ -87,7 +83,6 @@ class PackageDto {
           deletedAt: json['deletedAt'],
           reportCount: json['reportCount'] as int,
           isHidden: json['isHidden'] as bool,
-          viewedAt: json['viewedAt'],
         );
 
   Map<String, dynamic> toJson() => {
@@ -105,7 +100,6 @@ class PackageDto {
         "deletedAt": deletedAt,
         "reportCount": reportCount,
         "isHidden": isHidden,
-        "viewedAt": viewedAt,
       };
 
   factory PackageDto.fromEntity(Package package) {
@@ -124,7 +118,6 @@ class PackageDto {
       deletedAt: package.deletedAt,
       reportCount: package.reportCount,
       isHidden: package.isHidden,
-      viewedAt: package.viewedAt,
     );
   }
 
@@ -144,7 +137,6 @@ class PackageDto {
       deletedAt: deletedAt,
       reportCount: reportCount,
       isHidden: isHidden,
-      viewedAt: viewedAt,
     );
   }
 }
