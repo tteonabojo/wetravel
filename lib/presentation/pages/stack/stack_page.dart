@@ -5,14 +5,15 @@ import 'package:wetravel/presentation/pages/main/main_page.dart';
 import 'package:wetravel/presentation/pages/main/widgets/main_header.dart';
 import 'package:wetravel/presentation/pages/mypage/mypage.dart';
 import 'package:wetravel/presentation/pages/new_trip/new_trip_page.dart';
+import 'package:wetravel/presentation/pages/saved_plans/saved_plans_page.dart';
 import 'package:wetravel/presentation/pages/stack/widgets/custom_bottom_navigation_bar.dart';
 
 class StackPage extends ConsumerStatefulWidget {
-  final int initialIndex; // 초기 인덱스
+  final int initialIndex;
 
   const StackPage({
     super.key,
-    this.initialIndex = 0, // 기본값은 0
+    this.initialIndex = 0,
   });
 
   @override

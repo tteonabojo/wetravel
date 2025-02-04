@@ -18,16 +18,41 @@ class _MainPageState extends ConsumerState<MainPage> {
   Widget build(BuildContext context) {
     final vm = ref.watch(mainPageViewModel);
 
-    return SafeArea(
-      child: Scaffold(
-        body: Column(
-          children: [
-            MainBanner(),
-            SizedBox(height: 20),
-            MainRecentlyPackages(recentPackages: vm.recentPackages),
-            SizedBox(height: 20),
-            MainPopularPackages(popularPackages: vm.popularPackages),
-          ],
+    return Scaffold(
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // NewTripPage의 내용을 여기로 이동
+              Row(
+                children: const [
+                  Text(
+                    '위트',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    MainBanner(),
+                    SizedBox(height: 20),
+                    MainRecentlyPackages(recentPackages: vm.recentPackages),
+                    SizedBox(height: 20),
+                    MainPopularPackages(popularPackages: vm.popularPackages),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

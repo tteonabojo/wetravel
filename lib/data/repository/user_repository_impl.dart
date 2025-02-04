@@ -58,4 +58,19 @@ class UserRepositoryImpl implements UserRepository {
     // TODO: implement signIn
     throw UnimplementedError();
   }
+
+  @override
+  Future<void> createUser(User user) async {
+    try {
+      await _firebaseFirestore.collection('users').doc(user.uid).set({
+        'email': user.email,
+        'schedules': [], // 빈 배열로 초기화
+        'isGuide': false,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      print('Error creating user: $e');
+      rethrow;
+    }
+  }
 }

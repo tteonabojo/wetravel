@@ -1,17 +1,53 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' as http;
+import 'package:wetravel/domain/entity/schedule.dart';
 import 'package:wetravel/domain/entity/survey_response.dart';
-import 'package:wetravel/domain/entity/travel_schedule.dart';
 import 'package:wetravel/presentation/provider/schedule_provider.dart';
+import 'package:wetravel/presentation/provider/user_provider.dart';
 
-class AISchedulePage extends ConsumerWidget {
+class AISchedulePage extends ConsumerStatefulWidget {
   const AISchedulePage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final surveyResponse =
-        ModalRoute.of(context)!.settings.arguments as SurveyResponse;
+  ConsumerState<AISchedulePage> createState() => _AISchedulePageState();
+}
 
+class _AISchedulePageState extends ConsumerState<AISchedulePage> {
+  late SurveyResponse surveyResponse;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    surveyResponse =
+        ModalRoute.of(context)!.settings.arguments as SurveyResponse;
+  }
+
+  Future<String> _getPixabayImage(String destination) async {
+    try {
+      final city = destination.split('(')[0].trim();
+      final query = Uri.encodeComponent(city);
+      final response = await http.get(
+        Uri.parse(
+          'https://pixabay.com/api/?key=48447680-a9467e6fd874740328fcde2e3&q=$query&image_type=photo&category=travel&orientation=horizontal&per_page=3',
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['hits'].isNotEmpty) {
+          return data['hits'][0]['webformatURL'];
+        }
+      }
+      return 'https://via.placeholder.com/640x480?text=No+Image';
+    } catch (e) {
+      return 'https://via.placeholder.com/640x480?text=Error';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -132,23 +168,7 @@ class AISchedulePage extends ConsumerWidget {
                         return ElevatedButton(
                           onPressed: () async {
                             try {
-                              final scheduleAsync =
-                                  ref.read(scheduleProvider(surveyResponse));
-                              if (scheduleAsync.hasValue) {
-                                final schedule = scheduleAsync.value!;
-                                // destination 설정
-                                final updatedSchedule = TravelSchedule(
-                                  destination:
-                                      surveyResponse.selectedCity ?? '',
-                                  days: schedule.days,
-                                );
-                                await ref.read(
-                                    saveScheduleProvider(updatedSchedule)
-                                        .future);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('일정이 저장되었습니다')),
-                                );
-                              }
+                              await _saveSchedule();
                             } catch (e) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(content: Text('일정 저장 실패: $e')),
@@ -221,5 +241,33 @@ class AISchedulePage extends ConsumerWidget {
     // 여행 기간에서 숫자 추출
     final days = int.tryParse(duration.split('박')[0]) ?? 0;
     return days + 1; // N박의 경우 N+1일
+  }
+
+  Future<void> _saveSchedule() async {
+    try {
+      // 이미지 URL 가져오기
+      final imageUrl = await _getPixabayImage(surveyResponse.selectedCity!);
+
+      // 기존 형식으로 스케줄 생성
+      final schedule = Schedule(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        title: '${surveyResponse.selectedCity} 여행',
+        location: surveyResponse.selectedCity!,
+        duration: surveyResponse.travelDuration,
+        imageUrl: imageUrl,
+        isAIRecommended: true,
+        travelStyle: surveyResponse.travelStyles.join(', '),
+      );
+
+      await ref.read(scheduleActionsProvider).addSchedule(schedule);
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('일정이 저장되었습니다')),
+        );
+      }
+    } catch (e) {
+      print('Error saving schedule: $e');
+    }
   }
 }

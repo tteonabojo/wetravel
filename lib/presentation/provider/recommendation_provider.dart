@@ -27,10 +27,38 @@ class RecommendationState {
     this.selectedCities = const [],
     this.selectedKeywords = const [],
   });
+
+  // 상태 초기화 메서드 추가
+  RecommendationState reset() {
+    return RecommendationState(
+      currentPage: 0,
+      travelPeriod: null,
+      travelDuration: null,
+      companions: [],
+      travelStyles: [],
+      accommodationTypes: [],
+      considerations: [],
+      selectedCities: [],
+    );
+  }
 }
 
 class RecommendationNotifier extends StateNotifier<RecommendationState> {
   RecommendationNotifier() : super(RecommendationState());
+
+  // 상태 초기화 메서드 추가
+  void resetState({String? selectedCity}) {
+    state = RecommendationState(
+      currentPage: 0,
+      selectedCities: selectedCity != null ? [selectedCity] : [], // 선택된 도시 유지
+      travelPeriod: null,
+      travelDuration: null,
+      companions: [],
+      travelStyles: [],
+      accommodationTypes: [],
+      considerations: [],
+    );
+  }
 
   // 도시-카테고리 매핑
   static const Map<String, List<String>> cityCategories = {
