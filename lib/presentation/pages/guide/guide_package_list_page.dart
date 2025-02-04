@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -54,10 +55,8 @@ class GuidePackageListPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
-    final getPackageUseCase =
-        ref.read(getPackageUseCaseProvider); // use case 가져오기
-    final getSchedulesUseCase =
-        ref.read(getSchedulesUseCaseProvider); // use case 가져오기
+    final getPackageUseCase = ref.read(getPackageUseCaseProvider);
+    final getSchedulesUseCase = ref.read(getSchedulesUseCaseProvider);
 
     return Scaffold(
       body: Padding(
@@ -95,7 +94,6 @@ class GuidePackageListPage extends ConsumerWidget {
                     itemBuilder: (context, index) {
                       final package = packages[index];
 
-                      // Firebase에서 패키지 이미지 URL 가져오기
                       return FutureBuilder<String?>(
                         future: _getPackageImageUrl(package.id),
                         builder: (context, imageSnapshot) {
@@ -110,12 +108,6 @@ class GuidePackageListPage extends ConsumerWidget {
 
                           return GestureDetector(
                             onTap: () async {
-                              final fetchPackageSchedulesUsecase = ref
-                                  .read(fetchPackageSchedulesUsecaseProvider);
-                              final scheduleData =
-                                  await fetchPackageSchedulesUsecase
-                                      .execute(package.scheduleIdList);
-
                               Navigator.push(context, MaterialPageRoute(
                                 builder: (context) {
                                   return PackageDetailPage(
@@ -127,6 +119,43 @@ class GuidePackageListPage extends ConsumerWidget {
                               ));
                             },
                             child: PackageItem(
+                              icon: SvgPicture.asset(AppIcons.ellipsisVertical),
+                              onIconTap: () async {
+                                showCupertinoModalPopup(
+                                  context: context,
+                                  builder: (BuildContext context) =>
+                                      CupertinoActionSheet(
+                                    title: Text(package.title),
+                                    actions: <CupertinoActionSheetAction>[
+                                      CupertinoActionSheetAction(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    PackageRegisterPage()),
+                                          );
+                                        },
+                                        child: const Text('수정'),
+                                      ),
+                                      CupertinoActionSheetAction(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        isDestructiveAction: true,
+                                        child: const Text('삭제'),
+                                      ),
+                                    ],
+                                    cancelButton: CupertinoActionSheetAction(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: const Text('취소'),
+                                    ),
+                                  ),
+                                );
+                              },
                               title: package.title,
                               location: package.location,
                               guideImageUrl: user.imageUrl ?? '',
