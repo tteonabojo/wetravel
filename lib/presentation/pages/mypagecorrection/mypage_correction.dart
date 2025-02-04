@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
-import 'package:wetravel/core/constants/app_typography.dart'; // AppColors 임포트 확인
+import 'package:wetravel/core/constants/app_typography.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class CustomInputField extends StatefulWidget {
   final String hintText;
   final TextInputType keyboardType;
   final bool obscureText;
   final Function(String)? onChanged;
-  final int maxLength; // 최대 글자 수
-  final String labelText; // 고정 라벨 텍스트 추가
-  final int minLines; // 최소 줄 수
-  final int? maxLines; // 최대 줄 수
+  final int maxLength;
+  final String labelText;
+  final int minLines;
+  final int? maxLines;
 
   const CustomInputField({
     super.key,
@@ -20,9 +21,9 @@ class CustomInputField extends StatefulWidget {
     this.obscureText = false,
     this.onChanged,
     required this.maxLength,
-    required this.labelText, // labelText 필수
-    this.minLines = 1, // 기본 최소 줄 수 설정
-    this.maxLines, // 최대 줄 수는 지정하지 않으면 자유롭게 늘어남
+    required this.labelText,
+    this.minLines = 1,
+    this.maxLines,
   });
 
   @override
@@ -36,12 +37,12 @@ class _InputFieldState extends State<CustomInputField> {
   void initState() {
     super.initState();
     _controller = TextEditingController();
-    _controller.addListener(_updateCurrentLength); // 리스너 추가
+    _controller.addListener(_updateCurrentLength);
   }
 
   @override
   void dispose() {
-    _controller.removeListener(_updateCurrentLength); // 리스너 제거
+    _controller.removeListener(_updateCurrentLength);
     _controller.dispose();
     super.dispose();
   }
@@ -52,7 +53,6 @@ class _InputFieldState extends State<CustomInputField> {
     setState(() {
       _currentLength = _controller.text.length;
       if (_currentLength > widget.maxLength) {
-        // 추가: 최대 글자 수 초과 시 텍스트 자르기
         _controller.text = _controller.text.substring(0, widget.maxLength);
         _currentLength = widget.maxLength;
         _controller.selection =
@@ -64,7 +64,7 @@ class _InputFieldState extends State<CustomInputField> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start, // 왼쪽 정렬
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           widget.labelText,
@@ -82,8 +82,8 @@ class _InputFieldState extends State<CustomInputField> {
             style: TextStyle(
               color: AppColors.grayScale_750,
             ),
-            maxLines: widget.maxLines, // 입력 줄 수 제한
-            minLines: widget.minLines, // 최소 줄 수 설정
+            maxLines: widget.maxLines,
+            minLines: widget.minLines,
             decoration: InputDecoration(
               hintText: widget.hintText,
               hintStyle: AppTypography.body1.copyWith(
@@ -127,7 +127,7 @@ class _InputFieldState extends State<CustomInputField> {
 }
 
 class MyPageCorrection extends StatefulWidget {
-  final Color buttonColor; // 버튼 색상
+  final Color buttonColor;
 
   MyPageCorrection({super.key, this.buttonColor = Colors.blue});
 
@@ -139,6 +139,23 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
   bool isNicknameValid = false;
   bool isEmailValid = false;
   bool isIntroValid = false;
+
+  String? _userEmail;
+
+  @override
+  void initState() {
+    super.initState();
+    _getUserEmail();
+  }
+
+  Future<void> _getUserEmail() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      setState(() {
+        _userEmail = user.email;
+      });
+    }
+  }
 
   void _onNicknameChanged(String value) {
     setState(() {
@@ -169,7 +186,7 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios, color: Colors.black),
           onPressed: () {
-            Navigator.pop(context); // 뒤로가기 버튼 누르면 이전 화면으로 돌아감
+            Navigator.pop(context);
           },
         ),
         backgroundColor: Colors.transparent,
@@ -180,12 +197,12 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(height: 20), // 여백 20
+            SizedBox(height: 20),
             Center(
               child: ClipOval(
                 child: Container(
                   width: 82,
-                  height: 82, // 높이와 너비를 동일하게 설정하여 원형 만들기
+                  height: 82,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
                     image: DecorationImage(
@@ -196,7 +213,7 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
                 ),
               ),
             ),
-            SizedBox(height: 20), // 여백 20
+            SizedBox(height: 20),
             CustomInputField(
               hintText: '닉네임을 입력하세요',
               keyboardType: TextInputType.text,
@@ -205,16 +222,22 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
               labelText: '닉네임',
               onChanged: _onNicknameChanged,
             ),
-            SizedBox(height: 20), // 여백 20
-            CustomInputField(
-              hintText: '이메일을 입력하세요',
-              keyboardType: TextInputType.emailAddress,
-              obscureText: false,
-              maxLength: 20,
-              labelText: '이메일주소',
-              onChanged: _onEmailChanged,
+            SizedBox(height: 20),
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              decoration: BoxDecoration(
+                color: AppColors.grayScale_150,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                _userEmail ?? '이메일 정보 없음',
+                style: AppTypography.body1.copyWith(
+                  color: AppColors.grayScale_550,
+                ),
+              ),
             ),
-            SizedBox(height: 20), // 여백 20
+            SizedBox(height: 20),
             Container(
               child: CustomInputField(
                 hintText: '멋진 소개를 부탁드려요!',
@@ -222,34 +245,34 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
                 obscureText: false,
                 maxLength: 100,
                 labelText: '자기소개',
-                minLines: 6, // 최소 6줄로 시작, 필요에 따라 늘어남
+                minLines: 6,
                 onChanged: _onIntroChanged,
               ),
             ),
-            SizedBox(height: 16), // 하단바와 버튼 사이에 여백
+            SizedBox(height: 16),
             Container(
               padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-              width: double.infinity, // 가로 너비 꽉 채움
+              width: double.infinity,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: isFormValid
-                      ? AppColors.primary_450 // 버튼 색상
-                      : AppColors.primary_250, // 비활성화 색상
+                      ? AppColors.primary_450
+                      : AppColors.primary_250,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12), // 모서리 R값 12
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  padding: EdgeInsets.symmetric(vertical: 16), // 위아래 여백 16
+                  padding: EdgeInsets.symmetric(vertical: 16),
                 ),
                 onPressed: isFormValid
                     ? () {
                         // 등록 버튼 클릭 시 동작
                       }
-                    : null, // 비활성화된 상태일 때는 null
+                    : null,
                 child: Text(
                   '등록',
                   style: TextStyle(
-                    fontSize: 16, // 폰트 사이즈 16
-                    color: Colors.white, // 텍스트 색상
+                    fontSize: 16,
+                    color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
