@@ -19,25 +19,25 @@ class MainLabel extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          GestureDetector(
-            onTap: () {
-              // TODO: navigator 연결 필요
-              print('need action');
-            },
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  '더보기',
-                  style: TextStyle(color: Colors.blueAccent),
-                ),
-                Icon(
-                  Icons.navigate_next,
-                  color: Colors.blueAccent,
-                ),
-              ],
-            ),
-          ),
+          // GestureDetector(
+          //   onTap: () {
+          //     // TODO: navigator 연결 필요
+          //     print('need action');
+          //   },
+          //   child: Row(
+          //     crossAxisAlignment: CrossAxisAlignment.center,
+          //     children: [
+          //       Text(
+          //         '더보기',
+          //         style: TextStyle(color: Colors.blueAccent),
+          //       ),
+          //       Icon(
+          //         Icons.navigate_next,
+          //         color: Colors.blueAccent,
+          //       ),
+          //     ],
+          //   ),
+          // ),
         ],
       ),
     );

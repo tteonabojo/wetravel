@@ -4,6 +4,8 @@ import 'package:wetravel/data/dto/package_dto.dart';
 class Package {
   final String id;
   final String userId;
+  final String? userName;
+  final String? userImageUrl;
   final String title;
   final String location;
   final String? description;
@@ -16,10 +18,13 @@ class Package {
   final Timestamp? deletedAt;
   final int reportCount;
   final bool isHidden;
+  final int viewCount;
 
   Package({
     required this.id,
     required this.userId,
+    this.userName,
+    this.userImageUrl,
     required this.title,
     required this.location,
     this.description,
@@ -32,11 +37,14 @@ class Package {
     this.deletedAt,
     this.reportCount = 0,
     this.isHidden = false,
+    this.viewCount = 0,
   });
 
   Map<String, dynamic> toJson() => {
         "id": id,
         "userId": userId,
+        "userName": userName,
+        "userImageUrl": userImageUrl,
         "title": title,
         "location": location,
         "description": description,
@@ -49,12 +57,15 @@ class Package {
         "deletedAt": deletedAt,
         "reportCount": reportCount,
         "isHidden": isHidden,
+        "viewCount": viewCount,
       };
 
   PackageDto toDto() {
     return PackageDto(
       id: id,
       userId: userId,
+      userName: userName,
+      userImageUrl: userImageUrl,
       title: title,
       location: location,
       description: description,
@@ -67,6 +78,7 @@ class Package {
       deletedAt: deletedAt,
       reportCount: reportCount,
       isHidden: isHidden,
+      viewCount: viewCount,
     );
   }
 }

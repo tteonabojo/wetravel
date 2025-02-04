@@ -62,4 +62,15 @@ class PackageRepositoryImpl implements PackageRepository {
       List<String> scheduleIds) {
     return _packageDataSource.fetchSchedulesByIds(scheduleIds);
   }
+
+  Future<List<Package>> fetchRecentPackages() async {
+    final result = await _packageDataSource.fetchRecentPackages();
+    return result.map((e) => e.toEntity()).toList();
+  }
+
+  @override
+  Future<List<Package>> fetchPopularPackages() async {
+    final result = await _packageDataSource.fetchPopularPackages();
+    return result.map((e) => e.toEntity()).toList();
+  }
 }

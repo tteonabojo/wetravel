@@ -7,6 +7,7 @@ import 'package:wetravel/data/repository/user_repository_impl.dart';
 import 'package:wetravel/domain/repository/user_repository.dart';
 import 'package:wetravel/domain/usecase/fetch_user_usecase.dart';
 import 'package:wetravel/domain/usecase/sign_in_with_provider_usecase.dart';
+import 'package:wetravel/domain/usecase/sign_out_usecase.dart';
 
 final _firebaseFirestoreProvider = Provider<FirebaseFirestore>((ref) {
   return FirebaseFirestore.instance;
@@ -39,6 +40,7 @@ final fetchUserUsecaseProvider = Provider(
   },
 );
 
+/// 소셜 로그인
 final signInWithProviderUsecaseProvider = Provider((ref) {
   final userRepo = ref.read(userRepositoryProvider);
   return SignInWithProviderUsecase(userRepo);
@@ -50,3 +52,7 @@ final isGuideProvider = FutureProvider<bool>((ref) async {
 
   return user.isGuide;
 });
+
+/// 로그아웃
+final signOutUsecaseProvider =
+    Provider((ref) => ref.read(userRepositoryProvider));
