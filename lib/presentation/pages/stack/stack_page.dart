@@ -3,13 +3,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/presentation/pages/guide/guide_page.dart';
 import 'package:wetravel/presentation/pages/main/main_page.dart';
 import 'package:wetravel/presentation/pages/main/widgets/main_header.dart';
+import 'package:wetravel/presentation/pages/mypage/mypage.dart';
 import 'package:wetravel/presentation/pages/select_travel/select_travel_page.dart';
 import 'package:wetravel/presentation/pages/stack/widgets/custom_bottom_navigation_bar.dart';
 import 'package:wetravel/presentation/provider/user_provider.dart';
 
 class StackPage extends ConsumerStatefulWidget {
+  final int initialIndex; // 초기 인덱스
+
   const StackPage({
     super.key,
+    this.initialIndex = 0, // 기본값은 0
   });
 
   @override
@@ -18,6 +22,12 @@ class StackPage extends ConsumerStatefulWidget {
 
 class _StackPageState extends ConsumerState<StackPage> {
   int _selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.initialIndex; // 초기 인덱스 설정
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -28,7 +38,6 @@ class _StackPageState extends ConsumerState<StackPage> {
   @override
   Widget build(BuildContext context) {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
-
     final isGuideAsync = ref.watch(isGuideProvider);
 
     return GestureDetector(
@@ -51,6 +60,7 @@ class _StackPageState extends ConsumerState<StackPage> {
                 MainPage(),
                 SelectTravelPage(),
                 GuidePage(isGuide: isGuide),
+                MyPage(),
               ];
 
               return IndexedStack(
@@ -59,9 +69,12 @@ class _StackPageState extends ConsumerState<StackPage> {
               );
             },
             loading: () => SizedBox.shrink(),
-            error: (error, stackTrace) => Center(child: Text('Error: $error')),
+            error: (error, stackTrace) =>
+                Center(child: Text('stack page Error: $error')),
           ),
           bottomNavigationBar: CustomBottomNavigationBar(
+            context: context,
+            ref: ref,
             selectedIndex: _selectedIndex,
             onItemTapped: _onItemTapped,
           ),

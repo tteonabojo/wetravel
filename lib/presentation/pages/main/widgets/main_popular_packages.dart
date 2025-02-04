@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:wetravel/domain/entity/package.dart';
 import 'package:wetravel/presentation/pages/main/widgets/main_label.dart';
 import 'package:wetravel/presentation/widgets/package_item.dart';
 
 class MainPopularPackages extends StatelessWidget {
   /// 메인 페이지 인기 패키지 영역
-  const MainPopularPackages({super.key});
+  final List<Package> popularPackages;
+  const MainPopularPackages({super.key, required this.popularPackages});
 
   @override
   Widget build(BuildContext context) {
@@ -18,13 +20,17 @@ class MainPopularPackages extends StatelessWidget {
           Expanded(
             child: ListView.separated(
               padding: EdgeInsets.symmetric(horizontal: 16),
-              itemCount: 10,
+              itemCount: popularPackages.length,
               itemBuilder: (BuildContext context, int index) {
                 int? rate = index <= 2 ? index + 1 : null; // 3등 까지 순위 표시
                 return PackageItem(
                   rate: rate,
-                  title: '원숭이들이 있는 온천 여행',
-                  location: '도쿄',
+                  title: popularPackages[index].title,
+                  location: popularPackages[index].location,
+                  guideImageUrl: popularPackages[index].userImageUrl,
+                  packageImageUrl: popularPackages[index].imageUrl,
+                  name: popularPackages[index].userName,
+                  keywords: popularPackages[index].keywordList!.toList(),
                 );
               },
               separatorBuilder: (context, index) {

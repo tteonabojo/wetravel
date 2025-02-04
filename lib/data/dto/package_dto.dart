@@ -4,6 +4,8 @@ import 'package:wetravel/domain/entity/package.dart';
 class PackageDto {
   final String id;
   final String userId;
+  final String? userName;
+  final String? userImageUrl;
   final String title;
   final String location;
   final String? description;
@@ -16,10 +18,13 @@ class PackageDto {
   final Timestamp? deletedAt;
   final int reportCount;
   final bool isHidden;
+  final int viewCount;
 
   PackageDto({
     required this.id,
     required this.userId,
+    this.userName,
+    this.userImageUrl,
     required this.title,
     required this.location,
     this.description,
@@ -32,11 +37,14 @@ class PackageDto {
     this.deletedAt,
     this.reportCount = 0,
     this.isHidden = false,
+    this.viewCount = 0,
   });
 
   PackageDto copyWith({
     String? id,
     String? userId,
+    String? userName,
+    String? userImageUrl,
     String? title,
     String? location,
     String? description,
@@ -49,10 +57,13 @@ class PackageDto {
     dynamic deletedAt,
     int? reportCount,
     bool? isHidden,
+    int? viewCount,
   }) =>
       PackageDto(
         id: id ?? this.id,
         userId: userId ?? this.userId,
+        userName: userName ?? this.userName,
+        userImageUrl: userId ?? this.userImageUrl,
         title: title ?? this.title,
         location: location ?? this.location,
         description: description ?? this.description,
@@ -65,12 +76,15 @@ class PackageDto {
         deletedAt: deletedAt ?? this.deletedAt,
         reportCount: reportCount ?? this.reportCount,
         isHidden: isHidden ?? this.isHidden,
+        viewCount: viewCount ?? this.viewCount,
       );
 
   PackageDto.fromJson(Map<String, dynamic> json)
       : this(
           id: json['id'] as String,
           userId: json['userId'] as String,
+          userName: json['userName'],
+          userImageUrl: json['userImageUrl'],
           title: json['title'] as String,
           location: json['location'] as String,
           description: json['description'] as String,
@@ -78,18 +92,19 @@ class PackageDto {
           imageUrl: json['imageUrl'] as String,
           keywordList: List<String>.from(json['keywordList'] as List),
           scheduleIdList: List<String>.from(json['scheduleIdList']),
-          createdAt: Timestamp.fromDate(DateTime.parse(json['createdAt'])),
-          updatedAt: Timestamp.fromDate(DateTime.parse(json['updatedAt'])),
-          deletedAt: json['deletedAt'] != null
-              ? Timestamp.fromDate(DateTime.parse(json['deletedAt']))
-              : null,
+          createdAt: json['createdAt'],
+          updatedAt: json['updatedAt'],
+          deletedAt: json['deletedAt'],
           reportCount: json['reportCount'] as int,
           isHidden: json['isHidden'] as bool,
+          viewCount: json['viewCount'] as int,
         );
 
   Map<String, dynamic> toJson() => {
         "id": id,
         "userId": userId,
+        "userName": userName,
+        "userImageUrl": userImageUrl,
         "title": title,
         "location": location,
         "description": description,
@@ -102,12 +117,15 @@ class PackageDto {
         "deletedAt": deletedAt,
         "reportCount": reportCount,
         "isHidden": isHidden,
+        "viewCount": viewCount,
       };
 
   factory PackageDto.fromEntity(Package package) {
     return PackageDto(
       id: package.id,
       userId: package.userId,
+      userName: package.userName,
+      userImageUrl: package.userImageUrl,
       title: package.title,
       location: package.location,
       description: package.description,
@@ -120,6 +138,7 @@ class PackageDto {
       deletedAt: package.deletedAt,
       reportCount: package.reportCount,
       isHidden: package.isHidden,
+      viewCount: package.viewCount,
     );
   }
 
@@ -127,6 +146,8 @@ class PackageDto {
     return Package(
       id: id,
       userId: userId,
+      userName: userName,
+      userImageUrl: userImageUrl,
       title: title,
       location: location,
       description: description,
@@ -139,6 +160,7 @@ class PackageDto {
       deletedAt: deletedAt,
       reportCount: reportCount,
       isHidden: isHidden,
+      viewCount: viewCount,
     );
   }
 }
