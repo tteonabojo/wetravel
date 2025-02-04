@@ -133,7 +133,7 @@ class _InputFieldState extends State<CustomInputField> {
 class MyPageCorrection extends StatefulWidget {
   final Color buttonColor;
 
-  MyPageCorrection({super.key, this.buttonColor = Colors.blue});
+  const MyPageCorrection({super.key, this.buttonColor = Colors.blue});
 
   @override
   _MyPageCorrectionState createState() => _MyPageCorrectionState();
@@ -147,6 +147,12 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
   File? _profileImage;
   String _nickname = "";
   String _intro = "";
+
+  String _originalNickname = "";
+  String _originalIntro = "";
+
+  bool get isNicknameChanged => _nickname != _originalNickname;
+  bool get isIntroChanged => _intro != _originalIntro;
 
   @override
   void initState() {
@@ -210,66 +216,99 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SizedBox(height: 20),
-            Center(
-              child: Stack(
-                children: [
-                  ClipOval(
-                    child: Container(
-                      width: 100,
-                      height: 100,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        image: _profileImage != null
-                            ? DecorationImage(
-                                image: FileImage(_profileImage!),
-                                fit: BoxFit.cover,
-                              )
-                            : DecorationImage(
-                                image: AssetImage('assets/images/sample_profile.jpg'),
-                                fit: BoxFit.cover,
-                              ),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: InkWell(
-                      onTap: _pickImage,
-                      child: Container(
-                        padding: EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: Colors.grey,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.camera_alt,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+ Future<bool> _onWillPop() async {
+    if (isNicknameChanged || isIntroChanged) {
+      return await showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text("변경 사항이 있습니다."),
+              content: const Text("변경 내용을 저장하지 않고 나가시겠습니까?"),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text("취소"),
+                ),
+                TextButton(
+                  onPressed: () =>
+                      Navigator.of(context).pushNamedAndRemoveUntil('/mypage', (route) => false),
+                  child: const Text("나가기"),
+                ),
+              ],
             ),
+          ) ??
+          false;
+    }
+    return true;
+  }
+
+  
+   @override
+  Widget build(BuildContext context) {
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
+            onPressed: () async {
+              bool shouldPop = await _onWillPop();
+              if (shouldPop && mounted) {
+                Navigator.pushNamedAndRemoveUntil(context, '/mypage', (route) => false);
+              }
+            },
+          ),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+        ),
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(height: 20),
+              Center(
+                child: Stack(
+                  children: [
+                    ClipOval(
+                      child: Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          image: _profileImage != null
+                              ? DecorationImage(
+                                  image: FileImage(_profileImage!),
+                                  fit: BoxFit.cover,
+                                )
+                              : const DecorationImage(
+                                  image: AssetImage('assets/images/sample_profile.jpg'),
+                                  fit: BoxFit.cover,
+                                ),
+                        ),
+                      ),
+                    ),
+                  Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: InkWell(
+                        onTap: _pickImage,
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: const BoxDecoration(
+                            color: Colors.grey,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.camera_alt,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             SizedBox(height: 20),
             CustomInputField(
               hintText: '닉네임을 입력하세요',
@@ -338,6 +377,6 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
           ],
         ),
       ),
-    );
+    ));
   }
 }
