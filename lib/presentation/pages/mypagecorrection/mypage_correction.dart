@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
@@ -126,6 +129,7 @@ class _InputFieldState extends State<CustomInputField> {
   }
 }
 
+// 마이페이지 수정 페이지 위젯
 class MyPageCorrection extends StatefulWidget {
   final Color buttonColor;
 
@@ -137,10 +141,12 @@ class MyPageCorrection extends StatefulWidget {
 
 class _MyPageCorrectionState extends State<MyPageCorrection> {
   bool isNicknameValid = false;
-  bool isEmailValid = false;
   bool isIntroValid = false;
 
   String? _userEmail;
+  File? _profileImage;
+  String _nickname = "";
+  String _intro = "";
 
   @override
   void initState() {
@@ -159,24 +165,42 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
 
   void _onNicknameChanged(String value) {
     setState(() {
+      _nickname = value;
       isNicknameValid = value.isNotEmpty;
-    });
-  }
-
-  void _onEmailChanged(String value) {
-    setState(() {
-      isEmailValid = value.isNotEmpty && value.contains('@');
     });
   }
 
   void _onIntroChanged(String value) {
     setState(() {
+      _intro = value;
       isIntroValid = value.isNotEmpty;
     });
   }
 
-  bool get isFormValid {
-    return isNicknameValid && isEmailValid && isIntroValid;
+  bool get isFormValid => isNicknameValid && isIntroValid;
+
+  Future<void> _pickImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    setState(() {
+      if (pickedFile != null) {
+        _profileImage = File(pickedFile.path);
+      }
+    });
+  }
+
+  Future<void> _saveUserInfo() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+        'email': _userEmail,
+        'nickname': _nickname,
+        'intro': _intro,
+      }, SetOptions(merge: true));
+
+      Navigator.pushNamed(context, '/survey'); // 설문 페이지로 이동
+    }
   }
 
   @override
@@ -185,9 +209,7 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios, color: Colors.black),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          onPressed: () => Navigator.pop(context),
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -199,55 +221,89 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
           children: [
             SizedBox(height: 20),
             Center(
-              child: ClipOval(
-                child: Container(
-                  width: 82,
-                  height: 82,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    image: DecorationImage(
-                      image: NetworkImage('https://picsum.photos/82'),
-                      fit: BoxFit.cover,
+              child: Stack(
+                children: [
+                  ClipOval(
+                    child: Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        image: _profileImage != null
+                            ? DecorationImage(
+                                image: FileImage(_profileImage!),
+                                fit: BoxFit.cover,
+                              )
+                            : DecorationImage(
+                                image: AssetImage('assets/images/sample_profile.jpg'),
+                                fit: BoxFit.cover,
+                              ),
+                      ),
                     ),
                   ),
-                ),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: InkWell(
+                      onTap: _pickImage,
+                      child: Container(
+                        padding: EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: Colors.grey,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.camera_alt,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             SizedBox(height: 20),
             CustomInputField(
               hintText: '닉네임을 입력하세요',
-              keyboardType: TextInputType.text,
-              obscureText: false,
               maxLength: 15,
               labelText: '닉네임',
               onChanged: _onNicknameChanged,
             ),
             SizedBox(height: 20),
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-              decoration: BoxDecoration(
-                color: AppColors.grayScale_150,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                _userEmail ?? '이메일 정보 없음',
-                style: AppTypography.body1.copyWith(
-                  color: AppColors.grayScale_550,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '이메일 주소',
+                  style: AppTypography.headline6.copyWith(
+                    color: AppColors.grayScale_650,
+                  ),
                 ),
-              ),
+                Padding(padding: EdgeInsets.only(top: 8)),
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  decoration: BoxDecoration(
+                    color: AppColors.grayScale_150,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    _userEmail ?? '이메일 정보 없음',
+                    style: AppTypography.body1.copyWith(
+                      color: AppColors.grayScale_550,
+                    ),
+                  ),
+                ),
+              ],
             ),
             SizedBox(height: 20),
-            Container(
-              child: CustomInputField(
-                hintText: '멋진 소개를 부탁드려요!',
-                keyboardType: TextInputType.text,
-                obscureText: false,
-                maxLength: 100,
-                labelText: '자기소개',
-                minLines: 6,
-                onChanged: _onIntroChanged,
-              ),
+            CustomInputField(
+              hintText: '멋진 소개를 부탁드려요!',
+              maxLength: 100,
+              labelText: '자기소개',
+              minLines: 6,
+              onChanged: _onIntroChanged,
             ),
             SizedBox(height: 16),
             Container(
@@ -255,19 +311,13 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
               width: double.infinity,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: isFormValid
-                      ? AppColors.primary_450
-                      : AppColors.primary_250,
+                  backgroundColor: isFormValid ? AppColors.primary_450 : AppColors.primary_250,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                   padding: EdgeInsets.symmetric(vertical: 16),
                 ),
-                onPressed: isFormValid
-                    ? () {
-                        // 등록 버튼 클릭 시 동작
-                      }
-                    : null,
+                onPressed: isFormValid ? _saveUserInfo : null,
                 child: Text(
                   '등록',
                   style: TextStyle(
