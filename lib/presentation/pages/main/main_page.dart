@@ -22,10 +22,10 @@ class _MainPageState extends ConsumerState<MainPage> {
       child: Scaffold(
         body: Column(
           children: [
-            // MainHeader(),
             MainBanner(),
             SizedBox(height: 20),
             MainRecentlyPackages(recentPackages: vm.recentPackages),
+            SizedBox(height: 20),
             MainPopularPackages(popularPackages: vm.popularPackages),
           ],
         ),

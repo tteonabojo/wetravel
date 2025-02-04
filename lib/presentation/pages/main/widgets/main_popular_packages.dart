@@ -23,14 +23,16 @@ class MainPopularPackages extends StatelessWidget {
               itemCount: popularPackages.length,
               itemBuilder: (BuildContext context, int index) {
                 int? rate = index <= 2 ? index + 1 : null; // 3등 까지 순위 표시
-                return PackageItem(
-                  rate: rate,
-                  title: popularPackages[index].title,
-                  location: popularPackages[index].location,
-                  guideImageUrl: popularPackages[index].userImageUrl,
-                  packageImageUrl: popularPackages[index].imageUrl,
-                  name: popularPackages[index].userName,
-                  keywords: popularPackages[index].keywordList!.toList(),
+                return SizedBox(
+                  child: PackageItem(
+                    rate: rate,
+                    title: popularPackages[index].title,
+                    location: popularPackages[index].location,
+                    guideImageUrl: popularPackages[index].userImageUrl,
+                    packageImageUrl: popularPackages[index].imageUrl,
+                    name: popularPackages[index].userName,
+                    keywords: popularPackages[index].keywordList!.toList(),
+                  ),
                 );
               },
               separatorBuilder: (context, index) {
