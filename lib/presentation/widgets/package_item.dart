@@ -13,9 +13,9 @@ class PackageItem extends StatelessWidget {
   final int? rate;
   final String title;
   final String location;
-  final String guideImageUrl;
-  final String packageImageUrl;
-  final String name;
+  final String? guideImageUrl;
+  final String? packageImageUrl;
+  final String? name;
   final List<String> keywords;
 
   const PackageItem({
@@ -25,9 +25,9 @@ class PackageItem extends StatelessWidget {
     this.rate,
     required this.title,
     required this.location,
-    required this.guideImageUrl,
-    required this.packageImageUrl,
-    required this.name,
+    this.guideImageUrl,
+    this.packageImageUrl,
+    this.name,
     required this.keywords,
   });
 
@@ -73,8 +73,8 @@ class PackageItem extends StatelessWidget {
                   child: Container(
                     decoration: ShapeDecoration(
                       image: DecorationImage(
-                        image: packageImageUrl.isNotEmpty
-                            ? NetworkImage(packageImageUrl)
+                        image: packageImageUrl!.isNotEmpty
+                            ? NetworkImage(packageImageUrl!)
                             : AssetImage("assets/images/cherry_blossom.png")
                                 as ImageProvider,
                         fit: BoxFit.cover,
@@ -219,8 +219,8 @@ class PackageItem extends StatelessWidget {
             height: 16,
             decoration: ShapeDecoration(
               image: DecorationImage(
-                image: guideImageUrl.isNotEmpty
-                    ? NetworkImage(guideImageUrl)
+                image: guideImageUrl!.isNotEmpty
+                    ? NetworkImage(guideImageUrl!)
                     : AssetImage("assets/images/sample_profile.jpg")
                         as ImageProvider,
                 fit: BoxFit.cover,
@@ -230,7 +230,7 @@ class PackageItem extends StatelessWidget {
           ),
           Expanded(
             child: SizedBox(
-              child: Text(name,
+              child: Text(name!,
                   style: AppTypography.body3.copyWith(
                     color: AppColors.grayScale_750,
                   )),

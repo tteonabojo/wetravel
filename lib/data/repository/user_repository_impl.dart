@@ -41,9 +41,8 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-  Future<bool> signOut() {
-    // TODO: implement signOut
-    throw UnimplementedError();
+  Future<bool> signOut() async {
+    return await _userDataSource.signOut();
   }
 
   // 추후 구현

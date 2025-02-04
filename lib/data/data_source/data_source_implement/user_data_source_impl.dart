@@ -128,4 +128,14 @@ class UserDataSourceImpl implements UserDataSource {
       rethrow;
     }
   }
+
+  @override
+  Future<bool> signOut() async {
+    try {
+      await FirebaseAuth.instance.signOut();
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
 }

@@ -16,6 +16,7 @@ class User {
   final Timestamp? deletedAt;
   final List<Package>? scrapList;
   final List<String>? scrapIdList;
+  final List<String> recentPackages;
 
   String? displayName;
 
@@ -33,6 +34,7 @@ class User {
     this.deletedAt,
     this.scrapList,
     this.scrapIdList,
+    required this.recentPackages,
   });
 
   factory User.fromDto(UserDto dto) {
@@ -50,6 +52,7 @@ class User {
       deletedAt: dto.deletedAt,
       scrapList: dto.scrapList?.map((e) => e.toEntity()).toList(),
       scrapIdList: dto.scrapIdList,
+      recentPackages: dto.recentPackages,
     );
   }
   Map<String, dynamic> toJson() => {
@@ -66,6 +69,7 @@ class User {
         "deletedAt": deletedAt,
         "scrapList": scrapList?.map((e) => e.toJson()).toList(),
         "scrapIdList": scrapIdList,
+        "recentPackages": recentPackages,
       };
   UserDto toDto() {
     return UserDto(
@@ -82,6 +86,7 @@ class User {
       deletedAt: deletedAt,
       scrapList: scrapList?.map((package) => package.toDto()).toList(),
       scrapIdList: scrapIdList,
+      recentPackages: recentPackages,
     );
   }
 }
