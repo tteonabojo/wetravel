@@ -35,4 +35,25 @@ class AppIcons {
   static const String x = 'assets/icons/x.svg';
   static const String chevronDown = 'assets/icons/chevron_down.svg';
   static const String chevronUp = 'assets/icons/chevron_up.svg';
+
+  // Blue Background Logos
+  static const String logoBgBlue160 = 'assets/icons/logo_bg_blue_160x160.svg';
+  static const String logoBgBlue24 = 'assets/icons/logo_bg_blue_24x24.svg';
+  static const String logoBgBlue32 = 'assets/icons/logo_bg_blue_32x32.svg';
+  static const String logoBgBlue40 = 'assets/icons/logo_bg_blue_40x40.svg';
+  static const String logoBgBlue76 = 'assets/icons/logo_bg_blue_76x76.svg';
+
+  // No Background Logos
+  static const String logoBgNone160 = 'assets/icons/logo_bg_none_160x160.svg';
+  static const String logoBgNone24 = 'assets/icons/logo_bg_none_24x24.svg';
+  static const String logoBgNone32 = 'assets/icons/logo_bg_none_32x32.svg';
+  static const String logoBgNone40 = 'assets/icons/logo_bg_none_40x40.svg';
+  static const String logoBgNone76 = 'assets/icons/logo_bg_none_76x76.svg';
+
+  // White Background Logos
+  static const String logoBgWhite160 = 'assets/icons/logo_bg_white_160x160.svg';
+  static const String logoBgWhite24 = 'assets/icons/logo_bg_white_24x24.svg';
+  static const String logoBgWhite32 = 'assets/icons/logo_bg_white_32x32.svg';
+  static const String logoBgWhite40 = 'assets/icons/logo_bg_white_40x40.svg';
+  static const String logoBgWhite76 = 'assets/icons/logo_bg_white_76x76.svg';
 }
