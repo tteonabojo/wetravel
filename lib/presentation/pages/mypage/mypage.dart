@@ -35,73 +35,83 @@ class MyPage extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: 20),
-            _buildProfileBox(context),
+            _buildProfileBox(context, ref), // 프로필 정보 표시
             SizedBox(height: 8),
-            _buildInquiryBox(context), // 문의하기 버튼
+            _buildInquiryBox(context),
             SizedBox(height: 8),
             _buildBoxWithText('이용약관/개인정보 처리방침'),
             SizedBox(height: 8),
-            _buildLogoutBox(context, ref), // 로그아웃 버튼
+            _buildLogoutBox(context, ref),
             SizedBox(height: 8),
-            _buildDeleteAccount(context, ref), // 회원탈퇴 버튼
+            _buildDeleteAccount(context, ref),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildProfileBox(BuildContext context) {
-    return Container(
-      height: 89,
-      padding: const EdgeInsets.symmetric(vertical: 16.5, horizontal: 16),
-      decoration: BoxDecoration(
-        color: Colors.grey[200],
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 28,
-            backgroundImage: NetworkImage('https://picsum.photos/50'),
+  Widget _buildProfileBox(BuildContext context, WidgetRef ref) {
+    final userAsync = ref.watch(userProvider); // userProvider를 사용하여 사용자 정보 가져오기
+
+    return userAsync.when(
+      data: (user) {
+        return Container(
+          height: 89,
+          padding: const EdgeInsets.symmetric(vertical: 16.5, horizontal: 16),
+          decoration: BoxDecoration(
+            color: Colors.grey[200],
+            borderRadius: BorderRadius.circular(12),
           ),
-          SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
+          child: Row(
             children: [
-              Text(
-                '나는 이구역짱',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+              CircleAvatar(
+                radius: 28,
+                backgroundImage: user.imageUrl != null
+                    ? NetworkImage(user.imageUrl!)
+                    : const AssetImage('assets/images/sample_profile.jpg') as ImageProvider, // 기본 이미지 추가
               ),
-              SizedBox(height: 4),
-              Text(
-                'email@example.com',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
+              SizedBox(width: 16),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    user.displayName ?? '샘플 닉네임', // 이름 정보 표시, 없으면 '이름 없음' 표시
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    user.email ?? '이메일 없음', // 이메일 정보 표시, 없으면 '이메일 없음' 표시
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+              Spacer(),
+              IconButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => MyPageCorrection()),
+                  );
+                },
+                icon: SvgPicture.asset(
+                  'assets/icons/pen.svg',
+                  width: 24,
+                  height: 24,
                 ),
               ),
             ],
           ),
-          Spacer(),
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => MyPageCorrection()),
-              );
-            },
-            icon: SvgPicture.asset(
-              'assets/icons/pen.svg',
-              width: 24,
-              height: 24,
-            ),
-          ),
-        ],
-      ),
+        );
+      },
+      loading: () => const CircularProgressIndicator(), // 로딩 중 표시
+      error: (err, stack) => Text('Error: $err'), // 에러 발생 시 표시
     );
   }
 
@@ -254,8 +264,7 @@ class MyPage extends ConsumerWidget {
   }
 
   Future<void> deleteUserAccount(BuildContext context, WidgetRef ref) async {
-    print('debug');
-  try {
+
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       throw Exception("사용자가 존재하지 않습니다.");
@@ -282,7 +291,5 @@ class MyPage extends ConsumerWidget {
     // 로그아웃 후 로그인 페이지로 이동
     await ref.read(signOutUsecaseProvider).signOut();
     Navigator.pushReplacementNamed(context, '/login');
-  } catch (e) {
   }
-}
 }
