@@ -40,24 +40,24 @@ class _InputFieldState extends State<CustomInputField> {
   void initState() {
     super.initState();
     _controller = TextEditingController();
-    _controller.addListener(_updateCurrentLength);
+    _controller.addListener(_updateCurrentLength); // 리스너 등록: 입력 변화 감지
   }
 
   @override
   void dispose() {
-    _controller.removeListener(_updateCurrentLength);
+    _controller.removeListener(_updateCurrentLength); // 리스너 제거
     _controller.dispose();
     super.dispose();
   }
 
-  int _currentLength = 0;
+  int _currentLength = 0; // 현재 입력 글자 수
 
   void _updateCurrentLength() {
     setState(() {
-      _currentLength = _controller.text.length;
-      if (_currentLength > widget.maxLength) {
-        _controller.text = _controller.text.substring(0, widget.maxLength);
-        _currentLength = widget.maxLength;
+      _currentLength = _controller.text.length; // 현재 글자 수 갱신
+      if (_currentLength > widget.maxLength) { // 최대 글자 수 초과 시
+        _controller.text = _controller.text.substring(0, widget.maxLength); // 입력 제한
+        _currentLength = widget.maxLength; // 현재 글자 수 최대 값으로 설정
         _controller.selection =
             TextSelection.fromPosition(TextPosition(offset: _currentLength));
       }
@@ -140,26 +140,27 @@ class MyPageCorrection extends StatefulWidget {
 }
 
 class _MyPageCorrectionState extends State<MyPageCorrection> {
-  bool isNicknameValid = false;
-  bool isIntroValid = false;
+  bool isNicknameValid = false; // 닉네임 유효성 검사 결과
+  bool isIntroValid = false; // 소개글 유효성 검사 결과
 
-  String? _userEmail;
-  File? _profileImage;
-  String _nickname = "";
-  String _intro = "";
+  String? _userEmail; // 사용자 이메일
+  File? _profileImage; // 프로필 이미지 파일
+  String _nickname = ""; // 닉네임
+  String _intro = ""; // 자기소개
 
-  String _originalNickname = "";
-  String _originalIntro = "";
+  String _originalNickname = ""; // 초기 닉네임
+  String _originalIntro = ""; // 초기 자기소개 글
 
-  bool get isNicknameChanged => _nickname != _originalNickname;
-  bool get isIntroChanged => _intro != _originalIntro;
+  bool get isNicknameChanged => _nickname != _originalNickname; // 닉네임 변경 여부 확인
+  bool get isIntroChanged => _intro != _originalIntro; // 소개글 변경 여부 확인
 
   @override
   void initState() {
     super.initState();
-    _getUserEmail();
+    _getUserEmail(); // 사용자 이메일 정보 가져오는 거
   }
 
+  // 사용자 이메일 정보 가져오기
   Future<void> _getUserEmail() async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
@@ -169,6 +170,7 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
     }
   }
 
+  // 닉네임 입력 변화 감지
   void _onNicknameChanged(String value) {
     setState(() {
       _nickname = value;
@@ -176,6 +178,7 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
     });
   }
 
+  // 소개글 입력 변화 감지
   void _onIntroChanged(String value) {
     setState(() {
       _intro = value;
@@ -183,6 +186,7 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
     });
   }
 
+  // 폼 유효성 검사
   bool get isFormValid => isNicknameValid && isIntroValid;
 
   Future<void> _pickImage() async {
@@ -199,10 +203,11 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
       });
     }
   } on PlatformException catch (e) {
-    print("이미지 선택 오류: $e");
+    print("이미지 선택 오류: $e"); // 오류 발생시 콘솔에 출력
   }
 }
 
+  // 사용자 정보 저장
   Future<void> _saveUserInfo() async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
@@ -216,6 +221,7 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
     }
   }
 
+ // 뒤로가기 시 데이터 변경 여부 확인
  Future<bool> _onWillPop() async {
     if (isNicknameChanged || isIntroChanged) {
       return await showDialog(
