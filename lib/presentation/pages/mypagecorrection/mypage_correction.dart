@@ -180,15 +180,22 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
   bool get isFormValid => isNicknameValid && isIntroValid;
 
   Future<void> _pickImage() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery);
+  final ImagePicker picker = ImagePicker();
+  try {
+    final XFile? pickedFile = await picker.pickImage(
+      source: ImageSource.gallery,
+      requestFullMetadata: false, // 메타데이터 요청 방지
+    );
 
-    setState(() {
-      if (pickedFile != null) {
+    if (pickedFile != null) {
+      setState(() {
         _profileImage = File(pickedFile.path);
-      }
-    });
+      });
+    }
+  } on PlatformException catch (e) {
+    print("이미지 선택 오류: $e");
   }
+}
 
   Future<void> _saveUserInfo() async {
     User? user = FirebaseAuth.instance.currentUser;

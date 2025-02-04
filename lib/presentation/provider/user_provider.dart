@@ -56,3 +56,9 @@ final isGuideProvider = FutureProvider<bool>((ref) async {
 /// 로그아웃
 final signOutUsecaseProvider =
     Provider((ref) => ref.read(userRepositoryProvider));
+
+
+final userProvider = FutureProvider((ref) async {
+  final fetchUserUsecase = ref.watch(fetchUserUsecaseProvider);
+  return await fetchUserUsecase.execute();
+});
