@@ -30,6 +30,12 @@ class PackageRepositoryImpl implements PackageRepository {
   }
 
   @override
+  Future<Package> fetchPackageData(String packageId) async {
+    final packageDto = await _packageDataSource.getPackageById(packageId);
+    return Package.fromDto(packageDto); // DTO를 Entity로 변환
+  }
+
+  @override
   Future<void> addPackage(Map<String, dynamic> packageData) {
     return _packageDataSource.addPackage(packageData);
   }
@@ -58,7 +64,7 @@ class PackageRepositoryImpl implements PackageRepository {
   }
 
   @override
-  Future<Map<String, List<Map<String, String>>>> fetchSchedulesByIds(
+  Future<Map<int, List<Map<String, String>>>> fetchSchedulesByIds(
       List<String> scheduleIds) {
     return _packageDataSource.fetchSchedulesByIds(scheduleIds);
   }

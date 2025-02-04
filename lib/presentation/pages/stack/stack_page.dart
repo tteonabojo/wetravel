@@ -4,6 +4,7 @@ import 'package:wetravel/presentation/pages/guide/guide_page.dart';
 import 'package:wetravel/presentation/pages/main/main_page.dart';
 import 'package:wetravel/presentation/pages/main/widgets/main_header.dart';
 import 'package:wetravel/presentation/pages/mypage/mypage.dart';
+import 'package:wetravel/presentation/pages/new_trip/new_trip_page.dart';
 import 'package:wetravel/presentation/pages/select_travel/select_travel_page.dart';
 import 'package:wetravel/presentation/pages/stack/widgets/custom_bottom_navigation_bar.dart';
 import 'package:wetravel/presentation/provider/user_provider.dart';
@@ -58,7 +59,7 @@ class _StackPageState extends ConsumerState<StackPage> {
             data: (isGuide) {
               final List<Widget> pages = [
                 MainPage(),
-                SelectTravelPage(),
+                NewTripPage(),
                 GuidePage(isGuide: isGuide),
                 MyPage(),
               ];

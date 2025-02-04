@@ -165,6 +165,7 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.grayScale_050,
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios, color: Colors.black),
@@ -222,7 +223,7 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
                 obscureText: false,
                 maxLength: 100,
                 labelText: '자기소개',
-                minLines: 6, // 최소 6줄로 시작, 필요에 따라 늘어남
+                minLines: 4, // 최소 4줄로 시작, 필요에 따라 늘어남
                 onChanged: _onIntroChanged,
               ),
             ),

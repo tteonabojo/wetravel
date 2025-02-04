@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:wetravel/core/constants/app_border_radius.dart';
+import 'package:wetravel/core/constants/app_shadow.dart';
 import 'package:wetravel/presentation/pages/mypagecorrection/mypage_correction.dart';
 
 class MyPage extends StatefulWidget {
@@ -11,22 +13,21 @@ class _MyPageState extends State<MyPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Align(
-          alignment: Alignment.centerLeft,
-          child: const Text(
-            '마이페이지',
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
+      // appBar: AppBar(
+      //   title: Align(
+      //     alignment: Alignment.centerLeft,
+      //     child: const Text(
+      //       '마이페이지',
+      //       style: TextStyle(
+      //         color: Colors.black,
+      //         fontSize: 20,
+      //         fontWeight: FontWeight.bold,
+      //       ),
+      //     ),
+      //   ),
+      //   backgroundColor: Colors.transparent,
+      //   elevation: 0,
+      // ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Column(
@@ -62,8 +63,9 @@ class _MyPageState extends State<MyPage> {
       height: 89,
       padding: const EdgeInsets.symmetric(vertical: 16.5, horizontal: 16),
       decoration: BoxDecoration(
-        color: Colors.grey[200],
-        borderRadius: BorderRadius.circular(12),
+        color: Colors.white,
+        borderRadius: AppBorderRadius.small12,
+        boxShadow: AppShadow.generalShadow,
       ),
       child: Row(
         children: [
@@ -117,8 +119,9 @@ class _MyPageState extends State<MyPage> {
       height: 56,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: Colors.grey[200],
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
+        boxShadow: AppShadow.generalShadow,
       ),
       child: Align(
         alignment: Alignment.centerLeft,

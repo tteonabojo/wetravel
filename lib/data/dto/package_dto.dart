@@ -163,4 +163,30 @@ class PackageDto {
       viewCount: viewCount,
     );
   }
+
+  factory PackageDto.fromMap(Map<String, dynamic> map) {
+    return PackageDto(
+      id: map['id'] as String,
+      userId: map['userId'] as String,
+      userName: map['userName'],
+      userImageUrl: map['userImageUrl'],
+      title: map['title'] as String,
+      location: map['location'] as String,
+      description: map['description'],
+      duration: map['duration'],
+      imageUrl: map['imageUrl'],
+      keywordList: map['keywordList'] != null
+          ? List<String>.from(map['keywordList'] as List)
+          : null,
+      scheduleIdList: map['scheduleIdList'] != null
+          ? List<String>.from(map['scheduleIdList'] as List)
+          : null,
+      createdAt: map['createdAt'],
+      updatedAt: map['updatedAt'],
+      deletedAt: map['deletedAt'],
+      reportCount: map['reportCount'] as int,
+      isHidden: map['isHidden'] as bool,
+      viewCount: map['viewCount'] as int,
+    );
+  }
 }

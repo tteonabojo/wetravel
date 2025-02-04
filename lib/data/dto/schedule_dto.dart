@@ -100,4 +100,18 @@ class ScheduleDto {
       order: schedule.order,
     );
   }
+
+  factory ScheduleDto.fromMap(Map<String, dynamic> map) {
+    return ScheduleDto(
+      id: map['id'],
+      packageId: map['packageId'],
+      day: map['day'],
+      time: map['time'],
+      title: map['title'],
+      location: map['location'],
+      content: map['content'],
+      imageUrl: map['imageUrl'],
+      order: map['order'],
+    );
+  }
 }

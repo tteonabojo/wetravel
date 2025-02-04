@@ -37,6 +37,7 @@ class GuidePackagePage extends StatelessWidget {
                   location: '도쿄',
                   author: '나는 이구역짱',
                   keywords: ['도쿄 | 혼자 | 액티비티'],
+                  packageId: '',
                 ),
                 PackageCard(
                   title: '해변에서 휴식 여행',
@@ -44,6 +45,7 @@ class GuidePackagePage extends StatelessWidget {
                   location: '오키나와',
                   author: '여행 전문가',
                   keywords: ['해변 | 친구들 | 해양 스포츠'],
+                  packageId: '',
                 ),
                 PackageCard(
                   title: '남자들의 우정 여행',
@@ -51,6 +53,7 @@ class GuidePackagePage extends StatelessWidget {
                   location: '북한',
                   author: '탈북 전문가',
                   keywords: ['해변 | 친구들 | 군대체험'],
+                  packageId: '',
                 ),
                 PackageCard(
                   title: '에메랄드 빛 바다 여행',
@@ -58,6 +61,7 @@ class GuidePackagePage extends StatelessWidget {
                   location: '세부',
                   author: '웨딩플래너',
                   keywords: ['해변 | 연인 | 데이트'],
+                  packageId: '',
                 ),
               ],
             ),

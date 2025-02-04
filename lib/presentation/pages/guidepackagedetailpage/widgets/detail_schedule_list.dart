@@ -5,13 +5,12 @@ import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_shadow.dart';
 import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
-import 'package:wetravel/presentation/pages/guide/package_register_page/widgets/schedule_list_view_model.dart';
 import 'package:wetravel/presentation/pages/guide/package_register_page/widgets/widgets/bottom_sheet/list_bottom_sheet.dart';
-import 'package:wetravel/presentation/pages/guide/package_register_page/widgets/widgets/schedule_item.dart';
+import 'package:wetravel/presentation/pages/guidepackagedetailpage/widgets/detail_schedule_list_view_model.dart';
 import 'package:wetravel/presentation/pages/guidepackagedetailpage/widgets/schedule_detail_item.dart';
 
-class ScheduleList extends ConsumerWidget {
-  const ScheduleList({
+class DetailScheduleList extends ConsumerWidget {
+  const DetailScheduleList({
     super.key,
     required this.schedules,
     required this.totalScheduleCount,
@@ -29,7 +28,7 @@ class ScheduleList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final scheduleViewModel = ref.watch(scheduleViewModelProvider);
+    final scheduleViewModel = ref.watch(detailScheduleViewModelProvider);
 
     return Column(
       spacing: 16,
@@ -45,7 +44,7 @@ class ScheduleList extends ConsumerWidget {
             ),
             shadows: AppShadow.generalShadow,
           ),
-          child: ScheduleItem(
+          child: ScheduleDetailItem(
             totalScheduleItemCount: totalScheduleCount,
             time: entry.value['time'] ?? '오전 9:00',
             title: entry.value['title'] ?? '제목',
@@ -78,14 +77,12 @@ class ScheduleList extends ConsumerWidget {
                       time,
                       description,
                     ) {
-                      // 일정 수정 시 기존 일정의 index를 onSave로 전달
                       scheduleViewModel.updateSchedule(
                         time,
                         title,
                         location,
                         description,
                       );
-                      // 수정된 일정 저장
                       onSave(
                         time,
                         title,

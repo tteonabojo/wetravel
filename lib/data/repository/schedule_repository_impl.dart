@@ -8,10 +8,12 @@ class ScheduleRepositoryImpl implements ScheduleRepository {
   final ScheduleDataSource _scheduleDataSource;
 
   @override
-  Future<List<Schedule>> fetchSchedules() async {
-    // 임시로 빈 리스트 반환
-    // TODO: 나중에 실제 Schedule 데이터를 가져오는 로직 구현
-    return [];
+  Future<List<Schedule>> fetchSchedules(List<String> scheduleIds) async {
+    final scheduleDtos =
+        await _scheduleDataSource.getSchedulesByIds(scheduleIds);
+    return scheduleDtos
+        .map((dto) => Schedule.fromDto(dto))
+        .toList(); // DTO를 Entity로 변환
   }
 
   @override

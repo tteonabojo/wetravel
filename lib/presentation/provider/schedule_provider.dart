@@ -4,7 +4,7 @@ import 'package:wetravel/data/data_source/data_source_implement/schedule_data_so
 import 'package:wetravel/data/data_source/schedule_data_source.dart';
 import 'package:wetravel/data/repository/schedule_repository_impl.dart';
 import 'package:wetravel/domain/repository/schedule_repository.dart';
-import 'package:wetravel/domain/usecase/fetch_schedules_usecase.dart';
+import 'package:wetravel/domain/usecase/get_schedules_usecase.dart';
 import 'package:wetravel/domain/entity/survey_response.dart';
 import 'package:wetravel/domain/entity/travel_schedule.dart';
 import 'package:wetravel/presentation/provider/recommendation_provider.dart';
@@ -24,9 +24,14 @@ final _scheduleRepositoryProvider = Provider<ScheduleRepository>(
 final fetchSchedulesUsecaseProvider = Provider(
   (ref) {
     final scheduleRepo = ref.watch(_scheduleRepositoryProvider);
-    return FetchSchedulesUsecase(scheduleRepo);
+    return GetSchedulesUsecase(scheduleRepo);
   },
 );
+
+final getSchedulesUseCaseProvider = Provider((ref) {
+  final scheduleRepository = ref.read(_scheduleRepositoryProvider);
+  return GetSchedulesUsecase(scheduleRepository);
+});
 
 final scheduleProvider = FutureProvider.autoDispose
     .family<TravelSchedule, SurveyResponse>((ref, survey) async {
