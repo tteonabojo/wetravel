@@ -14,7 +14,24 @@ class SurveyPage extends ConsumerStatefulWidget {
 
 class _SurveyPageState extends ConsumerState<SurveyPage> {
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // 초기 SurveyResponse에서 선택된 도시 가져오기
+      final initialResponse =
+          ModalRoute.of(context)!.settings.arguments as SurveyResponse?;
+      ref.read(recommendationStateProvider.notifier).resetState(
+            selectedCity: initialResponse?.selectedCity, // 선택된 도시 정보 유지
+          );
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // 초기 SurveyResponse에서 선택된 도시 가져오기
+    final initialResponse =
+        ModalRoute.of(context)!.settings.arguments as SurveyResponse?;
+
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -57,25 +74,30 @@ class _SurveyPageState extends ConsumerState<SurveyPage> {
                         ref
                             .read(recommendationStateProvider.notifier)
                             .nextPage();
+                        SurveyPage.pageController.nextPage(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        );
                       } else {
                         final surveyState =
                             ref.read(recommendationStateProvider);
-                        final selectedCity =
-                            surveyState.selectedCities.isNotEmpty
-                                ? surveyState.selectedCities.first
-                                : null;
 
                         final surveyResponse = SurveyResponse(
-                          travelPeriod: surveyState.travelPeriod ?? '',
-                          travelDuration: surveyState.travelDuration ?? '',
+                          travelPeriod: surveyState.travelPeriod!,
+                          travelDuration: surveyState.travelDuration!,
                           companions: surveyState.companions,
                           travelStyles: surveyState.travelStyles,
                           accommodationTypes: surveyState.accommodationTypes,
                           considerations: surveyState.considerations,
-                          selectedCity: selectedCity,
+                          selectedCity:
+                              initialResponse?.selectedCity, // 선택된 도시 정보 유지
                         );
 
-                        Navigator.pushNamed(context, '/plan-selection');
+                        Navigator.pushNamed(
+                          context,
+                          '/ai-recommendation',
+                          arguments: surveyResponse,
+                        );
                       }
                     }
                   },
@@ -242,14 +264,6 @@ class TravelPeriodPage extends ConsumerWidget {
               ref
                   .read(recommendationStateProvider.notifier)
                   .selectTravelDuration('5박 6일');
-              _checkAndNavigate(context, ref);
-            }),
-            _buildSelectionChip('그 이상',
-                ref.watch(recommendationStateProvider).travelDuration == '그 이상',
-                (selected) {
-              ref
-                  .read(recommendationStateProvider.notifier)
-                  .selectTravelDuration('그 이상');
               _checkAndNavigate(context, ref);
             }),
           ],

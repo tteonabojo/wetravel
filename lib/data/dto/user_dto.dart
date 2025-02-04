@@ -1,10 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wetravel/data/dto/package_dto.dart';
-import 'package:wetravel/domain/entity/package.dart';
 import 'package:wetravel/domain/entity/user.dart';
 
 class UserDto {
-  final String id;
+  final String uid;
   final String email;
   final String? password;
   final String? name;
@@ -20,7 +19,7 @@ class UserDto {
   final List<String> recentPackages;
 
   UserDto({
-    required this.id,
+    required this.uid,
     required this.email,
     this.password,
     this.name,
@@ -37,7 +36,7 @@ class UserDto {
   });
 
   UserDto copyWith({
-    String? id,
+    String? uid,
     String? email,
     String? password,
     String? name,
@@ -53,7 +52,7 @@ class UserDto {
     List<String>? recentPackages,
   }) =>
       UserDto(
-        id: id ?? this.id,
+        uid: uid ?? this.uid,
         email: email ?? this.email,
         password: password ?? this.password,
         name: name ?? this.name,
@@ -69,35 +68,37 @@ class UserDto {
         recentPackages: recentPackages ?? this.recentPackages,
       );
 
-  UserDto.fromJson(Map<String, dynamic> json)
-      : this(
-          id: json['id'] as String,
-          email: json['email'] as String,
-          password: json['password'] as String?,
-          name: json['name'] as String?,
-          imageUrl: json['imageUrl'] as String?,
-          introduction: json['introduction'] as String?,
-          loginType: json['loginType'] as String,
-          isGuide: json['isGuide'] as bool,
-          createdAt: json['createdAt'] as Timestamp,
-          updatedAt:
-              json['updatedAt'] != null ? json['updatedAt'] as Timestamp : null,
-          deletedAt:
-              json['deletedAt'] != null ? json['updatedAt'] as Timestamp : null,
-          scrapList: json['scrapList'] != null
-              ? (json['scrapList'] as List)
-                  .map((e) => PackageDto.fromJson(e as Map<String, dynamic>))
-                  .toList()
-              : [],
-          scrapIdList: json['scrapIdList'] != null
-              ? List<String>.from(json['scrapIdList'] as List)
-              : [],
-          recentPackages: json['recentPackages'] != null
-              ? List<String>.from(json['recentPackages'] as List)
-              : [],
-        );
+  factory UserDto.fromJson(Map<String, dynamic> json) {
+    return UserDto(
+      uid: json['uid'] ?? '',
+      email: json['email'] ?? '',
+      password: json['password'] as String?,
+      name: json['name'] as String?,
+      imageUrl: json['imageUrl'] as String?,
+      introduction: json['introduction'] as String?,
+      loginType: json['loginType'] as String,
+      isGuide: json['isGuide'] ?? false,
+      createdAt: json['createdAt'] as Timestamp,
+      updatedAt:
+          json['updatedAt'] != null ? json['updatedAt'] as Timestamp : null,
+      deletedAt:
+          json['deletedAt'] != null ? json['updatedAt'] as Timestamp : null,
+      scrapList: json['scrapList'] != null
+          ? (json['scrapList'] as List)
+              .map((e) => PackageDto.fromJson(e as Map<String, dynamic>))
+              .toList()
+          : [],
+      scrapIdList: json['scrapIdList'] != null
+          ? List<String>.from(json['scrapIdList'] as List)
+          : [],
+      recentPackages: json['recentPackages'] != null
+          ? List<String>.from(json['recentPackages'] as List)
+          : [],
+    );
+  }
+
   Map<String, dynamic> toJson() => {
-        "id": id,
+        "uid": uid,
         "email": email,
         "password": password,
         "name": name,
@@ -115,7 +116,7 @@ class UserDto {
 
   User toEntity() {
     return User(
-      id: id,
+      uid: uid,
       email: email,
       password: password,
       name: name,

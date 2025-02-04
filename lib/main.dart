@@ -10,8 +10,8 @@ import 'package:wetravel/presentation/pages/survey/city_selection_page.dart';
 import 'package:wetravel/presentation/pages/survey/survey_page.dart';
 import 'package:wetravel/presentation/pages/recommendation/ai_recommendation_page.dart';
 import 'package:wetravel/presentation/pages/schedule/ai_schedule_page.dart';
-import 'package:wetravel/presentation/pages/new_trip/new_trip_page.dart';
 import 'package:wetravel/presentation/pages/plan_selection/plan_selection_page.dart';
+import 'package:wetravel/presentation/pages/saved_plans/saved_plans_page.dart';
 import 'package:wetravel/theme.dart';
 
 void main() async {
@@ -34,18 +34,18 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: AppTheme.themeData,
-      initialRoute: '/init',
+      initialRoute: '/',
       routes: {
         '/': (context) => const StackPage(),
         '/init': (context) => const AuthWrapper(),
         '/login': (context) => const LoginPage(),
         '/city-selection': (context) => const CitySelectionPage(),
         '/survey': (context) => const SurveyPage(),
-        '/new-trip': (context) => const NewTripPage(),
-        '/plan-selection': (_) =>
-            const ProviderScope(child: PlanSelectionPage()),
+        '/new-trip': (context) => const StackPage(),
+        '/plan-selection': (context) => const PlanSelectionPage(),
         '/ai-recommendation': (context) => const AIRecommendationPage(),
         '/ai-schedule': (context) => const AISchedulePage(),
+        '/saved-plans': (context) => const SavedPlansPage(),
       },
       onUnknownRoute: (settings) {
         return MaterialPageRoute(

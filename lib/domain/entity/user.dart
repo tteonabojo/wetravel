@@ -3,7 +3,7 @@ import 'package:wetravel/data/dto/user_dto.dart';
 import 'package:wetravel/domain/entity/package.dart';
 
 class User {
-  final String id;
+  final String uid;
   final String email;
   final String? password;
   final String? name;
@@ -21,7 +21,7 @@ class User {
   String? displayName;
 
   User({
-    required this.id,
+    required this.uid,
     required this.email,
     this.password,
     this.name,
@@ -39,7 +39,7 @@ class User {
 
   factory User.fromDto(UserDto dto) {
     return User(
-      id: dto.id,
+      uid: dto.uid,
       email: dto.email,
       password: dto.password,
       name: dto.name,
@@ -56,7 +56,7 @@ class User {
     );
   }
   Map<String, dynamic> toJson() => {
-        "id": id,
+        "uid": uid,
         "email": email,
         "password": password,
         "name": name,
@@ -73,7 +73,7 @@ class User {
       };
   UserDto toDto() {
     return UserDto(
-      id: id,
+      uid: uid,
       email: email,
       password: password,
       name: name,

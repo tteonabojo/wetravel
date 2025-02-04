@@ -25,10 +25,38 @@ class RecommendationState {
     this.considerations = const [],
     this.selectedCities = const [],
   });
+
+  // 상태 초기화 메서드 추가
+  RecommendationState reset() {
+    return RecommendationState(
+      currentPage: 0,
+      travelPeriod: null,
+      travelDuration: null,
+      companions: [],
+      travelStyles: [],
+      accommodationTypes: [],
+      considerations: [],
+      selectedCities: [],
+    );
+  }
 }
 
 class RecommendationNotifier extends StateNotifier<RecommendationState> {
   RecommendationNotifier() : super(RecommendationState());
+
+  // 상태 초기화 메서드 추가
+  void resetState({String? selectedCity}) {
+    state = RecommendationState(
+      currentPage: 0,
+      selectedCities: selectedCity != null ? [selectedCity] : [], // 선택된 도시 유지
+      travelPeriod: null,
+      travelDuration: null,
+      companions: [],
+      travelStyles: [],
+      accommodationTypes: [],
+      considerations: [],
+    );
+  }
 
   // 도시-카테고리 매핑
   static const Map<String, List<String>> cityCategories = {
@@ -240,6 +268,65 @@ class RecommendationNotifier extends StateNotifier<RecommendationState> {
         selectedCities: [selectedCity],
       );
     }
+  }
+
+  // 여행지별 태그 매핑을 추가
+  Map<String, List<String>> getCityTags(
+      String city, List<String> travelStyles) {
+    final tags = <String, List<String>>{
+      // 일본
+      '도쿄': ['현대적', '쇼핑천국'],
+      '오사카': ['맛집여행', '활기찬'],
+      '교토': ['전통문화', '고즈넉한'],
+      '나라': ['역사유적', '자연친화'],
+      '후쿠오카': ['먹방투어', '도시여행'],
+      '삿포로': ['시원한 기후', '겨울축제'],
+
+      // 한국
+      '서울': ['케이컬처', '트렌디'],
+      '부산': ['해양도시', '먹방투어'],
+      '제주': ['자연경관', '휴양'],
+      '강릉': ['바다여행', '카페거리'],
+      '여수': ['밤바다', '해산물'],
+      '경주': ['역사유적', '고도'],
+
+      // 동남아시아
+      '방콕': ['열대기후', '불교문화'],
+      '싱가포르': ['현대도시', '다문화'],
+      '발리': ['휴양지', '열대기후'],
+      '세부': ['해변휴양', '액티비티'],
+      '다낭': ['해변도시', '리조트'],
+      '하노이': ['전통문화', '역사적'],
+
+      // 미국
+      '뉴욕': ['도시여행', '문화예술'],
+      '로스앤젤레스': ['엔터테인먼트', '해변'],
+      '샌프란시스코': ['다문화', '베이에리어'],
+      '라스베가스': ['카지노', '엔터테인먼트'],
+      '하와이': ['휴양지', '열대기후'],
+
+      // 유럽
+      '파리': ['예술의도시', '로맨틱'],
+      '런던': ['역사문화', '현대적'],
+      '로마': ['고대유적', '예술'],
+      '바르셀로나': ['건축예술', '지중해'],
+      '암스테르담': ['운하도시', '예술'],
+      '프라하': ['중세도시', '낭만적'],
+      '베니스': ['수상도시', '로맨틱'],
+    };
+
+    // 기본 태그 설정
+    List<String> cityTags = tags[city] ?? ['도시여행', '관광'];
+
+    // 여행 스타일에 따른 추가 태그
+    if (travelStyles.contains('맛집')) {
+      cityTags = ['맛집투어', ...cityTags];
+    }
+    if (travelStyles.contains('쇼핑')) {
+      cityTags = ['쇼핑', ...cityTags];
+    }
+
+    return {'tags': cityTags.take(2).toList()}; // 최대 2개의 태그만 반환
   }
 }
 

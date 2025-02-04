@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:wetravel/domain/entity/survey_response.dart';
+import 'package:wetravel/presentation/pages/stack/stack_page.dart';
 import 'package:wetravel/presentation/provider/recommendation_provider.dart';
+import 'package:wetravel/domain/entity/schedule.dart';
+import 'package:wetravel/presentation/provider/user_provider.dart';
 
 class AIRecommendationPage extends ConsumerStatefulWidget {
   const AIRecommendationPage({super.key});
@@ -15,10 +18,11 @@ class AIRecommendationPage extends ConsumerStatefulWidget {
 
 class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
   String? selectedDestination;
+  late SurveyResponse surveyResponse;
 
   @override
   Widget build(BuildContext context) {
-    final surveyResponse =
+    surveyResponse =
         ModalRoute.of(context)!.settings.arguments as SurveyResponse;
 
     return ref.watch(recommendationProvider(surveyResponse)).when(
@@ -35,8 +39,13 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
               recommendation.destinations.add(surveyResponse.selectedCity!);
               recommendation.destinations.addAll(recommendedCities);
 
-              // reasons와 tips도 적절히 조정
-              // (실제 구현에서는 각 도시에 맞는 이유와 팁을 설정해야 함)
+              // 각 도시에 맞는 이유 설정
+              recommendation.reasons = recommendation.destinations.map((city) {
+                final tags = ref
+                    .read(recommendationStateProvider.notifier)
+                    .getCityTags(city, surveyResponse.travelStyles)['tags']!;
+                return '${city}는 ${tags.join(', ')} 등의 특징이 있어 추천드립니다.';
+              }).toList();
             }
 
             return Scaffold(
@@ -46,9 +55,19 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back),
-                        onPressed: () => Navigator.pop(context),
+                      Align(
+                        alignment: Alignment.topRight,
+                        child: IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const StackPage(initialIndex: 1),
+                            ),
+                            (route) => false,
+                          ),
+                        ),
                       ),
                       const SizedBox(height: 20),
                       const Text(
@@ -126,17 +145,7 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
                             child: ElevatedButton(
                               onPressed: selectedDestination != null
                                   ? () {
-                                      // 선택된 도시로 SurveyResponse 업데이트
-                                      final updatedSurveyResponse =
-                                          surveyResponse.copyWith(
-                                        selectedCity: selectedDestination,
-                                      );
-
-                                      Navigator.pushNamed(
-                                        context,
-                                        '/ai-schedule',
-                                        arguments: updatedSurveyResponse,
-                                      );
+                                      _navigateToSchedule();
                                     }
                                   : null,
                               style: ElevatedButton.styleFrom(
@@ -215,11 +224,10 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
                   left: 16,
                   child: Wrap(
                     spacing: 8,
-                    children: getCityTags(
-                            destination,
-                            ref
-                                .read(recommendationStateProvider)
-                                .travelStyles)['tags']!
+                    children: ref
+                        .read(recommendationStateProvider.notifier)
+                        .getCityTags(
+                            destination, surveyResponse.travelStyles)['tags']!
                         .map((tag) => _buildTag(tag))
                         .toList(),
                   ),
@@ -312,68 +320,22 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
           return data['hits'][0]['webformatURL'];
         }
       }
-      throw Exception('이미지를 찾을 수 없습니다');
+      // 이미지를 찾지 못한 경우 기본 이미지 URL 반환
+      return 'https://via.placeholder.com/640x480?text=No+Image';
     } catch (e) {
-      throw Exception('이미지 로드 실패: $e');
+      // 에러 발생 시 기본 이미지 URL 반환
+      return 'https://via.placeholder.com/640x480?text=Error';
     }
   }
 
-  // 여행지별 태그 매핑을 추가
-  Map<String, List<String>> getCityTags(
-      String city, List<String> travelStyles) {
-    final tags = <String, List<String>>{
-      // 일본
-      '도쿄': ['현대적', '쇼핑천국'],
-      '오사카': ['맛집여행', '활기찬'],
-      '교토': ['전통문화', '고즈넉한'],
-      '나라': ['역사유적', '자연친화'],
-      '후쿠오카': ['먹방투어', '도시여행'],
-      '삿포로': ['시원한 기후', '겨울축제'],
-
-      // 한국
-      '서울': ['케이컬처', '트렌디'],
-      '부산': ['해양도시', '먹방투어'],
-      '제주': ['자연경관', '휴양'],
-      '강릉': ['바다여행', '카페거리'],
-      '여수': ['밤바다', '해산물'],
-      '경주': ['역사유적', '고도'],
-
-      // 동남아시아
-      '방콕': ['열대기후', '불교문화'],
-      '싱가포르': ['현대도시', '다문화'],
-      '발리': ['휴양지', '열대기후'],
-      '세부': ['해변휴양', '액티비티'],
-      '다낭': ['해변도시', '리조트'],
-      '하노이': ['전통문화', '역사적'],
-
-      // 미국
-      '뉴욕': ['도시여행', '문화예술'],
-      '로스앤젤레스': ['엔터테인먼트', '해변'],
-      '샌프란시스코': ['다문화', '베이에리어'],
-      '라스베가스': ['카지노', '엔터테인먼트'],
-      '하와이': ['휴양지', '열대기후'],
-
-      // 유럽
-      '파리': ['예술의도시', '로맨틱'],
-      '런던': ['역사문화', '현대적'],
-      '로마': ['고대유적', '예술'],
-      '바르셀로나': ['건축예술', '지중해'],
-      '암스테르담': ['운하도시', '예술'],
-      '프라하': ['중세도시', '낭만적'],
-      '베니스': ['수상도시', '로맨틱'],
-    };
-
-    // 기본 태그 설정
-    List<String> cityTags = tags[city] ?? ['도시여행', '관광'];
-
-    // 여행 스타일에 따른 추가 태그
-    if (travelStyles.contains('맛집')) {
-      cityTags = ['맛집투어', ...cityTags];
-    }
-    if (travelStyles.contains('쇼핑')) {
-      cityTags = ['쇼핑', ...cityTags];
-    }
-
-    return {'tags': cityTags.take(2).toList()}; // 최대 2개의 태그만 반환
+  Future<void> _navigateToSchedule() async {
+    final updatedSurveyResponse = surveyResponse.copyWith(
+      selectedCity: selectedDestination,
+    );
+    Navigator.pushNamed(
+      context,
+      '/ai-schedule',
+      arguments: updatedSurveyResponse,
+    );
   }
 }

@@ -6,83 +6,45 @@ import 'package:wetravel/presentation/pages/new_trip/new_trip_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class CustomBottomNavigationBar extends StatelessWidget {
-  final int selectedIndex;
-  final Function(int) onItemTapped;
   final BuildContext context;
   final WidgetRef ref;
+  final int selectedIndex;
+  final Function(int) onItemTapped;
 
   const CustomBottomNavigationBar({
-    super.key,
-    required this.selectedIndex,
-    required this.onItemTapped,
     required this.context,
     required this.ref,
+    required this.selectedIndex,
+    required this.onItemTapped,
+    super.key,
   });
 
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
-      backgroundColor: Colors.white,
-      items: <BottomNavigationBarItem>[
+      items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(
-          icon: SvgPicture.asset(
-            AppIcons.home,
-            color: AppColors.grayScale_550,
-          ),
-          activeIcon: SvgPicture.asset(
-            AppIcons.home,
-            color: AppColors.primary_450,
-          ),
+          icon: Icon(Icons.home_outlined),
           label: '홈',
         ),
         BottomNavigationBarItem(
-          icon: SvgPicture.asset(
-            AppIcons.squarePlus,
-            color: AppColors.grayScale_550,
-          ),
-          activeIcon: SvgPicture.asset(
-            AppIcons.squarePlus,
-            color: AppColors.primary_450,
-          ),
-          label: '여행 시작',
+          icon: Icon(Icons.add_box_outlined),
+          label: '새 여행',
         ),
         BottomNavigationBarItem(
-          icon: SvgPicture.asset(
-            AppIcons.crown,
-            color: AppColors.grayScale_550,
-          ),
-          activeIcon: SvgPicture.asset(
-            AppIcons.crown,
-            color: AppColors.primary_450,
-          ),
-          label: '가이드',
+          icon: Icon(Icons.bookmark_outline),
+          label: '내가 담은 패키지',
         ),
         BottomNavigationBarItem(
-          icon: SvgPicture.asset(
-            AppIcons.userRound,
-            color: AppColors.grayScale_550,
-          ),
-          activeIcon: SvgPicture.asset(
-            AppIcons.userRound,
-            color: AppColors.primary_450,
-          ),
-          label: '마이페이지',
+          icon: Icon(Icons.person_outline),
+          label: '프로필',
         ),
       ],
       currentIndex: selectedIndex,
-      onTap: (index) {
-        if (index == 1) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const NewTripPage()),
-          );
-        } else {
-          onItemTapped(index);
-        }
-      },
-      showSelectedLabels: false,
-      showUnselectedLabels: false,
+      onTap: onItemTapped,
       type: BottomNavigationBarType.fixed,
+      selectedItemColor: Colors.blue,
+      unselectedItemColor: Colors.grey,
     );
   }
 }

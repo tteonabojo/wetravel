@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wetravel/presentation/pages/saved_plans/saved_plans_page.dart';
 
 class NewTripPage extends StatelessWidget {
   const NewTripPage({super.key});
@@ -95,7 +96,12 @@ class NewTripPage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                       child: InkWell(
                         onTap: () {
-                          // 내가 담은 패키지 페이지로 이동
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const SavedPlansPage(),
+                            ),
+                          );
                         },
                         borderRadius: BorderRadius.circular(12),
                         child: Container(
@@ -127,30 +133,6 @@ class NewTripPage extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.only(
-          left: 16,
-          right: 16,
-          bottom: 16,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildNavItem(Icons.home_outlined, false),
-            _buildNavItem(Icons.add_box_outlined, true),
-            _buildNavItem(Icons.crop_square_outlined, false),
-            _buildNavItem(Icons.person_outline, false),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNavItem(IconData icon, bool isSelected) {
-    return Icon(
-      icon,
-      color: isSelected ? Colors.blue : Colors.grey,
-      size: 28,
     );
   }
 }
