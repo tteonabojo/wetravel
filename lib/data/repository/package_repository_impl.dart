@@ -56,4 +56,10 @@ class PackageRepositoryImpl implements PackageRepository {
             ))
         .toList();
   }
+
+  @override
+  Future<Map<String, List<Map<String, String>>>> fetchSchedulesByIds(
+      List<String> scheduleIds) {
+    return _packageDataSource.fetchSchedulesByIds(scheduleIds);
+  }
 }

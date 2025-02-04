@@ -34,4 +34,28 @@ class PackageDataSourceImpl implements PackageDataSource {
       return PackageDto.fromJson(doc.data());
     }).toList();
   }
+
+  @override
+  Future<Map<String, List<Map<String, String>>>> fetchSchedulesByIds(
+      List<String> scheduleIds) async {
+    Map<String, List<Map<String, String>>> schedules = {};
+
+    for (String scheduleId in scheduleIds) {
+      final scheduleSnapshot =
+          await _firestore.collection('schedules').doc(scheduleId).get();
+      if (scheduleSnapshot.exists) {
+        final data = scheduleSnapshot.data()!;
+        final day = data['day'];
+        final scheduleDetails =
+            data['scheduleDetails']; // Example: A list of schedules for the day
+
+        if (schedules.containsKey(day)) {
+          schedules[day]!.add(scheduleDetails);
+        } else {
+          schedules[day] = [scheduleDetails];
+        }
+      }
+    }
+    return schedules;
+  }
 }
