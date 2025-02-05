@@ -73,4 +73,11 @@ class PackageRepositoryImpl implements PackageRepository {
     final result = await _packageDataSource.fetchPopularPackages();
     return result.map((e) => e.toEntity()).toList();
   }
+
+  @override
+  Stream<List<Package>> watchRecentPackages() async* {
+    yield* _packageDataSource
+        .watchRecentPackages()
+        .map((packages) => packages.map((e) => e.toEntity()).toList());
+  }
 }
