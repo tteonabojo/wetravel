@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/domain/entity/package.dart';
@@ -31,6 +32,7 @@ class _PackageDetailPageState extends State<PackageDetailPage> {
   int selectedDay = 1;
   Package? package;
   Map<int, List<Schedule>> scheduleMap = {};
+  bool isGuide = false; // isGuide 필드를 추가
 
   late final GetPackageUseCase getPackageUseCase;
   late final GetSchedulesUsecase getSchedulesUseCase;
@@ -66,6 +68,20 @@ class _PackageDetailPageState extends State<PackageDetailPage> {
           continue; // day가 null인 경우 무시
         }
         tempScheduleMap.putIfAbsent(schedule.day!, () => []).add(schedule);
+      }
+
+      // 현재 로그인한 사용자 정보 가져오기
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc('current_user_id') // 여기서 current_user_id는 실제 로그인한 사용자의 ID로 변경 필요
+          .get();
+
+      if (userDoc.exists) {
+        final userData = userDoc.data();
+        setState(() {
+          // isGuide 필드를 확인하고 상태를 업데이트
+          isGuide = userData?['isGuide'] ?? false;
+        });
       }
 
       setState(() {
@@ -184,17 +200,18 @@ class _PackageDetailPageState extends State<PackageDetailPage> {
                       },
                     ),
                   const SizedBox(height: 40),
-                  StandardButton.primary(
-                    onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  PackageEditPage(packageId: package!.id)));
-                    },
-                    sizeType: ButtonSizeType.normal,
-                    text: '수정하기',
-                  ),
+                  if (isGuide) // isGuide가 true일 때만 버튼을 보이도록 설정
+                    StandardButton.primary(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    PackageEditPage(packageId: package!.id)));
+                      },
+                      sizeType: ButtonSizeType.normal,
+                      text: '수정하기',
+                    ),
                 ],
               ),
             ),

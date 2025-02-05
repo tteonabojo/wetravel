@@ -4,6 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/presentation/pages/auth_wrapper/auth_wrapper.dart';
+import 'package:wetravel/presentation/pages/guidepackage/guide_package_page.dart';
 import 'package:wetravel/presentation/pages/login/login_page.dart';
 import 'package:wetravel/presentation/pages/stack/stack_page.dart';
 import 'package:wetravel/presentation/pages/survey/city_selection_page.dart';
@@ -46,6 +47,7 @@ class MyApp extends StatelessWidget {
             const ProviderScope(child: PlanSelectionPage()),
         '/ai-recommendation': (context) => const AIRecommendationPage(),
         '/ai-schedule': (context) => const AISchedulePage(),
+        '/manual-planning': (context) => GuidePackagePage(),
         '/mypage': (context) => MyPage(),
       },
       onUnknownRoute: (settings) {
