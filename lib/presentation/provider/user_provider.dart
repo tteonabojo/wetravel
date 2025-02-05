@@ -104,3 +104,13 @@ final schedulesStreamProvider = StreamProvider<List<Schedule>>((ref) {
           .map((doc) => Schedule.fromJson({...doc.data(), 'id': doc.id}))
           .toList());
 });
+
+// 마이페이지의 실시간 스트림을 위한 provider
+final userStreamProvider = StreamProvider.autoDispose((ref) {
+  final uid = FirebaseAuth.instance.currentUser?.uid;
+  if (uid == null) return Stream.value(null);
+  
+  return FirebaseFirestore.instance.collection('users').doc(uid).snapshots().map((snapshot) {
+    return snapshot.data();
+  });
+});
