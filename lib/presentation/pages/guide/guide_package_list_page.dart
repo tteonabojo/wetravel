@@ -86,18 +86,18 @@ class GuidePackageListPage extends ConsumerWidget {
         }
       }
 
-      // 3. Firestore에서 패키지 삭제
+      final schedulesQuerySnapshot = await FirebaseFirestore.instance
+          .collection('schedules')
+          .where('packageId', isEqualTo: packageId)
+          .get();
+      
       await FirebaseFirestore.instance
           .collection('packages')
           .doc(packageId)
           .delete();
       print('패키지 삭제 성공');
 
-      // 4. 해당 패키지와 관련된 모든 스케줄 삭제
-      final schedulesQuerySnapshot = await FirebaseFirestore.instance
-          .collection('schedules')
-          .where('packageId', isEqualTo: packageId)
-          .get();
+     
 
       for (var scheduleDoc in schedulesQuerySnapshot.docs) {
         await scheduleDoc.reference.delete();
