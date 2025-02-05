@@ -47,21 +47,23 @@ class _PackageDetailPageState extends State<PackageDetailPage> {
       final fetchedPackage = await getPackageUseCase.execute(widget.packageId);
       print('패키지 데이터 로드 완료: ${fetchedPackage.toString()}');
 
-      if (fetchedPackage.scheduleIdList == null ||
-          fetchedPackage.scheduleIdList!.isEmpty) {
+      final scheduleIdList = fetchedPackage.scheduleIdList;
+      if (scheduleIdList == null || scheduleIdList.isEmpty) {
         throw Exception('패키지에 연결된 스케줄이 없습니다.');
       }
 
-      print('스케줄 ID 목록: ${fetchedPackage.scheduleIdList}');
-      final schedules =
-          await getSchedulesUseCase.execute(fetchedPackage.scheduleIdList!);
+      print('스케줄 ID 목록: $scheduleIdList');
+      final schedules = await getSchedulesUseCase.execute(scheduleIdList);
       print('스케줄 데이터 로드 완료: ${schedules.toString()}');
 
       final tempScheduleMap = <int, List<Schedule>>{};
 
       for (var schedule in schedules) {
-        print('스케줄 처리 중: ${schedule.toString()}');
-        tempScheduleMap.putIfAbsent(schedule.day, () => []).add(schedule);
+        if (schedule.day == null) {
+          print('경고: 스케줄에 day 정보가 없습니다. 스케줄 ID: ${schedule.id}');
+          continue; // day가 null인 경우 무시
+        }
+        tempScheduleMap.putIfAbsent(schedule.day!, () => []).add(schedule);
       }
 
       setState(() {
@@ -76,29 +78,34 @@ class _PackageDetailPageState extends State<PackageDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (package == null || scheduleMap.isEmpty) {
-      return const Center();
+    if (package == null) {
+      return const Scaffold(
+        backgroundColor: Colors.white, // ✅ 배경색 흰색으로 설정
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text(package!.title)),
+      appBar: AppBar(title: Text(package?.title ?? '패키지 상세')),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             PackageDetailImage(
-              imagePath: package!.imageUrl ?? '',
+              imagePath: package?.imageUrl ?? '',
               onImageSelected: (String value) {},
             ),
             PackageDetailHeader(
-              title: package!.title,
-              keywordList: package!.keywordList ?? [],
-              location: package!.location,
+              title: package?.title ?? '제목 없음',
+              keywordList: package?.keywordList ?? [],
+              location: package?.location ?? '위치 정보 없음',
               onUpdate: (newTitle, newKeywordList, newLocation) {},
             ),
             divider(1),
             Padding(
-              padding: EdgeInsets.only(left: 16, top: 16),
+              padding: const EdgeInsets.only(left: 16, top: 16),
               child: DetailDayChipButton(
                 onPressed: () {},
                 currentDayCount: scheduleMap.keys.length,
@@ -120,7 +127,7 @@ class _PackageDetailPageState extends State<PackageDetailPage> {
                     DetailScheduleList(
                       schedules: [
                         {
-                          'time': schedule.time ?? '', // Null 방지
+                          'time': schedule.time ?? '',
                           'title': schedule.title ?? '제목 없음',
                           'location': schedule.location ?? '위치 정보 없음',
                           'content': schedule.content ?? '',

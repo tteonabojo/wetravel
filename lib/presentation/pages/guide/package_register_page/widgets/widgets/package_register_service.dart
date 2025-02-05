@@ -69,4 +69,67 @@ class PackageRegisterService {
       throw Exception('패키지 등록 실패: $e');
     }
   }
+
+  // Update package details
+  Future<void> updatePackage({
+    required String packageId,
+    required String title,
+    required String location,
+    required String description,
+    required String duration,
+    required String imageUrl,
+    required List<String> keywordList,
+    required List<Map<String, dynamic>> scheduleList,
+  }) async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      throw Exception('로그인한 사용자 정보를 찾을 수 없습니다.');
+    }
+
+    // Get the reference to the existing package
+    final packageRef =
+        FirebaseFirestore.instance.collection('packages').doc(packageId);
+
+    try {
+      // Update package data
+      await packageRef.update({
+        'title': title,
+        'location': location,
+        'description': description,
+        'duration': duration,
+        'imageUrl': imageUrl,
+        'keywordList': keywordList,
+      });
+
+      // Update schedules
+      List<String> updatedScheduleIdList = [];
+      for (var schedule in scheduleList) {
+        final scheduleRef = FirebaseFirestore.instance.collection('schedules').doc(
+            '$packageId-${DateTime.now().millisecondsSinceEpoch}'); // 예시: "packageId-timestamp"
+
+        final scheduleData = {
+          'packageId': packageId,
+          'day': schedule['day'],
+          'time': schedule['time'],
+          'title': schedule['title'],
+          'location': schedule['location'],
+          'content': schedule['content'],
+          'imageUrl': schedule['imageUrl'],
+          'order': schedule['order'],
+        };
+
+        // Create or update schedule
+        await scheduleRef.set(scheduleData);
+
+        updatedScheduleIdList.add(scheduleRef.id);
+      }
+
+      // Update the package's scheduleIdList with updated schedule IDs
+      await packageRef.update({
+        'scheduleIdList': updatedScheduleIdList,
+      });
+    } catch (e) {
+      throw Exception('패키지 업데이트 실패: $e');
+    }
+  }
 }

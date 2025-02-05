@@ -8,7 +8,6 @@ import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/presentation/pages/guide/package_register_page/widgets/schedule_list_view_model.dart';
 import 'package:wetravel/presentation/pages/guide/package_register_page/widgets/widgets/bottom_sheet/list_bottom_sheet.dart';
 import 'package:wetravel/presentation/pages/guide/package_register_page/widgets/widgets/schedule_item.dart';
-import 'package:wetravel/presentation/pages/guidepackagedetailpage/widgets/schedule_detail_item.dart';
 
 class ScheduleList extends ConsumerWidget {
   const ScheduleList({

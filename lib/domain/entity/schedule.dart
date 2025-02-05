@@ -7,8 +7,8 @@ class Schedule {
   final String time;
   final String title;
   final String location;
-  final String content;
-  final String imageUrl;
+  final String? content;
+  final String? imageUrl;
   final int order;
 
   Schedule({
@@ -31,8 +31,8 @@ class Schedule {
       time: dto.time,
       title: dto.title,
       location: dto.location,
-      content: dto.content!,
-      imageUrl: dto.imageUrl!,
+      content: dto.content,
+      imageUrl: dto.imageUrl,
       order: dto.order,
     );
   }

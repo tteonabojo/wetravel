@@ -1,287 +1,356 @@
-// import 'dart:io';
-// import 'package:firebase_storage/firebase_storage.dart';
-// import 'package:flutter/material.dart';
-// import 'package:wetravel/core/constants/app_colors.dart';
-// import 'package:wetravel/presentation/pages/stack/stack_page.dart';
-// import 'package:wetravel/presentation/widgets/buttons/standard_button.dart';
+import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
+import 'package:wetravel/core/constants/app_colors.dart';
+import 'package:wetravel/presentation/pages/guide/package_edit_page/package_edit_image.dart';
+import 'package:wetravel/presentation/pages/guide/package_register_page/widgets/package_header.dart';
+import 'package:wetravel/presentation/pages/guide/package_register_page/widgets/schedule_list.dart';
+import 'package:wetravel/presentation/pages/guide/package_register_page/widgets/widgets/buttons/add_schedule_button.dart';
+import 'package:wetravel/presentation/pages/guide/package_register_page/widgets/widgets/buttons/day_chip_button.dart';
+import 'package:wetravel/presentation/pages/guide/package_register_page/widgets/widgets/buttons/delete_day_button.dart';
+import 'package:wetravel/presentation/pages/guide/package_register_page/widgets/widgets/package_register_service.dart';
+import 'package:wetravel/presentation/widgets/buttons/standard_button.dart';
 
-// class PackageEditPage extends StatefulWidget {
-//   const PackageEditPage({super.key});
+class PackageEditPage extends StatefulWidget {
+  final String packageId;
+  const PackageEditPage({super.key, required this.packageId});
 
-//   @override
-//   _PackageEditPageState createState() => _PackageEditPageState();
-// }
+  @override
+  _PackageEditPageState createState() => _PackageEditPageState();
+}
 
-// class _PackageEditPageState extends State<PackageEditPage> {
-//   final TextEditingController _descriptionController = TextEditingController();
-//   final TextEditingController _durationController = TextEditingController();
+class _PackageEditPageState extends State<PackageEditPage> {
+  final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _durationController = TextEditingController();
 
-//   String _selectedImagePath = "";
-//   String _title = '제목';
-//   List<String> _keywordList = ['2박 3일', '혼자', '액티비티'];
-//   String _location = '위치';
-//   int _dayCount = 1;
-//   int _selectedDay = 1;
-//   final List<List<Map<String, String>>> _schedules = [[]];
+  String _selectedImagePath = "";
+  String _title = '제목';
+  List<String> _keywordList = ['2박 3일', '혼자', '액티비티'];
+  String _location = '위치';
+  int _dayCount = 1;
+  int _selectedDay = 1;
+  final List<List<Map<String, String>>> _schedules = [[]];
 
-//   bool isLoading = false;
+  bool isLoading = true;
 
-//   void _onDelete(int dayIndex, int scheduleIndex) {
-//     setState(() {
-//       _schedules[dayIndex].removeAt(scheduleIndex);
-//     });
-//   }
+  @override
+  void initState() {
+    super.initState();
+    _loadPackageData();
+  }
 
-//   void _onAddSchedule() {
-//     if (_schedules[_selectedDay - 1].length < 9) {
-//       setState(() {
-//         _schedules[_selectedDay - 1].add({
-//           'time': '오전 9:00',
-//           'title': '제목',
-//           'location': '위치',
-//           'content': '설명',
-//         });
-//       });
-//     }
-//   }
+  Future<void> _loadPackageData() async {
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('packages')
+          .doc(widget.packageId)
+          .get();
 
-//   void _onEditSchedule(int dayIndex, int scheduleIndex, String time,
-//       String title, String location, String content) {
-//     if (dayIndex < _schedules.length &&
-//         scheduleIndex < _schedules[dayIndex].length) {
-//       setState(() {
-//         _schedules[dayIndex][scheduleIndex] = {
-//           'time': time,
-//           'title': title,
-//           'location': location,
-//           'content': content,
-//         };
-//       });
-//     } else {
-//       print("Invalid index: dayIndex=$dayIndex, scheduleIndex=$scheduleIndex");
-//     }
-//   }
+      if (doc.exists) {
+        final data = doc.data()!;
+        final scheduleIdList = List<String>.from(data['scheduleIdList'] ?? []);
+        final List<List<Map<String, String>>> loadedSchedules = [];
 
-//   void _onAddDay() {
-//     if (_dayCount < 10) {
-//       setState(() {
-//         _dayCount++;
-//         _schedules.add([]);
-//       });
-//     }
-//   }
+        for (String scheduleId in scheduleIdList) {
+          final scheduleDoc = await FirebaseFirestore.instance
+              .collection('schedules')
+              .doc(scheduleId)
+              .get();
 
-//   void _onSelectDay(int day) {
-//     setState(() {
-//       _selectedDay = day;
-//     });
-//   }
+          if (scheduleDoc.exists) {
+            final scheduleData = scheduleDoc.data()!;
+            final day = scheduleData['day'] ?? 1;
 
-//   void _deleteDay() {
-//     setState(() {
-//       _schedules.removeAt(_selectedDay - 1);
-//       _dayCount--;
-//       if (_selectedDay > _dayCount) {
-//         _selectedDay = _dayCount;
-//       }
-//     });
-//   }
+            while (loadedSchedules.length < day) {
+              loadedSchedules.add([]);
+            }
 
-//   void _editPackage() async {
-//     setState(() {
-//       isLoading = true; // 로딩 시작
-//     });
+            loadedSchedules[day - 1].add({
+              'id': scheduleData['id'],
+              'time': scheduleData['time'] ?? '',
+              'title': scheduleData['title'] ?? '',
+              'location': scheduleData['location'] ?? '',
+              'content': scheduleData['content'] ?? '',
+              'day': (scheduleData['day'] ?? 1).toString(),
+              'order': (scheduleData['order'] ?? 1).toString(),
+            });
+          }
+        }
 
-//     if (_selectedImagePath.isEmpty) {
-//       ScaffoldMessenger.of(context).showSnackBar(
-//         const SnackBar(content: Text('이미지를 등록해주세요.')),
-//       );
-//       return;
-//     }
+        setState(() {
+          _selectedImagePath = data['imageUrl'] ?? '';
+          _title = data['title'] ?? '제목';
+          _location = data['location'] ?? '위치';
+          _keywordList = List<String>.from(data['keywordList'] ?? []);
+          _descriptionController.text = data['description'] ?? '';
+          _durationController.text = data['duration'] ?? '';
+          _dayCount = loadedSchedules.length > 0 ? loadedSchedules.length : 1;
+          _schedules.clear();
+          _schedules
+              .addAll(loadedSchedules.isNotEmpty ? loadedSchedules : [[]]);
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('패키지 데이터 불러오기 실패: $e');
+    }
+  }
 
-//     bool hasSchedule =
-//         _schedules.any((daySchedules) => daySchedules.isNotEmpty);
+  void _onDelete(int dayIndex, int scheduleIndex) {
+    setState(() {
+      _schedules[dayIndex].removeAt(scheduleIndex);
+    });
+  }
 
-//     if (!hasSchedule) {
-//       ScaffoldMessenger.of(context).showSnackBar(
-//         const SnackBar(content: Text('일정을 등록해주세요.')),
-//       );
-//       return;
-//     }
+  void _onAddSchedule() {
+    if (_schedules[_selectedDay - 1].length < 9) {
+      setState(() {
+        _schedules[_selectedDay - 1].add({
+          'time': '오전 9:00',
+          'title': '제목',
+          'location': '위치',
+          'content': '설명',
+        });
+      });
+    }
+  }
 
-//     List<Map<String, dynamic>> scheduleList = [];
+  void _onEditSchedule(int dayIndex, int scheduleIndex, String time,
+      String title, String location, String content) {
+    if (dayIndex < _schedules.length &&
+        scheduleIndex < _schedules[dayIndex].length) {
+      final existingSchedule =
+          _schedules[dayIndex][scheduleIndex]; // ✅ 기존 데이터 유지
 
-//     for (var i = 0; i < _schedules.length; i++) {
-//       for (var j = 0; j < _schedules[i].length; j++) {
-//         scheduleList.add({
-//           'day': i + 1,
-//           'time': _schedules[i][j]['time'],
-//           'title': _schedules[i][j]['title'],
-//           'location': _schedules[i][j]['location'],
-//           'content': _schedules[i][j]['content'],
-//           'imageUrl': '',
-//           'order': j + 1,
-//         });
-//       }
-//     }
+      setState(() {
+        _schedules[dayIndex][scheduleIndex] = {
+          'id': existingSchedule['id']!, // ✅ 기존 id 유지
+          'time': time,
+          'title': title,
+          'location': location,
+          'content': content,
+          'day': existingSchedule['day'] ?? (dayIndex + 1) as String,
+          'order': existingSchedule['order'] ?? (scheduleIndex + 1) as String,
+        };
+      });
+    } else {
+      print("Invalid index: dayIndex=$dayIndex, scheduleIndex=$scheduleIndex");
+    }
+  }
 
-//     // Firebase Storage에 이미지 업로드
-//     String? imageUrl = await _uploadImageToFirebaseStorage(_selectedImagePath);
+  void _onAddDay() {
+    if (_dayCount < 10) {
+      setState(() {
+        _dayCount++;
+        _schedules.add([]);
+      });
+    }
+  }
 
-//     if (imageUrl != null) {
-//       // Firebase DB에 URL 저장
-//       try {
-//         await _packageEditService.editPackage(
-//           title: _title,
-//           location: _location,
-//           description: _descriptionController.text,
-//           duration: _durationController.text,
-//           imageUrl: imageUrl,
-//           keywordList: _keywordList,
-//           scheduleList: scheduleList,
-//         );
+  void _onSelectDay(int day) {
+    setState(() {
+      _selectedDay = day;
+    });
+  }
 
-//         setState(() {
-//           isLoading = false; // 로딩 종료
-//         });
+  void _deleteDay() {
+    setState(() {
+      _schedules.removeAt(_selectedDay - 1);
+      _dayCount--;
+      if (_selectedDay > _dayCount) {
+        _selectedDay = _dayCount;
+      }
+    });
+  }
 
-//         ScaffoldMessenger.of(context).showSnackBar(
-//           const SnackBar(content: Text('패키지 등록 성공')),
-//         );
+  final _packageRegisterService = PackageRegisterService();
 
-//         Navigator.pushAndRemoveUntil(
-//           context,
-//           MaterialPageRoute(builder: (context) => StackPage(initialIndex: 2)),
-//           (route) => false,
-//         );
-//       } catch (e) {
-//         ScaffoldMessenger.of(context).showSnackBar(
-//           SnackBar(content: Text('패키지 등록 실패: $e')),
-//         );
-//       }
-//     }
-//   }
+  void _updatePackage() async {
+    setState(() {
+      isLoading = true;
+    });
 
-//   Future<String?> _uploadImageToFirebaseStorage(String imagePath) async {
-//     try {
-//       String fileName = 'images/${DateTime.now().millisecondsSinceEpoch}.jpg';
-//       File file = File(imagePath);
+    String imageUrl = _selectedImagePath.startsWith('http')
+        ? _selectedImagePath
+        : (await _uploadImageToFirebaseStorage(_selectedImagePath)) ?? '';
 
-//       TaskSnapshot uploadTask =
-//           await FirebaseStorage.instance.ref().child(fileName).putFile(file);
+    if (imageUrl.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('이미지를 등록해주세요.')),
+      );
+      return;
+    }
 
-//       String downloadUrl = await uploadTask.ref.getDownloadURL();
-//       return downloadUrl;
-//     } catch (e) {
-//       print('Error uploading image: $e');
-//       return null;
-//     }
-//   }
+    try {
+      await _packageRegisterService.updatePackage(
+        packageId: widget.packageId,
+        title: _title,
+        location: _location,
+        description: _descriptionController.text,
+        duration: _durationController.text,
+        imageUrl: imageUrl,
+        keywordList: _keywordList,
+        scheduleList: _schedules.expand((daySchedules) {
+          final dayIndex = _schedules.indexOf(daySchedules);
+          return daySchedules.asMap().entries.map((entry) {
+            final index = entry.key;
+            final schedule = entry.value;
+            return {
+              'id': schedule['id'], // ✅ id 필드 포함
+              'time': schedule['time'],
+              'title': schedule['title'],
+              'location': schedule['location'],
+              'content': schedule['content'],
+              'day': schedule['day'] ?? (dayIndex + 1),
+              'order': schedule['order'] ?? (index + 1),
+            };
+          });
+        }).toList(),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('패키지 수정 성공')),
+      );
 
-//   @override
-//   Widget build(BuildContext context) {
-//     if (_schedules.length < _selectedDay) {
-//       _schedules.add([]);
-//     }
+      Navigator.pop(context);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('패키지 수정 실패: $e')),
+      );
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
-//     return Scaffold(
-//       appBar: AppBar(),
-//       body: SingleChildScrollView(
-//         child: Column(
-//           children: [
-//             Container(
-//               width: double.infinity,
-//               decoration: BoxDecoration(color: AppColors.grayScale_050),
-//               child: Column(
-//                 children: [
-//                   PackageHeroImage(
-//                     imagePath: _selectedImagePath,
-//                     onImageSelected: (newPath) {
-//                       print(
-//                           'Selected image path: $newPath'); // 디버깅: newPath 값 출력
-//                       setState(() {
-//                         _selectedImagePath = newPath;
-//                       });
-//                     },
-//                   ),
-//                   PackageHeader(
-//                     title: _title,
-//                     keywordList: _keywordList,
-//                     location: _location,
-//                     onUpdate: (newTitle, newKeywordList, newLocation) {
-//                       setState(() {
-//                         _title = newTitle;
-//                         _keywordList = newKeywordList;
-//                         _location = newLocation;
-//                       });
-//                     },
-//                   ),
-//                   divider(1),
-//                   Padding(
-//                     padding: const EdgeInsets.symmetric(
-//                         horizontal: 16, vertical: 20),
-//                     child: Column(
-//                       spacing: 16,
-//                       crossAxisAlignment: CrossAxisAlignment.start,
-//                       children: [
-//                         DayChipButton(
-//                           onPressed: _onAddDay,
-//                           currentDayCount: _dayCount,
-//                           onSelectDay: _onSelectDay,
-//                           selectedDay: _selectedDay,
-//                         ),
-//                         ScheduleList(
-//                           schedules: _schedules[_selectedDay - 1],
-//                           totalScheduleCount:
-//                               _schedules[_selectedDay - 1].length,
-//                           dayIndex: _selectedDay - 1,
-//                           onSave:
-//                               (time, title, location, content, scheduleIndex) {
-//                             _onEditSchedule(
-//                               _selectedDay - 1,
-//                               scheduleIndex,
-//                               time,
-//                               title,
-//                               location,
-//                               content,
-//                             );
-//                           },
-//                           onDelete: _onDelete,
-//                         ),
-//                         AddScheduleButton(
-//                           onPressed: _onAddSchedule,
-//                           currentScheduleCount:
-//                               _schedules[_selectedDay - 1].length,
-//                         ),
-//                         if (_dayCount > 1)
-//                           DeleteDayButton(
-//                             onPressed: _deleteDay,
-//                           ),
-//                         const SizedBox(height: 40),
-//                         StandardButton.primary(
-//                           onPressed: _editPackage,
-//                           sizeType: ButtonSizeType.normal,
-//                           text: '작성 완료',
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
+  Future<String?> _uploadImageToFirebaseStorage(String imagePath) async {
+    try {
+      String fileName = 'images/${DateTime.now().millisecondsSinceEpoch}.jpg';
+      File file = File(imagePath);
 
-//   Container divider(double height) {
-//     return Container(
-//       width: double.infinity,
-//       height: height,
-//       decoration: const BoxDecoration(
-//         color: AppColors.grayScale_150,
-//       ),
-//     );
-//   }
-// }
+      TaskSnapshot uploadTask =
+          await FirebaseStorage.instance.ref().child(fileName).putFile(file);
+
+      String downloadUrl = await uploadTask.ref.getDownloadURL();
+      return downloadUrl;
+    } catch (e) {
+      print('Error uploading image: $e');
+      return null;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Scaffold(
+        backgroundColor: Colors.white, // ✅ 배경색 흰색으로 설정
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    if (_schedules.length < _selectedDay) {
+      _schedules.add([]);
+    }
+
+    return Scaffold(
+      appBar: AppBar(),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(color: AppColors.grayScale_050),
+              child: Column(
+                children: [
+                  PackageEditImage(
+                    initialImageUrl: _selectedImagePath,
+                    onImageSelected: (newPath) {
+                      setState(() {
+                        _selectedImagePath = newPath;
+                      });
+                    },
+                  ),
+                  PackageHeader(
+                    title: _title,
+                    keywordList: _keywordList,
+                    location: _location,
+                    onUpdate: (newTitle, newKeywordList, newLocation) {
+                      setState(() {
+                        _title = newTitle;
+                        _keywordList = newKeywordList;
+                        _location = newLocation;
+                      });
+                    },
+                  ),
+                  divider(1),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 20),
+                    child: Column(
+                      spacing: 16,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        DayChipButton(
+                          onPressed: _onAddDay,
+                          currentDayCount: _dayCount,
+                          onSelectDay: _onSelectDay,
+                          selectedDay: _selectedDay,
+                        ),
+                        ScheduleList(
+                          schedules: _schedules[_selectedDay - 1],
+                          totalScheduleCount:
+                              _schedules[_selectedDay - 1].length,
+                          dayIndex: _selectedDay - 1,
+                          onSave:
+                              (time, title, location, content, scheduleIndex) {
+                            _onEditSchedule(
+                              _selectedDay - 1,
+                              scheduleIndex,
+                              time,
+                              title,
+                              location,
+                              content,
+                            );
+                          },
+                          onDelete: _onDelete,
+                        ),
+                        AddScheduleButton(
+                          onPressed: _onAddSchedule,
+                          currentScheduleCount:
+                              _schedules[_selectedDay - 1].length,
+                        ),
+                        if (_dayCount > 1)
+                          DeleteDayButton(
+                            onPressed: _deleteDay,
+                          ),
+                        const SizedBox(height: 40),
+                        StandardButton.primary(
+                          onPressed: _updatePackage,
+                          sizeType: ButtonSizeType.normal,
+                          text: '수정 완료',
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Container divider(double height) {
+    return Container(
+      width: double.infinity,
+      height: height,
+      decoration: const BoxDecoration(
+        color: AppColors.grayScale_150,
+      ),
+    );
+  }
+}

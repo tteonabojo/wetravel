@@ -7,6 +7,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_icons.dart';
 import 'package:wetravel/core/constants/app_spacing.dart';
+import 'package:wetravel/presentation/pages/guide/package_edit_page/package_edit_page.dart';
 import 'package:wetravel/presentation/pages/guide/package_register_page/package_register_page.dart';
 import 'package:wetravel/presentation/pages/guide/widgets/guide_info.dart';
 import 'package:wetravel/presentation/pages/guidepackagedetailpage/package_detail_page.dart';
@@ -151,7 +152,9 @@ class GuidePackageListPage extends ConsumerWidget {
                                             context,
                                             MaterialPageRoute(
                                                 builder: (context) =>
-                                                    PackageRegisterPage()),
+                                                    PackageEditPage(
+                                                      packageId: package.id,
+                                                    )),
                                           );
                                         },
                                         child: const Text('수정'),
