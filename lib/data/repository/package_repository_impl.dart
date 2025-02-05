@@ -1,5 +1,4 @@
 import 'package:wetravel/data/data_source/package_data_source.dart';
-import 'package:wetravel/data/dto/package_dto.dart';
 import 'package:wetravel/domain/entity/package.dart';
 import 'package:wetravel/domain/repository/package_repository.dart';
 
@@ -59,6 +58,11 @@ class PackageRepositoryImpl implements PackageRepository {
   }
 
   @override
+  Future<Map<String, List<Map<String, String>>>> fetchSchedulesByIds(
+      List<String> scheduleIds) {
+    return _packageDataSource.fetchSchedulesByIds(scheduleIds);
+  }
+
   Future<List<Package>> fetchRecentPackages() async {
     final result = await _packageDataSource.fetchRecentPackages();
     return result.map((e) => e.toEntity()).toList();
