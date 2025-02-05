@@ -118,11 +118,27 @@ class ScheduleDto {
       title: schedule.title,
       location: schedule.location,
       duration: schedule.duration,
-      imageUrl: schedule.imageUrl,
+      imageUrl: schedule.imageUrl ?? '',
       isAIRecommended: schedule.isAIRecommended,
       travelStyle: schedule.travelStyle,
-      content: schedule.content,
+      content: schedule.content ?? '',
       order: schedule.order ?? 0,
+    );
+  }
+  factory ScheduleDto.fromMap(Map<String, dynamic> map) {
+    return ScheduleDto(
+      id: map['id'] ?? '', // null일 경우 빈 문자열
+      packageId: map['packageId'] ?? '',
+      day: map['day'] ?? 0, // null일 경우 0
+      time: map['time'] ?? '',
+      title: map['title'] ?? '',
+      location: map['location'] ?? '',
+      duration: map['duration'] ?? '',
+      imageUrl: map['imageUrl'] ?? '',
+      isAIRecommended: map['isAIRecommended'] ?? false,
+      travelStyle: map['travelStyle'] ?? '',
+      content: map['content'] ?? '',
+      order: map['order'] ?? 0, // null일 경우 0
     );
   }
 }
