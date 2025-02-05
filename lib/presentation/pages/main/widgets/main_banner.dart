@@ -24,7 +24,7 @@ class _MainBannerState extends State<MainBanner> {
     ];
 
     return SizedBox(
-      height: 280,
+      height: 240,
       width: double.infinity,
       child: Column(
         children: [
@@ -52,7 +52,7 @@ class _MainBannerState extends State<MainBanner> {
               );
             },
             options: CarouselOptions(
-                height: 240,
+                height: 200,
                 autoPlay: true,
                 viewportFraction: 0.8,
                 autoPlayCurve: Curves.easeInOut,

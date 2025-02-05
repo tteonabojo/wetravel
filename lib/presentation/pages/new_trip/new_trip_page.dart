@@ -36,6 +36,7 @@ class NewTripPage extends StatelessWidget {
                     Container(
                       decoration: BoxDecoration(
                         color: Colors.white,
+                        boxShadow: AppShadow.generalShadow,
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Padding(

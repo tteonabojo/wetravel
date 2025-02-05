@@ -42,23 +42,37 @@ class PackageDataSourceImpl implements PackageDataSource {
   }
 
   @override
-  Future<Map<String, List<Map<String, String>>>> fetchSchedulesByIds(
+  Future<PackageDto> getPackageById(String packageId) async {
+    final packageSnapshot =
+        await _firestore.collection('packages').doc(packageId).get();
+    if (packageSnapshot.exists) {
+      final data = packageSnapshot.data()!;
+      return PackageDto.fromMap(data);
+    } else {
+      throw Exception('Package not found');
+    }
+  }
+
+  @override
+  Future<Map<int, List<Map<String, String>>>> fetchSchedulesByIds(
       List<String> scheduleIds) async {
-    Map<String, List<Map<String, String>>> schedules = {};
+    Map<int, List<Map<String, String>>> schedules = {};
 
     for (String scheduleId in scheduleIds) {
       final scheduleSnapshot =
           await _firestore.collection('schedules').doc(scheduleId).get();
       if (scheduleSnapshot.exists) {
         final data = scheduleSnapshot.data()!;
-        final day = data['day'];
-        final scheduleDetails =
-            data['scheduleDetails']; // Example: A list of schedules for the day
+        final day = data['day'] as int; // day를 int로 처리
+        final scheduleDetails = data['scheduleDetails'];
 
-        if (schedules.containsKey(day)) {
-          schedules[day]!.add(scheduleDetails);
-        } else {
-          schedules[day] = [scheduleDetails];
+        // scheduleDetails가 null이 아니면 추가
+        if (scheduleDetails != null) {
+          if (schedules.containsKey(day)) {
+            schedules[day]!.add(scheduleDetails);
+          } else {
+            schedules[day] = [scheduleDetails];
+          }
         }
       }
     }
@@ -73,9 +87,13 @@ class PackageDataSourceImpl implements PackageDataSource {
       final userSnapshot =
           await _firestore.collection('users').doc(currentUser.uid).get();
 
-      List recentPackageIds = [];
+      List<String> recentPackageIds = [];
       if (userSnapshot.exists) {
-        recentPackageIds = userSnapshot.data()?['recentPackages'].toList();
+        // 최근 패키지 ID 리스트가 정수로 저장된 경우 이를 문자열로 변환
+        recentPackageIds =
+            (userSnapshot.data()?['recentPackages'] as List<dynamic>)
+                .map((e) => e.toString()) // 여기서 int를 String으로 변환
+                .toList();
       } else {
         return [];
       }

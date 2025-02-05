@@ -8,27 +8,27 @@ import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_icons.dart';
 import 'package:wetravel/core/constants/app_spacing.dart';
 
-class PackageHeroImage extends StatefulWidget {
-  final String? imagePath;
+class PackageEditImage extends StatefulWidget {
+  final String? initialImageUrl;
   final ValueChanged<String> onImageSelected;
 
-  const PackageHeroImage({
+  const PackageEditImage({
     super.key,
-    this.imagePath,
+    this.initialImageUrl,
     required this.onImageSelected,
   });
 
   @override
-  State<PackageHeroImage> createState() => _PackageHeroImageState();
+  State<PackageEditImage> createState() => _PackageEditImageState();
 }
 
-class _PackageHeroImageState extends State<PackageHeroImage> {
+class _PackageEditImageState extends State<PackageEditImage> {
   String? _currentImagePath;
 
   @override
   void initState() {
     super.initState();
-    _currentImagePath = widget.imagePath;
+    _currentImagePath = widget.initialImageUrl;
   }
 
   Future<void> _selectImage() async {
@@ -36,7 +36,6 @@ class _PackageHeroImageState extends State<PackageHeroImage> {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
-      // 이미지 리사이즈
       final resizedImage = await _resizeImage(pickedFile);
 
       setState(() {
@@ -53,7 +52,6 @@ class _PackageHeroImageState extends State<PackageHeroImage> {
 
     if (image != null) {
       final resizedImage = img.copyResize(image, width: 500);
-
       final resizedFile = File(pickedFile.path)
         ..writeAsBytesSync(img.encodeJpg(resizedImage));
       return resizedFile;
@@ -81,26 +79,23 @@ class _PackageHeroImageState extends State<PackageHeroImage> {
                 )
               : null,
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Container(
-              width: 28,
-              height: 28,
-              decoration: ShapeDecoration(
-                color: AppColors.grayScale_450,
-                shape: const CircleBorder(),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(4),
-                child: SvgPicture.asset(
-                  AppIcons.camera,
-                  color: Colors.white,
-                ),
+        child: Align(
+          alignment: Alignment.bottomRight,
+          child: Container(
+            width: 28,
+            height: 28,
+            decoration: const BoxDecoration(
+              color: AppColors.grayScale_450,
+              shape: BoxShape.circle,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(4),
+              child: SvgPicture.asset(
+                AppIcons.camera,
+                color: Colors.white,
               ),
             ),
-          ],
+          ),
         ),
       ),
     );

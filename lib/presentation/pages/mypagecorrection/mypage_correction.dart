@@ -55,8 +55,10 @@ class _InputFieldState extends State<CustomInputField> {
   void _updateCurrentLength() {
     setState(() {
       _currentLength = _controller.text.length; // 현재 글자 수 갱신
-      if (_currentLength > widget.maxLength) { // 최대 글자 수 초과 시
-        _controller.text = _controller.text.substring(0, widget.maxLength); // 입력 제한
+      if (_currentLength > widget.maxLength) {
+        // 최대 글자 수 초과 시
+        _controller.text =
+            _controller.text.substring(0, widget.maxLength); // 입력 제한
         _currentLength = widget.maxLength; // 현재 글자 수 최대 값으로 설정
         _controller.selection =
             TextSelection.fromPosition(TextPosition(offset: _currentLength));
@@ -190,22 +192,22 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
   bool get isFormValid => isNicknameValid && isIntroValid;
 
   Future<void> _pickImage() async {
-  final ImagePicker picker = ImagePicker();
-  try {
-    final XFile? pickedFile = await picker.pickImage(
-      source: ImageSource.gallery,
-      requestFullMetadata: false, // 메타데이터 요청 방지
-    );
+    final ImagePicker picker = ImagePicker();
+    try {
+      final XFile? pickedFile = await picker.pickImage(
+        source: ImageSource.gallery,
+        requestFullMetadata: false, // 메타데이터 요청 방지
+      );
 
-    if (pickedFile != null) {
-      setState(() {
-        _profileImage = File(pickedFile.path);
-      });
+      if (pickedFile != null) {
+        setState(() {
+          _profileImage = File(pickedFile.path);
+        });
+      }
+    } on PlatformException catch (e) {
+      print("이미지 선택 오류: $e"); // 오류 발생시 콘솔에 출력
     }
-  } on PlatformException catch (e) {
-    print("이미지 선택 오류: $e"); // 오류 발생시 콘솔에 출력
   }
-}
 
   // 사용자 정보 저장
   Future<void> _saveUserInfo() async {
@@ -221,8 +223,8 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
     }
   }
 
- // 뒤로가기 시 데이터 변경 여부 확인
- Future<bool> _onWillPop() async {
+  // 뒤로가기 시 데이터 변경 여부 확인
+  Future<bool> _onWillPop() async {
     if (isNicknameChanged || isIntroChanged) {
       return await showDialog(
             context: context,
@@ -235,8 +237,8 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
                   child: const Text("취소"),
                 ),
                 TextButton(
-                  onPressed: () =>
-                      Navigator.of(context).pushNamedAndRemoveUntil('/mypage', (route) => false),
+                  onPressed: () => Navigator.of(context)
+                      .pushNamedAndRemoveUntil('/mypage', (route) => false),
                   child: const Text("나가기"),
                 ),
               ],
@@ -247,142 +249,146 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
     return true;
   }
 
-  
-   @override
+  @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: _onWillPop,
-      child: Scaffold(
-        appBar: AppBar(
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
-            onPressed: () async {
-              bool shouldPop = await _onWillPop();
-              if (shouldPop && mounted) {
-                Navigator.pushNamedAndRemoveUntil(context, '/mypage', (route) => false);
-              }
-            },
+        onWillPop: _onWillPop,
+        child: Scaffold(
+          appBar: AppBar(
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
+              onPressed: () async {
+                bool shouldPop = await _onWillPop();
+                if (shouldPop && mounted) {
+                  Navigator.pushNamedAndRemoveUntil(
+                      context, '/mypage', (route) => false);
+                }
+              },
+            ),
+            backgroundColor: Colors.transparent,
+            elevation: 0,
           ),
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-        ),
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 20),
-              Center(
-                child: Stack(
-                  children: [
-                    ClipOval(
-                      child: Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          image: _profileImage != null
-                              ? DecorationImage(
-                                  image: FileImage(_profileImage!),
-                                  fit: BoxFit.cover,
-                                )
-                              : const DecorationImage(
-                                  image: AssetImage('assets/images/sample_profile.jpg'),
-                                  fit: BoxFit.cover,
-                                ),
+          body: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: 20),
+                Center(
+                  child: Stack(
+                    children: [
+                      ClipOval(
+                        child: Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            image: _profileImage != null
+                                ? DecorationImage(
+                                    image: FileImage(_profileImage!),
+                                    fit: BoxFit.cover,
+                                  )
+                                : const DecorationImage(
+                                    image: AssetImage(
+                                        'assets/images/sample_profile.jpg'),
+                                    fit: BoxFit.cover,
+                                  ),
+                          ),
                         ),
                       ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: InkWell(
+                          onTap: _pickImage,
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: const BoxDecoration(
+                              color: Colors.grey,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.camera_alt,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 20),
+                CustomInputField(
+                  hintText: '닉네임을 입력하세요',
+                  maxLength: 15,
+                  labelText: '닉네임',
+                  onChanged: _onNicknameChanged,
+                ),
+                SizedBox(height: 20),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '이메일 주소',
+                      style: AppTypography.headline6.copyWith(
+                        color: AppColors.grayScale_650,
+                      ),
                     ),
-                  Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: InkWell(
-                        onTap: _pickImage,
-                        child: Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: const BoxDecoration(
-                            color: Colors.grey,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.camera_alt,
-                            color: Colors.white,
-                            size: 20,
-                          ),
+                    Padding(padding: EdgeInsets.only(top: 8)),
+                    Container(
+                      width: double.infinity,
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                      decoration: BoxDecoration(
+                        color: AppColors.grayScale_150,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        _userEmail ?? '이메일 정보 없음',
+                        style: AppTypography.body1.copyWith(
+                          color: AppColors.grayScale_550,
                         ),
                       ),
                     ),
                   ],
                 ),
-              ),
-            SizedBox(height: 20),
-            CustomInputField(
-              hintText: '닉네임을 입력하세요',
-              maxLength: 15,
-              labelText: '닉네임',
-              onChanged: _onNicknameChanged,
-            ),
-            SizedBox(height: 20),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '이메일 주소',
-                  style: AppTypography.headline6.copyWith(
-                    color: AppColors.grayScale_650,
-                  ),
+                SizedBox(height: 20),
+                CustomInputField(
+                  hintText: '멋진 소개를 부탁드려요!',
+                  maxLength: 100,
+                  labelText: '자기소개',
+                  minLines: 6,
+                  onChanged: _onIntroChanged,
                 ),
-                Padding(padding: EdgeInsets.only(top: 8)),
+                SizedBox(height: 16),
                 Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                   width: double.infinity,
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                  decoration: BoxDecoration(
-                    color: AppColors.grayScale_150,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    _userEmail ?? '이메일 정보 없음',
-                    style: AppTypography.body1.copyWith(
-                      color: AppColors.grayScale_550,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isFormValid
+                          ? AppColors.primary_450
+                          : AppColors.primary_250,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                    ),
+                    onPressed: isFormValid ? _saveUserInfo : null,
+                    child: Text(
+                      '등록',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 20),
-            CustomInputField(
-              hintText: '멋진 소개를 부탁드려요!',
-              maxLength: 100,
-              labelText: '자기소개',
-              minLines: 6,
-              onChanged: _onIntroChanged,
-            ),
-            SizedBox(height: 16),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: isFormValid ? AppColors.primary_450 : AppColors.primary_250,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding: EdgeInsets.symmetric(vertical: 16),
-                ),
-                onPressed: isFormValid ? _saveUserInfo : null,
-                child: Text(
-                  '등록',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    ));
+          ),
+        ));
   }
 }

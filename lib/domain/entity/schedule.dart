@@ -28,37 +28,6 @@ class Schedule {
     this.content,
     this.order,
   });
-
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'packageId': packageId,
-        'day': day,
-        'time': time,
-        'title': title,
-        'location': location,
-        'duration': duration,
-        'imageUrl': imageUrl,
-        'isAIRecommended': isAIRecommended,
-        'travelStyle': travelStyle,
-        'content': content,
-        'order': order,
-      };
-
-  factory Schedule.fromJson(Map<String, dynamic> json) => Schedule(
-        id: json['id'] as String,
-        packageId: json['packageId'] as String?,
-        day: json['day'] as int?,
-        time: json['time'] as String?,
-        title: json['title'] as String,
-        location: json['location'] as String,
-        duration: json['duration'] as String,
-        imageUrl: json['imageUrl'] as String,
-        isAIRecommended: json['isAIRecommended'] as bool,
-        travelStyle: json['travelStyle'] as String,
-        content: json['content'] as String?,
-        order: json['order'] as int?,
-      );
-
   ScheduleDto toDto() {
     return ScheduleDto(
       id: id,
