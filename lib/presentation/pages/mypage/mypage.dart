@@ -8,15 +8,6 @@ import 'package:wetravel/core/constants/app_shadow.dart';
 import 'package:wetravel/presentation/pages/mypagecorrection/mypage_correction.dart';
 import 'package:wetravel/presentation/provider/user_provider.dart';
 
-final userStreamProvider = StreamProvider.autoDispose((ref) {
-  final uid = FirebaseAuth.instance.currentUser?.uid;
-  if (uid == null) return Stream.value(null);
-  
-  return FirebaseFirestore.instance.collection('users').doc(uid).snapshots().map((snapshot) {
-    return snapshot.data();
-  });
-});
-
 class MyPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -289,31 +280,20 @@ class MyPage extends ConsumerWidget {
   }
 
   Future<void> deleteUserAccount(BuildContext context, WidgetRef ref) async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      throw Exception("사용자가 존재하지 않습니다.");
-    }
-
-    // Firestore에서 사용자 데이터 삭제
-    await FirebaseFirestore.instance.collection('users').doc(user.uid).delete();
-
-    // 애플 로그인 사용자의 경우 reauthentication 필요 가능성 있음.
-    final signInMethods =
-        // ignore: deprecated_member_use
-        await FirebaseAuth.instance.fetchSignInMethodsForEmail(user.email!);
-
-    if (signInMethods.contains('apple.com')) {
-      // 애플 로그인 사용자의 경우
-      final appleProvider = OAuthProvider("apple.com");
-      final credential = await user.reauthenticateWithProvider(appleProvider);
-      await credential.user?.delete(); // 재인증 후 삭제
-    } else {
-      // 일반 로그인 사용자는 그냥 삭제
-      await user.delete();
-    }
-
-    // 로그아웃 후 로그인 페이지로 이동
-    await ref.read(signOutUsecaseProvider).signOut();
-    Navigator.pushReplacementNamed(context, '/login');
+  final user = FirebaseAuth.instance.currentUser;
+  if (user == null) {
+    throw Exception("사용자가 존재하지 않습니다.");
   }
+
+  // Firestore에서 사용자 데이터 삭제
+  await FirebaseFirestore.instance.collection('users').doc(user.uid).delete();
+  await user.delete();
+
+  // 로그아웃 수행
+  await ref.read(signOutUsecaseProvider).signOut();
+
+  // 현재 위젯이 활성화된 상태인지 확인 후 네비게이션 실행
+  if (!context.mounted) return;
+  Navigator.pushReplacementNamed(context, '/login');
+}
 }
