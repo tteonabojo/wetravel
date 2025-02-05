@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:wetravel/presentation/pages/guidepackagedetailpage/guide_package_detail_page.dart';
+import 'package:wetravel/presentation/pages/guidepackagedetailpage/package_detail_page.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wetravel/presentation/provider/package_provider.dart';
+import 'package:wetravel/presentation/provider/schedule_provider.dart';
 
-class PackageCard extends StatelessWidget {
+class PackageCard extends ConsumerWidget {
   final String title;
   final String subtitle;
   final String location;
   final String author;
   final List<String> keywords;
+  final String packageId;
 
   PackageCard({
     required this.title,
@@ -15,10 +19,15 @@ class PackageCard extends StatelessWidget {
     required this.location,
     required this.author,
     required this.keywords,
+    required this.packageId,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, ref) {
+    // getPackageUseCase와 getSchedulesUseCase를 가져옵니다
+    final getPackageUseCase = ref.read(getPackageUseCaseProvider);
+    final getSchedulesUseCase = ref.read(getSchedulesUseCaseProvider);
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
       child: Card(
@@ -32,11 +41,10 @@ class PackageCard extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => GuidePackageDetailPage(
-                  title: title,
-                  location: location,
-                  author: author,
-                  keywords: keywords,
+                builder: (context) => PackageDetailPage(
+                  packageId: packageId,
+                  getPackageUseCase: getPackageUseCase,
+                  getSchedulesUseCase: getSchedulesUseCase,
                 ),
               ),
             );
@@ -49,7 +57,7 @@ class PackageCard extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.horizontal(
                     left: Radius.circular(8),
-                    right: Radius.circular(8),  // 오른쪽도 라운드 처리
+                    right: Radius.circular(8), // 오른쪽도 라운드 처리
                   ),
                   child: Image.network(
                     'https://picsum.photos/150',

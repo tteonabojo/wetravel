@@ -25,8 +25,16 @@ class PackageRepositoryImpl implements PackageRepository {
               deletedAt: e.deletedAt,
               reportCount: e.reportCount,
               isHidden: e.isHidden,
+              userImageUrl: e.userImageUrl!,
+              userName: e.userName!,
             ))
         .toList();
+  }
+
+  @override
+  Future<Package> fetchPackageData(String packageId) async {
+    final packageDto = await _packageDataSource.getPackageById(packageId);
+    return Package.fromDto(packageDto); // DTO를 Entity로 변환
   }
 
   @override
@@ -53,12 +61,14 @@ class PackageRepositoryImpl implements PackageRepository {
               deletedAt: e.deletedAt,
               reportCount: e.reportCount,
               isHidden: e.isHidden,
+              userName: e.userName!,
+              userImageUrl: e.userImageUrl!,
             ))
         .toList();
   }
 
   @override
-  Future<Map<String, List<Map<String, String>>>> fetchSchedulesByIds(
+  Future<Map<int, List<Map<String, String>>>> fetchSchedulesByIds(
       List<String> scheduleIds) {
     return _packageDataSource.fetchSchedulesByIds(scheduleIds);
   }

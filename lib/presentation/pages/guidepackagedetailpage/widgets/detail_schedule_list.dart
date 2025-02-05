@@ -5,13 +5,12 @@ import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_shadow.dart';
 import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
-import 'package:wetravel/data/dto/schedule_dto.dart';
-import 'package:wetravel/presentation/pages/guide/package_register_page/widgets/schedule_list_view_model.dart';
 import 'package:wetravel/presentation/pages/guide/package_register_page/widgets/widgets/bottom_sheet/list_bottom_sheet.dart';
-import 'package:wetravel/presentation/pages/guide/package_register_page/widgets/widgets/schedule_item.dart';
+import 'package:wetravel/presentation/pages/guidepackagedetailpage/widgets/detail_schedule_list_view_model.dart';
+import 'package:wetravel/presentation/pages/guidepackagedetailpage/widgets/schedule_detail_item.dart';
 
-class ScheduleList extends ConsumerWidget {
-  const ScheduleList({
+class DetailScheduleList extends ConsumerWidget {
+  const DetailScheduleList({
     super.key,
     required this.schedules,
     required this.totalScheduleCount,
@@ -20,7 +19,7 @@ class ScheduleList extends ConsumerWidget {
     required this.onDelete,
   });
 
-  final List<ScheduleDto> schedules;
+  final List<Map<String, String>> schedules;
   final int totalScheduleCount;
   final int dayIndex;
   final Function(String time, String title, String location, String content,
@@ -29,13 +28,10 @@ class ScheduleList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final scheduleViewModel = ref.watch(scheduleViewModelProvider);
+    final scheduleViewModel = ref.watch(detailScheduleViewModelProvider);
 
     return Column(
-      spacing: 16,
       children: schedules.asMap().entries.map((entry) {
-        final schedule = entry.value;
-
         return AnimatedContainer(
           duration: Durations.medium2,
           curve: Curves.easeInOut,
@@ -47,12 +43,12 @@ class ScheduleList extends ConsumerWidget {
             ),
             shadows: AppShadow.generalShadow,
           ),
-          child: ScheduleItem(
+          child: ScheduleDetailItem(
             totalScheduleItemCount: totalScheduleCount,
-            time: schedule.time,
-            title: schedule.title ?? '제목',
-            location: schedule.location ?? '위치',
-            content: schedule.content ?? '설명',
+            time: entry.value['time'] ?? '오전 9:00',
+            title: entry.value['title'] ?? '제목',
+            location: entry.value['location'] ?? '위치',
+            content: entry.value['content'] ?? '설명',
             bodyStyle:
                 AppTypography.body2.copyWith(color: AppColors.grayScale_650),
             headlineStyle: AppTypography.headline5
@@ -70,10 +66,10 @@ class ScheduleList extends ConsumerWidget {
                 ),
                 builder: (context) {
                   return ListBottomSheet(
-                    title: schedule.title,
-                    location: schedule.location,
-                    content: schedule.content ?? '설명',
-                    time: schedule.time,
+                    title: entry.value['title'] ?? '제목',
+                    location: entry.value['location'] ?? '위치',
+                    content: entry.value['content'] ?? '설명',
+                    time: entry.value['time'] ?? '오전 9:00',
                     onSave: (
                       title,
                       location,

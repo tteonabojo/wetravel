@@ -7,8 +7,8 @@ class Schedule {
   final String time;
   final String title;
   final String location;
-  final String content;
-  final String imageUrl;
+  final String? content;
+  final String? imageUrl;
   final int order;
 
   Schedule({
@@ -22,6 +22,21 @@ class Schedule {
     required this.imageUrl,
     required this.order,
   });
+
+  factory Schedule.fromDto(ScheduleDto dto) {
+    return Schedule(
+      id: dto.id,
+      packageId: dto.packageId,
+      day: dto.day,
+      time: dto.time,
+      title: dto.title,
+      location: dto.location,
+      content: dto.content,
+      imageUrl: dto.imageUrl,
+      order: dto.order,
+    );
+  }
+
   ScheduleDto toDto() {
     return ScheduleDto(
       id: id,

@@ -6,12 +6,12 @@ import 'package:wetravel/core/constants/app_shadow.dart';
 import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/data/dto/schedule_dto.dart';
+import 'package:wetravel/presentation/pages/guide/package_edit_page/edit_list_bottom_sheet.dart';
 import 'package:wetravel/presentation/pages/guide/package_register_page/widgets/schedule_list_view_model.dart';
-import 'package:wetravel/presentation/pages/guide/package_register_page/widgets/widgets/bottom_sheet/list_bottom_sheet.dart';
 import 'package:wetravel/presentation/pages/guide/package_register_page/widgets/widgets/schedule_item.dart';
 
-class ScheduleList extends ConsumerWidget {
-  const ScheduleList({
+class EditScheduleList extends ConsumerWidget {
+  const EditScheduleList({
     super.key,
     required this.schedules,
     required this.totalScheduleCount,
@@ -50,8 +50,8 @@ class ScheduleList extends ConsumerWidget {
           child: ScheduleItem(
             totalScheduleItemCount: totalScheduleCount,
             time: schedule.time,
-            title: schedule.title ?? '제목',
-            location: schedule.location ?? '위치',
+            title: schedule.title,
+            location: schedule.location,
             content: schedule.content ?? '설명',
             bodyStyle:
                 AppTypography.body2.copyWith(color: AppColors.grayScale_650),
@@ -69,30 +69,15 @@ class ScheduleList extends ConsumerWidget {
                   ),
                 ),
                 builder: (context) {
-                  return ListBottomSheet(
+                  return EditListBottomSheet(
+                    time: schedule.time,
                     title: schedule.title,
                     location: schedule.location,
                     content: schedule.content ?? '설명',
-                    time: schedule.time,
-                    onSave: (
-                      title,
-                      location,
-                      time,
-                      description,
-                    ) {
+                    onSave: (title, location, time, description) {
                       scheduleViewModel.updateSchedule(
-                        time,
-                        title,
-                        location,
-                        description,
-                      );
-                      onSave(
-                        time,
-                        title,
-                        location,
-                        description,
-                        entry.key,
-                      );
+                          time, title, location, description);
+                      onSave(time, title, location, description, entry.key);
                     },
                   );
                 },

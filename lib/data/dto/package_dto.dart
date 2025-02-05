@@ -4,8 +4,8 @@ import 'package:wetravel/domain/entity/package.dart';
 class PackageDto {
   final String id;
   final String userId;
-  final String? userName;
-  final String? userImageUrl;
+  final String userName;
+  final String userImageUrl;
   final String title;
   final String location;
   final String? description;
@@ -23,8 +23,8 @@ class PackageDto {
   PackageDto({
     required this.id,
     required this.userId,
-    this.userName,
-    this.userImageUrl,
+    required this.userName,
+    required this.userImageUrl,
     required this.title,
     required this.location,
     this.description,
@@ -80,23 +80,23 @@ class PackageDto {
       );
   PackageDto.fromJson(Map<String, dynamic> json)
       : this(
-          id: json['id'] as String,
-          userId: json['userId'] as String,
-          userName: json['userName'],
-          userImageUrl: json['userImageUrl'],
-          title: json['title'] as String,
-          location: json['location'] as String,
-          description: json['description'] as String,
-          duration: json['duration'] as String,
-          imageUrl: json['imageUrl'] as String,
-          keywordList: List<String>.from(json['keywordList'] as List),
+          id: json['id'] ?? '',
+          userId: json['userId'] ?? '',
+          userName: json['userName'] ?? '',
+          userImageUrl: json['userImageUrl'] ?? '',
+          title: json['title'] ?? '',
+          location: json['location'] ?? '',
+          description: json['description'] ?? '',
+          duration: json['duration'] ?? '',
+          imageUrl: json['imageUrl'] ?? '',
+          keywordList: List<String>.from(json['keywordList']),
           scheduleIdList: List<String>.from(json['scheduleIdList']),
           createdAt: json['createdAt'],
           updatedAt: json['updatedAt'],
           deletedAt: json['deletedAt'],
-          reportCount: json['reportCount'] as int,
-          isHidden: json['isHidden'] as bool,
-          viewCount: json['viewCount'] as int,
+          reportCount: json['reportCount'] ?? 0,
+          isHidden: json['isHidden'] ?? false,
+          viewCount: json['viewCount'] ?? 0,
         );
 
   Map<String, dynamic> toJson() => {
@@ -123,8 +123,8 @@ class PackageDto {
     return PackageDto(
       id: package.id,
       userId: package.userId,
-      userName: package.userName,
-      userImageUrl: package.userImageUrl,
+      userName: package.userName ?? '',
+      userImageUrl: package.userImageUrl ?? '',
       title: package.title,
       location: package.location,
       description: package.description,
@@ -160,6 +160,32 @@ class PackageDto {
       reportCount: reportCount,
       isHidden: isHidden,
       viewCount: viewCount,
+    );
+  }
+
+  factory PackageDto.fromMap(Map<String, dynamic> map) {
+    return PackageDto(
+      id: map['id'],
+      userId: map['userId'],
+      userName: map['userName'] ?? '',
+      userImageUrl: map['userImageUrl'] ?? '',
+      title: map['title'],
+      location: map['location'],
+      description: map['description'] ?? '',
+      duration: map['duration'] ?? '',
+      imageUrl: map['imageUrl'] ?? '',
+      keywordList: map['keywordList'] != null
+          ? List<String>.from(map['keywordList'])
+          : null,
+      scheduleIdList: map['scheduleIdList'] != null
+          ? List<String>.from(map['scheduleIdList'])
+          : null,
+      createdAt: map['createdAt'],
+      updatedAt: map['updatedAt'],
+      deletedAt: map['deletedAt'],
+      reportCount: map['reportCount'],
+      isHidden: map['isHidden'],
+      viewCount: map['viewCount'],
     );
   }
 }
