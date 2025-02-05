@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/domain/entity/package.dart';
 import 'package:wetravel/presentation/provider/package_provider.dart';
@@ -23,8 +25,9 @@ class MainPageState {
 class MainPageViewModel extends Notifier<MainPageState> {
   @override
   MainPageState build() {
-    fetchRecentPackages();
     fetchPopularPackages();
+    watchRecentPackages();
+    // fetchRecentPackages();
     return MainPageState(recentPackages: [], popularPackages: []);
   }
 
@@ -48,6 +51,18 @@ class MainPageViewModel extends Notifier<MainPageState> {
     } catch (e) {
       state = state.copyWith(popularPackages: []);
     }
+  }
+
+  StreamSubscription? _streamSubscription;
+
+  /// 최근에 본 패키지 목록
+  void watchRecentPackages() {
+    _streamSubscription?.cancel();
+    _streamSubscription =
+        ref.watch(watchRecentPackagesProvider).execute().listen(
+              (packages) => state = state.copyWith(recentPackages: packages),
+              onError: (e) => state = state.copyWith(recentPackages: []),
+            );
   }
 }
 

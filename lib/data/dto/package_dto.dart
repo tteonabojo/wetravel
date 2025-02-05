@@ -78,7 +78,6 @@ class PackageDto {
         isHidden: isHidden ?? this.isHidden,
         viewCount: viewCount ?? this.viewCount,
       );
-
   PackageDto.fromJson(Map<String, dynamic> json)
       : this(
           id: json['id'] as String,

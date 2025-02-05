@@ -17,4 +17,7 @@ abstract interface class PackageDataSource {
 
   /// 인기 있는 패키지 목록
   Future<List<PackageDto>> fetchPopularPackages();
+
+  /// 최근에 본 패키지 목록
+  Stream<List<PackageDto>> watchRecentPackages();
 }
