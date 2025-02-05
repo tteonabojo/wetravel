@@ -8,8 +8,6 @@ import 'package:wetravel/domain/entity/schedule.dart';
 import 'package:wetravel/domain/repository/user_repository.dart';
 import 'package:wetravel/domain/usecase/fetch_user_usecase.dart';
 import 'package:wetravel/domain/usecase/sign_in_with_provider_usecase.dart';
-import 'package:wetravel/domain/usecase/sign_out_usecase.dart';
-import 'package:wetravel/domain/entity/user_model.dart';
 
 final _firebaseFirestoreProvider = Provider<FirebaseFirestore>((ref) {
   return FirebaseFirestore.instance;
@@ -62,4 +60,47 @@ final signOutUsecaseProvider =
 final userProvider = FutureProvider((ref) async {
   final fetchUserUsecase = ref.watch(fetchUserUsecaseProvider);
   return await fetchUserUsecase.execute();
+});
+
+// 스케줄 관련 액션을 위한 provider
+final scheduleActionsProvider = Provider((ref) => ScheduleActions());
+
+class ScheduleActions {
+  Future<void> addSchedule(Schedule schedule) async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) return;
+
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('schedules')
+        .add(schedule.toJson());
+  }
+
+  Future<void> deleteSchedule(String scheduleId) async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) return;
+
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('schedules')
+        .doc(scheduleId)
+        .delete();
+  }
+}
+
+// 스케줄 스트림을 위한 provider
+final schedulesStreamProvider = StreamProvider<List<Schedule>>((ref) {
+  final userId = FirebaseAuth.instance.currentUser?.uid;
+  if (userId == null) return Stream.value([]);
+
+  return FirebaseFirestore.instance
+      .collection('users')
+      .doc(userId)
+      .collection('schedules')
+      .snapshots()
+      .map((snapshot) => snapshot.docs
+          .map((doc) => Schedule.fromJson({...doc.data(), 'id': doc.id}))
+          .toList());
 });
