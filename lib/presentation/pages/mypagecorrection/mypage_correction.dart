@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class CustomInputField extends StatefulWidget {
   final String hintText;
@@ -142,18 +143,18 @@ class MyPageCorrection extends StatefulWidget {
 }
 
 class _MyPageCorrectionState extends State<MyPageCorrection> {
-  bool isNicknameValid = false; // 닉네임 유효성 검사 결과
+  bool isnameValid = false; // 닉네임 유효성 검사 결과
   bool isIntroValid = false; // 소개글 유효성 검사 결과
 
   String? _userEmail; // 사용자 이메일
-  File? _profileImage; // 프로필 이미지 파일
-  String _nickname = ""; // 닉네임
+  File? _imageUrl; // 프로필 이미지 파일
+  String _name = ""; // 닉네임
   String _intro = ""; // 자기소개
 
-  String _originalNickname = ""; // 초기 닉네임
+  String _originalname = ""; // 초기 닉네임
   String _originalIntro = ""; // 초기 자기소개 글
 
-  bool get isNicknameChanged => _nickname != _originalNickname; // 닉네임 변경 여부 확인
+  bool get isnameChanged => _name != _originalname; // 닉네임 변경 여부 확인
   bool get isIntroChanged => _intro != _originalIntro; // 소개글 변경 여부 확인
 
   @override
@@ -173,10 +174,10 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
   }
 
   // 닉네임 입력 변화 감지
-  void _onNicknameChanged(String value) {
+  void _onnameChanged(String value) {
     setState(() {
-      _nickname = value;
-      isNicknameValid = value.isNotEmpty;
+      _name = value;
+      isnameValid = value.isNotEmpty;
     });
   }
 
@@ -189,7 +190,7 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
   }
 
   // 폼 유효성 검사
-  bool get isFormValid => isNicknameValid && isIntroValid;
+  bool get isFormValid => isnameValid && isIntroValid;
 
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
@@ -201,7 +202,7 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
 
       if (pickedFile != null) {
         setState(() {
-          _profileImage = File(pickedFile.path);
+          _imageUrl = File(pickedFile.path);
         });
       }
     } on PlatformException catch (e) {
@@ -209,23 +210,39 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
     }
   }
 
-  // 사용자 정보 저장
   Future<void> _saveUserInfo() async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
+      String? imageUrl;
+
+      // 프로필 이미지가 변경돠었을 경우 Firebase Storage에 업로드
+      if (_imageUrl != null) {
+        final storageRef = FirebaseStorage.instance.ref();
+        final profileRef = storageRef.child("profile_images/${user.uid}.jpg");
+
+        try {
+          await profileRef.putFile(_imageUrl!);
+          imageUrl = await profileRef.getDownloadURL();
+        } catch (e) {
+          print("이미지 업로드 실패: $e");
+        }
+      }
+      // Firestore 업데이트
       await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
         'email': _userEmail,
-        'nickname': _nickname,
+        'name': _name,
         'intro': _intro,
+        if (imageUrl != null) 'imageUrl': imageUrl, // 프로필 이미지 변경시 반영
       }, SetOptions(merge: true));
 
-      Navigator.pushNamed(context, '/survey'); // 설문 페이지로 이동
+      // 마이페이지로 이동하면서 최신 데이터 반영
+      Navigator.pushNamed(context, '/mypage');
     }
   }
 
   // 뒤로가기 시 데이터 변경 여부 확인
   Future<bool> _onWillPop() async {
-    if (isNicknameChanged || isIntroChanged) {
+    if (isnameChanged || isIntroChanged) {
       return await showDialog(
             context: context,
             builder: (context) => AlertDialog(
@@ -279,13 +296,13 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
                     children: [
                       ClipOval(
                         child: Container(
-                          width: 100,
-                          height: 100,
+                          width: 82,
+                          height: 82,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12),
-                            image: _profileImage != null
+                            image: _imageUrl != null
                                 ? DecorationImage(
-                                    image: FileImage(_profileImage!),
+                                    image: FileImage(_imageUrl!),
                                     fit: BoxFit.cover,
                                   )
                                 : const DecorationImage(
@@ -323,7 +340,7 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
                   hintText: '닉네임을 입력하세요',
                   maxLength: 15,
                   labelText: '닉네임',
-                  onChanged: _onNicknameChanged,
+                  onChanged: _onnameChanged,
                 ),
                 SizedBox(height: 20),
                 Column(

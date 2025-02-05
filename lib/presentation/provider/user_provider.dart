@@ -61,7 +61,15 @@ final userProvider = FutureProvider((ref) async {
   return await fetchUserUsecase.execute();
 });
 
-final authStateProvider = StreamProvider.autoDispose<User?>((ref) {
-  final firebaseAuth = ref.watch(_firebaseAuthProvider);
-  return firebaseAuth.authStateChanges();
+final userStreamProvider = StreamProvider.autoDispose((ref) {
+  final uid = FirebaseAuth.instance.currentUser?.uid;
+  if (uid == null) return Stream.value(null);
+
+  return FirebaseFirestore.instance
+      .collection('users')
+      .doc(uid)
+      .snapshots()
+      .map((snapshot) {
+    return snapshot.data();
+  });
 });
