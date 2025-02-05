@@ -31,20 +31,23 @@ class _MainBannerState extends State<MainBanner> {
           CarouselSlider.builder(
             itemCount: imageUrls.length,
             itemBuilder: (context, index, realIndex) {
-              return ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: Image.asset(
-                  width: 320,
-                  height: double.infinity,
-                  imageUrls[index],
-                  fit: BoxFit.cover,
-                  errorBuilder: (BuildContext context, Object error,
-                      StackTrace? stackTrace) {
-                    return SizedBox(
-                      height: 240,
-                      width: 320,
-                    );
-                  },
+              return Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Image.asset(
+                    width: 320,
+                    height: double.infinity,
+                    imageUrls[index],
+                    fit: BoxFit.cover,
+                    errorBuilder: (BuildContext context, Object error,
+                        StackTrace? stackTrace) {
+                      return SizedBox(
+                        height: 240,
+                        width: 320,
+                      );
+                    },
+                  ),
                 ),
               );
             },
