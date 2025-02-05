@@ -249,12 +249,17 @@ class _AISchedulePageState extends ConsumerState<AISchedulePage> {
 
       final schedule = Schedule(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
+        packageId: '?',
+        day: null,
+        time: null,
         title: '${surveyResponse.selectedCity} 여행',
         location: surveyResponse.selectedCity!,
         duration: surveyResponse.travelDuration,
         imageUrl: imageUrl,
         isAIRecommended: true,
         travelStyle: surveyResponse.travelStyles.join(', '),
+        content: null,
+        order: null,
       );
 
       await ref.read(scheduleActionsProvider).addSchedule(schedule);
