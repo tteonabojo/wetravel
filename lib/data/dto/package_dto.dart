@@ -4,8 +4,8 @@ import 'package:wetravel/domain/entity/package.dart';
 class PackageDto {
   final String id;
   final String userId;
-  final String? userName;
-  final String? userImageUrl;
+  final String userName;
+  final String userImageUrl;
   final String title;
   final String location;
   final String? description;
@@ -23,8 +23,8 @@ class PackageDto {
   PackageDto({
     required this.id,
     required this.userId,
-    this.userName,
-    this.userImageUrl,
+    required this.userName,
+    required this.userImageUrl,
     required this.title,
     required this.location,
     this.description,
@@ -124,8 +124,8 @@ class PackageDto {
     return PackageDto(
       id: package.id,
       userId: package.userId,
-      userName: package.userName,
-      userImageUrl: package.userImageUrl,
+      userName: package.userName ?? '',
+      userImageUrl: package.userImageUrl ?? '',
       title: package.title,
       location: package.location,
       description: package.description,

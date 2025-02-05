@@ -19,15 +19,25 @@ class GuidePackageListPage extends ConsumerWidget {
   const GuidePackageListPage({super.key});
 
   Future<Map<String, dynamic>> loadData(ref) async {
-    final fetchUserUsecase = ref.read(fetchUserUsecaseProvider);
-    final user = await fetchUserUsecase.execute();
-    final fetchUserPackagesUsecase = ref.read(fetchUserPackagesUsecaseProvider);
-    final packages = await fetchUserPackagesUsecase.execute(user.id);
+    try {
+      final fetchUserUsecase = ref.read(fetchUserUsecaseProvider);
+      final user = await fetchUserUsecase.execute();
+      print('유저 데이터: ${user.toString()}'); // ← 유저 정보 확인
 
-    return {
-      'user': user,
-      'packages': packages,
-    };
+      final fetchUserPackagesUsecase =
+          ref.read(fetchUserPackagesUsecaseProvider);
+      final packages = await fetchUserPackagesUsecase.execute(user.id);
+      print('패키지 데이터: ${packages.toString()}'); // ← 패키지 데이터 확인
+
+      return {
+        'user': user,
+        'packages': packages,
+      };
+    } catch (e, stackTrace) {
+      print('loadData 에러: $e');
+      print('에러 위치: $stackTrace'); // ← 스택 트레이스로 에러 위치 추적
+      rethrow;
+    }
   }
 
   Future<T> withMinimumDelay<T>(Future<T> future, Duration minDuration) async {
@@ -44,6 +54,8 @@ class GuidePackageListPage extends ConsumerWidget {
           .collection('packages')
           .doc(packageId)
           .get();
+      print('패키지 문서 데이터: ${packageDoc.data()}');
+
       if (packageDoc.exists) {
         return packageDoc.data()?['imageUrl'] as String?;
       }
@@ -70,13 +82,18 @@ class GuidePackageListPage extends ConsumerWidget {
                 future: withMinimumDelay(
                     loadData(ref), const Duration(milliseconds: 500)),
                 builder: (context, snapshot) {
-                  if (snapshot.hasError) {
-                    return Center(
-                        child: Text(
-                            '내가 등록한 패키지 리스트 가져오기 Error: ${snapshot.error}'));
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
                   }
 
-                  if (!snapshot.hasData) {
+                  if (snapshot.hasError) {
+                    return Center(
+                      child:
+                          Text('내가 등록한 패키지 리스트 가져오기 Error: ${snapshot.error}'),
+                    );
+                  }
+
+                  if (!snapshot.hasData || snapshot.data == null) {
                     return const Center(child: Text('데이터가 없습니다.'));
                   }
 

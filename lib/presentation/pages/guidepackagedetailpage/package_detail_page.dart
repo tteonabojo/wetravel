@@ -43,14 +43,24 @@ class _PackageDetailPageState extends State<PackageDetailPage> {
 
   Future<void> _loadData() async {
     try {
+      print('패키지 데이터 로드 시작: ${widget.packageId}');
       final fetchedPackage = await getPackageUseCase.execute(widget.packageId);
+      print('패키지 데이터 로드 완료: ${fetchedPackage.toString()}');
 
+      if (fetchedPackage.scheduleIdList == null ||
+          fetchedPackage.scheduleIdList!.isEmpty) {
+        throw Exception('패키지에 연결된 스케줄이 없습니다.');
+      }
+
+      print('스케줄 ID 목록: ${fetchedPackage.scheduleIdList}');
       final schedules =
           await getSchedulesUseCase.execute(fetchedPackage.scheduleIdList!);
+      print('스케줄 데이터 로드 완료: ${schedules.toString()}');
 
       final tempScheduleMap = <int, List<Schedule>>{};
 
       for (var schedule in schedules) {
+        print('스케줄 처리 중: ${schedule.toString()}');
         tempScheduleMap.putIfAbsent(schedule.day, () => []).add(schedule);
       }
 
@@ -58,8 +68,9 @@ class _PackageDetailPageState extends State<PackageDetailPage> {
         package = fetchedPackage;
         scheduleMap = tempScheduleMap;
       });
-    } catch (e) {
+    } catch (e, stacktrace) {
       print('Error loading data: $e');
+      print('Stacktrace: $stacktrace');
     }
   }
 
@@ -109,9 +120,9 @@ class _PackageDetailPageState extends State<PackageDetailPage> {
                     DetailScheduleList(
                       schedules: [
                         {
-                          'time': schedule.time,
-                          'title': schedule.title,
-                          'location': schedule.location,
+                          'time': schedule.time ?? '', // Null 방지
+                          'title': schedule.title ?? '제목 없음',
+                          'location': schedule.location ?? '위치 정보 없음',
                           'content': schedule.content ?? '',
                           'imageUrl': schedule.imageUrl ?? '',
                         }

@@ -23,8 +23,8 @@ class Package {
   Package({
     required this.id,
     required this.userId,
-    this.userName,
-    this.userImageUrl,
+    required this.userName,
+    required this.userImageUrl,
     required this.title,
     required this.location,
     this.description,
@@ -86,8 +86,8 @@ class Package {
     return PackageDto(
       id: id,
       userId: userId,
-      userName: userName,
-      userImageUrl: userImageUrl,
+      userName: userName ?? '',
+      userImageUrl: userImageUrl ?? '',
       title: title,
       location: location,
       description: description,

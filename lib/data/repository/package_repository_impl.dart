@@ -25,6 +25,8 @@ class PackageRepositoryImpl implements PackageRepository {
               deletedAt: e.deletedAt,
               reportCount: e.reportCount,
               isHidden: e.isHidden,
+              userImageUrl: e.userImageUrl!,
+              userName: e.userName!,
             ))
         .toList();
   }
@@ -59,6 +61,8 @@ class PackageRepositoryImpl implements PackageRepository {
               deletedAt: e.deletedAt,
               reportCount: e.reportCount,
               isHidden: e.isHidden,
+              userName: e.userName!,
+              userImageUrl: e.userImageUrl!,
             ))
         .toList();
   }
