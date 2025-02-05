@@ -279,8 +279,8 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
                     children: [
                       ClipOval(
                         child: Container(
-                          width: 100,
-                          height: 100,
+                          width: 82,
+                          height: 82,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12),
                             image: _profileImage != null
