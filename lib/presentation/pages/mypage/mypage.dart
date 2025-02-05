@@ -3,34 +3,33 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wetravel/core/constants/app_shadow.dart';
 import 'package:wetravel/presentation/pages/mypagecorrection/mypage_correction.dart';
-import 'package:wetravel/domain/usecase/sign_out_usecase.dart';
-import 'package:wetravel/domain/usecase/delete_account_usecase.dart';
-import 'package:wetravel/presentation/provider/delete_account_usecase_provider.dart';
 import 'package:wetravel/presentation/provider/user_provider.dart';
 
 class MyPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            '마이페이지',
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
+      // appBar: AppBar(
+      //   title: const Align(
+      //     alignment: Alignment.centerLeft,
+      //     child: Text(
+      //       '마이페이지',
+      //       style: TextStyle(
+      //         color: Colors.black,
+      //         fontSize: 20,
+      //         fontWeight: FontWeight.bold,
+      //       ),
+      //     ),
+      //   ),
+      //   backgroundColor: Colors.transparent,
+      //   elevation: 0,
+      // ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 16,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -59,8 +58,9 @@ class MyPage extends ConsumerWidget {
           height: 89,
           padding: const EdgeInsets.symmetric(vertical: 16.5, horizontal: 16),
           decoration: BoxDecoration(
-            color: Colors.grey[200],
+            color: Colors.white,
             borderRadius: BorderRadius.circular(12),
+            boxShadow: AppShadow.generalShadow,
           ),
           child: Row(
             children: [
@@ -68,7 +68,8 @@ class MyPage extends ConsumerWidget {
                 radius: 28,
                 backgroundImage: user.imageUrl != null
                     ? NetworkImage(user.imageUrl!)
-                    : const AssetImage('assets/images/sample_profile.jpg') as ImageProvider, // 기본 이미지 추가
+                    : const AssetImage('assets/images/sample_profile.jpg')
+                        as ImageProvider, // 기본 이미지 추가
               ),
               SizedBox(width: 16),
               Column(
@@ -124,8 +125,9 @@ class MyPage extends ConsumerWidget {
         height: 56,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
-          color: Colors.grey[200],
+          color: Colors.white,
           borderRadius: BorderRadius.circular(12),
+          boxShadow: AppShadow.generalShadow,
         ),
         child: Align(
           alignment: Alignment.centerLeft,
@@ -167,8 +169,9 @@ class MyPage extends ConsumerWidget {
       height: 56,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: Colors.grey[200],
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
+        boxShadow: AppShadow.generalShadow,
       ),
       child: Align(
         alignment: Alignment.centerLeft,
@@ -189,7 +192,7 @@ class MyPage extends ConsumerWidget {
       onTap: () async {
         final signOutUsecase = ref.read(signOutUsecaseProvider);
         await signOutUsecase.signOut();
-        
+
         // 로그아웃 후 로그인 페이지로 이동 (예: LoginPage())
         Navigator.pushReplacementNamed(context, '/login');
       },
@@ -197,8 +200,9 @@ class MyPage extends ConsumerWidget {
         height: 56,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
-          color: Colors.grey[200],
+          color: Colors.white,
           borderRadius: BorderRadius.circular(12),
+          boxShadow: AppShadow.generalShadow,
         ),
         child: Align(
           alignment: Alignment.centerLeft,
@@ -264,7 +268,6 @@ class MyPage extends ConsumerWidget {
   }
 
   Future<void> deleteUserAccount(BuildContext context, WidgetRef ref) async {
-
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       throw Exception("사용자가 존재하지 않습니다.");
