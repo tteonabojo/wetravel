@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:wetravel/presentation/pages/guidepackage/widgets/filterd_package_list_page.dart';
 import 'widgets/app_bar.dart';
 import 'widgets/filters.dart';
-import 'widgets/package_card.dart';
 
 class GuidePackagePage extends StatelessWidget {
   @override
@@ -12,26 +12,10 @@ class GuidePackagePage extends StatelessWidget {
         children: [
           GuideAppBar(),
           GuideFilters(),
-          // Padding(
-          //   padding: const EdgeInsets.only(right: 16.0, top: 8.0),
-          //   child: Align(
-          //     alignment: Alignment.centerRight,
-          //     child: CircleAvatar(
-          //       radius: 20,
-          //       backgroundColor: Colors.grey[200],
-          //       child: IconButton(
-          //         icon: Icon(Icons.sort, color: Colors.black),
-          //         onPressed: () {},
-          //       ),
-          //     ),
-          //   ),
-          // ),
-          // Expanded(
-          //   child: ListView(
-          //     padding: EdgeInsets.symmetric(vertical: 8.0),
-          //     children: [],
-          //   ),
-          // ),
+          FilteredPackageListWidget(
+            height: 300,
+            width: double.infinity,
+          ),
         ],
       ),
     );
