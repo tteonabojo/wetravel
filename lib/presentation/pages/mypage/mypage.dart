@@ -71,9 +71,9 @@ class MyPage extends ConsumerWidget {
         return Text('사용자 데이터를 불러올 수 없습니다.');
       }
 
-      final nickname = userData['nickname'] ?? '이름 없음';
+      final name = userData['name'] ?? '이름 없음';
       final email = userData['email'] ?? '이메일 없음';
-      final profileImageUrl = userData['profileImageUrl']; // Firestore에서 가져온 프로필 이미지 URL
+      final imageUrl = userData['imageUrl']; // Firestore에서 가져온 프로필 이미지 URL
 
         return Container(
           height: 89,
@@ -87,8 +87,8 @@ class MyPage extends ConsumerWidget {
             children: [
               CircleAvatar(
                 radius: 28,
-                backgroundImage: profileImageUrl != null
-                    ? NetworkImage(profileImageUrl)
+                backgroundImage: imageUrl != null
+                    ? NetworkImage(imageUrl)
                     : const AssetImage('assets/images/sample_profile.jpg')
                         as ImageProvider,
               ),
@@ -98,7 +98,7 @@ class MyPage extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    nickname,
+                    name,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
