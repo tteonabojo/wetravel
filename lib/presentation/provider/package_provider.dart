@@ -10,6 +10,7 @@ import 'package:wetravel/domain/usecase/fetch_packages_usecase.dart';
 import 'package:wetravel/domain/usecase/fetch_popular_packages_usecase.dart';
 import 'package:wetravel/domain/usecase/fetch_recent_packages_usecase.dart';
 import 'package:wetravel/domain/usecase/fetch_user_packages_usecase.dart';
+import 'package:wetravel/domain/usecase/watch_recent_packages_usecase.dart';
 
 final _packageDataSourceProvider = Provider<PackageDataSource>((ref) {
   return PackageDataSourceImpl(FirebaseFirestore.instance);
@@ -59,3 +60,7 @@ final fetchRecentPackagesProvider = Provider(
 /// 인기 있는 패키지 목록
 final fetchPopularPackagesProvider = Provider(
     (ref) => FetchPopularPackagesUsecase(ref.read(packageRepositoryProvider)));
+
+/// 최근에 본 패키지 목록
+final watchRecentPackagesProvider = Provider(
+    (ref) => WatchRecentPackagesUsecase(ref.watch(packageRepositoryProvider)));

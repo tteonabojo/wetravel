@@ -14,4 +14,7 @@ abstract interface class PackageRepository {
 
   /// 인기 있는 패키지 목록
   Future<List<Package>> fetchPopularPackages();
+
+  /// 최근에 본 패키지 목록
+  Stream<List<Package>> watchRecentPackages();
 }
