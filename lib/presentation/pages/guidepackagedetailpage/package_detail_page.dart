@@ -63,7 +63,7 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
       final tempScheduleMap = <int, List<Schedule>>{};
 
       for (var schedule in schedules) {
-        tempScheduleMap.putIfAbsent(schedule.day, () => []).add(schedule);
+        tempScheduleMap.putIfAbsent(schedule.day ?? 0, () => []).add(schedule);
       }
 
       setState(() {

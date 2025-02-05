@@ -136,6 +136,10 @@ class _PackageEditPageState extends State<PackageEditPage> {
             day: _selectedDay,
             order: _schedules[_selectedDay - 1].length + 1,
             packageId: '',
+            duration: '',
+            imageUrl: '',
+            isAIRecommended: false,
+            travelStyle: '',
           ),
         );
       });
@@ -157,6 +161,10 @@ class _PackageEditPageState extends State<PackageEditPage> {
           day: existingSchedule.day,
           order: existingSchedule.order,
           packageId: existingSchedule.packageId,
+          duration: existingSchedule.duration,
+          imageUrl: existingSchedule.imageUrl,
+          isAIRecommended: existingSchedule.isAIRecommended,
+          travelStyle: existingSchedule.travelStyle,
         );
       });
     }

@@ -75,6 +75,23 @@ class Schedule {
       order: order ?? 0,
     );
   }
+
+  static Schedule fromDto(ScheduleDto dto) {
+    return Schedule(
+      id: dto.id,
+      packageId: dto.packageId,
+      day: dto.day,
+      time: dto.time,
+      title: dto.title,
+      location: dto.location,
+      duration: dto.duration,
+      imageUrl: dto.imageUrl,
+      isAIRecommended: dto.isAIRecommended,
+      travelStyle: dto.travelStyle,
+      content: dto.content,
+      order: dto.order,
+    );
+  }
 }
 
 class DaySchedule {
