@@ -12,21 +12,22 @@ class MyPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      // appBar: AppBar(
-      //   title: const Align(
-      //     alignment: Alignment.centerLeft,
-      //     child: Text(
-      //       '마이페이지',
-      //       style: TextStyle(
-      //         color: Colors.black,
-      //         fontSize: 20,
-      //         fontWeight: FontWeight.bold,
-      //       ),
-      //     ),
-      //   ),
-      //   backgroundColor: Colors.transparent,
-      //   elevation: 0,
-      // ),
+       appBar: AppBar(
+         title: const Align(
+           alignment: Alignment.centerLeft,
+           child: Text(
+             '마이페이지',
+             style: TextStyle(
+               color: Colors.black,
+               fontSize: 20,
+               fontWeight: FontWeight.bold,
+             ),
+           ),
+         ),
+         backgroundColor: Colors.transparent,
+         elevation: 0,
+         automaticallyImplyLeading: false,
+       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: 16,
@@ -51,10 +52,16 @@ class MyPage extends ConsumerWidget {
   }
 
   Widget _buildProfileBox(BuildContext context, WidgetRef ref) {
-    final userAsync = ref.watch(userProvider); // userProvider를 사용하여 사용자 정보 가져오기
+    final userAsync = ref.watch(userProvider); // userProvider 사용
 
     return userAsync.when(
       data: (user) {
+        // FirebaseAuth에서 직접 닉네임과 이메일, 프로필 이미지 가져오기
+        final firebaseUser = FirebaseAuth.instance.currentUser;
+        final displayName = firebaseUser?.displayName ?? user.displayName ?? '이름 없음';
+        final email = firebaseUser?.email ?? user.email ?? '이메일 없음';
+        final photoUrl = firebaseUser?.photoURL ?? user.imageUrl;
+
         return Container(
           height: 89,
           padding: const EdgeInsets.symmetric(vertical: 16.5, horizontal: 16),
@@ -67,10 +74,10 @@ class MyPage extends ConsumerWidget {
             children: [
               CircleAvatar(
                 radius: 28,
-                backgroundImage: user.imageUrl != null
-                    ? NetworkImage(user.imageUrl!)
+                backgroundImage: photoUrl != null
+                    ? NetworkImage(photoUrl)
                     : const AssetImage('assets/images/sample_profile.jpg')
-                        as ImageProvider, // 기본 이미지 추가
+                        as ImageProvider,
               ),
               SizedBox(width: 16),
               Column(
@@ -78,7 +85,7 @@ class MyPage extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    user.displayName ?? '샘플 닉네임', // 이름 정보 표시, 없으면 '이름 없음' 표시
+                    displayName,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -86,9 +93,7 @@ class MyPage extends ConsumerWidget {
                   ),
                   SizedBox(height: 4),
                   Text(
-                    (user.email != null && user.email!.length > 25)
-                    ? '${user.email!.substring(0, 25)}...'  // 25자까지 표시 후 '...'
-                    : user.email ?? '이메일 없음', // 이메일 정보 표시, 없으면 '이메일 없음' 표시
+                    (email.length > 25) ? '${email.substring(0, 25)}...' : email,
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[600],
@@ -114,8 +119,8 @@ class MyPage extends ConsumerWidget {
           ),
         );
       },
-      loading: () => const CircularProgressIndicator(), // 로딩 중 표시
-      error: (err, stack) => Text('Error: $err'), // 에러 발생 시 표시
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (err, stack) => Text('오류 발생: $err'),
     );
   }
 
