@@ -35,27 +35,23 @@ class PackageItem extends StatelessWidget {
   Widget build(BuildContext context) {
     assert(keywords.length == 3, "키워드 리스트는 반드시 3개의 요소를 가져야 합니다.");
 
-    return Column(
-      children: [
-        Container(
-          width: 312,
-          height: 120,
-          padding: AppSpacing.medium16,
-          decoration: ShapeDecoration(
-              color: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: AppBorderRadius.small12,
-              ),
-              shadows: AppShadow.generalShadow),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildImageAndRating(),
-              _buildCustomIcon(),
-            ],
+    return Container(
+      width: 312,
+      height: 120,
+      padding: AppSpacing.medium16,
+      decoration: ShapeDecoration(
+          color: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: AppBorderRadius.small12,
           ),
-        ),
-      ],
+          shadows: AppShadow.generalShadow),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildImageAndRating(),
+          icon != null ? _buildCustomIcon() : SizedBox.shrink(),
+        ],
+      ),
     );
   }
 
