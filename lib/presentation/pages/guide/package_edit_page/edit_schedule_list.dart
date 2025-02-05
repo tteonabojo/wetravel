@@ -6,12 +6,12 @@ import 'package:wetravel/core/constants/app_shadow.dart';
 import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/data/dto/schedule_dto.dart';
+import 'package:wetravel/presentation/pages/guide/package_edit_page/edit_list_bottom_sheet.dart';
 import 'package:wetravel/presentation/pages/guide/package_register_page/widgets/schedule_list_view_model.dart';
-import 'package:wetravel/presentation/pages/guide/package_register_page/widgets/widgets/bottom_sheet/list_bottom_sheet.dart';
 import 'package:wetravel/presentation/pages/guide/package_register_page/widgets/widgets/schedule_item.dart';
 
-class ScheduleList extends ConsumerWidget {
-  const ScheduleList({
+class EditScheduleList extends ConsumerWidget {
+  const EditScheduleList({
     super.key,
     required this.schedules,
     required this.totalScheduleCount,
@@ -20,7 +20,7 @@ class ScheduleList extends ConsumerWidget {
     required this.onDelete,
   });
 
-  final List<ScheduleDto> schedules; // 타입 수정
+  final List<ScheduleDto> schedules;
   final int totalScheduleCount;
   final int dayIndex;
   final Function(String time, String title, String location, String content,
@@ -32,8 +32,9 @@ class ScheduleList extends ConsumerWidget {
     final scheduleViewModel = ref.watch(scheduleViewModelProvider);
 
     return Column(
+      spacing: 16,
       children: schedules.asMap().entries.map((entry) {
-        final schedule = entry.value; // ScheduleDto 객체
+        final schedule = entry.value;
 
         return AnimatedContainer(
           duration: Durations.medium2,
@@ -48,9 +49,9 @@ class ScheduleList extends ConsumerWidget {
           ),
           child: ScheduleItem(
             totalScheduleItemCount: totalScheduleCount,
-            time: schedule.time ?? '오전 9:00',
-            title: schedule.title ?? '제목',
-            location: schedule.location ?? '위치',
+            time: schedule.time,
+            title: schedule.title,
+            location: schedule.location,
             content: schedule.content ?? '설명',
             bodyStyle:
                 AppTypography.body2.copyWith(color: AppColors.grayScale_650),
@@ -68,32 +69,15 @@ class ScheduleList extends ConsumerWidget {
                   ),
                 ),
                 builder: (context) {
-                  return ListBottomSheet(
-                    title: schedule.title ?? '제목',
-                    location: schedule.location ?? '위치',
+                  return EditListBottomSheet(
+                    time: schedule.time,
+                    title: schedule.title,
+                    location: schedule.location,
                     content: schedule.content ?? '설명',
-                    time: schedule.time ?? '오전 9:00',
-                    onSave: (
-                      title,
-                      location,
-                      time,
-                      description,
-                    ) {
-                      // 일정 수정 시 기존 일정의 index를 onSave로 전달
+                    onSave: (title, location, time, description) {
                       scheduleViewModel.updateSchedule(
-                        time,
-                        title,
-                        location,
-                        description,
-                      );
-                      // 수정된 일정 저장
-                      onSave(
-                        time,
-                        title,
-                        location,
-                        description,
-                        entry.key,
-                      );
+                          time, title, location, description);
+                      onSave(time, title, location, description, entry.key);
                     },
                   );
                 },

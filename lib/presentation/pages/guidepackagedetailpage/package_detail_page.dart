@@ -120,24 +120,66 @@ class _PackageDetailPageState extends State<PackageDetailPage> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
               child: Column(
-                spacing: 16,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   for (var schedule in scheduleMap[selectedDay] ?? [])
-                    DetailScheduleList(
-                      schedules: [
-                        {
-                          'time': schedule.time ?? '',
-                          'title': schedule.title ?? '제목 없음',
-                          'location': schedule.location ?? '위치 정보 없음',
-                          'content': schedule.content ?? '',
-                          'imageUrl': schedule.imageUrl ?? '',
+                    Builder(
+                      builder: (context) {
+                        try {
+                          // Null 체크를 위한 디버깅 출력
+                          print('디버깅: 스케줄 데이터 - ${schedule.toString()}');
+
+                          final scheduleData = {
+                            'id': schedule.id ?? 'ID 없음', // ID가 null일 수도 있음
+                            'time': schedule.time?.toString() ?? '시간 정보 없음',
+                            'title': schedule.title ?? '제목 없음',
+                            'location': schedule.location ?? '위치 정보 없음',
+                            'content': schedule.content ?? '내용 없음',
+                            'imageUrl': schedule.imageUrl ?? '', // 안전 처리
+                            'day': schedule.day?.toString() ?? '0', // day도 체크
+                          };
+
+                          // null 값이 있는지 확인
+                          scheduleData.forEach((key, value) {
+                            if (value == null) {
+                              print('경고: $key 필드가 null입니다.');
+                            }
+                          });
+
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: DetailScheduleList(
+                              schedules: [
+                                {
+                                  'time': '${schedule.time ?? ''}',
+                                  'title': '${schedule.title ?? ''}',
+                                  'location': '${schedule.location ?? ''}',
+                                  'content': '${schedule.content ?? ''}',
+                                  'imageUrl': '${schedule.imageUrl ?? ''}',
+                                }
+                              ],
+                              totalScheduleCount:
+                                  scheduleMap[selectedDay]?.length ?? 0,
+                              dayIndex: selectedDay - 1,
+                              onSave:
+                                  (time, title, location, content, index) {},
+                              onDelete: (dayIndex, scheduleIndex) {},
+                            ),
+                          );
+                        } catch (e, stacktrace) {
+                          print('❌ DetailScheduleList 오류 발생: $e');
+                          print('문제의 스케줄 데이터: ${schedule.toString()}');
+                          print('Stacktrace: $stacktrace');
+
+                          return Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              '❗ 이 스케줄을 불러오는 중 오류가 발생했습니다.',
+                              style: const TextStyle(color: Colors.red),
+                            ),
+                          );
                         }
-                      ],
-                      totalScheduleCount: scheduleMap[selectedDay]?.length ?? 0,
-                      dayIndex: selectedDay - 1,
-                      onSave: (time, title, location, content, index) {},
-                      onDelete: (dayIndex, scheduleIndex) {},
+                      },
                     ),
                   const SizedBox(height: 40),
                 ],

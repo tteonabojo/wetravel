@@ -9,7 +9,7 @@ import 'package:wetravel/core/constants/app_icons.dart';
 import 'package:wetravel/core/constants/app_spacing.dart';
 
 class PackageEditImage extends StatefulWidget {
-  final String? initialImageUrl; // ✅ 초기 이미지 URL
+  final String? initialImageUrl;
   final ValueChanged<String> onImageSelected;
 
   const PackageEditImage({
@@ -28,7 +28,7 @@ class _PackageEditImageState extends State<PackageEditImage> {
   @override
   void initState() {
     super.initState();
-    _currentImagePath = widget.initialImageUrl; // ✅ 초기 이미지 표시
+    _currentImagePath = widget.initialImageUrl;
   }
 
   Future<void> _selectImage() async {
@@ -39,7 +39,7 @@ class _PackageEditImageState extends State<PackageEditImage> {
       final resizedImage = await _resizeImage(pickedFile);
 
       setState(() {
-        _currentImagePath = resizedImage.path; // ✅ 새로운 이미지로 업데이트
+        _currentImagePath = resizedImage.path;
       });
 
       widget.onImageSelected(resizedImage.path);
@@ -73,7 +73,7 @@ class _PackageEditImageState extends State<PackageEditImage> {
           image: _currentImagePath != null && _currentImagePath!.isNotEmpty
               ? DecorationImage(
                   image: _currentImagePath!.startsWith('http')
-                      ? NetworkImage(_currentImagePath!) // ✅ URL 이미지 로드
+                      ? NetworkImage(_currentImagePath!)
                       : FileImage(File(_currentImagePath!)) as ImageProvider,
                   fit: BoxFit.cover,
                 )

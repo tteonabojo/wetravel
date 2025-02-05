@@ -2,10 +2,12 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
+import 'package:wetravel/data/dto/schedule_dto.dart';
+import 'package:wetravel/presentation/pages/guide/package_edit_page/edit_schedule_list.dart';
 import 'package:wetravel/presentation/pages/guide/package_edit_page/package_edit_image.dart';
 import 'package:wetravel/presentation/pages/guide/package_register_page/widgets/package_header.dart';
-import 'package:wetravel/presentation/pages/guide/package_register_page/widgets/schedule_list.dart';
 import 'package:wetravel/presentation/pages/guide/package_register_page/widgets/widgets/buttons/add_schedule_button.dart';
 import 'package:wetravel/presentation/pages/guide/package_register_page/widgets/widgets/buttons/day_chip_button.dart';
 import 'package:wetravel/presentation/pages/guide/package_register_page/widgets/widgets/buttons/delete_day_button.dart';
@@ -30,7 +32,7 @@ class _PackageEditPageState extends State<PackageEditPage> {
   String _location = '위치';
   int _dayCount = 1;
   int _selectedDay = 1;
-  final List<List<Map<String, String>>> _schedules = [[]];
+  final List<List<ScheduleDto>> _schedules = [];
 
   bool isLoading = true;
 
@@ -49,8 +51,12 @@ class _PackageEditPageState extends State<PackageEditPage> {
 
       if (doc.exists) {
         final data = doc.data()!;
+        print(data); // data 구조 확인
+
         final scheduleIdList = List<String>.from(data['scheduleIdList'] ?? []);
-        final List<List<Map<String, String>>> loadedSchedules = [];
+        print(scheduleIdList);
+
+        final List<List<ScheduleDto>> loadedSchedules = [];
 
         for (String scheduleId in scheduleIdList) {
           final scheduleDoc = await FirebaseFirestore.instance
@@ -58,23 +64,20 @@ class _PackageEditPageState extends State<PackageEditPage> {
               .doc(scheduleId)
               .get();
 
-          if (scheduleDoc.exists) {
-            final scheduleData = scheduleDoc.data()!;
-            final day = scheduleData['day'] ?? 1;
+          final scheduleData = scheduleDoc.data();
+          if (scheduleData != null) {
+            print(scheduleData);
+            final schedule =
+                ScheduleDto.fromJson({...scheduleData, "id": scheduleDoc.id});
+            final day = schedule.day;
 
             while (loadedSchedules.length < day) {
               loadedSchedules.add([]);
             }
 
-            loadedSchedules[day - 1].add({
-              'id': scheduleData['id'],
-              'time': scheduleData['time'] ?? '',
-              'title': scheduleData['title'] ?? '',
-              'location': scheduleData['location'] ?? '',
-              'content': scheduleData['content'] ?? '',
-              'day': (scheduleData['day'] ?? 1).toString(),
-              'order': (scheduleData['order'] ?? 1).toString(),
-            });
+            loadedSchedules[day - 1].add(schedule);
+          } else {
+            print('스케줄 데이터를 불러오는 데 실패했습니다.');
           }
         }
 
@@ -85,10 +88,10 @@ class _PackageEditPageState extends State<PackageEditPage> {
           _keywordList = List<String>.from(data['keywordList'] ?? []);
           _descriptionController.text = data['description'] ?? '';
           _durationController.text = data['duration'] ?? '';
-          _dayCount = loadedSchedules.length > 0 ? loadedSchedules.length : 1;
+
+          _dayCount = loadedSchedules.isNotEmpty ? loadedSchedules.length : 1;
           _schedules.clear();
-          _schedules
-              .addAll(loadedSchedules.isNotEmpty ? loadedSchedules : [[]]);
+          _schedules.addAll(loadedSchedules);
           isLoading = false;
         });
       }
@@ -98,20 +101,31 @@ class _PackageEditPageState extends State<PackageEditPage> {
   }
 
   void _onDelete(int dayIndex, int scheduleIndex) {
-    setState(() {
-      _schedules[dayIndex].removeAt(scheduleIndex);
-    });
+    if (dayIndex < _schedules.length &&
+        scheduleIndex < _schedules[dayIndex].length) {
+      setState(() {
+        _schedules[dayIndex].removeAt(scheduleIndex);
+      });
+    }
   }
+
+  final Uuid uuid = Uuid();
 
   void _onAddSchedule() {
     if (_schedules[_selectedDay - 1].length < 9) {
       setState(() {
-        _schedules[_selectedDay - 1].add({
-          'time': '오전 9:00',
-          'title': '제목',
-          'location': '위치',
-          'content': '설명',
-        });
+        _schedules[_selectedDay - 1].add(
+          ScheduleDto(
+            id: uuid.v4(),
+            time: '오전 9:00',
+            title: '제목',
+            location: '위치',
+            content: '설명',
+            day: _selectedDay,
+            order: _schedules[_selectedDay - 1].length + 1,
+            packageId: '',
+          ),
+        );
       });
     }
   }
@@ -120,22 +134,19 @@ class _PackageEditPageState extends State<PackageEditPage> {
       String title, String location, String content) {
     if (dayIndex < _schedules.length &&
         scheduleIndex < _schedules[dayIndex].length) {
-      final existingSchedule =
-          _schedules[dayIndex][scheduleIndex]; // ✅ 기존 데이터 유지
-
       setState(() {
-        _schedules[dayIndex][scheduleIndex] = {
-          'id': existingSchedule['id']!, // ✅ 기존 id 유지
-          'time': time,
-          'title': title,
-          'location': location,
-          'content': content,
-          'day': existingSchedule['day'] ?? (dayIndex + 1) as String,
-          'order': existingSchedule['order'] ?? (scheduleIndex + 1) as String,
-        };
+        final existingSchedule = _schedules[dayIndex][scheduleIndex];
+        _schedules[dayIndex][scheduleIndex] = ScheduleDto(
+          id: existingSchedule.id,
+          time: time,
+          title: title,
+          location: location,
+          content: content,
+          day: existingSchedule.day,
+          order: existingSchedule.order,
+          packageId: existingSchedule.packageId,
+        );
       });
-    } else {
-      print("Invalid index: dayIndex=$dayIndex, scheduleIndex=$scheduleIndex");
     }
   }
 
@@ -192,18 +203,16 @@ class _PackageEditPageState extends State<PackageEditPage> {
         imageUrl: imageUrl,
         keywordList: _keywordList,
         scheduleList: _schedules.expand((daySchedules) {
-          final dayIndex = _schedules.indexOf(daySchedules);
           return daySchedules.asMap().entries.map((entry) {
-            final index = entry.key;
             final schedule = entry.value;
             return {
-              'id': schedule['id'], // ✅ id 필드 포함
-              'time': schedule['time'],
-              'title': schedule['title'],
-              'location': schedule['location'],
-              'content': schedule['content'],
-              'day': schedule['day'] ?? (dayIndex + 1),
-              'order': schedule['order'] ?? (index + 1),
+              'id': schedule.id,
+              'time': schedule.time,
+              'title': schedule.title,
+              'location': schedule.location,
+              'content': schedule.content,
+              'day': schedule.day,
+              'order': schedule.order
             };
           });
         }).toList(),
@@ -244,7 +253,7 @@ class _PackageEditPageState extends State<PackageEditPage> {
   Widget build(BuildContext context) {
     if (isLoading) {
       return const Scaffold(
-        backgroundColor: Colors.white, // ✅ 배경색 흰색으로 설정
+        backgroundColor: Colors.white,
         body: Center(
           child: CircularProgressIndicator(),
         ),
@@ -299,23 +308,19 @@ class _PackageEditPageState extends State<PackageEditPage> {
                           onSelectDay: _onSelectDay,
                           selectedDay: _selectedDay,
                         ),
-                        ScheduleList(
+                        EditScheduleList(
                           schedules: _schedules[_selectedDay - 1],
                           totalScheduleCount:
                               _schedules[_selectedDay - 1].length,
                           dayIndex: _selectedDay - 1,
                           onSave:
                               (time, title, location, content, scheduleIndex) {
-                            _onEditSchedule(
-                              _selectedDay - 1,
-                              scheduleIndex,
-                              time,
-                              title,
-                              location,
-                              content,
-                            );
+                            _onEditSchedule(_selectedDay - 1, scheduleIndex,
+                                time, title, location, content);
                           },
-                          onDelete: _onDelete,
+                          onDelete: (dayIndex, scheduleIndex) {
+                            _onDelete(dayIndex, scheduleIndex);
+                          },
                         ),
                         AddScheduleButton(
                           onPressed: _onAddSchedule,

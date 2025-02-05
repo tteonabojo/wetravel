@@ -31,7 +31,6 @@ class DetailScheduleList extends ConsumerWidget {
     final scheduleViewModel = ref.watch(detailScheduleViewModelProvider);
 
     return Column(
-      spacing: 16,
       children: schedules.asMap().entries.map((entry) {
         return AnimatedContainer(
           duration: Durations.medium2,

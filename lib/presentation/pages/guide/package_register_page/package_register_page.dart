@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
+import 'package:wetravel/data/dto/schedule_dto.dart';
 import 'package:wetravel/presentation/pages/guide/package_register_page/widgets/package_header.dart';
 import 'package:wetravel/presentation/pages/guide/package_register_page/widgets/package_hero_image.dart';
 import 'package:wetravel/presentation/pages/guide/package_register_page/widgets/schedule_list.dart';
@@ -241,7 +242,10 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
                           selectedDay: _selectedDay,
                         ),
                         ScheduleList(
-                          schedules: _schedules[_selectedDay - 1],
+                          schedules: _schedules[_selectedDay - 1]
+                              .map((scheduleMap) =>
+                                  ScheduleDto.fromMap(scheduleMap))
+                              .toList(),
                           totalScheduleCount:
                               _schedules[_selectedDay - 1].length,
                           dayIndex: _selectedDay - 1,

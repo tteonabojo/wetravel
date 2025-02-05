@@ -51,13 +51,13 @@ class ScheduleDto {
       : this(
           id: json["id"],
           packageId: json["packageId"],
-          day: json["day"],
+          day: json['day'] ?? 1,
           time: json["time"],
           title: json["title"],
           location: json["location"],
           content: json["content"],
           imageUrl: json["imageUrl"],
-          order: json["order"],
+          order: json["order"] ?? 1,
         );
 
   /// 객체를 JSON으로 변환
@@ -100,18 +100,17 @@ class ScheduleDto {
       order: schedule.order,
     );
   }
-
   factory ScheduleDto.fromMap(Map<String, dynamic> map) {
     return ScheduleDto(
-      id: map['id'],
-      packageId: map['packageId'],
-      day: map['day'],
-      time: map['time'],
-      title: map['title'],
-      location: map['location'],
-      content: map['content'],
-      imageUrl: map['imageUrl'],
-      order: map['order'],
+      id: map['id'] ?? '', // null일 경우 빈 문자열
+      packageId: map['packageId'] ?? '',
+      day: map['day'] ?? 0, // null일 경우 0
+      time: map['time'] ?? '',
+      title: map['title'] ?? '',
+      location: map['location'] ?? '',
+      content: map['content'] ?? '',
+      imageUrl: map['imageUrl'] ?? '',
+      order: map['order'] ?? 0, // null일 경우 0
     );
   }
 }
