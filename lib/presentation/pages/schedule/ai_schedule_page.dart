@@ -245,10 +245,8 @@ class _AISchedulePageState extends ConsumerState<AISchedulePage> {
 
   Future<void> _saveSchedule() async {
     try {
-      // 이미지 URL 가져오기
       final imageUrl = await _getPixabayImage(surveyResponse.selectedCity!);
 
-      // 기존 형식으로 스케줄 생성
       final schedule = Schedule(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         title: '${surveyResponse.selectedCity} 여행',
