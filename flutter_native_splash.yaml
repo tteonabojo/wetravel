@@ -3,9 +3,9 @@ flutter_native_splash:
   android: true  # Android 적용
   ios: true  # iOS 적용
   color: "#4876EE"  # 배경 색상
-  image: assets/icons/splash_logo.png
+  image: assets/images/splash_logo.png
 
   # Android 12 이상 설정
   android_12:
     color: "#4876EE"
-    image: assets/icons/splash_logo.png
+    image: assets/images/splash_logo.png
