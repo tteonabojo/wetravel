@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:wetravel/core/constants/app_border_radius.dart';
+import 'package:wetravel/core/constants/app_shadow.dart';
 
 class NewTripPage extends StatelessWidget {
   const NewTripPage({super.key});
@@ -26,14 +28,13 @@ class NewTripPage extends StatelessWidget {
               //   ],
               // ),
               // 메인 카드
-              const SizedBox(height: 12),
               Expanded(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Card(
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Padding(
@@ -99,6 +100,11 @@ class NewTripPage extends StatelessWidget {
                         },
                         borderRadius: BorderRadius.circular(12),
                         child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            boxShadow: AppShadow.generalShadow,
+                            borderRadius: AppBorderRadius.small12,
+                          ),
                           width: double.infinity,
                           padding: const EdgeInsets.all(16),
                           child: Row(
@@ -146,11 +152,11 @@ class NewTripPage extends StatelessWidget {
     );
   }
 
-  Widget _buildNavItem(IconData icon, bool isSelected) {
-    return Icon(
-      icon,
-      color: isSelected ? Colors.blue : Colors.grey,
-      size: 28,
-    );
-  }
+  // Widget _buildNavItem(IconData icon, bool isSelected) {
+  //   return Icon(
+  //     icon,
+  //     color: isSelected ? Colors.blue : Colors.grey,
+  //     size: 28,
+  //   );
+  // }
 }

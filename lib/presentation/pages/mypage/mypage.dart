@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wetravel/core/constants/app_shadow.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wetravel/core/constants/app_shadow.dart';
 import 'package:wetravel/presentation/pages/mypagecorrection/mypage_correction.dart';
 import 'package:wetravel/presentation/provider/user_provider.dart';
 
@@ -11,24 +12,25 @@ class MyPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            '마이페이지',
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
+      // appBar: AppBar(
+      //   title: const Align(
+      //     alignment: Alignment.centerLeft,
+      //     child: Text(
+      //       '마이페이지',
+      //       style: TextStyle(
+      //         color: Colors.black,
+      //         fontSize: 20,
+      //         fontWeight: FontWeight.bold,
+      //       ),
+      //     ),
+      //   ),
+      //   backgroundColor: Colors.transparent,
+      //   elevation: 0,
+      // ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 16,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -57,8 +59,9 @@ class MyPage extends ConsumerWidget {
           height: 89,
           padding: const EdgeInsets.symmetric(vertical: 16.5, horizontal: 16),
           decoration: BoxDecoration(
-            color: Colors.grey[200],
+            color: Colors.white,
             borderRadius: BorderRadius.circular(12),
+            boxShadow: AppShadow.generalShadow,
           ),
           child: Row(
             children: [
@@ -123,8 +126,9 @@ class MyPage extends ConsumerWidget {
         height: 56,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
-          color: Colors.grey[200],
+          color: Colors.white,
           borderRadius: BorderRadius.circular(12),
+          boxShadow: AppShadow.generalShadow,
         ),
         child: Align(
           alignment: Alignment.centerLeft,
@@ -197,8 +201,9 @@ class MyPage extends ConsumerWidget {
         height: 56,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
-          color: Colors.grey[200],
+          color: Colors.white,
           borderRadius: BorderRadius.circular(12),
+          boxShadow: AppShadow.generalShadow,
         ),
         child: Align(
           alignment: Alignment.centerLeft,
