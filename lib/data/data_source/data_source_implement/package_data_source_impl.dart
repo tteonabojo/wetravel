@@ -7,8 +7,8 @@ class PackageDataSourceImpl implements PackageDataSource {
   final FirebaseFirestore _firestore;
   PackageDataSourceImpl(FirebaseFirestore firestore) : _firestore = firestore {
     _firestore.settings = Settings(
-      persistenceEnabled: true, // 캐싱 활성화
-      cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+      persistenceEnabled: false, // 캐싱 활성화
+      // cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
     );
   }
 
@@ -146,7 +146,6 @@ class PackageDataSourceImpl implements PackageDataSource {
         final packageData = doc.data();
         final userId = packageData['userId'] as String;
         final userData = userMap[userId];
-
         return PackageDto.fromJson({
           ...packageData,
           'userName': userData?['name'],
@@ -154,7 +153,66 @@ class PackageDataSourceImpl implements PackageDataSource {
         });
       }).toList();
     } catch (e) {
+      print(e);
       return [];
     }
+  }
+
+  @override
+  Stream<List<PackageDto>> watchRecentPackages() async* {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      yield [];
+      return;
+    }
+
+    yield* _firestore
+        .collection('users')
+        .doc(user.uid)
+        .snapshots()
+        .asyncMap((userSnapshot) async {
+      try {
+        if (!userSnapshot.exists) return [];
+
+        List recentPackageIds =
+            userSnapshot.data()?['recentPackages']?.toList() ?? [];
+        if (recentPackageIds.isEmpty) return [];
+
+        final packageSnapshot = await _firestore
+            .collection('packages')
+            .where(FieldPath.documentId, whereIn: recentPackageIds)
+            .get();
+
+        final List userIds = packageSnapshot.docs
+            .map((package) => package.data()['userId'] as String)
+            .toList();
+
+        if (userIds.isEmpty) return [];
+
+        final userSnapshot2 = await _firestore
+            .collection('users')
+            .where(FieldPath.documentId, whereIn: userIds)
+            .get();
+
+        final Map<String, Map<String, dynamic>> userMap = {
+          for (var userDoc in userSnapshot2.docs) userDoc.id: userDoc.data()
+        };
+
+        return packageSnapshot.docs.map((doc) {
+          final packageData = doc.data();
+          final userId = packageData['userId'] as String;
+          final userData = userMap[userId];
+
+          return PackageDto.fromJson({
+            ...packageData,
+            'userName': userData?['name'],
+            'userImageUrl': userData?['imageUrl'],
+          });
+        }).toList();
+      } catch (e) {
+        print('Error fetching recent packages: $e');
+        return [];
+      }
+    });
   }
 }
