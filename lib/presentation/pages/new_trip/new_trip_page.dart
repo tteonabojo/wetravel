@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wetravel/core/constants/app_border_radius.dart';
 import 'package:wetravel/core/constants/app_shadow.dart';
+import 'package:wetravel/presentation/widgets/buttons/standard_button.dart';
 
 class NewTripPage extends StatelessWidget {
   const NewTripPage({super.key});
@@ -62,30 +63,39 @@ class NewTripPage extends StatelessWidget {
                             ),
                             const SizedBox(height: 24),
                             SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.pushNamed(
-                                      context, '/city-selection');
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.blue,
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 16),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
+                                width: double.infinity,
+                                child: StandardButton.primary(
+                                  sizeType: ButtonSizeType.normal,
+                                  text: '새로운 여행 시작하기',
+                                  onPressed: () {
+                                    Navigator.pushNamed(
+                                        context, '/city-selection');
+                                  },
+                                )
+
+                                // ElevatedButton(
+                                //   onPressed: () {
+                                //     Navigator.pushNamed(
+                                //         context, '/city-selection');
+                                //   },
+                                //   style: ElevatedButton.styleFrom(
+                                //     backgroundColor: Colors.blue,
+                                //     padding:
+                                //         const EdgeInsets.symmetric(vertical: 16),
+                                //     shape: RoundedRectangleBorder(
+                                //       borderRadius: BorderRadius.circular(12),
+                                //     ),
+                                //   ),
+                                //   child: const Text(
+                                //     '새로운 여행 시작하기',
+                                //     style: TextStyle(
+                                //       color: Colors.white,
+                                //       fontSize: 16,
+                                //       fontWeight: FontWeight.bold,
+                                //     ),
+                                //   ),
+                                // ),
                                 ),
-                                child: const Text(
-                                  '새로운 여행 시작하기',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
                           ],
                         ),
                       ),

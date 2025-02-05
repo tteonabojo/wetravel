@@ -26,7 +26,7 @@ class _StackPageState extends ConsumerState<StackPage> {
   @override
   void initState() {
     super.initState();
-    _selectedIndex = widget.initialIndex; // 초기 인덱스 설정
+    _selectedIndex = widget.initialIndex;
   }
 
   void _onItemTapped(int index) {
@@ -38,7 +38,6 @@ class _StackPageState extends ConsumerState<StackPage> {
   @override
   Widget build(BuildContext context) {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
-    final isGuideAsync = ref.watch(isGuideProvider);
 
     return GestureDetector(
         onTap: () {
@@ -54,23 +53,14 @@ class _StackPageState extends ConsumerState<StackPage> {
               ],
             ),
           ),
-          body: isGuideAsync.when(
-            data: (isGuide) {
-              final List<Widget> pages = [
-                MainPage(),
-                NewTripPage(),
-                GuidePage(isGuide: isGuide),
-                MyPage(),
-              ];
-
-              return IndexedStack(
-                index: _selectedIndex,
-                children: pages,
-              );
-            },
-            loading: () => SizedBox.shrink(),
-            error: (error, stackTrace) =>
-                Center(child: Text('stack page Error: $error')),
+          body: IndexedStack(
+            index: _selectedIndex,
+            children: [
+              const MainPage(),
+              const NewTripPage(),
+              const GuidePage(),
+              MyPage(),
+            ],
           ),
           bottomNavigationBar: CustomBottomNavigationBar(
             context: context,

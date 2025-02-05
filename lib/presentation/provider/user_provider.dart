@@ -49,7 +49,6 @@ final signInWithProviderUsecaseProvider = Provider((ref) {
 final isGuideProvider = FutureProvider<bool>((ref) async {
   final fetchUserUsecase = ref.watch(fetchUserUsecaseProvider);
   final user = await fetchUserUsecase.execute();
-
   return user.isGuide;
 });
 
@@ -57,8 +56,12 @@ final isGuideProvider = FutureProvider<bool>((ref) async {
 final signOutUsecaseProvider =
     Provider((ref) => ref.read(userRepositoryProvider));
 
-
 final userProvider = FutureProvider((ref) async {
   final fetchUserUsecase = ref.watch(fetchUserUsecaseProvider);
   return await fetchUserUsecase.execute();
+});
+
+final authStateProvider = StreamProvider.autoDispose<User?>((ref) {
+  final firebaseAuth = ref.watch(_firebaseAuthProvider);
+  return firebaseAuth.authStateChanges();
 });

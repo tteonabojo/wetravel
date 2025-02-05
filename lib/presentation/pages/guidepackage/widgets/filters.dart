@@ -9,9 +9,8 @@ class GuideFilters extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final recommendationState = ref.watch(recommendationStateProvider);
 
-    // 선택한 키워드 및 도시 결합
     final allKeywords = [
-      ...recommendationState.selectedCities, // 선택한 도시 추가
+      ...?recommendationState.selectedCities,
       recommendationState.travelPeriod,
       recommendationState.travelDuration,
       ...?recommendationState.travelStyles,
