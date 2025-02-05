@@ -8,9 +8,20 @@ import 'package:wetravel/core/constants/app_shadow.dart';
 import 'package:wetravel/presentation/pages/mypagecorrection/mypage_correction.dart';
 import 'package:wetravel/presentation/provider/user_provider.dart';
 
+final userStreamProvider = StreamProvider.autoDispose((ref) {
+  final uid = FirebaseAuth.instance.currentUser?.uid;
+  if (uid == null) return Stream.value(null);
+  
+  return FirebaseFirestore.instance.collection('users').doc(uid).snapshots().map((snapshot) {
+    return snapshot.data();
+  });
+});
+
 class MyPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final userAsync = ref.watch(userStreamProvider);
+    
     return Scaffold(
        appBar: AppBar(
          title: const Align(
@@ -52,15 +63,17 @@ class MyPage extends ConsumerWidget {
   }
 
   Widget _buildProfileBox(BuildContext context, WidgetRef ref) {
-    final userAsync = ref.watch(userProvider); // userProvider 사용
+    final userAsync = ref.watch(userStreamProvider); // Firestore 실시간 데이터 사용
 
     return userAsync.when(
-      data: (user) {
-        // FirebaseAuth에서 직접 닉네임과 이메일, 프로필 이미지 가져오기
-        final firebaseUser = FirebaseAuth.instance.currentUser;
-        final displayName = firebaseUser?.displayName ?? user.displayName ?? '이름 없음';
-        final email = firebaseUser?.email ?? user.email ?? '이메일 없음';
-        final photoUrl = firebaseUser?.photoURL ?? user.imageUrl;
+    data: (userData) {
+      if (userData == null) {
+        return Text('사용자 데이터를 불러올 수 없습니다.');
+      }
+
+      final nickname = userData['nickname'] ?? '이름 없음';
+      final email = userData['email'] ?? '이메일 없음';
+      final profileImageUrl = userData['profileImageUrl']; // Firestore에서 가져온 프로필 이미지 URL
 
         return Container(
           height: 89,
@@ -74,8 +87,8 @@ class MyPage extends ConsumerWidget {
             children: [
               CircleAvatar(
                 radius: 28,
-                backgroundImage: photoUrl != null
-                    ? NetworkImage(photoUrl)
+                backgroundImage: profileImageUrl != null
+                    ? NetworkImage(profileImageUrl)
                     : const AssetImage('assets/images/sample_profile.jpg')
                         as ImageProvider,
               ),
@@ -85,7 +98,7 @@ class MyPage extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    displayName,
+                    nickname,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -93,7 +106,7 @@ class MyPage extends ConsumerWidget {
                   ),
                   SizedBox(height: 4),
                   Text(
-                    (email.length > 25) ? '${email.substring(0, 25)}...' : email,
+                    (email.length > 25) ? '${email.substring(0, 20)}...' : email,
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[600],

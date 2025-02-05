@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class CustomInputField extends StatefulWidget {
   final String hintText;
@@ -209,17 +210,33 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
     }
   }
 
-  // 사용자 정보 저장
   Future<void> _saveUserInfo() async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
+      String? imageUrl;
+
+      // 프로필 이미지가 변경돠었을 경우 Firebase Storage에 업로드
+      if (_profileImage != null) {
+        final storageRef = FirebaseStorage.instance.ref();
+        final profileRef = storageRef.child("profile_images/${user.uid}.jpg");
+
+        try {
+          await profileRef.putFile(_profileImage!);
+          imageUrl = await profileRef.getDownloadURL();
+        } catch (e) {
+          print("이미지 업로드 실패: $e");
+        }
+      }
+      // Firestore 업데이트
       await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
         'email': _userEmail,
         'nickname': _nickname,
         'intro': _intro,
+        if (imageUrl != null) 'profileImageUrl': imageUrl, // 프로필 이미지 변경시 반영
       }, SetOptions(merge: true));
 
-      Navigator.pushNamed(context, '/survey'); // 설문 페이지로 이동
+      // 마이페이지로 이동하면서 최신 데이터 반영
+      Navigator.pushNamed(context, '/mypage');
     }
   }
 
@@ -279,8 +296,8 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
                     children: [
                       ClipOval(
                         child: Container(
-                          width: 100,
-                          height: 100,
+                          width: 82,
+                          height: 82,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12),
                             image: _profileImage != null
