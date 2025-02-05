@@ -47,7 +47,7 @@ class _PackageDetailPageState extends State<PackageDetailPage> {
       final fetchedPackage = await getPackageUseCase.execute(widget.packageId);
       print('패키지 데이터 로드 완료: ${fetchedPackage.toString()}');
 
-      final scheduleIdList = fetchedPackage.scheduleIdList;
+      final scheduleIdList = fetchedPackage!.scheduleIdList;
       if (scheduleIdList == null || scheduleIdList.isEmpty) {
         throw Exception('패키지에 연결된 스케줄이 없습니다.');
       }
@@ -80,7 +80,7 @@ class _PackageDetailPageState extends State<PackageDetailPage> {
   Widget build(BuildContext context) {
     if (package == null) {
       return const Scaffold(
-        backgroundColor: Colors.white, // ✅ 배경색 흰색으로 설정
+        backgroundColor: Colors.white,
         body: Center(
           child: CircularProgressIndicator(),
         ),

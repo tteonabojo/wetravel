@@ -20,7 +20,7 @@ class ScheduleList extends ConsumerWidget {
     required this.onDelete,
   });
 
-  final List<ScheduleDto> schedules; // 타입 수정
+  final List<ScheduleDto> schedules;
   final int totalScheduleCount;
   final int dayIndex;
   final Function(String time, String title, String location, String content,
@@ -32,8 +32,9 @@ class ScheduleList extends ConsumerWidget {
     final scheduleViewModel = ref.watch(scheduleViewModelProvider);
 
     return Column(
+      spacing: 16,
       children: schedules.asMap().entries.map((entry) {
-        final schedule = entry.value; // ScheduleDto 객체
+        final schedule = entry.value;
 
         return AnimatedContainer(
           duration: Durations.medium2,
@@ -48,7 +49,7 @@ class ScheduleList extends ConsumerWidget {
           ),
           child: ScheduleItem(
             totalScheduleItemCount: totalScheduleCount,
-            time: schedule.time ?? '오전 9:00',
+            time: schedule.time,
             title: schedule.title ?? '제목',
             location: schedule.location ?? '위치',
             content: schedule.content ?? '설명',
@@ -69,24 +70,22 @@ class ScheduleList extends ConsumerWidget {
                 ),
                 builder: (context) {
                   return ListBottomSheet(
-                    title: schedule.title ?? '제목',
-                    location: schedule.location ?? '위치',
+                    title: schedule.title,
+                    location: schedule.location,
                     content: schedule.content ?? '설명',
-                    time: schedule.time ?? '오전 9:00',
+                    time: schedule.time,
                     onSave: (
                       title,
                       location,
                       time,
                       description,
                     ) {
-                      // 일정 수정 시 기존 일정의 index를 onSave로 전달
                       scheduleViewModel.updateSchedule(
                         time,
                         title,
                         location,
                         description,
                       );
-                      // 수정된 일정 저장
                       onSave(
                         time,
                         title,

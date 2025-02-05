@@ -9,8 +9,8 @@ class GuidePackagePage extends StatelessWidget {
     return Scaffold(
       body: Column(
         children: [
-          GuideAppBar(), // 앱바
-          GuideFilters(), // 필터 섹션
+          GuideAppBar(),
+          GuideFilters(),
           Padding(
             padding: const EdgeInsets.only(right: 16.0, top: 8.0),
             child: Align(
@@ -20,9 +20,7 @@ class GuidePackagePage extends StatelessWidget {
                 backgroundColor: Colors.grey[200],
                 child: IconButton(
                   icon: Icon(Icons.sort, color: Colors.black),
-                  onPressed: () {
-                    // 정렬 버튼 동작 추가
-                  },
+                  onPressed: () {},
                 ),
               ),
             ),

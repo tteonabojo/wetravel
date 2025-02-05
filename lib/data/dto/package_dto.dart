@@ -80,23 +80,23 @@ class PackageDto {
       );
   PackageDto.fromJson(Map<String, dynamic> json)
       : this(
-          id: json['id'] as String,
-          userId: json['userId'] as String,
-          userName: json['userName'],
-          userImageUrl: json['userImageUrl'],
-          title: json['title'] as String,
-          location: json['location'] as String,
-          description: json['description'] as String,
-          duration: json['duration'] as String,
-          imageUrl: json['imageUrl'] as String,
-          keywordList: List<String>.from(json['keywordList'] as List),
+          id: json['id'] ?? '',
+          userId: json['userId'] ?? '',
+          userName: json['userName'] ?? '',
+          userImageUrl: json['userImageUrl'] ?? '',
+          title: json['title'] ?? '',
+          location: json['location'] ?? '',
+          description: json['description'] ?? '',
+          duration: json['duration'] ?? '',
+          imageUrl: json['imageUrl'] ?? '',
+          keywordList: List<String>.from(json['keywordList']),
           scheduleIdList: List<String>.from(json['scheduleIdList']),
           createdAt: json['createdAt'],
           updatedAt: json['updatedAt'],
           deletedAt: json['deletedAt'],
-          reportCount: json['reportCount'] as int,
-          isHidden: json['isHidden'] as bool,
-          viewCount: json['viewCount'] as int,
+          reportCount: json['reportCount'] ?? 0,
+          isHidden: json['isHidden'] ?? false,
+          viewCount: json['viewCount'] ?? 0,
         );
 
   Map<String, dynamic> toJson() => {
@@ -165,27 +165,27 @@ class PackageDto {
 
   factory PackageDto.fromMap(Map<String, dynamic> map) {
     return PackageDto(
-      id: map['id'] as String,
-      userId: map['userId'] as String,
-      userName: map['userName'],
-      userImageUrl: map['userImageUrl'],
-      title: map['title'] as String,
-      location: map['location'] as String,
-      description: map['description'],
-      duration: map['duration'],
-      imageUrl: map['imageUrl'],
+      id: map['id'],
+      userId: map['userId'],
+      userName: map['userName'] ?? '',
+      userImageUrl: map['userImageUrl'] ?? '',
+      title: map['title'],
+      location: map['location'],
+      description: map['description'] ?? '',
+      duration: map['duration'] ?? '',
+      imageUrl: map['imageUrl'] ?? '',
       keywordList: map['keywordList'] != null
-          ? List<String>.from(map['keywordList'] as List)
+          ? List<String>.from(map['keywordList'])
           : null,
       scheduleIdList: map['scheduleIdList'] != null
-          ? List<String>.from(map['scheduleIdList'] as List)
+          ? List<String>.from(map['scheduleIdList'])
           : null,
       createdAt: map['createdAt'],
       updatedAt: map['updatedAt'],
       deletedAt: map['deletedAt'],
-      reportCount: map['reportCount'] as int,
-      isHidden: map['isHidden'] as bool,
-      viewCount: map['viewCount'] as int,
+      reportCount: map['reportCount'],
+      isHidden: map['isHidden'],
+      viewCount: map['viewCount'],
     );
   }
 }

@@ -7,7 +7,8 @@ class GetPackageUseCase {
 
   GetPackageUseCase(this.repository);
 
-  Future<Package> execute(String packageId) async {
+  Future<Package?> execute(String packageId) async {
+    print('하하하하하하하하하하하');
     return await repository.fetchPackageData(packageId);
   }
 }

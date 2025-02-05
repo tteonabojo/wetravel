@@ -100,7 +100,7 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
 
   void _registerPackage() async {
     setState(() {
-      isLoading = true; // 로딩 시작
+      isLoading = true;
     });
 
     if (_selectedImagePath.isEmpty) {
@@ -136,11 +136,9 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
       }
     }
 
-    // Firebase Storage에 이미지 업로드
     String? imageUrl = await _uploadImageToFirebaseStorage(_selectedImagePath);
 
     if (imageUrl != null) {
-      // Firebase DB에 URL 저장
       try {
         await _packageRegisterService.registerPackage(
           title: _title,
@@ -153,7 +151,7 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
         );
 
         setState(() {
-          isLoading = false; // 로딩 종료
+          isLoading = false;
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -208,8 +206,7 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
                   PackageHeroImage(
                     imagePath: _selectedImagePath,
                     onImageSelected: (newPath) {
-                      print(
-                          'Selected image path: $newPath'); // 디버깅: newPath 값 출력
+                      print('Selected image path: $newPath');
                       setState(() {
                         _selectedImagePath = newPath;
                       });

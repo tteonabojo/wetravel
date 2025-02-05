@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,12 +24,12 @@ class GuidePackageListPage extends ConsumerWidget {
     try {
       final fetchUserUsecase = ref.read(fetchUserUsecaseProvider);
       final user = await fetchUserUsecase.execute();
-      print('유저 데이터: ${user.toString()}'); // ← 유저 정보 확인
+      print('유저 데이터: ${user.toString()}');
 
       final fetchUserPackagesUsecase =
           ref.read(fetchUserPackagesUsecaseProvider);
       final packages = await fetchUserPackagesUsecase.execute(user.id);
-      print('패키지 데이터: ${packages.toString()}'); // ← 패키지 데이터 확인
+      print('패키지 데이터: ${packages.toString()}');
 
       return {
         'user': user,
@@ -36,7 +37,7 @@ class GuidePackageListPage extends ConsumerWidget {
       };
     } catch (e, stackTrace) {
       print('loadData 에러: $e');
-      print('에러 위치: $stackTrace'); // ← 스택 트레이스로 에러 위치 추적
+      print('에러 위치: $stackTrace');
       rethrow;
     }
   }
@@ -64,6 +65,47 @@ class GuidePackageListPage extends ConsumerWidget {
       print('Error fetching package image URL: $e');
     }
     return null;
+  }
+
+  Future<void> _deletePackage(String packageId) async {
+    try {
+      // 1. Firestore에서 패키지 정보 삭제
+      final packageDoc = await FirebaseFirestore.instance
+          .collection('packages')
+          .doc(packageId)
+          .get();
+
+      if (packageDoc.exists) {
+        final imageUrl = packageDoc.data()?['imageUrl'] as String?;
+
+        // 2. Firebase Storage에서 이미지 삭제 (이미지가 존재하는 경우)
+        if (imageUrl != null && imageUrl.isNotEmpty) {
+          final storageRef = FirebaseStorage.instance.refFromURL(imageUrl);
+          await storageRef.delete();
+          print('스토리지에서 이미지 삭제 성공');
+        }
+      }
+
+      // 3. Firestore에서 패키지 삭제
+      await FirebaseFirestore.instance
+          .collection('packages')
+          .doc(packageId)
+          .delete();
+      print('패키지 삭제 성공');
+
+      // 4. 해당 패키지와 관련된 모든 스케줄 삭제
+      final schedulesQuerySnapshot = await FirebaseFirestore.instance
+          .collection('schedules')
+          .where('packageId', isEqualTo: packageId)
+          .get();
+
+      for (var scheduleDoc in schedulesQuerySnapshot.docs) {
+        await scheduleDoc.reference.delete();
+        print('스케줄 삭제 성공: ${scheduleDoc.id}');
+      }
+    } catch (e) {
+      print('패키지 및 관련 스케줄 삭제 실패: $e');
+    }
   }
 
   @override
@@ -160,8 +202,13 @@ class GuidePackageListPage extends ConsumerWidget {
                                         child: const Text('수정'),
                                       ),
                                       CupertinoActionSheetAction(
-                                        onPressed: () {
+                                        onPressed: () async {
                                           Navigator.pop(context);
+                                          await _deletePackage(package.id);
+                                          ref
+                                              .read(
+                                                  fetchUserPackagesUsecaseProvider)
+                                              .execute(user.id);
                                         },
                                         isDestructiveAction: true,
                                         child: const Text('삭제'),

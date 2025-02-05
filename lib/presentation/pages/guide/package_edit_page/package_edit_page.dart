@@ -51,7 +51,7 @@ class _PackageEditPageState extends State<PackageEditPage> {
 
       if (doc.exists) {
         final data = doc.data()!;
-        print(data); // data 구조 확인
+        print(data);
 
         final scheduleIdList = List<String>.from(data['scheduleIdList'] ?? []);
         print(scheduleIdList);
@@ -100,12 +100,24 @@ class _PackageEditPageState extends State<PackageEditPage> {
     }
   }
 
-  void _onDelete(int dayIndex, int scheduleIndex) {
+  void _onDelete(int dayIndex, int scheduleIndex) async {
     if (dayIndex < _schedules.length &&
         scheduleIndex < _schedules[dayIndex].length) {
-      setState(() {
-        _schedules[dayIndex].removeAt(scheduleIndex);
-      });
+      final scheduleToDelete = _schedules[dayIndex][scheduleIndex];
+
+      try {
+        await FirebaseFirestore.instance
+            .collection('schedules')
+            .doc(scheduleToDelete.id)
+            .delete();
+        print('스케줄 삭제 성공: ${scheduleToDelete.id}');
+
+        setState(() {
+          _schedules[dayIndex].removeAt(scheduleIndex);
+        });
+      } catch (e) {
+        print('스케줄 삭제 실패: $e');
+      }
     }
   }
 
@@ -165,14 +177,31 @@ class _PackageEditPageState extends State<PackageEditPage> {
     });
   }
 
-  void _deleteDay() {
-    setState(() {
-      _schedules.removeAt(_selectedDay - 1);
-      _dayCount--;
-      if (_selectedDay > _dayCount) {
-        _selectedDay = _dayCount;
+  void _deleteDay() async {
+    if (_selectedDay <= 0 || _selectedDay > _dayCount) return;
+
+    try {
+      final schedulesToDeleteQuery = await FirebaseFirestore.instance
+          .collection('schedules')
+          .where('packageId', isEqualTo: widget.packageId)
+          .where('day', isEqualTo: _selectedDay)
+          .get();
+
+      for (var doc in schedulesToDeleteQuery.docs) {
+        await doc.reference.delete();
+        print('스케줄 삭제 성공: ${doc.id}');
       }
-    });
+
+      setState(() {
+        _schedules.removeAt(_selectedDay - 1);
+        _dayCount--;
+        if (_selectedDay > _dayCount) {
+          _selectedDay = _dayCount;
+        }
+      });
+    } catch (e) {
+      print('스케줄 삭제 실패: $e');
+    }
   }
 
   final _packageRegisterService = PackageRegisterService();
