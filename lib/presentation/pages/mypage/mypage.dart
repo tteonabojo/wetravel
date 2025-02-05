@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:wetravel/core/constants/app_icons.dart';
 import 'package:wetravel/core/constants/app_shadow.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/core/constants/app_shadow.dart';
@@ -77,11 +78,9 @@ class MyPage extends ConsumerWidget {
           child: Row(
             children: [
               CircleAvatar(
+                child: Image.asset('assets/images/user_round.png'),
                 radius: 28,
-                backgroundImage: imageUrl != null
-                    ? NetworkImage(imageUrl)
-                    : const AssetImage('assets/images/sample_profile.jpg')
-                        as ImageProvider,
+                backgroundImage: NetworkImage(imageUrl)
               ),
               SizedBox(width: 16),
               Column(
@@ -97,9 +96,7 @@ class MyPage extends ConsumerWidget {
                   ),
                   SizedBox(height: 4),
                   Text(
-                    (email.length > 25)
-                        ? '${email.substring(0, 20)}...'
-                        : email,
+                    (email.length > 25) ? '${email.substring(0, 20)}...' : email,
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[600],
@@ -116,7 +113,7 @@ class MyPage extends ConsumerWidget {
                   );
                 },
                 icon: SvgPicture.asset(
-                  'assets/icons/pen.svg',
+                  AppIcons.pen,
                   width: 24,
                   height: 24,
                 ),
@@ -282,20 +279,20 @@ class MyPage extends ConsumerWidget {
   }
 
   Future<void> deleteUserAccount(BuildContext context, WidgetRef ref) async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      throw Exception("사용자가 존재하지 않습니다.");
-    }
-
-    // Firestore에서 사용자 데이터 삭제
-    await FirebaseFirestore.instance.collection('users').doc(user.uid).delete();
-    await user.delete();
-
-    // 로그아웃 수행
-    await ref.read(signOutUsecaseProvider).signOut();
-
-    // 현재 위젯이 활성화된 상태인지 확인 후 네비게이션 실행
-    if (!context.mounted) return;
-    Navigator.pushReplacementNamed(context, '/login');
+  final user = FirebaseAuth.instance.currentUser;
+  if (user == null) {
+    throw Exception("사용자가 존재하지 않습니다.");
   }
+
+  // Firestore에서 사용자 데이터 삭제
+  await FirebaseFirestore.instance.collection('users').doc(user.uid).delete();
+  await user.delete();
+
+  // 로그아웃 수행
+  await ref.read(signOutUsecaseProvider).signOut();
+
+  // 현재 위젯이 활성화된 상태인지 확인 후 네비게이션 실행
+  if (!context.mounted) return;
+  Navigator.pushReplacementNamed(context, '/login');
+}
 }
