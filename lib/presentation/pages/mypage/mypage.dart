@@ -86,7 +86,9 @@ class MyPage extends ConsumerWidget {
                   ),
                   SizedBox(height: 4),
                   Text(
-                    user.email ?? '이메일 없음', // 이메일 정보 표시, 없으면 '이메일 없음' 표시
+                    (user.email != null && user.email!.length > 25)
+                    ? '${user.email!.substring(0, 25)}...'  // 25자까지 표시 후 '...'
+                    : user.email ?? '이메일 없음', // 이메일 정보 표시, 없으면 '이메일 없음' 표시
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[600],
