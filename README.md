@@ -288,5 +288,4 @@ users (컬렉션)
 ![Slack](https://img.shields.io/badge/Slack-4A154B?style=flat&logo=slack&logoColor=white)
 
 ## 로고
-<img src="assets/icons/app_logo/logo_bg_blue_24X24.svg" height="50" alt="wetravel Logo"> 
-<img src="assets/icons/app_logo/logo_letter.svg" height="50" alt="wetravel Logo">
+<img src="assets/icons/app_logo/logo_bg_blue_24x24.svg" height="50" alt="wetravel Logo"> <img src="assets/icons/app_logo/logo_letter.svg" height="50" alt="wetravel Logo">
