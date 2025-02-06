@@ -14,7 +14,7 @@ class GuidePage extends ConsumerStatefulWidget {
 }
 
 class _GuidePageState extends ConsumerState<GuidePage> {
-  bool? hasSubmittedPackage;
+  bool hasSubmittedPackage = false;
 
   @override
   void didChangeDependencies() {
@@ -43,34 +43,30 @@ class _GuidePageState extends ConsumerState<GuidePage> {
   @override
   Widget build(BuildContext context) {
     final userAsyncValue = ref.watch(userStreamProvider);
-    final isGuideAsyncValue = userAsyncValue.when(
+    return userAsyncValue.when(
       data: (data) {
+        bool isGuide = false;
         if (data != null && data.containsKey('isGuide')) {
-          final isGuide = data['isGuide'] as bool?;
+          isGuide = data['isGuide'];
           if (isGuide == false) {
             final userId = data['id'];
             _checkIfUserHasSubmittedPackage(userId);
           }
-          return isGuide;
         }
-        return null;
+        return Scaffold(
+          body: isGuide
+              ? GuidePackageListPage() // 가이드인 경우 내가 등록한 패키지 리스트 페이지
+              : hasSubmittedPackage
+                  ? ApplicationCompletePage() // 신청 완료 페이지
+                  : GuideApplyPage(), // 가이드가 아니고, 패키지가 없으면 신청페이지
+        );
       },
-      loading: () => null,
-      error: (_, __) => null,
-    );
-
-    if (isGuideAsyncValue == null || hasSubmittedPackage == null) {
-      return Scaffold(
+      loading: () => Scaffold(
         body: Center(child: CircularProgressIndicator()),
-      );
-    }
-
-    return Scaffold(
-      body: isGuideAsyncValue!
-          ? GuidePackageListPage() // 가이드인 경우 내가 등록한 패키지 리스트 페이지
-          : hasSubmittedPackage!
-              ? ApplicationCompletePage() // 신청 완료 페이지
-              : GuideApplyPage(), // 가이드가 아니고, 패키지가 없으면 신청페이지
+      ),
+      error: (_, __) => Scaffold(
+        body: Center(child: Text('다시 시도해 주세요.')),
+      ),
     );
   }
 }

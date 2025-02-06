@@ -74,16 +74,6 @@ final userStreamProvider = StreamProvider.autoDispose((ref) {
   });
 });
 
-final userGuideStatusProvider =
-    StreamProvider.family<bool, String>((ref, userId) {
-  return FirebaseFirestore.instance
-      .collection('users')
-      .doc(userId)
-      .snapshots()
-      .map((doc) {
-    return doc.exists && doc.data() != null;
-  });
-});
 // 현재 사용자의 schedules 컬렉션을 실시간으로 감시하는 provider
 final schedulesStreamProvider = StreamProvider<List<Schedule>>((ref) {
   final user = ref.watch(userProvider).value;
