@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/domain/entity/package.dart';
+import 'package:wetravel/presentation/pages/guidepackagedetailpage/package_detail_page.dart';
 import 'package:wetravel/presentation/pages/main/widgets/main_label.dart';
+import 'package:wetravel/presentation/provider/package_provider.dart';
+import 'package:wetravel/presentation/provider/schedule_provider.dart';
 import 'package:wetravel/presentation/widgets/package_item.dart';
 
-class MainPopularPackages extends StatelessWidget {
+class MainPopularPackages extends ConsumerWidget {
   /// 메인 페이지 인기 패키지 영역
   final List<Package> popularPackages;
 
   const MainPopularPackages({super.key, required this.popularPackages});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, ref) {
+    final getPackageUseCase = ref.read(getPackageUseCaseProvider);
+    final getSchedulesUseCase = ref.read(getSchedulesUseCaseProvider);
     return Column(
       children: [
         Padding(
@@ -25,14 +31,30 @@ class MainPopularPackages extends StatelessWidget {
                   popularPackages.length,
                   (index) {
                     int? rate = index <= 2 ? index + 1 : null; // 3등 까지 순위 표시
-                    return PackageItem(
-                      rate: rate,
-                      title: popularPackages[index].title,
-                      location: popularPackages[index].location,
-                      guideImageUrl: popularPackages[index].userImageUrl,
-                      packageImageUrl: popularPackages[index].imageUrl,
-                      name: popularPackages[index].userName,
-                      keywords: popularPackages[index].keywordList!.toList(),
+                    return GestureDetector(
+                      onTap: () async {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) {
+                              return PackageDetailPage(
+                                packageId: popularPackages[index].id,
+                                getPackageUseCase: getPackageUseCase,
+                                getSchedulesUseCase: getSchedulesUseCase,
+                              );
+                            },
+                          ),
+                        );
+                      },
+                      child: PackageItem(
+                        rate: rate,
+                        title: popularPackages[index].title,
+                        location: popularPackages[index].location,
+                        guideImageUrl: popularPackages[index].userImageUrl,
+                        packageImageUrl: popularPackages[index].imageUrl,
+                        name: popularPackages[index].userName,
+                        keywords: popularPackages[index].keywordList!.toList(),
+                      ),
                     );
                   },
                 ),

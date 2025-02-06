@@ -195,13 +195,18 @@ class PackageDataSourceImpl implements PackageDataSource {
         List recentPackageIds =
             userSnapshot.data()?['recentPackages']?.toList() ?? [];
         if (recentPackageIds.isEmpty) return [];
-
         final packageSnapshot = await _firestore
             .collection('packages')
             .where(FieldPath.documentId, whereIn: recentPackageIds)
             .get();
 
-        final List userIds = packageSnapshot.docs
+        final sortedPackages = List.generate(
+            packageSnapshot.docs.length,
+            (index) => packageSnapshot.docs
+                .where((e) => e.id == recentPackageIds[index])
+                .first);
+
+        final List userIds = sortedPackages
             .map((package) => package.data()['userId'] as String)
             .toList();
 
@@ -216,7 +221,7 @@ class PackageDataSourceImpl implements PackageDataSource {
           for (var userDoc in userSnapshot2.docs) userDoc.id: userDoc.data()
         };
 
-        return packageSnapshot.docs.map((doc) {
+        return sortedPackages.map((doc) {
           final packageData = doc.data();
           final userId = packageData['userId'] as String;
           final userData = userMap[userId];
