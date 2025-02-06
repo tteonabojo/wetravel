@@ -13,58 +13,53 @@ const Map<String, List<String>> cityCategories = {
   '유럽': ['파리', '런던', '로마', '바르셀로나', '암스테르담', '프라하', '비엔나', '베니스'],
 };
 
-class CitySelectionPage extends ConsumerStatefulWidget {
+class CitySelectionPage extends ConsumerWidget {
   const CitySelectionPage({super.key});
 
   @override
-  ConsumerState<CitySelectionPage> createState() => _CitySelectionPageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    void _onCitySelected(BuildContext context, String city) {
+      // 선택된 도시만 설정하고 나머지는 초기화
+      ref.read(recommendationStateProvider.notifier).resetState(
+            selectedCity: city,
+          );
 
-class _CitySelectionPageState extends ConsumerState<CitySelectionPage> {
-  void _onCitySelected(BuildContext context, String city) {
-    final surveyResponse = SurveyResponse(
-      travelPeriod: '1개월 이내',
-      travelDuration: '3박 4일',
-      companions: ['혼자'],
-      travelStyles: ['관광지', '맛집'],
-      accommodationTypes: ['호텔'],
-      considerations: ['위치'],
-      selectedCity: city,
-    );
+      Navigator.pushNamed(
+        context,
+        '/survey',
+        arguments: SurveyResponse(
+          travelPeriod: '',
+          travelDuration: '',
+          companions: const [],
+          travelStyles: const [],
+          accommodationTypes: const [],
+          considerations: const [],
+          selectedCity: city,
+        ),
+      );
+    }
 
-    dev.debugPrint(
-        'Selected city in CitySelectionPage: ${surveyResponse.selectedCity}');
+    Widget _buildCityChip(String city) {
+      final isSelected =
+          ref.watch(recommendationStateProvider).selectedCities.contains(city);
 
-    Navigator.pushNamed(
-      context,
-      '/survey',
-      arguments: surveyResponse,
-    );
-  }
+      return FilterChip(
+        label: Text(city),
+        selected: isSelected,
+        onSelected: (selected) {
+          if (selected) {
+            ref.read(recommendationStateProvider.notifier).toggleCity(city);
+            _onCitySelected(context, city);
+          }
+        },
+        backgroundColor: Colors.grey[200],
+        selectedColor: Colors.grey[600],
+        labelStyle: TextStyle(
+          color: isSelected ? Colors.white : Colors.black,
+        ),
+      );
+    }
 
-  Widget _buildCityChip(String city) {
-    final isSelected =
-        ref.watch(recommendationStateProvider).selectedCities.contains(city);
-
-    return FilterChip(
-      label: Text(city),
-      selected: isSelected,
-      onSelected: (selected) {
-        if (selected) {
-          ref.read(recommendationStateProvider.notifier).toggleCity(city);
-          _onCitySelected(context, city);
-        }
-      },
-      backgroundColor: Colors.grey[200],
-      selectedColor: Colors.grey[600],
-      labelStyle: TextStyle(
-        color: isSelected ? Colors.white : Colors.black,
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: Padding(

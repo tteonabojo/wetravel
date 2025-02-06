@@ -75,10 +75,10 @@ class NewTripPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    // 내가 담은 패키지 버튼
+                    // 내가 담은 AI패키지 버튼
                     Container(
                       decoration: BoxDecoration(
-                        color: Colors.grey[100],
+                        color: Colors.grey[400],
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Material(
@@ -94,7 +94,43 @@ class NewTripPage extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 const Text(
-                                  '내가 담은 패키지',
+                                  '내가 담은 AI패키지',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.chevron_right,
+                                  color: Colors.grey[600],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    //내가 담은 가이드 패키지
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[400],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () =>
+                              Navigator.pushNamed(context, '/saved-plans'),
+                          borderRadius: BorderRadius.circular(12),
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  '내가 담은 가이드 패키지',
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,

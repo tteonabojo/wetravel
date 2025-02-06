@@ -244,6 +244,21 @@ class RecommendationNotifier extends StateNotifier<RecommendationState> {
     }
   }
 
+  bool isCurrentPageComplete() {
+    switch (state.currentPage) {
+      case 0:
+        return state.travelPeriod != null && state.travelDuration != null;
+      case 1:
+        return state.companions.isNotEmpty && state.travelStyles.isNotEmpty;
+      case 2:
+        return state.accommodationTypes.isNotEmpty &&
+            (state.considerations.isNotEmpty ||
+                state.considerations.contains('없음'));
+      default:
+        return false;
+    }
+  }
+
   void setState({String? selectedCity}) {
     if (selectedCity != null) {
       state = RecommendationState(
@@ -282,6 +297,33 @@ class RecommendationNotifier extends StateNotifier<RecommendationState> {
 
   void clearSelectedCities() {
     state = state.copyWith(selectedCities: []);
+  }
+
+  void initializeFromSurvey(SurveyResponse survey) {
+    state = state.copyWith(
+      currentPage: 0, // 페이지를 처음으로 초기화
+      selectedCities: [if (survey.selectedCity != null) survey.selectedCity!],
+      travelPeriod: survey.travelPeriod,
+      travelDuration: survey.travelDuration,
+      companions: survey.companions,
+      travelStyles: survey.travelStyles,
+      accommodationTypes: survey.accommodationTypes,
+      considerations: survey.considerations,
+    );
+  }
+
+  void resetState({String? selectedCity}) {
+    state = RecommendationState(
+      currentPage: 0,
+      selectedCities: selectedCity != null ? [selectedCity] : [],
+      travelPeriod: null,
+      travelDuration: null,
+      companions: [],
+      travelStyles: [],
+      accommodationTypes: [],
+      considerations: [],
+      selectedKeywords: [],
+    );
   }
 }
 
