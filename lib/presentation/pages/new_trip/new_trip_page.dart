@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wetravel/core/constants/app_border_radius.dart';
 import 'package:wetravel/core/constants/app_shadow.dart';
+import 'package:wetravel/presentation/pages/new_trip/scrap_package_page.dart';
 import 'package:wetravel/presentation/widgets/buttons/standard_button.dart';
 
 class NewTripPage extends StatelessWidget {
@@ -15,20 +16,6 @@ class NewTripPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 상단 로고
-              // Row(
-              //   children: [
-              //     const Text(
-              //       '위트',
-              //       style: TextStyle(
-              //         fontSize: 24,
-              //         fontWeight: FontWeight.bold,
-              //         color: Colors.blue,
-              //       ),
-              //     ),
-              //   ],
-              // ),
-              // 메인 카드
               Expanded(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -71,31 +58,7 @@ class NewTripPage extends StatelessWidget {
                                     Navigator.pushNamed(
                                         context, '/city-selection');
                                   },
-                                )
-
-                                // ElevatedButton(
-                                //   onPressed: () {
-                                //     Navigator.pushNamed(
-                                //         context, '/city-selection');
-                                //   },
-                                //   style: ElevatedButton.styleFrom(
-                                //     backgroundColor: Colors.blue,
-                                //     padding:
-                                //         const EdgeInsets.symmetric(vertical: 16),
-                                //     shape: RoundedRectangleBorder(
-                                //       borderRadius: BorderRadius.circular(12),
-                                //     ),
-                                //   ),
-                                //   child: const Text(
-                                //     '새로운 여행 시작하기',
-                                //     style: TextStyle(
-                                //       color: Colors.white,
-                                //       fontSize: 16,
-                                //       fontWeight: FontWeight.bold,
-                                //     ),
-                                //   ),
-                                // ),
-                                ),
+                                )),
                           ],
                         ),
                       ),
@@ -107,7 +70,10 @@ class NewTripPage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                       child: InkWell(
                         onTap: () {
-                          // 내가 담은 패키지 페이지로 이동
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => ScrapPackagesPage()));
                         },
                         borderRadius: BorderRadius.circular(12),
                         child: Container(

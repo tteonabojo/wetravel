@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
+import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/domain/entity/package.dart';
 import 'package:wetravel/domain/entity/schedule.dart';
 import 'package:wetravel/domain/usecase/get_package_usecase.dart';
@@ -11,7 +12,7 @@ import 'package:wetravel/presentation/pages/guidepackagedetailpage/widgets/detai
 import 'package:wetravel/presentation/pages/guidepackagedetailpage/widgets/package_detail_header.dart';
 import 'package:wetravel/presentation/pages/guidepackagedetailpage/widgets/package_detail_image.dart';
 import 'package:wetravel/presentation/pages/guidepackagedetailpage/widgets/detail_day_chip_button.dart';
-import 'package:wetravel/presentation/provider/user_provider.dart';
+import 'package:wetravel/presentation/widgets/buttons/standard_button.dart';
 
 class PackageDetailPage extends ConsumerStatefulWidget {
   final String packageId;
@@ -81,7 +82,6 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
 
   Future<void> _updateRecentPackages(String packageId) async {
     try {
-      // FirebaseAuth에서 현재 사용자 가져오기
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser == null) {
         print('사용자가 로그인되어 있지 않습니다.');
@@ -130,6 +130,41 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
       }
     } catch (e) {
       print('viewCount 업데이트 실패: $e');
+    }
+  }
+
+  Future<void> _addToScrapList() async {
+    try {
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) {
+        print('사용자가 로그인되어 있지 않습니다.');
+        return;
+      }
+
+      final userRef =
+          FirebaseFirestore.instance.collection('users').doc(currentUser.uid);
+      final userSnapshot = await userRef.get();
+      if (userSnapshot.exists) {
+        final data = userSnapshot.data();
+        List<String> scrapIdList =
+            List<String>.from(data?['scrapIdList'] ?? []);
+
+        if (scrapIdList.contains(package?.id)) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('이 패키지는 이미 담았습니다.')),
+          );
+        } else {
+          scrapIdList.add(package?.id ?? '');
+          await userRef.update({'scrapIdList': scrapIdList});
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('패키지가 담겼습니다.')),
+          );
+        }
+      } else {
+        print('사용자 데이터를 찾을 수 없습니다.');
+      }
+    } catch (e) {
+      print('오류 발생: $e');
     }
   }
 
@@ -240,6 +275,14 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
                 ],
               ),
             ),
+            Padding(
+              padding: AppSpacing.medium16,
+              child: StandardButton.primary(
+                  onPressed: _addToScrapList,
+                  sizeType: ButtonSizeType.normal,
+                  text: '패키지 담기'),
+            ),
+            SizedBox(height: 32)
           ],
         ),
       ),
