@@ -62,45 +62,15 @@ final userProvider = FutureProvider((ref) async {
   return await fetchUserUsecase.execute();
 });
 
-// 스케줄 관련 액션을 위한 provider
-final scheduleActionsProvider = Provider((ref) => ScheduleActions());
-
-class ScheduleActions {
-  Future<void> addSchedule(Schedule schedule) async {
-    final userId = FirebaseAuth.instance.currentUser?.uid;
-    if (userId == null) return;
-
-    await FirebaseFirestore.instance
-        .collection('users')
-        .doc(userId)
-        .collection('schedules')
-        .add(schedule.toJson());
-  }
-
-  Future<void> deleteSchedule(String scheduleId) async {
-    final userId = FirebaseAuth.instance.currentUser?.uid;
-    if (userId == null) return;
-
-    await FirebaseFirestore.instance
-        .collection('users')
-        .doc(userId)
-        .collection('schedules')
-        .doc(scheduleId)
-        .delete();
-  }
-}
-
-// 스케줄 스트림을 위한 provider
-final schedulesStreamProvider = StreamProvider<List<Schedule>>((ref) {
-  final userId = FirebaseAuth.instance.currentUser?.uid;
-  if (userId == null) return Stream.value([]);
+final userStreamProvider = StreamProvider.autoDispose((ref) {
+  final uid = FirebaseAuth.instance.currentUser?.uid;
+  if (uid == null) return Stream.value(null);
 
   return FirebaseFirestore.instance
       .collection('users')
-      .doc(userId)
-      .collection('schedules')
+      .doc(uid)
       .snapshots()
-      .map((snapshot) => snapshot.docs
-          .map((doc) => Schedule.fromJson({...doc.data(), 'id': doc.id}))
-          .toList());
+      .map((snapshot) {
+    return snapshot.data();
+  });
 });

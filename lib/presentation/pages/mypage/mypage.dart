@@ -11,22 +11,25 @@ import 'package:wetravel/presentation/provider/user_provider.dart';
 class MyPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final userAsync = ref.watch(userStreamProvider);
+    
     return Scaffold(
-      // appBar: AppBar(
-      //   title: const Align(
-      //     alignment: Alignment.centerLeft,
-      //     child: Text(
-      //       '마이페이지',
-      //       style: TextStyle(
-      //         color: Colors.black,
-      //         fontSize: 20,
-      //         fontWeight: FontWeight.bold,
-      //       ),
-      //     ),
-      //   ),
-      //   backgroundColor: Colors.transparent,
-      //   elevation: 0,
-      // ),
+       appBar: AppBar(
+         title: const Align(
+           alignment: Alignment.centerLeft,
+           child: Text(
+             '마이페이지',
+             style: TextStyle(
+               color: Colors.black,
+               fontSize: 20,
+               fontWeight: FontWeight.bold,
+             ),
+           ),
+         ),
+         backgroundColor: Colors.transparent,
+         elevation: 0,
+         automaticallyImplyLeading: false,
+       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: 16,
@@ -51,10 +54,18 @@ class MyPage extends ConsumerWidget {
   }
 
   Widget _buildProfileBox(BuildContext context, WidgetRef ref) {
-    final userAsync = ref.watch(userProvider); // userProvider를 사용하여 사용자 정보 가져오기
+    final userAsync = ref.watch(userStreamProvider); // Firestore 실시간 데이터 사용
 
     return userAsync.when(
-      data: (user) {
+    data: (userData) {
+      if (userData == null) {
+        return Text('사용자 데이터를 불러올 수 없습니다.');
+      }
+
+      final name = userData['name'] ?? '이름 없음';
+      final email = userData['email'] ?? '이메일 없음';
+      final imageUrl = userData['imageUrl']; // Firestore에서 가져온 프로필 이미지 URL
+
         return Container(
           height: 89,
           padding: const EdgeInsets.symmetric(vertical: 16.5, horizontal: 16),
@@ -67,10 +78,10 @@ class MyPage extends ConsumerWidget {
             children: [
               CircleAvatar(
                 radius: 28,
-                backgroundImage: user.imageUrl != null
-                    ? NetworkImage(user.imageUrl!)
+                backgroundImage: imageUrl != null
+                    ? NetworkImage(imageUrl)
                     : const AssetImage('assets/images/sample_profile.jpg')
-                        as ImageProvider, // 기본 이미지 추가
+                        as ImageProvider,
               ),
               SizedBox(width: 16),
               Column(
@@ -78,7 +89,7 @@ class MyPage extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    user.displayName ?? '샘플 닉네임', // 이름 정보 표시, 없으면 '이름 없음' 표시
+                    name,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -86,7 +97,7 @@ class MyPage extends ConsumerWidget {
                   ),
                   SizedBox(height: 4),
                   Text(
-                    user.email ?? '이메일 없음', // 이메일 정보 표시, 없으면 '이메일 없음' 표시
+                    (email.length > 25) ? '${email.substring(0, 20)}...' : email,
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[600],
@@ -112,8 +123,8 @@ class MyPage extends ConsumerWidget {
           ),
         );
       },
-      loading: () => const CircularProgressIndicator(), // 로딩 중 표시
-      error: (err, stack) => Text('Error: $err'), // 에러 발생 시 표시
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (err, stack) => Text('오류 발생: $err'),
     );
   }
 
@@ -269,31 +280,20 @@ class MyPage extends ConsumerWidget {
   }
 
   Future<void> deleteUserAccount(BuildContext context, WidgetRef ref) async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      throw Exception("사용자가 존재하지 않습니다.");
-    }
-
-    // Firestore에서 사용자 데이터 삭제
-    await FirebaseFirestore.instance.collection('users').doc(user.uid).delete();
-
-    // 애플 로그인 사용자의 경우 reauthentication 필요 가능성 있음.
-    final signInMethods =
-        // ignore: deprecated_member_use
-        await FirebaseAuth.instance.fetchSignInMethodsForEmail(user.email!);
-
-    if (signInMethods.contains('apple.com')) {
-      // 애플 로그인 사용자의 경우
-      final appleProvider = OAuthProvider("apple.com");
-      final credential = await user.reauthenticateWithProvider(appleProvider);
-      await credential.user?.delete(); // 재인증 후 삭제
-    } else {
-      // 일반 로그인 사용자는 그냥 삭제
-      await user.delete();
-    }
-
-    // 로그아웃 후 로그인 페이지로 이동
-    await ref.read(signOutUsecaseProvider).signOut();
-    Navigator.pushReplacementNamed(context, '/login');
+  final user = FirebaseAuth.instance.currentUser;
+  if (user == null) {
+    throw Exception("사용자가 존재하지 않습니다.");
   }
+
+  // Firestore에서 사용자 데이터 삭제
+  await FirebaseFirestore.instance.collection('users').doc(user.uid).delete();
+  await user.delete();
+
+  // 로그아웃 수행
+  await ref.read(signOutUsecaseProvider).signOut();
+
+  // 현재 위젯이 활성화된 상태인지 확인 후 네비게이션 실행
+  if (!context.mounted) return;
+  Navigator.pushReplacementNamed(context, '/login');
+}
 }
