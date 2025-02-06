@@ -8,7 +8,6 @@ import 'package:wetravel/domain/entity/schedule.dart';
 import 'package:wetravel/domain/repository/user_repository.dart';
 import 'package:wetravel/domain/usecase/fetch_user_usecase.dart';
 import 'package:wetravel/domain/usecase/sign_in_with_provider_usecase.dart';
-import 'package:wetravel/domain/usecase/sign_out_usecase.dart';
 
 final _firebaseFirestoreProvider = Provider<FirebaseFirestore>((ref) {
   return FirebaseFirestore.instance;

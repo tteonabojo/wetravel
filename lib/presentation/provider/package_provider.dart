@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/core/di/injection_container.dart';
 import 'package:wetravel/data/data_source/data_source_implement/package_data_source_impl.dart';
@@ -76,3 +77,49 @@ final fetchPopularPackagesProvider = Provider(
 /// 최근에 본 패키지 목록
 final watchRecentPackagesProvider = Provider(
     (ref) => WatchRecentPackagesUsecase(ref.watch(packageRepositoryProvider)));
+
+/// 스크랩한 패키지 목록
+final scrapPackagesProvider = StreamProvider<List<Map<String, dynamic>>>((ref) {
+  final firestore = FirebaseFirestore.instance;
+  final auth = FirebaseAuth.instance;
+
+  final userId = auth.currentUser?.uid;
+  if (userId == null) {
+    // Return an empty stream if the user is not logged in.
+    return Stream.empty();
+  }
+
+  final userDocRef = firestore.collection('users').doc(userId);
+
+  return userDocRef.snapshots().asyncMap((userSnapshot) async {
+    if (!userSnapshot.exists) {
+      return [];
+    }
+
+    final scrapIdList =
+        List<String>.from(userSnapshot.data()?['scrapIdList'] ?? []);
+
+    if (scrapIdList.isEmpty) {
+      return [];
+    }
+
+    final List<Map<String, dynamic>> allPackages = [];
+
+    for (var i = 0; i < scrapIdList.length; i += 10) {
+      final batchIds = scrapIdList.sublist(
+          i, i + 10 > scrapIdList.length ? scrapIdList.length : i + 10);
+
+      final packageDocs = await firestore
+          .collection('packages')
+          .where(FieldPath.documentId, whereIn: batchIds)
+          .get();
+
+      allPackages.addAll(packageDocs.docs.map((doc) => {
+            'id': doc.id,
+            ...doc.data(),
+          }));
+    }
+
+    return allPackages;
+  });
+});

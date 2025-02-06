@@ -42,10 +42,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     }
   }
 
-  // TODO: 링크 변경 필요
   /// 약관 url
   void _launchURL() async {
-    const url = 'https://www.youtube.com/watch?v=oLYAfaSzLC8';
+    const url =
+        'https://weetravel.notion.site/188e73dd935881a8af01f4f12db0d7c9';
     final Uri uri = Uri.parse(url);
 
     if (await canLaunchUrl(uri)) {

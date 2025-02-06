@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:wetravel/core/constants/app_icons.dart';
 import 'package:wetravel/core/constants/app_shadow.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/core/constants/app_shadow.dart';
@@ -14,22 +16,22 @@ class MyPage extends ConsumerWidget {
     final userAsync = ref.watch(userStreamProvider);
 
     return Scaffold(
-      //  appBar: AppBar(
-      //    title: const Align(
-      //      alignment: Alignment.centerLeft,
-      //      child: Text(
-      //        '마이페이지',
-      //        style: TextStyle(
-      //          color: Colors.black,
-      //          fontSize: 20,
-      //          fontWeight: FontWeight.bold,
-      //        ),
-      //      ),
-      //    ),
-      //    backgroundColor: Colors.transparent,
-      //    elevation: 0,
-      //    automaticallyImplyLeading: false,
-      //  ),
+      appBar: AppBar(
+        title: const Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            '마이페이지',
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        automaticallyImplyLeading: false,
+      ),
       body: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: 16,
@@ -65,7 +67,7 @@ class MyPage extends ConsumerWidget {
         final name = userData['name'] ?? '이름 없음';
         final email = userData['email'] ?? '이메일 없음';
         final imageUrl = userData['imageUrl']; // Firestore에서 가져온 프로필 이미지 URL
-
+        final validUrl = '$imageUrl'.startsWith('http');
         return Container(
           height: 89,
           padding: const EdgeInsets.symmetric(vertical: 16.5, horizontal: 16),
@@ -77,12 +79,10 @@ class MyPage extends ConsumerWidget {
           child: Row(
             children: [
               CircleAvatar(
-                radius: 28,
-                backgroundImage: imageUrl != null
-                    ? NetworkImage(imageUrl)
-                    : const AssetImage('assets/images/sample_profile.jpg')
-                        as ImageProvider,
-              ),
+                  radius: 28,
+                  backgroundImage: validUrl ? NetworkImage(imageUrl) : null,
+                  child:
+                      validUrl ? null : SvgPicture.asset(AppIcons.userRound)),
               SizedBox(width: 16),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -116,7 +116,7 @@ class MyPage extends ConsumerWidget {
                   );
                 },
                 icon: SvgPicture.asset(
-                  'assets/icons/pen.svg',
+                  AppIcons.pen,
                   width: 24,
                   height: 24,
                 ),
@@ -256,21 +256,19 @@ class MyPage extends ConsumerWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('회원탈퇴'),
-          content: Text('정말로 회원 탈퇴를 진행하시겠습니까? 이 작업은 되돌릴 수 없습니다.'),
+          title: const Text('회원탈퇴'),
+          content: const Text('정말로 회원 탈퇴를 진행하시겠습니까? 이 작업은 되돌릴 수 없습니다.'),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // 다이얼로그 닫기
-              },
-              child: Text('취소'),
+              onPressed: () => Navigator.of(context).pop(), // 다이얼로그 닫기
+              child: const Text('취소'),
             ),
             TextButton(
               onPressed: () async {
                 Navigator.of(context).pop(); // 다이얼로그 닫기
                 await deleteUserAccount(context, ref);
               },
-              child: Text(
+              child: const Text(
                 '탈퇴',
                 style: TextStyle(color: Colors.red),
               ),
@@ -284,18 +282,43 @@ class MyPage extends ConsumerWidget {
   Future<void> deleteUserAccount(BuildContext context, WidgetRef ref) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
-      throw Exception("사용자가 존재하지 않습니다.");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("로그인이 필요합니다.")),
+      );
+      return;
     }
+    final userDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .get();
+
+    // Firestore에서 프로필 이미지 URL 가져오기
+    final profileImageUrl = userDoc.data()?['profileImageUrl'] as String? ?? '';
 
     // Firestore에서 사용자 데이터 삭제
     await FirebaseFirestore.instance.collection('users').doc(user.uid).delete();
+    print(" Firestore 사용자 데이터 삭제 완료");
+
+    // Firebase Storage에서 프로필 이미지 삭제
+    if (profileImageUrl.isNotEmpty) {
+      try {
+        final ref = FirebaseStorage.instance.refFromURL(profileImageUrl);
+        await ref.delete();
+        print("프로필 이미지 삭제 완료");
+      } catch (e) {
+        print("프로필 이미지 삭제 실패: $e");
+      }
+    }
+
+    // Firebase Authentication에서 사용자 계정 삭제
     await user.delete();
+    print("사용자 계정 삭제 완료");
 
     // 로그아웃 수행
     await ref.read(signOutUsecaseProvider).signOut();
 
-    // 현재 위젯이 활성화된 상태인지 확인 후 네비게이션 실행
-    if (!context.mounted) return;
-    Navigator.pushReplacementNamed(context, '/login');
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("회원 탈퇴 중 오류가 발생했습니다.")),
+    );
   }
 }

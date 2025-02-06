@@ -20,14 +20,16 @@ class _MainPageState extends ConsumerState<MainPage> {
 
     return SafeArea(
       child: Scaffold(
-        body: Column(
-          children: [
-            MainBanner(),
-            SizedBox(height: 20),
-            MainRecentlyPackages(recentPackages: vm.recentPackages),
-            SizedBox(height: 20),
-            MainPopularPackages(popularPackages: vm.popularPackages),
-          ],
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              MainBanner(),
+              SizedBox(height: 20),
+              MainRecentlyPackages(recentPackages: vm.recentPackages),
+              SizedBox(height: 20),
+              MainPopularPackages(popularPackages: vm.popularPackages),
+            ],
+          ),
         ),
       ),
     );

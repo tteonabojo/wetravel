@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:wetravel/core/constants/app_border_radius.dart';
+import 'package:wetravel/core/constants/app_shadow.dart';
+import 'package:wetravel/presentation/pages/new_trip/scrap_package_page.dart';
 import 'package:wetravel/presentation/widgets/buttons/standard_button.dart';
 
 class NewTripPage extends StatelessWidget {

@@ -22,7 +22,7 @@ class MainPageState {
   }
 }
 
-class MainPageViewModel extends Notifier<MainPageState> {
+class MainPageViewModel extends AutoDisposeNotifier<MainPageState> {
   @override
   MainPageState build() {
     fetchPopularPackages();
@@ -67,6 +67,6 @@ class MainPageViewModel extends Notifier<MainPageState> {
 }
 
 final mainPageViewModel =
-    NotifierProvider<MainPageViewModel, MainPageState>(() {
+    NotifierProvider.autoDispose<MainPageViewModel, MainPageState>(() {
   return MainPageViewModel();
 });

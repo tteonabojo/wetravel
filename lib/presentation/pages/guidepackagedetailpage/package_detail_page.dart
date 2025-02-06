@@ -1,16 +1,17 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
+import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/domain/entity/package.dart';
 import 'package:wetravel/domain/entity/schedule.dart';
 import 'package:wetravel/domain/usecase/get_package_usecase.dart';
 import 'package:wetravel/domain/usecase/get_schedules_usecase.dart';
-import 'package:wetravel/presentation/pages/guide/package_edit_page/package_edit_page.dart';
 import 'package:wetravel/presentation/pages/guidepackagedetailpage/widgets/detail_schedule_list.dart';
 import 'package:wetravel/presentation/pages/guidepackagedetailpage/widgets/package_detail_header.dart';
 import 'package:wetravel/presentation/pages/guidepackagedetailpage/widgets/package_detail_image.dart';
 import 'package:wetravel/presentation/pages/guidepackagedetailpage/widgets/detail_day_chip_button.dart';
-import 'package:wetravel/presentation/provider/user_provider.dart';
 import 'package:wetravel/presentation/widgets/buttons/standard_button.dart';
 
 class PackageDetailPage extends ConsumerStatefulWidget {
@@ -66,6 +67,9 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
         tempScheduleMap.putIfAbsent(schedule.day, () => []).add(schedule);
       }
 
+      await _incrementViewCount(fetchedPackage.id);
+      await _updateRecentPackages(fetchedPackage.id);
+
       setState(() {
         package = fetchedPackage;
         scheduleMap = tempScheduleMap;
@@ -76,12 +80,96 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
     }
   }
 
+  Future<void> _updateRecentPackages(String packageId) async {
+    try {
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) {
+        print('사용자가 로그인되어 있지 않습니다.');
+        return;
+      }
+
+      final userRef =
+          FirebaseFirestore.instance.collection('users').doc(currentUser.uid);
+
+      final userSnapshot = await userRef.get();
+      if (userSnapshot.exists) {
+        final data = userSnapshot.data();
+        List<String> recentPackages =
+            List<String>.from(data?['recentPackages'] ?? []);
+
+        recentPackages.remove(packageId);
+
+        recentPackages.insert(0, packageId);
+
+        if (recentPackages.length > 3) {
+          recentPackages.removeLast();
+        }
+
+        await userRef.update({'recentPackages': recentPackages});
+        print('최근 본 패키지 리스트 업데이트: $recentPackages');
+      } else {
+        print('사용자 데이터를 찾을 수 없습니다.');
+      }
+    } catch (e) {
+      print('오류 발생: $e');
+    }
+  }
+
+  Future<void> _incrementViewCount(String packageId) async {
+    try {
+      final packageRef =
+          FirebaseFirestore.instance.collection('packages').doc(packageId);
+
+      final packageSnapshot = await packageRef.get();
+      if (packageSnapshot.exists) {
+        final currentViewCount = packageSnapshot.data()?['viewCount'] ?? 0;
+        await packageRef.update({'viewCount': currentViewCount + 1});
+        print('viewCount가 증가했습니다: ${currentViewCount + 1}');
+      } else {
+        print('패키지 문서를 찾을 수 없습니다.');
+      }
+    } catch (e) {
+      print('viewCount 업데이트 실패: $e');
+    }
+  }
+
+  Future<void> _addToScrapList() async {
+    try {
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) {
+        print('사용자가 로그인되어 있지 않습니다.');
+        return;
+      }
+
+      final userRef =
+          FirebaseFirestore.instance.collection('users').doc(currentUser.uid);
+      final userSnapshot = await userRef.get();
+      if (userSnapshot.exists) {
+        final data = userSnapshot.data();
+        List<String> scrapIdList =
+            List<String>.from(data?['scrapIdList'] ?? []);
+
+        if (scrapIdList.contains(package?.id)) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('이 패키지는 이미 담았습니다.')),
+          );
+        } else {
+          scrapIdList.add(package?.id ?? '');
+          await userRef.update({'scrapIdList': scrapIdList});
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('패키지가 담겼습니다.')),
+          );
+        }
+      } else {
+        print('사용자 데이터를 찾을 수 없습니다.');
+      }
+    } catch (e) {
+      print('오류 발생: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final isGuideAsyncValue = ref.watch(isGuideProvider); // AsyncValue로 가져오기
-    final isGuide = ref.watch(isGuideProvider);
-    print('가이드가 맞나요? : $isGuide');
-
     if (package == null) {
       return const Scaffold(
         backgroundColor: Colors.white,
@@ -130,20 +218,18 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
                     Builder(
                       builder: (context) {
                         try {
-                          // Null 체크를 위한 디버깅 출력
                           print('디버깅: 스케줄 데이터 - ${schedule.toString()}');
 
                           final scheduleData = {
-                            'id': schedule.id ?? 'ID 없음', // ID가 null일 수도 있음
+                            'id': schedule.id ?? 'ID 없음',
                             'time': schedule.time?.toString() ?? '시간 정보 없음',
                             'title': schedule.title ?? '제목 없음',
                             'location': schedule.location ?? '위치 정보 없음',
                             'content': schedule.content ?? '내용 없음',
-                            'imageUrl': schedule.imageUrl ?? '', // 안전 처리
-                            'day': schedule.day?.toString() ?? '0', // day도 체크
+                            'imageUrl': schedule.imageUrl ?? '',
+                            'day': schedule.day?.toString() ?? '0',
                           };
 
-                          // null 값이 있는지 확인
                           scheduleData.forEach((key, value) {
                             if (value == null) {
                               print('경고: $key 필드가 null입니다.');
@@ -186,36 +272,17 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
                       },
                     ),
                   const SizedBox(height: 40),
-                  isGuideAsyncValue.when(
-                    data: (isGuide) {
-                      if (isGuide) {
-                        return StandardButton.primary(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => PackageEditPage(
-                                  packageId: package!.id,
-                                ),
-                              ),
-                            );
-                          },
-                          sizeType: ButtonSizeType.normal,
-                          text: '수정하기',
-                        );
-                      }
-                      return const SizedBox(); // 가이드가 아니면 아무것도 표시하지 않음
-                    },
-                    loading: () => const Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                    error: (error, stackTrace) => Center(
-                      child: Text('오류 발생: $error'),
-                    ),
-                  )
                 ],
               ),
             ),
+            Padding(
+              padding: AppSpacing.medium16,
+              child: StandardButton.primary(
+                  onPressed: _addToScrapList,
+                  sizeType: ButtonSizeType.normal,
+                  text: '패키지 담기'),
+            ),
+            SizedBox(height: 32)
           ],
         ),
       ),
