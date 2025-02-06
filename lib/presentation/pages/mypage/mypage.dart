@@ -14,24 +14,24 @@ class MyPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userAsync = ref.watch(userStreamProvider);
-    
+
     return Scaffold(
-       appBar: AppBar(
-         title: const Align(
-           alignment: Alignment.centerLeft,
-           child: Text(
-             '마이페이지',
-             style: TextStyle(
-               color: Colors.black,
-               fontSize: 20,
-               fontWeight: FontWeight.bold,
-             ),
-           ),
-         ),
-         backgroundColor: Colors.transparent,
-         elevation: 0,
-         automaticallyImplyLeading: false,
-       ),
+      appBar: AppBar(
+        title: const Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            '마이페이지',
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        automaticallyImplyLeading: false,
+      ),
       body: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: 16,
@@ -59,15 +59,15 @@ class MyPage extends ConsumerWidget {
     final userAsync = ref.watch(userStreamProvider); // Firestore 실시간 데이터 사용
 
     return userAsync.when(
-    data: (userData) {
-      if (userData == null) {
-        return Text('사용자 데이터를 불러올 수 없습니다.');
-      }
+      data: (userData) {
+        if (userData == null) {
+          return Text('사용자 데이터를 불러올 수 없습니다.');
+        }
 
-      final name = userData['name'] ?? '이름 없음';
-      final email = userData['email'] ?? '이메일 없음';
-      final imageUrl = userData['imageUrl']; // Firestore에서 가져온 프로필 이미지 URL
-
+        final name = userData['name'] ?? '이름 없음';
+        final email = userData['email'] ?? '이메일 없음';
+        final imageUrl = userData['imageUrl']; // Firestore에서 가져온 프로필 이미지 URL
+        final validUrl = '$imageUrl'.startsWith('http');
         return Container(
           height: 89,
           padding: const EdgeInsets.symmetric(vertical: 16.5, horizontal: 16),
@@ -79,10 +79,10 @@ class MyPage extends ConsumerWidget {
           child: Row(
             children: [
               CircleAvatar(
-                radius: 28,
-                backgroundImage: NetworkImage(imageUrl),
-                child: Image.asset('assets/images/user_round.png')
-              ),
+                  radius: 28,
+                  backgroundImage: validUrl ? NetworkImage(imageUrl) : null,
+                  child:
+                      validUrl ? null : SvgPicture.asset(AppIcons.userRound)),
               SizedBox(width: 16),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -97,7 +97,9 @@ class MyPage extends ConsumerWidget {
                   ),
                   SizedBox(height: 4),
                   Text(
-                    (email.length > 25) ? '${email.substring(0, 20)}...' : email,
+                    (email.length > 25)
+                        ? '${email.substring(0, 20)}...'
+                        : email,
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[600],
@@ -250,43 +252,46 @@ class MyPage extends ConsumerWidget {
   }
 
   void _showDeleteAccountDialog(BuildContext context, WidgetRef ref) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('회원탈퇴'),
-        content: const Text('정말로 회원 탈퇴를 진행하시겠습니까? 이 작업은 되돌릴 수 없습니다.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(), // 다이얼로그 닫기
-            child: const Text('취소'),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.of(context).pop(); // 다이얼로그 닫기
-              await deleteUserAccount(context, ref);
-            },
-            child: const Text(
-              '탈퇴',
-              style: TextStyle(color: Colors.red),
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('회원탈퇴'),
+          content: const Text('정말로 회원 탈퇴를 진행하시겠습니까? 이 작업은 되돌릴 수 없습니다.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(), // 다이얼로그 닫기
+              child: const Text('취소'),
             ),
-          ),
-        ],
-      );
-    },
-  );
-}
-
-Future<void> deleteUserAccount(BuildContext context, WidgetRef ref) async {
-  final user = FirebaseAuth.instance.currentUser;
-  if (user == null) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("로그인이 필요합니다.")),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop(); // 다이얼로그 닫기
+                await deleteUserAccount(context, ref);
+              },
+              child: const Text(
+                '탈퇴',
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+          ],
+        );
+      },
     );
-    return;
   }
-    final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
-    
+
+  Future<void> deleteUserAccount(BuildContext context, WidgetRef ref) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("로그인이 필요합니다.")),
+      );
+      return;
+    }
+    final userDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .get();
+
     // Firestore에서 프로필 이미지 URL 가져오기
     final profileImageUrl = userDoc.data()?['profileImageUrl'] as String? ?? '';
 
@@ -312,8 +317,8 @@ Future<void> deleteUserAccount(BuildContext context, WidgetRef ref) async {
     // 로그아웃 수행
     await ref.read(signOutUsecaseProvider).signOut();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("회원 탈퇴 중 오류가 발생했습니다.")),
-      );
-    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("회원 탈퇴 중 오류가 발생했습니다.")),
+    );
   }
+}
