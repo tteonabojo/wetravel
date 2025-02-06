@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wetravel/core/constants/app_icons.dart';
@@ -78,7 +79,7 @@ class MyPage extends ConsumerWidget {
           child: Row(
             children: [
               CircleAvatar(
-                child: Image.asset('assets/images/user_round.png'),
+                // child: Image.asset('assets/images/user_round.png'),
                 radius: 28,
                 backgroundImage: NetworkImage(imageUrl)
               ),
@@ -249,50 +250,70 @@ class MyPage extends ConsumerWidget {
   }
 
   void _showDeleteAccountDialog(BuildContext context, WidgetRef ref) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('회원탈퇴'),
-          content: Text('정말로 회원 탈퇴를 진행하시겠습니까? 이 작업은 되돌릴 수 없습니다.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // 다이얼로그 닫기
-              },
-              child: Text('취소'),
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('회원탈퇴'),
+        content: const Text('정말로 회원 탈퇴를 진행하시겠습니까? 이 작업은 되돌릴 수 없습니다.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(), // 다이얼로그 닫기
+            child: const Text('취소'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.of(context).pop(); // 다이얼로그 닫기
+              await deleteUserAccount(context, ref);
+            },
+            child: const Text(
+              '탈퇴',
+              style: TextStyle(color: Colors.red),
             ),
-            TextButton(
-              onPressed: () async {
-                Navigator.of(context).pop(); // 다이얼로그 닫기
-                await deleteUserAccount(context, ref);
-              },
-              child: Text(
-                '탈퇴',
-                style: TextStyle(color: Colors.red),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
+          ),
+        ],
+      );
+    },
+  );
+}
 
-  Future<void> deleteUserAccount(BuildContext context, WidgetRef ref) async {
+Future<void> deleteUserAccount(BuildContext context, WidgetRef ref) async {
   final user = FirebaseAuth.instance.currentUser;
   if (user == null) {
-    throw Exception("사용자가 존재하지 않습니다.");
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("로그인이 필요합니다.")),
+    );
+    return;
   }
+    final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+    
+    // Firestore에서 프로필 이미지 URL 가져오기
+    final profileImageUrl = userDoc.data()?['profileImageUrl'] as String? ?? '';
 
-  // Firestore에서 사용자 데이터 삭제
-  await FirebaseFirestore.instance.collection('users').doc(user.uid).delete();
-  await user.delete();
+    // Firestore에서 사용자 데이터 삭제
+    await FirebaseFirestore.instance.collection('users').doc(user.uid).delete();
+    print(" Firestore 사용자 데이터 삭제 완료");
 
-  // 로그아웃 수행
-  await ref.read(signOutUsecaseProvider).signOut();
+    // Firebase Storage에서 프로필 이미지 삭제
+    if (profileImageUrl.isNotEmpty) {
+      try {
+        final ref = FirebaseStorage.instance.refFromURL(profileImageUrl);
+        await ref.delete();
+        print("프로필 이미지 삭제 완료");
+      } catch (e) {
+        print("프로필 이미지 삭제 실패: $e");
+      }
+    }
 
-  // 현재 위젯이 활성화된 상태인지 확인 후 네비게이션 실행
-  if (!context.mounted) return;
-  Navigator.pushReplacementNamed(context, '/login');
-}
-}
+    // Firebase Authentication에서 사용자 계정 삭제
+    await user.delete();
+    print("사용자 계정 삭제 완료");
+
+    // 로그아웃 수행
+    await ref.read(signOutUsecaseProvider).signOut();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("회원 탈퇴 중 오류가 발생했습니다.")),
+      );
+    }
+  }
