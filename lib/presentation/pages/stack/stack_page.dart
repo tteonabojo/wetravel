@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wetravel/presentation/pages/guide/guide_page.dart';
 import 'package:wetravel/presentation/pages/main/main_page.dart';
 import 'package:wetravel/presentation/pages/main/widgets/main_header.dart';
 import 'package:wetravel/presentation/pages/mypage/mypage.dart';
 import 'package:wetravel/presentation/pages/new_trip/new_trip_page.dart';
+import 'package:wetravel/presentation/pages/saved_plans/saved_plans_page.dart';
 import 'package:wetravel/presentation/pages/stack/widgets/custom_bottom_navigation_bar.dart';
 import 'package:wetravel/presentation/provider/user_provider.dart';
 
@@ -46,11 +46,11 @@ class _StackPageState extends ConsumerState<StackPage> {
       },
       child: Scaffold(
         appBar: PreferredSize(
-          preferredSize: Size.fromHeight(56),
+          preferredSize: const Size.fromHeight(56),
           child: Column(
             children: [
               SizedBox(height: statusBarHeight),
-              MainHeader(),
+              const MainHeader(),
             ],
           ),
         ),
@@ -58,8 +58,8 @@ class _StackPageState extends ConsumerState<StackPage> {
           data: (isGuide) {
             final List<Widget> pages = [
               MainPage(),
-              NewTripPage(),
-              GuidePage(isGuide: isGuide),
+              const NewTripPage(),
+              const SavedPlansPage(),
               MyPage(),
             ];
 

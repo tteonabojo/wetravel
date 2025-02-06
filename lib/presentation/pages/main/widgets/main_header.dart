@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
-import 'package:wetravel/core/constants/app_icons.dart';
 
 class MainHeader extends StatelessWidget {
   /// 메인 페이지 로고 영역
@@ -17,10 +15,10 @@ class MainHeader extends StatelessWidget {
       child: Row(
         children: [
           Padding(
-            padding: const EdgeInsets.only(left: 16),
-            child: SvgPicture.asset(AppIcons.logoBgNone40),
+            padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
+            child: Icon(Icons.airplanemode_active),
           ),
-          SvgPicture.asset(AppIcons.logoLetter, height: 18),
+          Text('LOGO'),
         ],
       ),
     );

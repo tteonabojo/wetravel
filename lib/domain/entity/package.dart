@@ -23,8 +23,8 @@ class Package {
   Package({
     required this.id,
     required this.userId,
-    required this.userName,
-    required this.userImageUrl,
+    this.userName,
+    this.userImageUrl,
     required this.title,
     required this.location,
     this.description,
@@ -50,8 +50,8 @@ class Package {
         "description": description,
         "duration": duration,
         "imageUrl": imageUrl,
-        "keywordList": keywordList?.map((x) => x).toList() ?? [],
-        "scheduleIdList": scheduleIdList?.map((x) => x).toList() ?? [],
+        "keywordList": List<dynamic>.from(keywordList!.map((x) => x)),
+        "scheduleIdList": List<dynamic>.from(scheduleIdList!.map((x) => x)),
         "createdAt": createdAt,
         "updatedAt": updatedAt,
         "deletedAt": deletedAt,
@@ -60,34 +60,12 @@ class Package {
         "viewCount": viewCount,
       };
 
-  factory Package.fromDto(PackageDto dto) {
-    return Package(
-      id: dto.id,
-      userId: dto.userId,
-      userName: dto.userName,
-      userImageUrl: dto.userImageUrl,
-      title: dto.title,
-      location: dto.location,
-      description: dto.description,
-      duration: dto.duration,
-      imageUrl: dto.imageUrl,
-      keywordList: dto.keywordList,
-      scheduleIdList: dto.scheduleIdList,
-      createdAt: dto.createdAt,
-      updatedAt: dto.updatedAt,
-      deletedAt: dto.deletedAt,
-      reportCount: dto.reportCount,
-      isHidden: dto.isHidden,
-      viewCount: dto.viewCount,
-    );
-  }
-
   PackageDto toDto() {
     return PackageDto(
       id: id,
       userId: userId,
-      userName: userName ?? '',
-      userImageUrl: userImageUrl ?? '',
+      userName: userName,
+      userImageUrl: userImageUrl,
       title: title,
       location: location,
       description: description,

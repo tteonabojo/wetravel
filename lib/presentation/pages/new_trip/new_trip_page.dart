@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:wetravel/core/constants/app_border_radius.dart';
-import 'package:wetravel/core/constants/app_shadow.dart';
 import 'package:wetravel/presentation/pages/saved_plans/saved_plans_page.dart';
 
 class NewTripPage extends StatelessWidget {
@@ -16,27 +14,27 @@ class NewTripPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // 상단 로고
-              // Row(
-              //   children: [
-              //     const Text(
-              //       '위트',
-              //       style: TextStyle(
-              //         fontSize: 24,
-              //         fontWeight: FontWeight.bold,
-              //         color: Colors.blue,
-              //       ),
-              //     ),
-              //   ],
-              // ),
+              Row(
+                children: [
+                  const Text(
+                    '위트',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue,
+                    ),
+                  ),
+                ],
+              ),
               // 메인 카드
+              const SizedBox(height: 12),
               Expanded(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        boxShadow: AppShadow.generalShadow,
+                    Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Padding(
@@ -107,11 +105,6 @@ class NewTripPage extends StatelessWidget {
                         },
                         borderRadius: BorderRadius.circular(12),
                         child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            boxShadow: AppShadow.generalShadow,
-                            borderRadius: AppBorderRadius.small12,
-                          ),
                           width: double.infinity,
                           padding: const EdgeInsets.all(16),
                           child: Row(
@@ -140,30 +133,6 @@ class NewTripPage extends StatelessWidget {
           ),
         ),
       ),
-      // bottomNavigationBar: Container(
-      //   padding: const EdgeInsets.only(
-      //     left: 16,
-      //     right: 16,
-      //     bottom: 16,
-      //   ),
-      //   child: Row(
-      //     mainAxisAlignment: MainAxisAlignment.spaceAround,
-      //     children: [
-      //       _buildNavItem(Icons.home_outlined, false),
-      //       _buildNavItem(Icons.add_box_outlined, true),
-      //       _buildNavItem(Icons.crop_square_outlined, false),
-      //       _buildNavItem(Icons.person_outline, false),
-      //     ],
-      //   ),
-      // ),
     );
   }
-
-  // Widget _buildNavItem(IconData icon, bool isSelected) {
-  //   return Icon(
-  //     icon,
-  //     color: isSelected ? Colors.blue : Colors.grey,
-  //     size: 28,
-  //   );
-  // }
 }

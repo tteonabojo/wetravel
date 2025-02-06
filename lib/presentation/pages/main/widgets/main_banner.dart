@@ -24,35 +24,32 @@ class _MainBannerState extends State<MainBanner> {
     ];
 
     return SizedBox(
-      height: 240,
+      height: 280,
       width: double.infinity,
       child: Column(
         children: [
           CarouselSlider.builder(
             itemCount: imageUrls.length,
             itemBuilder: (context, index, realIndex) {
-              return Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: Image.asset(
-                    width: 320,
-                    height: double.infinity,
-                    imageUrls[index],
-                    fit: BoxFit.cover,
-                    errorBuilder: (BuildContext context, Object error,
-                        StackTrace? stackTrace) {
-                      return SizedBox(
-                        height: 240,
-                        width: 320,
-                      );
-                    },
-                  ),
+              return ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Image.asset(
+                  width: 320,
+                  height: double.infinity,
+                  imageUrls[index],
+                  fit: BoxFit.cover,
+                  errorBuilder: (BuildContext context, Object error,
+                      StackTrace? stackTrace) {
+                    return SizedBox(
+                      height: 240,
+                      width: 320,
+                    );
+                  },
                 ),
               );
             },
             options: CarouselOptions(
-                height: 200,
+                height: 240,
                 autoPlay: true,
                 viewportFraction: 0.8,
                 autoPlayCurve: Curves.easeInOut,

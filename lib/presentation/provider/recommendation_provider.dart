@@ -39,37 +39,16 @@ class RecommendationState {
       selectedCities: [],
     );
   }
-
-  RecommendationState copyWith({
-    int? currentPage,
-    String? travelPeriod,
-    String? travelDuration,
-    List<String>? companions,
-    List<String>? travelStyles,
-    List<String>? accommodationTypes,
-    List<String>? considerations,
-    List<String>? selectedCities,
-  }) {
-    return RecommendationState(
-      currentPage: currentPage ?? this.currentPage,
-      travelPeriod: travelPeriod ?? this.travelPeriod,
-      travelDuration: travelDuration ?? this.travelDuration,
-      companions: companions ?? this.companions,
-      travelStyles: travelStyles ?? this.travelStyles,
-      accommodationTypes: accommodationTypes ?? this.accommodationTypes,
-      considerations: considerations ?? this.considerations,
-      selectedCities: selectedCities ?? this.selectedCities,
-    );
-  }
 }
 
 class RecommendationNotifier extends StateNotifier<RecommendationState> {
   RecommendationNotifier() : super(RecommendationState());
 
+  // 상태 초기화 메서드 추가
   void resetState({String? selectedCity}) {
     state = RecommendationState(
       currentPage: 0,
-      selectedCities: selectedCity != null ? [selectedCity] : [],
+      selectedCities: selectedCity != null ? [selectedCity] : [], // 선택된 도시 유지
       travelPeriod: null,
       travelDuration: null,
       companions: [],
@@ -348,10 +327,6 @@ class RecommendationNotifier extends StateNotifier<RecommendationState> {
     }
 
     return {'tags': cityTags.take(2).toList()}; // 최대 2개의 태그만 반환
-  }
-
-  void selectSingleCity(String city) {
-    state = state.copyWith(selectedCities: [city]);
   }
 }
 

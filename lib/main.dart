@@ -4,7 +4,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/presentation/pages/auth_wrapper/auth_wrapper.dart';
-import 'package:wetravel/presentation/pages/guidepackage/guide_package_page.dart';
 import 'package:wetravel/presentation/pages/login/login_page.dart';
 import 'package:wetravel/presentation/pages/stack/stack_page.dart';
 import 'package:wetravel/presentation/pages/survey/city_selection_page.dart';
@@ -12,7 +11,7 @@ import 'package:wetravel/presentation/pages/survey/survey_page.dart';
 import 'package:wetravel/presentation/pages/recommendation/ai_recommendation_page.dart';
 import 'package:wetravel/presentation/pages/schedule/ai_schedule_page.dart';
 import 'package:wetravel/presentation/pages/plan_selection/plan_selection_page.dart';
-import 'package:wetravel/presentation/pages/mypage/mypage.dart';
+import 'package:wetravel/presentation/pages/saved_plans/saved_plans_page.dart';
 import 'package:wetravel/theme.dart';
 
 void main() async {
@@ -22,6 +21,7 @@ void main() async {
 
   await Firebase.initializeApp(); // firebase 초기화
   await dotenv.load(fileName: "assets/.env"); // .env 파일 로드
+
   FlutterNativeSplash.remove(); // 스플래시 제거
   runApp(const ProviderScope(child: MyApp()));
 }
@@ -45,8 +45,7 @@ class MyApp extends StatelessWidget {
         '/plan-selection': (context) => const PlanSelectionPage(),
         '/ai-recommendation': (context) => const AIRecommendationPage(),
         '/ai-schedule': (context) => const AISchedulePage(),
-        '/manual-planning': (context) => GuidePackagePage(),
-        '/mypage': (context) => MyPage(),
+        '/saved-plans': (context) => const SavedPlansPage(),
       },
       onUnknownRoute: (settings) {
         return MaterialPageRoute(

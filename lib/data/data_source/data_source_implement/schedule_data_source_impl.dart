@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wetravel/data/data_source/schedule_data_source.dart';
-import 'package:wetravel/data/dto/schedule_dto.dart';
 import 'package:wetravel/domain/entity/travel_schedule.dart';
 
 class ScheduleDataSourceImpl implements ScheduleDataSource {
@@ -33,21 +32,6 @@ class ScheduleDataSourceImpl implements ScheduleDataSource {
     } catch (e) {
       throw Exception('Failed to save schedule: $e');
     }
-  }
-
-  @override
-  Future<List<ScheduleDto>> getSchedulesByIds(List<String> scheduleIds) async {
-    final schedules = <ScheduleDto>[];
-
-    for (var scheduleId in scheduleIds) {
-      final scheduleSnapshot =
-          await _firestore.collection('schedules').doc(scheduleId).get();
-      if (scheduleSnapshot.exists) {
-        final data = scheduleSnapshot.data()!;
-        schedules.add(ScheduleDto.fromMap(data));
-      }
-    }
-    return schedules;
   }
 
   @override

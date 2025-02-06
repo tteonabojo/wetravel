@@ -1,22 +1,17 @@
-import 'dart:io';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
-import 'package:wetravel/core/constants/app_typography.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:wetravel/core/constants/app_typography.dart'; // AppColors 임포트 확인
 
 class CustomInputField extends StatefulWidget {
   final String hintText;
   final TextInputType keyboardType;
   final bool obscureText;
   final Function(String)? onChanged;
-  final int maxLength;
-  final String labelText;
-  final int minLines;
-  final int? maxLines;
+  final int maxLength; // 최대 글자 수
+  final String labelText; // 고정 라벨 텍스트 추가
+  final int minLines; // 최소 줄 수
+  final int? maxLines; // 최대 줄 수
 
   const CustomInputField({
     super.key,
@@ -25,9 +20,9 @@ class CustomInputField extends StatefulWidget {
     this.obscureText = false,
     this.onChanged,
     required this.maxLength,
-    required this.labelText,
-    this.minLines = 1,
-    this.maxLines,
+    required this.labelText, // labelText 필수
+    this.minLines = 1, // 기본 최소 줄 수 설정
+    this.maxLines, // 최대 줄 수는 지정하지 않으면 자유롭게 늘어남
   });
 
   @override
@@ -41,7 +36,7 @@ class _InputFieldState extends State<CustomInputField> {
   void initState() {
     super.initState();
     _controller = TextEditingController();
-    _controller.addListener(_updateCurrentLength); // 리스너 등록: 입력 변화 감지
+    _controller.addListener(_updateCurrentLength); // 리스너 추가
   }
 
   @override
@@ -51,16 +46,15 @@ class _InputFieldState extends State<CustomInputField> {
     super.dispose();
   }
 
-  int _currentLength = 0; // 현재 입력 글자 수
+  int _currentLength = 0;
 
   void _updateCurrentLength() {
     setState(() {
-      _currentLength = _controller.text.length; // 현재 글자 수 갱신
+      _currentLength = _controller.text.length;
       if (_currentLength > widget.maxLength) {
-        // 최대 글자 수 초과 시
-        _controller.text =
-            _controller.text.substring(0, widget.maxLength); // 입력 제한
-        _currentLength = widget.maxLength; // 현재 글자 수 최대 값으로 설정
+        // 추가: 최대 글자 수 초과 시 텍스트 자르기
+        _controller.text = _controller.text.substring(0, widget.maxLength);
+        _currentLength = widget.maxLength;
         _controller.selection =
             TextSelection.fromPosition(TextPosition(offset: _currentLength));
       }
@@ -70,7 +64,7 @@ class _InputFieldState extends State<CustomInputField> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start, // 왼쪽 정렬
       children: [
         Text(
           widget.labelText,
@@ -88,8 +82,8 @@ class _InputFieldState extends State<CustomInputField> {
             style: TextStyle(
               color: AppColors.grayScale_750,
             ),
-            maxLines: widget.maxLines,
-            minLines: widget.minLines,
+            maxLines: widget.maxLines, // 입력 줄 수 제한
+            minLines: widget.minLines, // 최소 줄 수 설정
             decoration: InputDecoration(
               hintText: widget.hintText,
               hintStyle: AppTypography.body1.copyWith(
@@ -132,280 +126,138 @@ class _InputFieldState extends State<CustomInputField> {
   }
 }
 
-// 마이페이지 수정 페이지 위젯
 class MyPageCorrection extends StatefulWidget {
-  final Color buttonColor;
+  final Color buttonColor; // 버튼 색상
 
-  const MyPageCorrection({super.key, this.buttonColor = Colors.blue});
+  MyPageCorrection({super.key, this.buttonColor = Colors.blue});
 
   @override
   _MyPageCorrectionState createState() => _MyPageCorrectionState();
 }
 
 class _MyPageCorrectionState extends State<MyPageCorrection> {
-  bool isnameValid = false; // 닉네임 유효성 검사 결과
-  bool isIntroValid = false; // 소개글 유효성 검사 결과
+  bool isNicknameValid = false;
+  bool isEmailValid = false;
+  bool isIntroValid = false;
 
-  String? _userEmail; // 사용자 이메일
-  File? _imageUrl; // 프로필 이미지 파일
-  String _name = ""; // 닉네임
-  String _intro = ""; // 자기소개
-
-  String _originalname = ""; // 초기 닉네임
-  String _originalIntro = ""; // 초기 자기소개 글
-
-  bool get isnameChanged => _name != _originalname; // 닉네임 변경 여부 확인
-  bool get isIntroChanged => _intro != _originalIntro; // 소개글 변경 여부 확인
-
-  @override
-  void initState() {
-    super.initState();
-    _getUserEmail(); // 사용자 이메일 정보 가져오는 거
-  }
-
-  // 사용자 이메일 정보 가져오기
-  Future<void> _getUserEmail() async {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      setState(() {
-        _userEmail = user.email;
-      });
-    }
-  }
-
-  // 닉네임 입력 변화 감지
-  void _onnameChanged(String value) {
+  void _onNicknameChanged(String value) {
     setState(() {
-      _name = value;
-      isnameValid = value.isNotEmpty;
+      isNicknameValid = value.isNotEmpty;
     });
   }
 
-  // 소개글 입력 변화 감지
+  void _onEmailChanged(String value) {
+    setState(() {
+      isEmailValid = value.isNotEmpty && value.contains('@');
+    });
+  }
+
   void _onIntroChanged(String value) {
     setState(() {
-      _intro = value;
       isIntroValid = value.isNotEmpty;
     });
   }
 
-  // 폼 유효성 검사
-  bool get isFormValid => isnameValid && isIntroValid;
-
-  Future<void> _pickImage() async {
-    final ImagePicker picker = ImagePicker();
-    try {
-      final XFile? pickedFile = await picker.pickImage(
-        source: ImageSource.gallery,
-        requestFullMetadata: false, // 메타데이터 요청 방지
-      );
-
-      if (pickedFile != null) {
-        setState(() {
-          _imageUrl = File(pickedFile.path);
-        });
-      }
-    } on PlatformException catch (e) {
-      print("이미지 선택 오류: $e"); // 오류 발생시 콘솔에 출력
-    }
-  }
-
-  Future<void> _saveUserInfo() async {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      String? imageUrl;
-
-      // 프로필 이미지가 변경돠었을 경우 Firebase Storage에 업로드
-      if (_imageUrl != null) {
-        final storageRef = FirebaseStorage.instance.ref();
-        final profileRef = storageRef.child("profile_images/${user.uid}.jpg");
-
-        try {
-          await profileRef.putFile(_imageUrl!);
-          imageUrl = await profileRef.getDownloadURL();
-        } catch (e) {
-          print("이미지 업로드 실패: $e");
-        }
-      }
-      // Firestore 업데이트
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-        'email': _userEmail,
-        'name': _name,
-        'intro': _intro,
-        if (imageUrl != null) 'imageUrl': imageUrl, // 프로필 이미지 변경시 반영
-      }, SetOptions(merge: true));
-
-      // 마이페이지로 이동하면서 최신 데이터 반영
-      Navigator.pushNamed(context, '/mypage');
-    }
-  }
-
-  // 뒤로가기 시 데이터 변경 여부 확인
-  Future<bool> _onWillPop() async {
-    if (isnameChanged || isIntroChanged) {
-      return await showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: const Text("변경 사항이 있습니다."),
-              content: const Text("변경 내용을 저장하지 않고 나가시겠습니까?"),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(false),
-                  child: const Text("취소"),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.of(context)
-                      .pushNamedAndRemoveUntil('/mypage', (route) => false),
-                  child: const Text("나가기"),
-                ),
-              ],
-            ),
-          ) ??
-          false;
-    }
-    return true;
+  bool get isFormValid {
+    return isNicknameValid && isEmailValid && isIntroValid;
   }
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-        onWillPop: _onWillPop,
-        child: Scaffold(
-          appBar: AppBar(
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
-              onPressed: () async {
-                bool shouldPop = await _onWillPop();
-                if (shouldPop && mounted) {
-                  Navigator.pushNamedAndRemoveUntil(
-                      context, '/mypage', (route) => false);
-                }
-              },
-            ),
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-          ),
-          body: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(height: 20),
-                Center(
-                  child: Stack(
-                    children: [
-                      ClipOval(
-                        child: Container(
-                          width: 82,
-                          height: 82,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            image: _imageUrl != null
-                                ? DecorationImage(
-                                    image: FileImage(_imageUrl!),
-                                    fit: BoxFit.cover,
-                                  )
-                                : const DecorationImage(
-                                    image: AssetImage(
-                                        'assets/images/sample_profile.jpg'),
-                                    fit: BoxFit.cover,
-                                  ),
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: InkWell(
-                          onTap: _pickImage,
-                          child: Container(
-                            padding: const EdgeInsets.all(6),
-                            decoration: const BoxDecoration(
-                              color: Colors.grey,
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.camera_alt,
-                              color: Colors.white,
-                              size: 20,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 20),
-                CustomInputField(
-                  hintText: '닉네임을 입력하세요',
-                  maxLength: 15,
-                  labelText: '닉네임',
-                  onChanged: _onnameChanged,
-                ),
-                SizedBox(height: 20),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '이메일 주소',
-                      style: AppTypography.headline6.copyWith(
-                        color: AppColors.grayScale_650,
-                      ),
-                    ),
-                    Padding(padding: EdgeInsets.only(top: 8)),
-                    Container(
-                      width: double.infinity,
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                      decoration: BoxDecoration(
-                        color: AppColors.grayScale_150,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        _userEmail ?? '이메일 정보 없음',
-                        style: AppTypography.body1.copyWith(
-                          color: AppColors.grayScale_550,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 20),
-                CustomInputField(
-                  hintText: '멋진 소개를 부탁드려요!',
-                  maxLength: 100,
-                  labelText: '자기소개',
-                  minLines: 6,
-                  onChanged: _onIntroChanged,
-                ),
-                SizedBox(height: 16),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: isFormValid
-                          ? AppColors.primary_450
-                          : AppColors.primary_250,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    onPressed: isFormValid ? _saveUserInfo : null,
-                    child: Text(
-                      '등록',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios, color: Colors.black),
+          onPressed: () {
+            Navigator.pop(context); // 뒤로가기 버튼 누르면 이전 화면으로 돌아감
+          },
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(height: 20), // 여백 20
+            Center(
+              child: ClipOval(
+                child: Container(
+                  width: 82,
+                  height: 82, // 높이와 너비를 동일하게 설정하여 원형 만들기
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    image: DecorationImage(
+                      image: NetworkImage('https://picsum.photos/82'),
+                      fit: BoxFit.cover,
                     ),
                   ),
                 ),
-              ],
+              ),
             ),
-          ),
-        ));
+            SizedBox(height: 20), // 여백 20
+            CustomInputField(
+              hintText: '닉네임을 입력하세요',
+              keyboardType: TextInputType.text,
+              obscureText: false,
+              maxLength: 15,
+              labelText: '닉네임',
+              onChanged: _onNicknameChanged,
+            ),
+            SizedBox(height: 20), // 여백 20
+            CustomInputField(
+              hintText: '이메일을 입력하세요',
+              keyboardType: TextInputType.emailAddress,
+              obscureText: false,
+              maxLength: 20,
+              labelText: '이메일주소',
+              onChanged: _onEmailChanged,
+            ),
+            SizedBox(height: 20), // 여백 20
+            Container(
+              child: CustomInputField(
+                hintText: '멋진 소개를 부탁드려요!',
+                keyboardType: TextInputType.text,
+                obscureText: false,
+                maxLength: 100,
+                labelText: '자기소개',
+                minLines: 6, // 최소 6줄로 시작, 필요에 따라 늘어남
+                onChanged: _onIntroChanged,
+              ),
+            ),
+            SizedBox(height: 16), // 하단바와 버튼 사이에 여백
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              width: double.infinity, // 가로 너비 꽉 채움
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isFormValid
+                      ? AppColors.primary_450 // 버튼 색상
+                      : AppColors.primary_250, // 비활성화 색상
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12), // 모서리 R값 12
+                  ),
+                  padding: EdgeInsets.symmetric(vertical: 16), // 위아래 여백 16
+                ),
+                onPressed: isFormValid
+                    ? () {
+                        // 등록 버튼 클릭 시 동작
+                      }
+                    : null, // 비활성화된 상태일 때는 null
+                child: Text(
+                  '등록',
+                  style: TextStyle(
+                    fontSize: 16, // 폰트 사이즈 16
+                    color: Colors.white, // 텍스트 색상
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

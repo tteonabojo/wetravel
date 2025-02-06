@@ -8,6 +8,8 @@ import 'package:wetravel/domain/entity/schedule.dart';
 import 'package:wetravel/domain/repository/user_repository.dart';
 import 'package:wetravel/domain/usecase/fetch_user_usecase.dart';
 import 'package:wetravel/domain/usecase/sign_in_with_provider_usecase.dart';
+import 'package:wetravel/domain/usecase/sign_out_usecase.dart';
+import 'package:wetravel/domain/entity/user_model.dart';
 
 final _firebaseFirestoreProvider = Provider<FirebaseFirestore>((ref) {
   return FirebaseFirestore.instance;
@@ -57,20 +59,88 @@ final isGuideProvider = FutureProvider<bool>((ref) async {
 final signOutUsecaseProvider =
     Provider((ref) => ref.read(userRepositoryProvider));
 
-final userProvider = FutureProvider((ref) async {
-  final fetchUserUsecase = ref.watch(fetchUserUsecaseProvider);
-  return await fetchUserUsecase.execute();
+// 현재 로그인한 사용자의 ID를 제공하는 provider
+final authUserProvider = StreamProvider<User?>((ref) {
+  return FirebaseAuth.instance.authStateChanges();
 });
 
-final userStreamProvider = StreamProvider.autoDispose((ref) {
-  final uid = FirebaseAuth.instance.currentUser?.uid;
-  if (uid == null) return Stream.value(null);
+// 현재 사용자의 Firestore 문서를 실시간으로 감시하는 provider
+final userDocumentProvider = StreamProvider<DocumentSnapshot?>((ref) {
+  final user = ref.watch(authUserProvider).value;
+  if (user == null) return Stream.value(null);
 
   return FirebaseFirestore.instance
       .collection('users')
-      .doc(uid)
+      .doc(user.uid)
       .snapshots()
-      .map((snapshot) {
-    return snapshot.data();
+      .map((doc) {
+    if (doc.exists) {
+      print('Firestore document data: ${doc.data()}');
+      print('Schedules from Firestore: ${doc.data()?['schedules']}');
+    }
+    return doc;
   });
 });
+
+// 현재 사용자의 schedules 컬렉션을 실시간으로 감시하는 provider
+final schedulesStreamProvider = StreamProvider<List<Schedule>>((ref) {
+  final user = ref.watch(authUserProvider).value;
+  if (user == null) return Stream.value([]);
+
+  return FirebaseFirestore.instance
+      .collection('users')
+      .doc(user.uid)
+      .collection('schedules')
+      .snapshots()
+      .map((snapshot) {
+    print('Schedules collection data: ${snapshot.docs}');
+    return snapshot.docs
+        .map((doc) => Schedule.fromJson({...doc.data(), 'id': doc.id}))
+        .toList();
+  });
+});
+
+// 스케줄 관리를 위한 provider
+final scheduleActionsProvider = Provider((ref) => ScheduleActions());
+
+// 스케줄 관리 클래스
+class ScheduleActions {
+  Future<void> addSchedule(Schedule schedule) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    try {
+      final schedulesRef = FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .collection('schedules');
+
+      print('Adding schedule with ID: ${schedule.id}');
+      print('Schedule data: ${schedule.toJson()}');
+
+      await schedulesRef.doc(schedule.id).set(schedule.toJson());
+      print('Schedule added successfully');
+    } catch (e, stack) {
+      print('Failed to add schedule: $e');
+      print('Stack trace: $stack');
+    }
+  }
+
+  Future<void> deleteSchedule(String scheduleId) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    try {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .collection('schedules')
+          .doc(scheduleId)
+          .delete();
+
+      print('Schedule deleted successfully');
+    } catch (e) {
+      print('Failed to delete schedule: $e');
+    }
+  }
+}

@@ -47,7 +47,7 @@ class GuideInfo extends ConsumerWidget {
                 decoration: ShapeDecoration(
                   image: DecorationImage(
                     image: imageUrl.startsWith('http')
-                        ? NetworkImage(imageUrl)
+                        ? NetworkImage(imageUrl) as ImageProvider
                         : AssetImage(imageUrl),
                     fit: BoxFit.cover,
                   ),

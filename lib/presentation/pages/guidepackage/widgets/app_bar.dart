@@ -9,27 +9,24 @@ class GuideAppBar extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Row(
-          //   children: [
-          //     IconButton(
-          //       icon: Icon(Icons.arrow_back_ios, color: Colors.black),
-          //       onPressed: () {
-          //         Navigator.pop(context);
-          //       },
-          //     ),
-          //     Spacer(),
-          //   ],
-          // ),
-          // SizedBox(height: 8),
-          SizedBox(
-            width: double.infinity,
-            child: Text(
-              "맞춤 가이드 일정 추천",
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
+          Row(
+            children: [
+              IconButton(
+                icon: Icon(Icons.arrow_back_ios, color: Colors.black),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
               ),
+              Spacer(),
+            ],
+          ),
+          SizedBox(height: 8),
+          Text(
+            "맞춤 가이드 일정 추천",
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
             ),
           ),
           SizedBox(height: 4),
