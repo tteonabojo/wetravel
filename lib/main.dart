@@ -37,7 +37,11 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.themeData,
       initialRoute: '/init',
       routes: {
-        '/': (context) => const StackPage(),
+        '/': (context) {
+          final int initialIndex =
+              ModalRoute.of(context)?.settings.arguments as int? ?? 0;
+          return StackPage(initialIndex: initialIndex);
+        },
         '/init': (context) => const AuthWrapper(),
         '/login': (context) => const LoginPage(),
         '/city-selection': (context) => const CitySelectionPage(),

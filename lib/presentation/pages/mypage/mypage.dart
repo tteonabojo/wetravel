@@ -12,24 +12,24 @@ class MyPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userAsync = ref.watch(userStreamProvider);
-    
+
     return Scaffold(
-       appBar: AppBar(
-         title: const Align(
-           alignment: Alignment.centerLeft,
-           child: Text(
-             '마이페이지',
-             style: TextStyle(
-               color: Colors.black,
-               fontSize: 20,
-               fontWeight: FontWeight.bold,
-             ),
-           ),
-         ),
-         backgroundColor: Colors.transparent,
-         elevation: 0,
-         automaticallyImplyLeading: false,
-       ),
+      //  appBar: AppBar(
+      //    title: const Align(
+      //      alignment: Alignment.centerLeft,
+      //      child: Text(
+      //        '마이페이지',
+      //        style: TextStyle(
+      //          color: Colors.black,
+      //          fontSize: 20,
+      //          fontWeight: FontWeight.bold,
+      //        ),
+      //      ),
+      //    ),
+      //    backgroundColor: Colors.transparent,
+      //    elevation: 0,
+      //    automaticallyImplyLeading: false,
+      //  ),
       body: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: 16,
@@ -57,14 +57,14 @@ class MyPage extends ConsumerWidget {
     final userAsync = ref.watch(userStreamProvider); // Firestore 실시간 데이터 사용
 
     return userAsync.when(
-    data: (userData) {
-      if (userData == null) {
-        return Text('사용자 데이터를 불러올 수 없습니다.');
-      }
+      data: (userData) {
+        if (userData == null) {
+          return Text('사용자 데이터를 불러올 수 없습니다.');
+        }
 
-      final name = userData['name'] ?? '이름 없음';
-      final email = userData['email'] ?? '이메일 없음';
-      final imageUrl = userData['imageUrl']; // Firestore에서 가져온 프로필 이미지 URL
+        final name = userData['name'] ?? '이름 없음';
+        final email = userData['email'] ?? '이메일 없음';
+        final imageUrl = userData['imageUrl']; // Firestore에서 가져온 프로필 이미지 URL
 
         return Container(
           height: 89,
@@ -97,7 +97,9 @@ class MyPage extends ConsumerWidget {
                   ),
                   SizedBox(height: 4),
                   Text(
-                    (email.length > 25) ? '${email.substring(0, 20)}...' : email,
+                    (email.length > 25)
+                        ? '${email.substring(0, 20)}...'
+                        : email,
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[600],
@@ -280,20 +282,20 @@ class MyPage extends ConsumerWidget {
   }
 
   Future<void> deleteUserAccount(BuildContext context, WidgetRef ref) async {
-  final user = FirebaseAuth.instance.currentUser;
-  if (user == null) {
-    throw Exception("사용자가 존재하지 않습니다.");
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      throw Exception("사용자가 존재하지 않습니다.");
+    }
+
+    // Firestore에서 사용자 데이터 삭제
+    await FirebaseFirestore.instance.collection('users').doc(user.uid).delete();
+    await user.delete();
+
+    // 로그아웃 수행
+    await ref.read(signOutUsecaseProvider).signOut();
+
+    // 현재 위젯이 활성화된 상태인지 확인 후 네비게이션 실행
+    if (!context.mounted) return;
+    Navigator.pushReplacementNamed(context, '/login');
   }
-
-  // Firestore에서 사용자 데이터 삭제
-  await FirebaseFirestore.instance.collection('users').doc(user.uid).delete();
-  await user.delete();
-
-  // 로그아웃 수행
-  await ref.read(signOutUsecaseProvider).signOut();
-
-  // 현재 위젯이 활성화된 상태인지 확인 후 네비게이션 실행
-  if (!context.mounted) return;
-  Navigator.pushReplacementNamed(context, '/login');
-}
 }
