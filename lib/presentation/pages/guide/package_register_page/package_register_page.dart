@@ -272,7 +272,7 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
                         ScheduleList(
                           schedules: _schedules[_selectedDay - 1]
                               .map((scheduleMap) =>
-                                  ScheduleDto.fromMap(scheduleMap))
+                                  ScheduleDto.fromJson(scheduleMap))
                               .toList(),
                           totalScheduleCount:
                               _schedules[_selectedDay - 1].length,

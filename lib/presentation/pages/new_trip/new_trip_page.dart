@@ -10,20 +10,33 @@ class NewTripPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        actions: [
+          IconButton(
+            icon: Padding(
+              padding: const EdgeInsets.only(right: 16.0),
+              child: const Icon(Icons.close),
+            ),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // 메인 카드
+              const SizedBox(height: 12),
               Expanded(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        boxShadow: AppShadow.generalShadow,
+                    Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Padding(
@@ -50,55 +63,88 @@ class NewTripPage extends StatelessWidget {
                             ),
                             const SizedBox(height: 24),
                             SizedBox(
-                                width: double.infinity,
-                                child: StandardButton.primary(
-                                  sizeType: ButtonSizeType.normal,
-                                  text: '새로운 여행 시작하기',
-                                  onPressed: () {
-                                    Navigator.pushNamed(
-                                        context, '/city-selection');
-                                  },
-                                )),
+                              width: double.infinity,
+                              child: StandardButton.primary(
+                                sizeType: ButtonSizeType.normal,
+                                text: '새로운 여행 시작하기',
+                                onPressed: () => Navigator.pushNamed(
+                                  context,
+                                  '/city-selection',
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                       ),
                     ),
                     const SizedBox(height: 16),
-                    // 내가 담은 패키지 버튼
-                    Material(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(12),
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => ScrapPackagesPage()));
-                        },
+                    // 내가 담은 AI패키지 버튼
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[400],
                         borderRadius: BorderRadius.circular(12),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            boxShadow: AppShadow.generalShadow,
-                            borderRadius: AppBorderRadius.small12,
-                          ),
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(16),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                '내가 담은 패키지',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () =>
+                              Navigator.pushNamed(context, '/saved-plans'),
+                          borderRadius: BorderRadius.circular(12),
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  '내가 담은 AI패키지',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
-                              ),
-                              Icon(
-                                Icons.chevron_right,
-                                color: Colors.grey[600],
-                              ),
-                            ],
+                                Icon(
+                                  Icons.chevron_right,
+                                  color: Colors.grey[600],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    //내가 담은 가이드 패키지
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[400],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () =>
+                              Navigator.pushNamed(context, '/saved-plans'),
+                          borderRadius: BorderRadius.circular(12),
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  '내가 담은 가이드 패키지',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.chevron_right,
+                                  color: Colors.grey[600],
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -110,30 +156,6 @@ class NewTripPage extends StatelessWidget {
           ),
         ),
       ),
-      // bottomNavigationBar: Container(
-      //   padding: const EdgeInsets.only(
-      //     left: 16,
-      //     right: 16,
-      //     bottom: 16,
-      //   ),
-      //   child: Row(
-      //     mainAxisAlignment: MainAxisAlignment.spaceAround,
-      //     children: [
-      //       _buildNavItem(Icons.home_outlined, false),
-      //       _buildNavItem(Icons.add_box_outlined, true),
-      //       _buildNavItem(Icons.crop_square_outlined, false),
-      //       _buildNavItem(Icons.person_outline, false),
-      //     ],
-      //   ),
-      // ),
     );
   }
-
-  // Widget _buildNavItem(IconData icon, bool isSelected) {
-  //   return Icon(
-  //     icon,
-  //     color: isSelected ? Colors.blue : Colors.grey,
-  //     size: 28,
-  //   );
-  // }
 }
