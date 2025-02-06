@@ -29,6 +29,12 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
   String _intro = "";
   bool _isNameValid = false;
   bool _isIntroValid = false;
+  String _initialName = "";
+  String _initialIntro = "";
+
+  bool _isChanged() { 
+    return _name != _initialName || _intro != _initialIntro || _imageFile != null;
+  }
 
   @override
   void initState() {
@@ -37,6 +43,7 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
   }
 
   TextEditingController _nameController = TextEditingController();
+  TextEditingController _introController = TextEditingController();
 
   // Firestore에서 사용자 데이터 가져오기
   Future<void> _getUserData() async {
@@ -53,6 +60,9 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
           _isNameValid = _name.isNotEmpty;
           _isIntroValid = _intro.isNotEmpty;
           _nameController.text = _name;
+          _introController.text = _intro;
+          _initialName = _name;
+          _initialIntro = _intro;
         });
       }
     }
@@ -109,18 +119,119 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
 
   bool get _isFormValid => _isNameValid && _isIntroValid;
 
+  Future<bool> _showExitConfirmationDialog() async {
+  return await showDialog<bool>(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        contentPadding: const EdgeInsets.all(0),
+        content: Padding(
+          padding: const EdgeInsets.only(top: 24, left: 24, right: 24, bottom: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '프로필 설정에서 나가시겠어요?',
+                textAlign: TextAlign.center,
+                style: AppTypography.headline6.copyWith(
+                  color: AppColors.grayScale_950,
+                  fontSize: 18,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '변경사항이 저장되지 않아요.',
+                textAlign: TextAlign.center,
+                style: AppTypography.body2.copyWith(
+                  color: AppColors.grayScale_650,
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4), // 좌우 16px 여백 추가
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        width: 130,
+                        height: 40,
+                        child: ElevatedButton(
+                          onPressed: () => Navigator.of(context).pop(false), // 취소 시 false 반환
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.grayScale_050,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          child: Text(
+                            '취소',
+                            style: AppTypography.body1.copyWith(
+                              color: AppColors.primary_450,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8), // 버튼 사이 여백
+                    Expanded(
+                      child: SizedBox(
+                        width: 130,
+                        height: 40,
+                        child: ElevatedButton(
+                          onPressed: () => Navigator.of(context).pop(true), // 나가기 시 true 반환
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary_450,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          child: Text(
+                            '나가기',
+                            style: AppTypography.body1.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  ).then((value) => value ?? false); // 다이얼로그가 닫힐 때 false를 기본값으로 반환
+}
+
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
+Widget build(BuildContext context) {
+  return WillPopScope(
+    onWillPop: () async {
+      if (_isChanged()) {
+        return await _showExitConfirmationDialog();
+      }
+      return true; // 변경사항이 없으면 바로 뒤로 가기
+    },
+    child: Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
-          onPressed: () => Navigator.pushNamedAndRemoveUntil(context, '/mypage', (route) => false),
+          onPressed: () async {
+            if (_isChanged()) {
+              if (await _showExitConfirmationDialog()) {
+                Navigator.pop(context);
+              }
+            } else {
+              Navigator.pop(context);
+            }
+          },
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: Padding(
+      body: SingleChildScrollView( // 키보드가 올라와도 스크롤 가능하도록 변경
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -130,7 +241,7 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
             const SizedBox(height: 20),
             CustomInputField(
               controller: _nameController,
-              hintText: _name.isNotEmpty ? _name : '닉네임을 입력하세요',
+              hintText: _name.isNotEmpty ? _name : '샘플',
               maxLength: 15,
               labelText: '닉네임',
               onChanged: (value) => setState(() {
@@ -142,6 +253,7 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
             _buildEmailField(),
             const SizedBox(height: 20),
             CustomInputField(
+              controller: _introController,
               hintText: '멋진 소개를 부탁드려요!',
               maxLength: 100,
               labelText: '자기소개',
@@ -157,8 +269,9 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   // 프로필 이미지 위젯
   Widget _buildProfileImage() {
