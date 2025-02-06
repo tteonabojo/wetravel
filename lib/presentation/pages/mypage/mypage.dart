@@ -79,7 +79,7 @@ class MyPage extends ConsumerWidget {
           child: Row(
             children: [
               CircleAvatar(
-                // child: Image.asset('assets/images/user_round.png'),
+                child: Image.asset('assets/images/user_round.png'),
                 radius: 28,
                 backgroundImage: NetworkImage(imageUrl)
               ),
