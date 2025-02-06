@@ -40,17 +40,25 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
             }
 
             return Scaffold(
+              appBar: AppBar(
+                automaticallyImplyLeading: false,
+                actions: [
+                  IconButton(
+                    icon: Padding(
+                      padding: const EdgeInsets.only(right: 16.0),
+                      child: const Icon(Icons.close),
+                    ),
+                    onPressed: () => Navigator.pushNamed(context, '/new-trip'),
+                  ),
+                ],
+              ),
               body: SafeArea(
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 0),
                       const Text(
                         'AI 맞춤 여행지 추천',
                         style: TextStyle(

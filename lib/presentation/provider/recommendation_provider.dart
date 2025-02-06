@@ -27,6 +27,30 @@ class RecommendationState {
     this.selectedCities = const [],
     this.selectedKeywords = const [],
   });
+
+  RecommendationState copyWith({
+    int? currentPage,
+    String? travelPeriod,
+    String? travelDuration,
+    List<String>? companions,
+    List<String>? travelStyles,
+    List<String>? accommodationTypes,
+    List<String>? considerations,
+    List<String>? selectedCities,
+    List<String>? selectedKeywords,
+  }) {
+    return RecommendationState(
+      currentPage: currentPage ?? this.currentPage,
+      travelPeriod: travelPeriod ?? this.travelPeriod,
+      travelDuration: travelDuration ?? this.travelDuration,
+      companions: companions ?? this.companions,
+      travelStyles: travelStyles ?? this.travelStyles,
+      accommodationTypes: accommodationTypes ?? this.accommodationTypes,
+      considerations: considerations ?? this.considerations,
+      selectedCities: selectedCities ?? this.selectedCities,
+      selectedKeywords: selectedKeywords ?? this.selectedKeywords,
+    );
+  }
 }
 
 class RecommendationNotifier extends StateNotifier<RecommendationState> {
@@ -103,24 +127,15 @@ class RecommendationNotifier extends StateNotifier<RecommendationState> {
   }
 
   void toggleCity(String city) {
-    final cities = List<String>.from(state.selectedCities);
-    if (cities.contains(city)) {
-      cities.remove(city);
+    final selectedCities = List<String>.from(state.selectedCities);
+    if (selectedCities.contains(city)) {
+      selectedCities.remove(city);
     } else {
-      cities.clear(); // 한 도시만 선택 가능하도록
-      cities.add(city);
+      // 한 도시만 선택 가능하도록
+      selectedCities.clear();
+      selectedCities.add(city);
     }
-
-    state = RecommendationState(
-      currentPage: state.currentPage,
-      travelPeriod: state.travelPeriod,
-      travelDuration: state.travelDuration,
-      companions: state.companions,
-      travelStyles: state.travelStyles,
-      accommodationTypes: state.accommodationTypes,
-      considerations: state.considerations,
-      selectedCities: cities,
-    );
+    state = state.copyWith(selectedCities: selectedCities);
   }
 
   void toggleCompanion(String companion) {
@@ -263,6 +278,10 @@ class RecommendationNotifier extends StateNotifier<RecommendationState> {
       selectedCities: state.selectedCities,
       selectedKeywords: keywords,
     );
+  }
+
+  void clearSelectedCities() {
+    state = state.copyWith(selectedCities: []);
   }
 }
 

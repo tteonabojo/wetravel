@@ -44,7 +44,7 @@ class ScheduleDataSourceImpl implements ScheduleDataSource {
           await _firestore.collection('schedules').doc(scheduleId).get();
       if (scheduleSnapshot.exists) {
         final data = scheduleSnapshot.data()!;
-        schedules.add(ScheduleDto.fromMap(data));
+        schedules.add(ScheduleDto.fromJson(data));
       }
     }
     return schedules;
