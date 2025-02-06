@@ -14,25 +14,11 @@ class GuidePage extends ConsumerStatefulWidget {
 }
 
 class _GuidePageState extends ConsumerState<GuidePage> {
-  bool? isGuide;
   bool? hasSubmittedPackage;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _loadGuideStatus();
-  }
-
-  Future<void> _loadGuideStatus() async {
-    final fetchUserUsecase = ref.watch(fetchUserUsecaseProvider);
-    final user = await fetchUserUsecase.execute();
-    setState(() {
-      isGuide = user.isGuide;
-    });
-
-    if (isGuide == false) {
-      await _checkIfUserHasSubmittedPackage(user.id);
-    }
   }
 
   Future<void> _checkIfUserHasSubmittedPackage(String userId) async {
@@ -56,14 +42,31 @@ class _GuidePageState extends ConsumerState<GuidePage> {
 
   @override
   Widget build(BuildContext context) {
-    if (isGuide == null || hasSubmittedPackage == null) {
+    final userAsyncValue = ref.watch(userStreamProvider);
+    final isGuideAsyncValue = userAsyncValue.when(
+      data: (data) {
+        if (data != null && data.containsKey('isGuide')) {
+          final isGuide = data['isGuide'] as bool?;
+          if (isGuide == false) {
+            final userId = data['id'];
+            _checkIfUserHasSubmittedPackage(userId);
+          }
+          return isGuide;
+        }
+        return null;
+      },
+      loading: () => null,
+      error: (_, __) => null,
+    );
+
+    if (isGuideAsyncValue == null || hasSubmittedPackage == null) {
       return Scaffold(
         body: Center(child: CircularProgressIndicator()),
       );
     }
 
     return Scaffold(
-      body: isGuide!
+      body: isGuideAsyncValue!
           ? GuidePackageListPage() // 가이드인 경우 내가 등록한 패키지 리스트 페이지
           : hasSubmittedPackage!
               ? ApplicationCompletePage() // 신청 완료 페이지

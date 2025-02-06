@@ -157,6 +157,7 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
           imageUrl: imageUrl,
           keywordList: _keywordList,
           scheduleList: scheduleList,
+          isHidden: !isGuide, // isGuide가 false일 때만 isHidden을 true로 설정
         );
 
         setState(() {

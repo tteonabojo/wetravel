@@ -72,3 +72,14 @@ final userStreamProvider = StreamProvider.autoDispose((ref) {
     return snapshot.data();
   });
 });
+
+final userGuideStatusProvider =
+    StreamProvider.family<bool, String>((ref, userId) {
+  return FirebaseFirestore.instance
+      .collection('users')
+      .doc(userId)
+      .snapshots()
+      .map((doc) {
+    return doc.exists && doc.data() != null;
+  });
+});

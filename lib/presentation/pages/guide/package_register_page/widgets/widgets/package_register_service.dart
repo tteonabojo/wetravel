@@ -10,6 +10,7 @@ class PackageRegisterService {
     required String imageUrl,
     required List<String> keywordList,
     required List<Map<String, dynamic>> scheduleList,
+    required bool isHidden,
   }) async {
     final currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) {
@@ -75,7 +76,7 @@ class PackageRegisterService {
         'scheduleIdList': scheduleIdList, // 생성된 scheduleId 리스트
         'createdAt': Timestamp.now(),
         'reportCount': 0,
-        'isHidden': false,
+        'isHidden': isHidden, // isHidden 값 추가
         'viewCount': 0,
       };
 
