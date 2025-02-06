@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:wetravel/core/constants/app_border_radius.dart';
-import 'package:wetravel/core/constants/app_shadow.dart';
-import 'package:wetravel/presentation/pages/new_trip/scrap_package_page.dart';
 import 'package:wetravel/presentation/widgets/buttons/standard_button.dart';
 
 class NewTripPage extends StatelessWidget {
@@ -10,25 +7,12 @@ class NewTripPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        actions: [
-          IconButton(
-            icon: Padding(
-              padding: const EdgeInsets.only(right: 16.0),
-              child: const Icon(Icons.close),
-            ),
-            onPressed: () => Navigator.pop(context),
-          ),
-        ],
-      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 메인 카드
               const SizedBox(height: 12),
               Expanded(
                 child: Column(
@@ -78,7 +62,6 @@ class NewTripPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    // 내가 담은 AI패키지 버튼
                     Container(
                       decoration: BoxDecoration(
                         color: Colors.grey[400],
@@ -114,7 +97,6 @@ class NewTripPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    //내가 담은 가이드 패키지
                     Container(
                       decoration: BoxDecoration(
                         color: Colors.grey[400],
