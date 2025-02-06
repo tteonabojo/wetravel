@@ -4,7 +4,8 @@
 
 
 ## 📅 프로젝트 기간
-- 2025.1.16 ~ 2025.2.26
+- 2025.1.16 ~ 2025.2.06 (MVP 구현)
+- 2025.2.06 ~ 2025.2.26 (추가 기능 구현)
 
 
 ## ❓About Team
@@ -12,66 +13,89 @@
 - 김서후(PM) : 스플래시, 로그인, 회원가입, 내비게이션 바, 메인화면, 앱스토어 배포 세팅
 - 선우진(왼팔) : Ai연동, 키워드 선택, 여행계획, 광고 세팅(구글 애드몹), Firebase 세팅
 - 김민우(오른팔) : 가이드 추천 패키지 리스트, 마이페이지, 데이터 구조화
-- 김수빈(디자이너) : App 디자인
+- 김수빈(디자이너) : 디자인 시스템 구축, App UI 디자인, PPT 템플릿 작성
 
 
 ## 💡 주요 기능
 - 로그인 및 회원가입
     - Firebase의 Authentication 사용
     - 소셜(구글, 애플) 회원가입 및 로그인
-- 메인 페이지
+- 메인
     - 슬라이드 배너
     - 최근에 본 패키지 출력
     - 인기있는 패키지 출력
-- 프로필
-    - 팔로우 목록
-        - 팔로우 취소
-        - 프로필 조회
-    - 프로필 수정
-        - 사진, 이름, 소개글, 루틴
-    - 새 피드 추가
-- 피드 목록
-  - 팔로우 한 유저들의 피드 목록 표시
-  - 피드 보기
+- 패키지 생성
+    - 새로운 여행 시작하기
+        - 키워드 설문
+        - AI로 도시 추천 받기
+        - AI와 일정 함께하기
+            - 일정 상세보기
+        - 가이드와 일정 함께하기
+            - 일정 목록 확인
+            - 일정 상세보기
+    - 기존 여행 계속하기(스크랩 기능)
+- 가이드
+    - 가이드 신청
+    - 패키지 등록
+    - 패키지 수정
+    - 내 패키지 목록 확인
+    - 내 패키지 확인
+- 마이페이지
+    - 내 정보 확인 및 수정
+        - 프로필 이미지
+        - 닉네임
+        - 이메일
+        - 자기소개
+    - 문의하기
+    - 이용약관 / 개인정보 처리방침 확인
+    - 로그아웃
+    - 회원 탈퇴
+
 
 ## 🔥 Firebase Firestore 구조
-
 <pre>
-users (컬렉션)
+Firestore
+├── packages (컬렉션)
+│   ├── {packageId} (문서)
+│   │   ├── createdAt: Timestamp
+│   │   ├── description: String
+│   │   ├── duration: String
+│   │   ├── id: String
+│   │   ├── imageUrl: String
+│   │   ├── isHidden: Boolean
+│   │   ├── keywordList: List<String>
+│   │   ├── location: String
+│   │   ├── reportCount: int
+│   │   ├── scheduleIdList: List<String>
+│   │   ├── title: String
+│   │   ├── userId: String
+│   │   ├── userImageUrl: String
+│   │   ├── userName: String
+│   │   ├── viewCount: int
 │
-├── {userId} (문서)
-│   ├── id: String
-│   ├── email: String
-│   ├── profileImg: String
-│   ├── loginType: String
-│   ├── bd: DateTime
-│   ├── gender: String
-│   ├── purpose: String
-│   ├── followId: List<String>
-│   ├── routine: String
-│   ├── bio: String
-│   ├── name: String
-│   ├── isFollowing: bool
-│   │
-│   └── feeds (컬렉션)
-│       ├── {feedId} (문서)
-│       │   ├── feedId: int
-│       │   ├── userId: String
-│       │   ├── date: DateTime
-│       │   ├── imageUrl: List<String>
-│       │   ├── location: String
-│       │   ├── content: String
-│       │   ├── likes: int
-│       │   ├── tags: List<String>
-│       │   ├── comments: List<Comment>
-│       │   ├── commentUserId: int
-│       │   └── showComment: String
-│       │
-│       └── comments (컬렉션)
-│           ├── {commentId} (문서)
-│           │   ├── comment: String
-│           │   ├── timeStamp: DateTime
-│           │   └── userId: int
+├── schedules (컬렉션)
+│   ├── {scheduleId} (문서)
+│   │   ├── content: String
+│   │   ├── day: int
+│   │   ├── id: String
+│   │   ├── imageUrl: String
+│   │   ├── location: String
+│   │   ├── order: int
+│   │   ├── packageId: String
+│   │   ├── time: String
+│   │   ├── title: String
+│
+├── users (컬렉션)
+│   ├── {userId} (문서)
+│   │   ├── createdAt: Timestamp
+│   │   ├── email: String
+│   │   ├── id: String
+│   │   ├── imageUrl: String
+│   │   ├── isGuide: Boolean
+│   │   ├── loginType: String
+│   │   ├── name: String
+│   │   ├── recentPackages: List<String>
+│   │   ├── scrapIdList: List<String>
 </pre>
 
 
@@ -279,13 +303,7 @@ users (컬렉션)
 
 
 ## 🛠️ 기술 스택 및 툴
-![Flutter](https://img.shields.io/badge/Flutter-02569B?style=flat&logo=flutter&logoColor=white)
-![Dart](https://img.shields.io/badge/Dart-0175C2?style=flat&logo=dart&logoColor=white)
-![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=flat&logo=firebase&logoColor=black)
-![GitHub](https://img.shields.io/badge/GitHub-181717?style=flat&logo=github&logoColor=white)
-![Git](https://img.shields.io/badge/Git-F05032?style=flat&logo=git&logoColor=white)
-![Figma](https://img.shields.io/badge/Figma-F24E1E?style=flat&logo=figma&logoColor=white)
-![Slack](https://img.shields.io/badge/Slack-4A154B?style=flat&logo=slack&logoColor=white)
+![Flutter](https://img.shields.io/badge/Flutter-02569B?style=flat&logo=flutter&logoColor=white) ![Dart](https://img.shields.io/badge/Dart-0175C2?style=flat&logo=dart&logoColor=white) ![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=flat&logo=firebase&logoColor=black) ![GitHub](https://img.shields.io/badge/GitHub-181717?style=flat&logo=github&logoColor=white) ![Git](https://img.shields.io/badge/Git-F05032?style=flat&logo=git&logoColor=white) ![Figma](https://img.shields.io/badge/Figma-F24E1E?style=flat&logo=figma&logoColor=white) ![Slack](https://img.shields.io/badge/Slack-4A154B?style=flat&logo=slack&logoColor=white)
 
 ## 로고
-<img src="assets/icons/app_logo/logo_bg_blue_24x24.svg" height="50" alt="wetravel Logo"> <img src="assets/icons/app_logo/logo_letter.svg" height="50" alt="wetravel Logo">
+<img src="assets/icons/app_logo/logo_bg_blue_24x24.svg" height="50" alt="wetravel Logo"/> <img src="assets/icons/app_logo/logo_letter.svg" height="50" alt="wetravel Logo"/>
