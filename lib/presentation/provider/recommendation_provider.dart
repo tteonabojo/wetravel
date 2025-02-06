@@ -14,6 +14,7 @@ class RecommendationState {
   final List<String> accommodationTypes;
   final List<String> considerations;
   final List<String> selectedCities;
+  final List<String> selectedKeywords;
 
   RecommendationState({
     this.currentPage = 0,
@@ -24,6 +25,7 @@ class RecommendationState {
     this.accommodationTypes = const [],
     this.considerations = const [],
     this.selectedCities = const [],
+    this.selectedKeywords = const [],
   });
 }
 
@@ -240,6 +242,27 @@ class RecommendationNotifier extends StateNotifier<RecommendationState> {
         selectedCities: [selectedCity],
       );
     }
+  }
+
+  void toggleKeyword(String keyword) {
+    final keywords = List<String>.from(state.selectedKeywords);
+    if (keywords.contains(keyword)) {
+      keywords.remove(keyword);
+    } else {
+      keywords.add(keyword);
+    }
+
+    state = RecommendationState(
+      currentPage: state.currentPage,
+      travelPeriod: state.travelPeriod,
+      travelDuration: state.travelDuration,
+      companions: state.companions,
+      travelStyles: state.travelStyles,
+      accommodationTypes: state.accommodationTypes,
+      considerations: state.considerations,
+      selectedCities: state.selectedCities,
+      selectedKeywords: keywords,
+    );
   }
 }
 

@@ -6,7 +6,6 @@ import 'package:wetravel/presentation/pages/main/widgets/main_header.dart';
 import 'package:wetravel/presentation/pages/mypage/mypage.dart';
 import 'package:wetravel/presentation/pages/new_trip/new_trip_page.dart';
 import 'package:wetravel/presentation/pages/stack/widgets/custom_bottom_navigation_bar.dart';
-import 'package:wetravel/presentation/provider/user_provider.dart';
 
 class StackPage extends ConsumerStatefulWidget {
   final int initialIndex; // 초기 인덱스
@@ -26,7 +25,7 @@ class _StackPageState extends ConsumerState<StackPage> {
   @override
   void initState() {
     super.initState();
-    _selectedIndex = widget.initialIndex; // 초기 인덱스 설정
+    _selectedIndex = widget.initialIndex;
   }
 
   void _onItemTapped(int index) {
@@ -38,46 +37,37 @@ class _StackPageState extends ConsumerState<StackPage> {
   @override
   Widget build(BuildContext context) {
     final double statusBarHeight = MediaQuery.of(context).padding.top;
-    final isGuideAsync = ref.watch(isGuideProvider);
 
     return GestureDetector(
-        onTap: () {
-          FocusScope.of(context).unfocus();
-        },
-        child: Scaffold(
-          appBar: PreferredSize(
-            preferredSize: Size.fromHeight(56),
-            child: Column(
-              children: [
-                SizedBox(height: statusBarHeight),
-                MainHeader(),
-              ],
-            ),
+      onTap: () {
+        FocusScope.of(context).unfocus();
+      },
+      child: Scaffold(
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(56),
+          child: Column(
+            children: [
+              SizedBox(height: statusBarHeight),
+              MainHeader(),
+            ],
           ),
-          body: isGuideAsync.when(
-            data: (isGuide) {
-              final List<Widget> pages = [
-                MainPage(),
-                NewTripPage(),
-                GuidePage(isGuide: isGuide),
-                MyPage(),
-              ];
-
-              return IndexedStack(
-                index: _selectedIndex,
-                children: pages,
-              );
-            },
-            loading: () => SizedBox.shrink(),
-            error: (error, stackTrace) =>
-                Center(child: Text('stack page Error: $error')),
-          ),
-          bottomNavigationBar: CustomBottomNavigationBar(
-            context: context,
-            ref: ref,
-            selectedIndex: _selectedIndex,
-            onItemTapped: _onItemTapped,
-          ),
-        ));
+        ),
+        body: IndexedStack(
+          index: _selectedIndex,
+          children: [
+            const MainPage(),
+            const NewTripPage(),
+            const GuidePage(),
+            MyPage(),
+          ],
+        ),
+        bottomNavigationBar: CustomBottomNavigationBar(
+          context: context,
+          ref: ref,
+          selectedIndex: _selectedIndex,
+          onItemTapped: _onItemTapped,
+        ),
+      ),
+    );
   }
 }

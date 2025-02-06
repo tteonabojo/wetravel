@@ -16,6 +16,19 @@ class PackageRegisterService {
       throw Exception('로그인한 사용자 정보를 찾을 수 없습니다.');
     }
 
+    // 현재 사용자 정보를 Firestore에서 가져오기
+    final userRef =
+        FirebaseFirestore.instance.collection('users').doc(currentUser.uid);
+    final userSnapshot = await userRef.get();
+
+    if (!userSnapshot.exists) {
+      throw Exception('사용자 정보가 존재하지 않습니다.');
+    }
+
+    final userData = userSnapshot.data();
+    final userName = userData?['name'] ?? 'Unknown User'; // 사용자의 이름
+    final userImageUrl = userData?['imageUrl'] ?? ''; // 사용자의 이미지 URL
+
     // 패키지 ID 생성
     final packageRef = FirebaseFirestore.instance.collection('packages').doc();
     final packageId = packageRef.id;
@@ -51,6 +64,8 @@ class PackageRegisterService {
       final packageData = {
         'id': packageId,
         'userId': currentUser.uid,
+        'userName': userName, // 로그인한 사용자의 이름 추가
+        'userImageUrl': userImageUrl, // 로그인한 사용자의 이미지 URL 추가
         'title': title,
         'location': location,
         'description': description,
@@ -91,6 +106,16 @@ class PackageRegisterService {
         FirebaseFirestore.instance.collection('packages').doc(packageId);
 
     try {
+      // 패키지 정보 가져오기
+      final packageSnapshot = await packageRef.get();
+      final packageData = packageSnapshot.data();
+
+      // 패키지에 userName과 userImageUrl이 없으면 로그인한 사용자의 이름과 이미지 URL을 넣기
+      final userName =
+          packageData?['userName'] ?? (await _getUserName(currentUser.uid));
+      final userImageUrl = packageData?['userImageUrl'] ??
+          (await _getUserImageUrl(currentUser.uid));
+
       // Update package data
       await packageRef.update({
         'title': title,
@@ -99,6 +124,8 @@ class PackageRegisterService {
         'duration': duration,
         'imageUrl': imageUrl,
         'keywordList': keywordList,
+        'userName': userName, // 로그인한 사용자의 이름 추가
+        'userImageUrl': userImageUrl, // 로그인한 사용자의 이미지 URL 추가
       });
 
       // Update schedules
@@ -131,5 +158,19 @@ class PackageRegisterService {
     } catch (e) {
       throw Exception('패키지 업데이트 실패: $e');
     }
+  }
+
+  // 사용자 이름 가져오기
+  Future<String> _getUserName(String userId) async {
+    final userRef = FirebaseFirestore.instance.collection('users').doc(userId);
+    final userSnapshot = await userRef.get();
+    return userSnapshot.data()?['name'] ?? 'Unknown User';
+  }
+
+  // 사용자 이미지 URL 가져오기
+  Future<String> _getUserImageUrl(String userId) async {
+    final userRef = FirebaseFirestore.instance.collection('users').doc(userId);
+    final userSnapshot = await userRef.get();
+    return userSnapshot.data()?['imageUrl'] ?? '';
   }
 }

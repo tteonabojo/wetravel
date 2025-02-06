@@ -236,7 +236,7 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
       }, SetOptions(merge: true));
 
       // 마이페이지로 이동하면서 최신 데이터 반영
-      Navigator.pushNamed(context, '/mypage');
+      Navigator.pushNamed(context, '/');
     }
   }
 
@@ -255,7 +255,7 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
                 ),
                 TextButton(
                   onPressed: () => Navigator.of(context)
-                      .pushNamedAndRemoveUntil('/mypage', (route) => false),
+                      .pushNamedAndRemoveUntil('/', (route) => false),
                   child: const Text("나가기"),
                 ),
               ],
@@ -277,8 +277,7 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
               onPressed: () async {
                 bool shouldPop = await _onWillPop();
                 if (shouldPop && mounted) {
-                  Navigator.pushNamedAndRemoveUntil(
-                      context, '/mypage', (route) => false);
+                  Navigator.pushNamed(context, '/', arguments: 3);
                 }
               },
             ),
