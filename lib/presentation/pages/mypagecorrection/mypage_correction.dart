@@ -30,8 +30,10 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
   String _initialName = "";
   String _initialIntro = "";
 
-  bool _isChanged() { 
-    return _name != _initialName || _intro != _initialIntro || _imageFile != null;
+  bool _isChanged() {
+    return _name != _initialName ||
+        _intro != _initialIntro ||
+        _imageFile != null;
   }
 
   @override
@@ -68,7 +70,8 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
 
   // 이미지 선택 및 Firebase Storage 업로드
   Future<void> _pickImage() async {
-    final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    final XFile? pickedFile =
+        await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile == null) return;
 
     File imageFile = File(pickedFile.path);
@@ -84,7 +87,8 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
 
     try {
       String filePath = 'profile_images/${user.uid}.jpg';
-      UploadTask uploadTask = FirebaseStorage.instance.ref(filePath).putFile(image);
+      UploadTask uploadTask =
+          FirebaseStorage.instance.ref(filePath).putFile(image);
       TaskSnapshot snapshot = await uploadTask;
       String downloadUrl = await snapshot.ref.getDownloadURL();
 
@@ -118,161 +122,171 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
   bool get _isFormValid => _isNameValid && _isIntroValid;
 
   Future<bool> _showExitConfirmationDialog() async {
-  return await showDialog<bool>(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        contentPadding: const EdgeInsets.all(0),
-        content: Padding(
-          padding: const EdgeInsets.only(top: 24, left: 24, right: 24, bottom: 16),
+    return await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          contentPadding: const EdgeInsets.all(0),
+          content: Padding(
+            padding:
+                const EdgeInsets.only(top: 24, left: 24, right: 24, bottom: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '프로필 설정에서 나가시겠어요?',
+                  textAlign: TextAlign.center,
+                  style: AppTypography.headline6.copyWith(
+                    color: AppColors.grayScale_950,
+                    fontSize: 18,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '변경사항이 저장되지 않아요.',
+                  textAlign: TextAlign.center,
+                  style: AppTypography.body2.copyWith(
+                    color: AppColors.grayScale_650,
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 4), // 좌우 16px 여백 추가
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: SizedBox(
+                          width: 130,
+                          height: 40,
+                          child: ElevatedButton(
+                            onPressed: () => Navigator.of(context)
+                                .pop(false), // 취소 시 false 반환
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.grayScale_050,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12)),
+                            ),
+                            child: Text(
+                              '취소',
+                              style: AppTypography.body1.copyWith(
+                                color: AppColors.primary_450,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8), // 버튼 사이 여백
+                      Expanded(
+                        child: SizedBox(
+                          width: 130,
+                          height: 40,
+                          child: ElevatedButton(
+                            onPressed: () => Navigator.of(context)
+                                .pop(true), // 나가기 시 true 반환
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.primary_450,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12)),
+                            ),
+                            child: Text(
+                              '나가기',
+                              style: AppTypography.body1.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    ).then((value) => value ?? false); // 다이얼로그가 닫힐 때 false를 기본값으로 반환
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return WillPopScope(
+      onWillPop: () async {
+        if (_isChanged()) {
+          return await _showExitConfirmationDialog();
+        }
+        return true; // 변경사항이 없으면 바로 뒤로 가기
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
+            onPressed: () async {
+              if (_isChanged()) {
+                if (await _showExitConfirmationDialog()) {
+                  Navigator.pop(context);
+                }
+              } else {
+                Navigator.pop(context);
+              }
+            },
+          ),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+        ),
+        body: SingleChildScrollView(
+          // 키보드가 올라와도 스크롤 가능하도록 변경
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
-                '프로필 설정에서 나가시겠어요?',
-                textAlign: TextAlign.center,
-                style: AppTypography.headline6.copyWith(
-                  color: AppColors.grayScale_950,
-                  fontSize: 18,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                '변경사항이 저장되지 않아요.',
-                textAlign: TextAlign.center,
-                style: AppTypography.body2.copyWith(
-                  color: AppColors.grayScale_650,
-                  fontSize: 14,
-                ),
+              const SizedBox(height: 20),
+              _buildProfileImage(),
+              const SizedBox(height: 20),
+              CustomInputField(
+                controller: _nameController,
+                hintText: _name.isNotEmpty ? _name : '샘플',
+                maxLength: 15,
+                labelText: '닉네임',
+                onChanged: (value) => setState(() {
+                  _name = value;
+                  _isNameValid = value.isNotEmpty;
+                }),
               ),
               const SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4), // 좌우 16px 여백 추가
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: SizedBox(
-                        width: 130,
-                        height: 40,
-                        child: ElevatedButton(
-                          onPressed: () => Navigator.of(context).pop(false), // 취소 시 false 반환
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.grayScale_050,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          ),
-                          child: Text(
-                            '취소',
-                            style: AppTypography.body1.copyWith(
-                              color: AppColors.primary_450,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8), // 버튼 사이 여백
-                    Expanded(
-                      child: SizedBox(
-                        width: 130,
-                        height: 40,
-                        child: ElevatedButton(
-                          onPressed: () => Navigator.of(context).pop(true), // 나가기 시 true 반환
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary_450,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          ),
-                          child: Text(
-                            '나가기',
-                            style: AppTypography.body1.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+              _buildEmailField(),
+              const SizedBox(height: 20),
+              CustomInputField(
+                controller: _introController,
+                hintText: '멋진 소개를 부탁드려요!',
+                maxLength: 100,
+                labelText: '자기소개',
+                minLines: 6,
+                maxLines: 6,
+                onChanged: (value) => setState(() {
+                  _intro = value;
+                  _isIntroValid = value.isNotEmpty;
+                }),
               ),
+              const SizedBox(height: 16),
+              _buildSaveButton(),
             ],
           ),
         ),
-      );
-    },
-  ).then((value) => value ?? false); // 다이얼로그가 닫힐 때 false를 기본값으로 반환
-}
-
-  @override
-Widget build(BuildContext context) {
-  return WillPopScope(
-    onWillPop: () async {
-      if (_isChanged()) {
-        return await _showExitConfirmationDialog();
-      }
-      return true; // 변경사항이 없으면 바로 뒤로 가기
-    },
-    child: Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
-          onPressed: () async {
-            if (_isChanged()) {
-              if (await _showExitConfirmationDialog()) {
-                Navigator.pop(context);
-              }
-            } else {
-              Navigator.pop(context);
-            }
-          },
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
       ),
-      body: SingleChildScrollView( // 키보드가 올라와도 스크롤 가능하도록 변경
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const SizedBox(height: 20),
-            _buildProfileImage(),
-            const SizedBox(height: 20),
-            CustomInputField(
-              controller: _nameController,
-              hintText: _name.isNotEmpty ? _name : '샘플',
-              maxLength: 15,
-              labelText: '닉네임',
-              onChanged: (value) => setState(() {
-                _name = value;
-                _isNameValid = value.isNotEmpty;
-              }),
-            ),
-            const SizedBox(height: 20),
-            _buildEmailField(),
-            const SizedBox(height: 20),
-            CustomInputField(
-              controller: _introController,
-              hintText: '멋진 소개를 부탁드려요!',
-              maxLength: 100,
-              labelText: '자기소개',
-              minLines: 6,
-              maxLines: 6,
-              onChanged: (value) => setState(() {
-                _intro = value;
-                _isIntroValid = value.isNotEmpty;
-              }),
-            ),
-            const SizedBox(height: 16),
-            _buildSaveButton(),
-          ],
-        ),
-      ),
-    ),
-  );
-}
+    );
+  }
 
   // 프로필 이미지 위젯
   Widget _buildProfileImage() {
+    bool isValidUrl = _imageUrl != null && _imageUrl!.startsWith('http');
+
     return Center(
       child: Stack(
         children: [
@@ -282,15 +296,21 @@ Widget build(BuildContext context) {
               height: 82,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
-                image: DecorationImage(
-                  image: _imageFile != null
-                      ? FileImage(_imageFile!)
-                      : (_imageUrl != null
-                          ? NetworkImage(_imageUrl!) as ImageProvider
-                          : const AssetImage('assets/images/user_round.png')),
-                  fit: BoxFit.cover,
-                ),
+                color: AppColors.primary_250,
+                image: isValidUrl
+                    ? DecorationImage(
+                        image: NetworkImage(_imageUrl!),
+                        fit: BoxFit.cover,
+                      )
+                    : null,
               ),
+              child: isValidUrl
+                  ? null
+                  : const Icon(
+                      Icons.person,
+                      color: Colors.white,
+                      size: 40,
+                    ),
             ),
           ),
           Positioned(
@@ -300,8 +320,12 @@ Widget build(BuildContext context) {
               onTap: _pickImage,
               child: Container(
                 padding: const EdgeInsets.all(6),
-                decoration: const BoxDecoration(color: Colors.grey, shape: BoxShape.circle),
-                child: const Icon(Icons.camera_alt, color: Colors.white, size: 20),
+                decoration: const BoxDecoration(
+                  color: Colors.grey,
+                  shape: BoxShape.circle,
+                ),
+                child:
+                    const Icon(Icons.camera_alt, color: Colors.white, size: 20),
               ),
             ),
           ),
@@ -315,13 +339,19 @@ Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('이메일 주소', style: AppTypography.headline6.copyWith(color: AppColors.grayScale_650)),
+        Text('이메일 주소',
+            style: AppTypography.headline6
+                .copyWith(color: AppColors.grayScale_650)),
         const SizedBox(height: 8),
         Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          decoration: BoxDecoration(color: AppColors.grayScale_150, borderRadius: BorderRadius.circular(12)),
-          child: Text(_userEmail ?? '이메일 정보 없음', style: AppTypography.body1.copyWith(color: AppColors.grayScale_550)),
+          decoration: BoxDecoration(
+              color: AppColors.grayScale_150,
+              borderRadius: BorderRadius.circular(12)),
+          child: Text(_userEmail ?? '이메일 정보 없음',
+              style:
+                  AppTypography.body1.copyWith(color: AppColors.grayScale_550)),
         ),
       ],
     );
@@ -331,12 +361,15 @@ Widget build(BuildContext context) {
   Widget _buildSaveButton() {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        backgroundColor: _isFormValid ? AppColors.primary_450 : AppColors.primary_250,
+        backgroundColor:
+            _isFormValid ? AppColors.primary_450 : AppColors.primary_250,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         padding: const EdgeInsets.symmetric(vertical: 16),
       ),
       onPressed: _isFormValid ? _saveUserInfo : null,
-      child: const Text('등록', style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
+      child: const Text('등록',
+          style: TextStyle(
+              fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
     );
   }
 }
