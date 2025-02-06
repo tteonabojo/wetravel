@@ -58,6 +58,23 @@ class ScheduleDto {
         order: order ?? this.order,
       );
 
+  factory ScheduleDto.fromMap(Map<String, dynamic> map) {
+    return ScheduleDto(
+      id: map['id'] ?? '', // null일 경우 빈 문자열
+      packageId: map['packageId'] ?? '',
+      day: map['day'] ?? 1, // null일 경우 0
+      time: map['time'] ?? '',
+      title: map['title'] ?? '',
+      location: map['location'] ?? '',
+      content: map['content'] ?? '',
+      imageUrl: map['imageUrl'] ?? '',
+      order: map['order'] ?? 1,
+      duration: map['duration'] ?? '',
+      isAIRecommended: map['isAIRecommended'] ?? false,
+      travelStyle: map['travelStyle'] ?? '',
+    );
+  }
+
   /// JSON 데이터에서 객체 생성
   factory ScheduleDto.fromJson(Map<String, dynamic> json) {
     return ScheduleDto(
@@ -68,11 +85,11 @@ class ScheduleDto {
       imageUrl: json['imageUrl'] ?? '',
       isAIRecommended: json['isAIRecommended'] ?? false,
       travelStyle: json['travelStyle'] ?? '',
-      day: json['day'] ?? 0,
+      day: json['day'] ?? 1,
       content: json['content'] ?? '',
       time: json['time'] ?? '',
       packageId: json['packageId'] ?? '',
-      order: json['order'] ?? 0,
+      order: json['order'] ?? 1,
     );
   }
 

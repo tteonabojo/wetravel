@@ -56,7 +56,7 @@ class Schedule {
         content: json['content'] as String? ?? '',
         time: json['time'] as String? ?? '',
         packageId: json['packageId'] as String? ?? '',
-        order: json['order'] as int? ?? 0,
+        order: json['order'] as int? ?? 1,
       );
 
   ScheduleDto toDto() {
@@ -73,6 +73,40 @@ class Schedule {
       time: time,
       packageId: packageId,
       order: order,
+    );
+  }
+
+  Schedule toEntity() {
+    return Schedule(
+      id: id,
+      packageId: packageId,
+      day: day,
+      time: time,
+      title: title,
+      location: location,
+      content: content,
+      imageUrl: imageUrl,
+      duration: duration,
+      isAIRecommended: isAIRecommended,
+      travelStyle: travelStyle,
+      order: order,
+    );
+  }
+
+  factory Schedule.fromDto(ScheduleDto dto) {
+    return Schedule(
+      id: dto.id,
+      packageId: dto.packageId,
+      day: dto.day,
+      time: dto.time,
+      title: dto.title,
+      location: dto.location,
+      content: dto.content,
+      imageUrl: dto.imageUrl,
+      order: dto.order,
+      duration: dto.duration,
+      isAIRecommended: dto.isAIRecommended,
+      travelStyle: dto.travelStyle,
     );
   }
 }
