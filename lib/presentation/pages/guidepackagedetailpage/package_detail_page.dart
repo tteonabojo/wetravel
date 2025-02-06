@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
@@ -66,6 +67,8 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
         tempScheduleMap.putIfAbsent(schedule.day, () => []).add(schedule);
       }
 
+      await _incrementViewCount(fetchedPackage.id);
+
       setState(() {
         package = fetchedPackage;
         scheduleMap = tempScheduleMap;
@@ -73,6 +76,25 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
     } catch (e, stacktrace) {
       print('Error loading data: $e');
       print('Stacktrace: $stacktrace');
+    }
+  }
+
+  Future<void> _incrementViewCount(String packageId) async {
+    try {
+      final packageRef =
+          FirebaseFirestore.instance.collection('packages').doc(packageId);
+
+      // Firestore에서 패키지 문서를 가져와서 viewCount를 증가시킴
+      final packageSnapshot = await packageRef.get();
+      if (packageSnapshot.exists) {
+        final currentViewCount = packageSnapshot.data()?['viewCount'] ?? 0;
+        await packageRef.update({'viewCount': currentViewCount + 1});
+        print('viewCount가 증가했습니다: ${currentViewCount + 1}');
+      } else {
+        print('패키지 문서를 찾을 수 없습니다.');
+      }
+    } catch (e) {
+      print('viewCount 업데이트 실패: $e');
     }
   }
 
