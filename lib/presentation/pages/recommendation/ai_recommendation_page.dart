@@ -80,7 +80,7 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
                       padding: const EdgeInsets.only(right: 16.0),
                       child: const Icon(Icons.close),
                     ),
-                    onPressed: () => Navigator.pushNamed(context, '/new-trip'),
+                    onPressed: () => Navigator.pushNamed(context, '/'),
                   ),
                 ],
               ),

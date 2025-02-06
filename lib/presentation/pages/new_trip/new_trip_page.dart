@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:wetravel/core/constants/app_border_radius.dart';
+import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_shadow.dart';
-import 'package:wetravel/presentation/pages/new_trip/scrap_package_page.dart';
+import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/presentation/widgets/buttons/standard_button.dart';
 
 class NewTripPage extends StatelessWidget {
@@ -10,37 +11,25 @@ class NewTripPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        actions: [
-          IconButton(
-            icon: Padding(
-              padding: const EdgeInsets.only(right: 16.0),
-              child: const Icon(Icons.close),
-            ),
-            onPressed: () => Navigator.pop(context),
-          ),
-        ],
-      ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 메인 카드
               const SizedBox(height: 12),
               Expanded(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Card(
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: AppBorderRadius.medium16,
+                        color: Colors.white,
+                        boxShadow: AppShadow.generalShadow,
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.all(24.0),
+                        padding: AppSpacing.large24,
                         child: Column(
                           children: [
                             const Text(
@@ -78,10 +67,9 @@ class NewTripPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    // 내가 담은 AI패키지 버튼
                     Container(
                       decoration: BoxDecoration(
-                        color: Colors.grey[400],
+                        color: AppColors.grayScale_150,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Material(
@@ -114,17 +102,16 @@ class NewTripPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    //내가 담은 가이드 패키지
                     Container(
                       decoration: BoxDecoration(
-                        color: Colors.grey[400],
+                        color: AppColors.grayScale_150,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Material(
                         color: Colors.transparent,
                         child: InkWell(
-                          onTap: () =>
-                              Navigator.pushNamed(context, '/saved-plans'),
+                          onTap: () => Navigator.pushNamed(
+                              context, '/saved-guide-plans'),
                           borderRadius: BorderRadius.circular(12),
                           child: Container(
                             width: double.infinity,

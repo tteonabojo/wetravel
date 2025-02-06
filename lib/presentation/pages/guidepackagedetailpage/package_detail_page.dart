@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_spacing.dart';
+import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/domain/entity/package.dart';
 import 'package:wetravel/domain/entity/schedule.dart';
 import 'package:wetravel/domain/usecase/get_package_usecase.dart';
@@ -180,7 +181,13 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text(package?.title ?? '패키지 상세')),
+      appBar: AppBar(
+          title: Text(
+        package?.title ?? '패키지 상세',
+        style: AppTypography.headline4.copyWith(
+          color: AppColors.grayScale_950,
+        ),
+      )),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -194,6 +201,8 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
               keywordList: package?.keywordList ?? [],
               location: package?.location ?? '위치 정보 없음',
               onUpdate: (newTitle, newKeywordList, newLocation) {},
+              userImageUrl: package!.userImageUrl,
+              userName: package!.userName,
             ),
             divider(1),
             Padding(

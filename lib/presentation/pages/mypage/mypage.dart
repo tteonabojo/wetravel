@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wetravel/core/constants/app_icons.dart';
 import 'package:wetravel/core/constants/app_shadow.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wetravel/core/constants/app_shadow.dart';
 import 'package:wetravel/presentation/pages/mypagecorrection/mypage_correction.dart';
 import 'package:wetravel/presentation/provider/user_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -14,25 +14,7 @@ import 'package:url_launcher/url_launcher.dart';
 class MyPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userAsync = ref.watch(userStreamProvider);
-
     return Scaffold(
-      appBar: AppBar(
-        title: const Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            '마이페이지',
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        automaticallyImplyLeading: false,
-      ),
       body: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: 16,
@@ -160,14 +142,14 @@ class MyPage extends ConsumerWidget {
   }
 
   void _showInquiryDialog(BuildContext context) {
-    showDialog(
+    showCupertinoDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
+        return CupertinoAlertDialog(
           title: Text('문의하기'),
           content: Text('관리자 이메일: admin@example.com'),
           actions: [
-            TextButton(
+            CupertinoDialogAction(
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -268,26 +250,24 @@ class MyPage extends ConsumerWidget {
   }
 
   void _showDeleteAccountDialog(BuildContext context, WidgetRef ref) {
-    showDialog(
+    showCupertinoDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
+        return CupertinoAlertDialog(
           title: const Text('회원탈퇴'),
           content: const Text('정말로 회원 탈퇴를 진행하시겠습니까? 이 작업은 되돌릴 수 없습니다.'),
           actions: [
-            TextButton(
+            CupertinoDialogAction(
               onPressed: () => Navigator.of(context).pop(), // 다이얼로그 닫기
               child: const Text('취소'),
             ),
-            TextButton(
+            CupertinoDialogAction(
+              isDestructiveAction: true, // 빨간색 강조
               onPressed: () async {
                 Navigator.of(context).pop(); // 다이얼로그 닫기
                 await deleteUserAccount(context, ref);
               },
-              child: const Text(
-                '탈퇴',
-                style: TextStyle(color: Colors.red),
-              ),
+              child: const Text('탈퇴'),
             ),
           ],
         );

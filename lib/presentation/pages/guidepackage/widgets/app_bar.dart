@@ -9,18 +9,6 @@ class GuideAppBar extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Row(
-          //   children: [
-          //     IconButton(
-          //       icon: Icon(Icons.arrow_back_ios, color: Colors.black),
-          //       onPressed: () {
-          //         Navigator.pop(context);
-          //       },
-          //     ),
-          //     Spacer(),
-          //   ],
-          // ),
-          // SizedBox(height: 8),
           SizedBox(
             width: double.infinity,
             child: Text(

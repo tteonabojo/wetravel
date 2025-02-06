@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/domain/entity/package.dart';
 import 'package:wetravel/presentation/pages/guidepackagedetailpage/package_detail_page.dart';
@@ -30,38 +31,45 @@ class MainPopularPackages extends ConsumerWidget {
           child: MainLabel(label: '인기 있는 패키지'),
         ),
         visiblePackages.isNotEmpty
-            ? Column(
-                spacing: 8,
-                children: List.generate(
-                  visiblePackages.length,
-                  (index) {
-                    int? rate = index <= 2 ? index + 1 : null; // 3등 까지 순위 표시
-                    return GestureDetector(
-                      onTap: () async {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) {
-                              return PackageDetailPage(
-                                packageId: visiblePackages[index].id,
-                                getPackageUseCase: getPackageUseCase,
-                                getSchedulesUseCase: getSchedulesUseCase,
-                              );
-                            },
+            ? Padding(
+                padding: AppSpacing.medium16,
+                child: Column(
+                  spacing: 16,
+                  children: List.generate(
+                    visiblePackages.length,
+                    (index) {
+                      int? rate = index <= 2 ? index + 1 : null; // 3등 까지 순위 표시
+                      return GestureDetector(
+                        onTap: () async {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return PackageDetailPage(
+                                  packageId: visiblePackages[index].id,
+                                  getPackageUseCase: getPackageUseCase,
+                                  getSchedulesUseCase: getSchedulesUseCase,
+                                );
+                              },
+                            ),
+                          );
+                        },
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: PackageItem(
+                            rate: rate,
+                            title: visiblePackages[index].title,
+                            location: visiblePackages[index].location,
+                            guideImageUrl: visiblePackages[index].userImageUrl,
+                            packageImageUrl: visiblePackages[index].imageUrl,
+                            name: visiblePackages[index].userName,
+                            keywords:
+                                visiblePackages[index].keywordList!.toList(),
                           ),
-                        );
-                      },
-                      child: PackageItem(
-                        rate: rate,
-                        title: visiblePackages[index].title,
-                        location: visiblePackages[index].location,
-                        guideImageUrl: visiblePackages[index].userImageUrl,
-                        packageImageUrl: visiblePackages[index].imageUrl,
-                        name: visiblePackages[index].userName,
-                        keywords: visiblePackages[index].keywordList!.toList(),
-                      ),
-                    );
-                  },
+                        ),
+                      );
+                    },
+                  ),
                 ),
               )
             : Center(
