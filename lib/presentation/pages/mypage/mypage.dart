@@ -141,14 +141,14 @@ class MyPage extends ConsumerWidget {
   }
 
   void _showInquiryDialog(BuildContext context) {
-    showDialog(
+    showCupertinoDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
+        return CupertinoAlertDialog(
           title: Text('문의하기'),
           content: Text('관리자 이메일: admin@example.com'),
           actions: [
-            TextButton(
+            CupertinoDialogAction(
               onPressed: () {
                 Navigator.of(context).pop();
               },

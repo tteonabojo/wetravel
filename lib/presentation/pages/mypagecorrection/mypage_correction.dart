@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -122,96 +123,54 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
   bool get _isFormValid => _isNameValid && _isIntroValid;
 
   Future<bool> _showExitConfirmationDialog() async {
-    return await showDialog<bool>(
+    return await showCupertinoDialog<bool>(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          contentPadding: const EdgeInsets.all(0),
-          content: Padding(
-            padding:
-                const EdgeInsets.only(top: 24, left: 24, right: 24, bottom: 16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  '프로필 설정에서 나가시겠어요?',
-                  textAlign: TextAlign.center,
-                  style: AppTypography.headline6.copyWith(
-                    color: AppColors.grayScale_950,
-                    fontSize: 18,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '변경사항이 저장되지 않아요.',
-                  textAlign: TextAlign.center,
-                  style: AppTypography.body2.copyWith(
-                    color: AppColors.grayScale_650,
-                    fontSize: 14,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 4), // 좌우 16px 여백 추가
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: SizedBox(
-                          width: 130,
-                          height: 40,
-                          child: ElevatedButton(
-                            onPressed: () => Navigator.of(context)
-                                .pop(false), // 취소 시 false 반환
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.grayScale_050,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12)),
-                            ),
-                            child: Text(
-                              '취소',
-                              style: AppTypography.body1.copyWith(
-                                color: AppColors.primary_450,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8), // 버튼 사이 여백
-                      Expanded(
-                        child: SizedBox(
-                          width: 130,
-                          height: 40,
-                          child: ElevatedButton(
-                            onPressed: () => Navigator.of(context)
-                                .pop(true), // 나가기 시 true 반환
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary_450,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12)),
-                            ),
-                            child: Text(
-                              '나가기',
-                              style: AppTypography.body1.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+        return CupertinoAlertDialog(
+          title: Text(
+            '프로필 설정에서 나가시겠어요?',
+            style: AppTypography.headline6.copyWith(
+              fontSize: 18,
+              color: AppColors.grayScale_950,
             ),
           ),
+          content: Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(
+              '변경사항이 저장되지 않아요.',
+              style: AppTypography.body2.copyWith(
+                fontSize: 14,
+                color: AppColors.grayScale_650,
+              ),
+            ),
+          ),
+          actions: [
+            CupertinoDialogAction(
+              onPressed: () =>
+                  Navigator.of(context).pop(false), // 취소 시 false 반환
+              child: Text(
+                '취소',
+                style: AppTypography.body1.copyWith(
+                  color: AppColors.primary_450,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            CupertinoDialogAction(
+              onPressed: () => Navigator.of(context).pop(true), // 나가기 시 true 반환
+              isDestructiveAction: true,
+              child: Text(
+                '나가기',
+                style: AppTypography.body1.copyWith(
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
         );
       },
-    ).then((value) => value ?? false); // 다이얼로그가 닫힐 때 false를 기본값으로 반환
+    ).then((value) => value ?? false); // 다이얼로그가 닫힐 때 기본값 false 반환
   }
 
   @override
