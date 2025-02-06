@@ -13,9 +13,9 @@ class PackageItem extends StatelessWidget {
   final int? rate;
   final String title;
   final String location;
-  final String guideImageUrl;
-  final String packageImageUrl;
-  final String name;
+  final String? guideImageUrl;
+  final String? packageImageUrl;
+  final String? name;
   final List<String> keywords;
 
   const PackageItem({
@@ -25,9 +25,9 @@ class PackageItem extends StatelessWidget {
     this.rate,
     required this.title,
     required this.location,
-    required this.guideImageUrl,
-    required this.packageImageUrl,
-    required this.name,
+    this.guideImageUrl,
+    this.packageImageUrl,
+    this.name,
     required this.keywords,
   });
 
@@ -35,27 +35,23 @@ class PackageItem extends StatelessWidget {
   Widget build(BuildContext context) {
     assert(keywords.length == 3, "키워드 리스트는 반드시 3개의 요소를 가져야 합니다.");
 
-    return Column(
-      children: [
-        Container(
-          width: 312,
-          height: 120,
-          padding: AppSpacing.medium16,
-          decoration: ShapeDecoration(
-              color: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: AppBorderRadius.small12,
-              ),
-              shadows: AppShadow.generalShadow),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildImageAndRating(),
-              _buildCustomIcon(),
-            ],
+    return Container(
+      width: 312,
+      height: 120,
+      padding: AppSpacing.medium16,
+      decoration: ShapeDecoration(
+          color: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: AppBorderRadius.small12,
           ),
-        ),
-      ],
+          shadows: AppShadow.generalShadow),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildImageAndRating(),
+          icon != null ? _buildCustomIcon() : SizedBox.shrink(),
+        ],
+      ),
     );
   }
 
@@ -72,17 +68,21 @@ class PackageItem extends StatelessWidget {
                   aspectRatio: 1,
                   child: Container(
                     decoration: ShapeDecoration(
-                      image: DecorationImage(
-                        image: packageImageUrl.isNotEmpty
-                            ? NetworkImage(packageImageUrl)
-                            : AssetImage("assets/images/cherry_blossom.png")
-                                as ImageProvider,
-                        fit: BoxFit.cover,
-                      ),
+                      image:
+                          packageImageUrl != null && packageImageUrl!.isNotEmpty
+                              ? DecorationImage(
+                                  image: NetworkImage(packageImageUrl!),
+                                  fit: BoxFit.cover,
+                                )
+                              : null,
                       shape: RoundedRectangleBorder(
                         borderRadius: AppBorderRadius.small8,
                       ),
                     ),
+                    child:
+                        packageImageUrl != null && packageImageUrl!.isNotEmpty
+                            ? _buildImageWithLoader(packageImageUrl!)
+                            : Container(),
                   ),
                 ),
                 rate != null ? _buildRatingBadge() : SizedBox.shrink(),
@@ -91,6 +91,40 @@ class PackageItem extends StatelessWidget {
             _buildPackageDetails(),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildImageWithLoader(String imageUrl) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8), // 모서리를 둥글게 할 반경 설정
+      child: Image.network(
+        imageUrl,
+        fit: BoxFit.cover,
+        loadingBuilder: (BuildContext context, Widget child,
+            ImageChunkEvent? loadingProgress) {
+          if (loadingProgress == null) {
+            return child; // 이미지가 로드되면 실제 이미지를 반환
+          } else {
+            return Center(
+              child: SizedBox(
+                width: 20, // 로딩 인디케이터의 크기 가로 20
+                height: 20, // 로딩 인디케이터의 크기 세로 20
+                child: CircularProgressIndicator(
+                  value: loadingProgress.expectedTotalBytes != null
+                      ? loadingProgress.cumulativeBytesLoaded /
+                          (loadingProgress.expectedTotalBytes ?? 1)
+                      : null,
+                  strokeWidth: 2, // 로딩 인디케이터의 두께 조정
+                ),
+              ),
+            );
+          }
+        },
+        errorBuilder: (context, error, stackTrace) {
+          return Center(
+              child: Icon(Icons.error, color: Colors.red)); // 로딩 실패 시 에러 아이콘 표시
+        },
       ),
     );
   }
@@ -219,8 +253,8 @@ class PackageItem extends StatelessWidget {
             height: 16,
             decoration: ShapeDecoration(
               image: DecorationImage(
-                image: guideImageUrl.isNotEmpty
-                    ? NetworkImage(guideImageUrl)
+                image: guideImageUrl != null && guideImageUrl!.isNotEmpty
+                    ? NetworkImage(guideImageUrl!)
                     : AssetImage("assets/images/sample_profile.jpg")
                         as ImageProvider,
                 fit: BoxFit.cover,
@@ -230,7 +264,7 @@ class PackageItem extends StatelessWidget {
           ),
           Expanded(
             child: SizedBox(
-              child: Text(name,
+              child: Text(name!,
                   style: AppTypography.body3.copyWith(
                     color: AppColors.grayScale_750,
                   )),

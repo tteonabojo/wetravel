@@ -15,6 +15,18 @@ class AIRecommendationPage extends ConsumerStatefulWidget {
 
 class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
   String? selectedDestination;
+  final Map<String, String> _imageCache = {};
+  List<String> destinations = [];
+  List<String> reasons = [];
+
+  Future<String> _getCachedImage(String destination) async {
+    if (_imageCache.containsKey(destination)) {
+      return _imageCache[destination]!;
+    }
+    final imageUrl = await _getPixabayImage(destination);
+    _imageCache[destination] = imageUrl;
+    return imageUrl;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,34 +35,62 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
 
     return ref.watch(recommendationProvider(surveyResponse)).when(
           data: (recommendation) {
-            if (surveyResponse.selectedCity != null) {
-              // 선택된 도시가 있는 경우, 같은 카테고리에서 2개 도시 추가
-              final recommendedCities = ref
-                  .read(recommendationStateProvider.notifier)
-                  .getRecommendedCitiesFromSameCategory(
-                      surveyResponse.selectedCity!);
+            if (recommendation.destinations.isNotEmpty &&
+                destinations.isEmpty) {
+              if (surveyResponse.selectedCity != null) {
+                final recommendedCities = ref
+                    .read(recommendationStateProvider.notifier)
+                    .getRecommendedCitiesFromSameCategory(
+                        surveyResponse.selectedCity!);
 
-              // 기존 destinations를 클리어하고 새로운 순서로 설정
-              recommendation.destinations.clear();
-              recommendation.destinations.add(surveyResponse.selectedCity!);
-              recommendation.destinations.addAll(recommendedCities);
+                destinations = [
+                  surveyResponse.selectedCity!,
+                  ...recommendedCities
+                ];
 
-              // reasons와 tips도 적절히 조정
-              // (실제 구현에서는 각 도시에 맞는 이유와 팁을 설정해야 함)
+                if (recommendation.reasons.isNotEmpty) {
+                  final maxLength =
+                      destinations.length < recommendation.reasons.length
+                          ? destinations.length
+                          : recommendation.reasons.length;
+                  reasons = recommendation.reasons.sublist(0, maxLength);
+                } else {
+                  reasons = List.generate(
+                    destinations.length,
+                    (index) => '추천 여행지입니다.',
+                  );
+                }
+              } else {
+                destinations = List.from(recommendation.destinations);
+                reasons = recommendation.reasons.isNotEmpty
+                    ? List.from(recommendation.reasons)
+                    : List.generate(
+                        destinations.length,
+                        (index) => '추천 여행지입니다.',
+                      );
+              }
             }
 
             return Scaffold(
+              appBar: AppBar(
+                automaticallyImplyLeading: false,
+                actions: [
+                  IconButton(
+                    icon: Padding(
+                      padding: const EdgeInsets.only(right: 16.0),
+                      child: const Icon(Icons.close),
+                    ),
+                    onPressed: () => Navigator.pushNamed(context, '/'),
+                  ),
+                ],
+              ),
               body: SafeArea(
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 0),
                       const Text(
                         'AI 맞춤 여행지 추천',
                         style: TextStyle(
@@ -69,37 +109,35 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
                       const SizedBox(height: 20),
                       Expanded(
                         child: ListView.builder(
-                          itemCount: recommendation.destinations.length,
+                          key: const PageStorageKey('destination_list'),
+                          itemCount: destinations.length,
                           itemBuilder: (context, index) {
-                            final destination =
-                                recommendation.destinations[index];
-                            final reason = recommendation.reasons[index];
-                            final matchPercent =
-                                95 - (index * 10); // 순위에 따라 매칭률 감소
+                            final destination = destinations[index];
+                            final reason = reasons[index];
+                            final matchPercent = 95 - (index * 10);
 
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 16.0),
-                              child: GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    selectedDestination = destination;
-                                  });
-                                },
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: selectedDestination == destination
-                                          ? Colors.blue
-                                          : Colors.transparent,
-                                      width: 2,
-                                    ),
-                                    borderRadius: BorderRadius.circular(16),
+                            return GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: () {
+                                setState(() {
+                                  selectedDestination = destination;
+                                });
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.only(bottom: 16.0),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: selectedDestination == destination
+                                        ? Colors.blue
+                                        : Colors.transparent,
+                                    width: 2,
                                   ),
-                                  child: _buildDestinationCard(
-                                    destination,
-                                    reason,
-                                    matchPercent,
-                                  ),
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: _buildDestinationCard(
+                                  destination,
+                                  reason,
+                                  matchPercent,
                                 ),
                               ),
                             );
@@ -169,9 +207,9 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
 
   Widget _buildDestinationCard(
       String destination, String reason, int matchPercent) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -188,7 +226,7 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
                   child: SizedBox(
                     width: double.infinity,
                     child: FutureBuilder<String>(
-                      future: _getPixabayImage(destination),
+                      future: _getCachedImage(destination),
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
@@ -204,6 +242,7 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
                         return Image.network(
                           snapshot.data!,
                           fit: BoxFit.cover,
+                          key: ValueKey(destination),
                         );
                       },
                     ),

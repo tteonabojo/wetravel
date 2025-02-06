@@ -100,8 +100,11 @@ class _PackageHeaderState extends ConsumerState<PackageHeader> {
                         height: 24,
                         decoration: ShapeDecoration(
                           image: DecorationImage(
-                            image: NetworkImage(user.imageUrl ??
-                                "assets/images/sample_profile.jpg"),
+                            image: (user.imageUrl != null &&
+                                    user.imageUrl!.isNotEmpty)
+                                ? NetworkImage(user.imageUrl!) as ImageProvider
+                                : const AssetImage(
+                                    "assets/images/sample_profile.jpg"),
                             fit: BoxFit.cover,
                           ),
                           shape: RoundedRectangleBorder(
@@ -109,10 +112,13 @@ class _PackageHeaderState extends ConsumerState<PackageHeader> {
                           ),
                         ),
                       ),
+
                       Expanded(
                         child: SizedBox(
                           child: Text(
-                            user.name ?? '사용자 이름',
+                            (user.name != null && user.name!.trim().isNotEmpty)
+                                ? user.name!
+                                : '닉네임 없음',
                             style: AppTypography.body2.copyWith(
                               color: AppColors.grayScale_950,
                             ),

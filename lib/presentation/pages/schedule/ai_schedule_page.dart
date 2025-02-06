@@ -1,14 +1,22 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/domain/entity/survey_response.dart';
 import 'package:wetravel/domain/entity/travel_schedule.dart';
 import 'package:wetravel/presentation/provider/schedule_provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
-class AISchedulePage extends ConsumerWidget {
+class AISchedulePage extends ConsumerStatefulWidget {
   const AISchedulePage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AISchedulePage> createState() => _AISchedulePageState();
+}
+
+class _AISchedulePageState extends ConsumerState<AISchedulePage> {
+  @override
+  Widget build(BuildContext context) {
     final surveyResponse =
         ModalRoute.of(context)!.settings.arguments as SurveyResponse;
 
@@ -136,23 +144,15 @@ class AISchedulePage extends ConsumerWidget {
                                   ref.read(scheduleProvider(surveyResponse));
                               if (scheduleAsync.hasValue) {
                                 final schedule = scheduleAsync.value!;
-                                // destination 설정
-                                final updatedSchedule = TravelSchedule(
-                                  destination:
-                                      surveyResponse.selectedCity ?? '',
-                                  days: schedule.days,
-                                );
-                                await ref.read(
-                                    saveScheduleProvider(updatedSchedule)
-                                        .future);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('일정이 저장되었습니다')),
-                                );
+                                await _saveScheduleToFirebase(
+                                    schedule, surveyResponse);
                               }
                             } catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('일정 저장 실패: $e')),
-                              );
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('일정 저장 실패: $e')),
+                                );
+                              }
                             }
                           },
                           style: ElevatedButton.styleFrom(
@@ -221,5 +221,73 @@ class AISchedulePage extends ConsumerWidget {
     // 여행 기간에서 숫자 추출
     final days = int.tryParse(duration.split('박')[0]) ?? 0;
     return days + 1; // N박의 경우 N+1일
+  }
+
+  Future<void> _saveScheduleToFirebase(
+      TravelSchedule schedule, SurveyResponse surveyResponse) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
+
+      final now = DateTime.now();
+      final id = now.millisecondsSinceEpoch.toString();
+
+      // 도시 이름이 null이거나 빈 문자열인 경우 처리
+      final cityName = surveyResponse.selectedCity?.trim() ?? '';
+      if (cityName.isEmpty) {
+        throw Exception('도시 이름이 없습니다.');
+      }
+
+      final scheduleData = {
+        'id': id,
+        'title': '$cityName 여행', // 도시 이름으로 제목 설정
+        'location': cityName, // 도시 이름으로 위치 설정
+        'duration': '${schedule.days.length - 1}박 ${schedule.days.length}일',
+        'imageUrl': await _getImageUrl(cityName),
+        'isAIRecommended': true,
+        'travelStyle': surveyResponse.travelStyles.isNotEmpty
+            ? surveyResponse.travelStyles[0]
+            : '관광',
+        'createdAt': now.toIso8601String(), // 생성 시간 추가
+      };
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .collection('schedule')
+          .doc(id)
+          .set(scheduleData);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('일정이 저장되었습니다')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('저장 실패: $e')),
+        );
+      }
+    }
+  }
+
+  Future<String> _getImageUrl(String city) async {
+    try {
+      // 이미 firebase_storage에 저장된 도시 이미지가 있다면 그것을 사용
+      final storageRef = FirebaseStorage.instance
+          .ref()
+          .child('city_images')
+          .child('$city.jpg');
+
+      try {
+        return await storageRef.getDownloadURL();
+      } catch (_) {
+        // 저장된 이미지가 없는 경우 기본 이미지 URL 반환
+        return 'https://via.placeholder.com/640x480.jpg?text=$city';
+      }
+    } catch (e) {
+      return 'https://via.placeholder.com/640x480.jpg?text=Error';
+    }
   }
 }

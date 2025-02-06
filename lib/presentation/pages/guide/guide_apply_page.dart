@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
+import 'package:wetravel/presentation/pages/guide/package_register_page/package_register_page.dart';
 
 class GuideApplyPage extends StatelessWidget {
   const GuideApplyPage({super.key});
@@ -37,7 +38,12 @@ class GuideApplyPage extends StatelessWidget {
                       minimumSize: WidgetStatePropertyAll(Size(150, 40)),
                       padding: WidgetStatePropertyAll(
                           EdgeInsets.symmetric(horizontal: 32, vertical: 12))),
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => PackageRegisterPage()));
+                  },
                   child: const Text('가이드 신청하기'),
                 ),
               ),

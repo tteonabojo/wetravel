@@ -1,5 +1,11 @@
+import 'dart:io';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
+import 'package:wetravel/data/dto/schedule_dto.dart';
 import 'package:wetravel/presentation/pages/guide/package_register_page/widgets/package_header.dart';
 import 'package:wetravel/presentation/pages/guide/package_register_page/widgets/package_hero_image.dart';
 import 'package:wetravel/presentation/pages/guide/package_register_page/widgets/schedule_list.dart';
@@ -20,6 +26,13 @@ class PackageRegisterPage extends StatefulWidget {
 class _PackageRegisterPageState extends State<PackageRegisterPage> {
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _durationController = TextEditingController();
+  bool isGuide = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserIsGuide();
+  }
 
   String _selectedImagePath = "";
   String _title = '제목';
@@ -29,14 +42,14 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
   int _selectedDay = 1;
   final List<List<Map<String, String>>> _schedules = [[]];
 
-  // 삭제 함수
+  bool isLoading = false;
+
   void _onDelete(int dayIndex, int scheduleIndex) {
     setState(() {
       _schedules[dayIndex].removeAt(scheduleIndex);
     });
   }
 
-  // 일정 추가 함수
   void _onAddSchedule() {
     if (_schedules[_selectedDay - 1].length < 9) {
       setState(() {
@@ -52,7 +65,6 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
 
   void _onEditSchedule(int dayIndex, int scheduleIndex, String time,
       String title, String location, String content) {
-    // 해당 날짜에 일정이 존재하는지 확인
     if (dayIndex < _schedules.length &&
         scheduleIndex < _schedules[dayIndex].length) {
       setState(() {
@@ -64,7 +76,6 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
         };
       });
     } else {
-      // 유효하지 않은 인덱스일 경우 처리 (예: 오류 메시지 표시)
       print("Invalid index: dayIndex=$dayIndex, scheduleIndex=$scheduleIndex");
     }
   }
@@ -96,7 +107,11 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
 
   final _packageRegisterService = PackageRegisterService();
 
-  Future<void> _registerPackage() async {
+  void _registerPackage() async {
+    setState(() {
+      isLoading = true;
+    });
+
     if (_selectedImagePath.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('이미지를 등록해주세요.')),
@@ -130,30 +145,76 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
       }
     }
 
+    String? imageUrl = await _uploadImageToFirebaseStorage(_selectedImagePath);
+
+    if (imageUrl != null) {
+      try {
+        await _packageRegisterService.registerPackage(
+          title: _title,
+          location: _location,
+          description: _descriptionController.text,
+          duration: _durationController.text,
+          imageUrl: imageUrl,
+          keywordList: _keywordList,
+          scheduleList: scheduleList,
+          isHidden: !isGuide, // isGuide가 false일 때만 isHidden을 true로 설정
+        );
+
+        setState(() {
+          isLoading = false;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('패키지 등록 성공')),
+        );
+
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => StackPage(initialIndex: 2)),
+          (route) => false,
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('패키지 등록 실패: $e')),
+        );
+      }
+    }
+  }
+
+  Future<String?> _uploadImageToFirebaseStorage(String imagePath) async {
     try {
-      await _packageRegisterService.registerPackage(
-        title: _title,
-        location: _location,
-        description: _descriptionController.text,
-        duration: _durationController.text,
-        imageUrl: _selectedImagePath,
-        keywordList: _keywordList,
-        scheduleList: scheduleList,
-      );
+      String fileName = 'images/${DateTime.now().millisecondsSinceEpoch}.jpg';
+      File file = File(imagePath);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('패키지 등록 성공')),
-      );
+      TaskSnapshot uploadTask =
+          await FirebaseStorage.instance.ref().child(fileName).putFile(file);
 
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => StackPage(initialIndex: 2)),
-        (route) => false,
-      );
+      String downloadUrl = await uploadTask.ref.getDownloadURL();
+      return downloadUrl;
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('패키지 등록 실패: $e')),
-      );
+      print('Error uploading image: $e');
+      return null;
+    }
+  }
+
+  // 로그인된 사용자의 isGuide 값 가져오기
+  Future<void> _fetchUserIsGuide() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      try {
+        DocumentSnapshot userDoc = await FirebaseFirestore.instance
+            .collection('users') // 사용자 컬렉션이 있는 위치로 수정
+            .doc(user.uid)
+            .get();
+
+        if (userDoc.exists) {
+          setState(() {
+            isGuide = userDoc['isGuide'] ?? false; // isGuide 필드 값을 가져옵니다.
+          });
+        }
+      } catch (e) {
+        print("Error fetching user data: $e");
+      }
     }
   }
 
@@ -176,6 +237,7 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
                   PackageHeroImage(
                     imagePath: _selectedImagePath,
                     onImageSelected: (newPath) {
+                      print('Selected image path: $newPath');
                       setState(() {
                         _selectedImagePath = newPath;
                       });
@@ -208,7 +270,10 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
                           selectedDay: _selectedDay,
                         ),
                         ScheduleList(
-                          schedules: _schedules[_selectedDay - 1],
+                          schedules: _schedules[_selectedDay - 1]
+                              .map((scheduleMap) =>
+                                  ScheduleDto.fromJson(scheduleMap))
+                              .toList(),
                           totalScheduleCount:
                               _schedules[_selectedDay - 1].length,
                           dayIndex: _selectedDay - 1,
@@ -238,7 +303,7 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
                         StandardButton.primary(
                           onPressed: _registerPackage,
                           sizeType: ButtonSizeType.normal,
-                          text: '작성 완료',
+                          text: isGuide ? '작성 완료' : '제출하기',
                         ),
                       ],
                     ),

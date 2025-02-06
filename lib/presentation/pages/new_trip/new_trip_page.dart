@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:wetravel/core/constants/app_border_radius.dart';
+import 'package:wetravel/core/constants/app_colors.dart';
+import 'package:wetravel/core/constants/app_shadow.dart';
+import 'package:wetravel/core/constants/app_spacing.dart';
+import 'package:wetravel/presentation/widgets/buttons/standard_button.dart';
 
 class NewTripPage extends StatelessWidget {
   const NewTripPage({super.key});
@@ -8,36 +13,23 @@ class NewTripPage extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 상단 로고
-              Row(
-                children: [
-                  const Text(
-                    '위트',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue,
-                    ),
-                  ),
-                ],
-              ),
-              // 메인 카드
               const SizedBox(height: 12),
               Expanded(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Card(
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: AppBorderRadius.medium16,
+                        color: Colors.white,
+                        boxShadow: AppShadow.generalShadow,
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.all(24.0),
+                        padding: AppSpacing.large24,
                         child: Column(
                           children: [
                             const Text(
@@ -61,26 +53,12 @@ class NewTripPage extends StatelessWidget {
                             const SizedBox(height: 24),
                             SizedBox(
                               width: double.infinity,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.pushNamed(
-                                      context, '/city-selection');
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.blue,
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 16),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                                child: const Text(
-                                  '새로운 여행 시작하기',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                              child: StandardButton.primary(
+                                sizeType: ButtonSizeType.normal,
+                                text: '새로운 여행 시작하기',
+                                onPressed: () => Navigator.pushNamed(
+                                  context,
+                                  '/city-selection',
                                 ),
                               ),
                             ),
@@ -89,33 +67,71 @@ class NewTripPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    // 내가 담은 패키지 버튼
-                    Material(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(12),
-                      child: InkWell(
-                        onTap: () {
-                          // 내가 담은 패키지 페이지로 이동
-                        },
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.grayScale_150,
                         borderRadius: BorderRadius.circular(12),
-                        child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(16),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                '내가 담은 패키지',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () =>
+                              Navigator.pushNamed(context, '/saved-plans'),
+                          borderRadius: BorderRadius.circular(12),
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  '내가 담은 AI패키지',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
-                              ),
-                              Icon(
-                                Icons.chevron_right,
-                                color: Colors.grey[600],
-                              ),
-                            ],
+                                Icon(
+                                  Icons.chevron_right,
+                                  color: Colors.grey[600],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.grayScale_150,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () => Navigator.pushNamed(
+                              context, '/saved-guide-plans'),
+                          borderRadius: BorderRadius.circular(12),
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  '내가 담은 가이드 패키지',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.chevron_right,
+                                  color: Colors.grey[600],
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -127,30 +143,6 @@ class NewTripPage extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.only(
-          left: 16,
-          right: 16,
-          bottom: 16,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildNavItem(Icons.home_outlined, false),
-            _buildNavItem(Icons.add_box_outlined, true),
-            _buildNavItem(Icons.crop_square_outlined, false),
-            _buildNavItem(Icons.person_outline, false),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNavItem(IconData icon, bool isSelected) {
-    return Icon(
-      icon,
-      color: isSelected ? Colors.blue : Colors.grey,
-      size: 28,
     );
   }
 }

@@ -2,10 +2,10 @@ flutter_native_splash:
   # Android 12 미만 및 iOS 설정
   android: true  # Android 적용
   ios: true  # iOS 적용
-  color: "#ffffff"  # 배경 색상
-  image: assets/images/cherry_blossom.png  # 스플래시 이미지 경로
+  color: "#4876EE"  # 배경 색상
+  image: assets/images/splash_logo.png
 
   # Android 12 이상 설정
   android_12:
-    color: "#ffffff"
-    image: assets/images/cherry_blossom.png
+    color: "#4876EE"
+    image: assets/images/splash_logo.png

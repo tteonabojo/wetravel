@@ -1,7 +1,9 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_icons.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
@@ -37,6 +39,19 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return StackPage();
       }));
+    }
+  }
+
+  /// 약관 url
+  void _launchURL() async {
+    const url =
+        'https://weetravel.notion.site/188e73dd935881a8af01f4f12db0d7c9';
+    final Uri uri = Uri.parse(url);
+
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    } else {
+      throw 'Could not launch $url';
     }
   }
 
@@ -97,7 +112,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     }).toList(),
                   ),
                   SizedBox(height: 52),
-                  // TODO: 텍스트 색상 변경 필요
                   Text(
                     '위트로 간편하게 여행일정을\n등록해보세요',
                     textAlign: TextAlign.center,
@@ -128,13 +142,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     Spacer(),
                     Text(
                       'Apple로 로그인',
-                      style: AppTypography.buttonLabelMedium,
+                      style: AppTypography.buttonLabelMedium
+                          .copyWith(color: AppColors.grayScale_250),
                     ),
                     Spacer()
                   ],
                 )),
             SizedBox(height: 16),
-            // TODO: 버튼 내부 요소 간격 조정 필요
             ElevatedButton(
                 onPressed: () {
                   signInWithProvider(provider: AuthProviders.google);
@@ -155,11 +169,36 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     Spacer(),
                     Text(
                       'Google로 로그인',
-                      style: AppTypography.buttonLabelMedium,
+                      style: AppTypography.buttonLabelMedium
+                          .copyWith(color: AppColors.grayScale_950),
                     ),
                     Spacer()
                   ],
                 )),
+            SizedBox(height: 16),
+            RichText(
+              text: TextSpan(
+                style: AppTypography.body3,
+                children: [
+                  TextSpan(
+                    text: '계속 진행하면 ',
+                    style: TextStyle(color: AppColors.grayScale_550),
+                  ),
+                  TextSpan(
+                    text: '이용약관/개인정보 처리방침',
+                    style: TextStyle(color: AppColors.primary_450),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () {
+                        _launchURL();
+                      },
+                  ),
+                  TextSpan(
+                    text: '이 적용됩니다.',
+                    style: TextStyle(color: AppColors.grayScale_550),
+                  ),
+                ],
+              ),
+            ),
             SizedBox(height: 20),
           ],
         ),

@@ -71,14 +71,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
       ],
       currentIndex: selectedIndex,
       onTap: (index) {
-        if (index == 1) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const NewTripPage()),
-          );
-        } else {
-          onItemTapped(index);
-        }
+        onItemTapped(index);
       },
       showSelectedLabels: false,
       showUnselectedLabels: false,

@@ -14,6 +14,7 @@ class RecommendationState {
   final List<String> accommodationTypes;
   final List<String> considerations;
   final List<String> selectedCities;
+  final List<String> selectedKeywords;
 
   RecommendationState({
     this.currentPage = 0,
@@ -24,7 +25,32 @@ class RecommendationState {
     this.accommodationTypes = const [],
     this.considerations = const [],
     this.selectedCities = const [],
+    this.selectedKeywords = const [],
   });
+
+  RecommendationState copyWith({
+    int? currentPage,
+    String? travelPeriod,
+    String? travelDuration,
+    List<String>? companions,
+    List<String>? travelStyles,
+    List<String>? accommodationTypes,
+    List<String>? considerations,
+    List<String>? selectedCities,
+    List<String>? selectedKeywords,
+  }) {
+    return RecommendationState(
+      currentPage: currentPage ?? this.currentPage,
+      travelPeriod: travelPeriod ?? this.travelPeriod,
+      travelDuration: travelDuration ?? this.travelDuration,
+      companions: companions ?? this.companions,
+      travelStyles: travelStyles ?? this.travelStyles,
+      accommodationTypes: accommodationTypes ?? this.accommodationTypes,
+      considerations: considerations ?? this.considerations,
+      selectedCities: selectedCities ?? this.selectedCities,
+      selectedKeywords: selectedKeywords ?? this.selectedKeywords,
+    );
+  }
 }
 
 class RecommendationNotifier extends StateNotifier<RecommendationState> {
@@ -101,24 +127,15 @@ class RecommendationNotifier extends StateNotifier<RecommendationState> {
   }
 
   void toggleCity(String city) {
-    final cities = List<String>.from(state.selectedCities);
-    if (cities.contains(city)) {
-      cities.remove(city);
+    final selectedCities = List<String>.from(state.selectedCities);
+    if (selectedCities.contains(city)) {
+      selectedCities.remove(city);
     } else {
-      cities.clear(); // 한 도시만 선택 가능하도록
-      cities.add(city);
+      // 한 도시만 선택 가능하도록
+      selectedCities.clear();
+      selectedCities.add(city);
     }
-
-    state = RecommendationState(
-      currentPage: state.currentPage,
-      travelPeriod: state.travelPeriod,
-      travelDuration: state.travelDuration,
-      companions: state.companions,
-      travelStyles: state.travelStyles,
-      accommodationTypes: state.accommodationTypes,
-      considerations: state.considerations,
-      selectedCities: cities,
-    );
+    state = state.copyWith(selectedCities: selectedCities);
   }
 
   void toggleCompanion(String companion) {
@@ -227,6 +244,21 @@ class RecommendationNotifier extends StateNotifier<RecommendationState> {
     }
   }
 
+  bool isCurrentPageComplete() {
+    switch (state.currentPage) {
+      case 0:
+        return state.travelPeriod != null && state.travelDuration != null;
+      case 1:
+        return state.companions.isNotEmpty && state.travelStyles.isNotEmpty;
+      case 2:
+        return state.accommodationTypes.isNotEmpty &&
+            (state.considerations.isNotEmpty ||
+                state.considerations.contains('없음'));
+      default:
+        return false;
+    }
+  }
+
   void setState({String? selectedCity}) {
     if (selectedCity != null) {
       state = RecommendationState(
@@ -240,6 +272,58 @@ class RecommendationNotifier extends StateNotifier<RecommendationState> {
         selectedCities: [selectedCity],
       );
     }
+  }
+
+  void toggleKeyword(String keyword) {
+    final keywords = List<String>.from(state.selectedKeywords);
+    if (keywords.contains(keyword)) {
+      keywords.remove(keyword);
+    } else {
+      keywords.add(keyword);
+    }
+
+    state = RecommendationState(
+      currentPage: state.currentPage,
+      travelPeriod: state.travelPeriod,
+      travelDuration: state.travelDuration,
+      companions: state.companions,
+      travelStyles: state.travelStyles,
+      accommodationTypes: state.accommodationTypes,
+      considerations: state.considerations,
+      selectedCities: state.selectedCities,
+      selectedKeywords: keywords,
+    );
+  }
+
+  void clearSelectedCities() {
+    state = state.copyWith(selectedCities: []);
+  }
+
+  void initializeFromSurvey(SurveyResponse survey) {
+    state = state.copyWith(
+      currentPage: 0, // 페이지를 처음으로 초기화
+      selectedCities: [if (survey.selectedCity != null) survey.selectedCity!],
+      travelPeriod: survey.travelPeriod,
+      travelDuration: survey.travelDuration,
+      companions: survey.companions,
+      travelStyles: survey.travelStyles,
+      accommodationTypes: survey.accommodationTypes,
+      considerations: survey.considerations,
+    );
+  }
+
+  void resetState({String? selectedCity}) {
+    state = RecommendationState(
+      currentPage: 0,
+      selectedCities: selectedCity != null ? [selectedCity] : [],
+      travelPeriod: null,
+      travelDuration: null,
+      companions: [],
+      travelStyles: [],
+      accommodationTypes: [],
+      considerations: [],
+      selectedKeywords: [],
+    );
   }
 }
 
