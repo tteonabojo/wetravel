@@ -14,6 +14,7 @@ import 'package:wetravel/presentation/pages/schedule/ai_schedule_page.dart';
 import 'package:wetravel/presentation/pages/new_trip/new_trip_page.dart';
 import 'package:wetravel/presentation/pages/plan_selection/plan_selection_page.dart';
 import 'package:wetravel/presentation/pages/mypage/mypage.dart';
+import 'package:wetravel/presentation/pages/saved_plans/saved_plans_page.dart';
 import 'package:wetravel/theme.dart';
 
 void main() async {
@@ -53,6 +54,7 @@ class MyApp extends StatelessWidget {
         '/ai-schedule': (context) => const AISchedulePage(),
         '/manual-planning': (context) => FilteredGuidePackagePage(),
         '/mypage': (context) => MyPage(),
+        '/saved-plans': (context) => const SavedPlansPage(),
       },
       onUnknownRoute: (settings) {
         return MaterialPageRoute(

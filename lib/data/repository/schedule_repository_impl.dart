@@ -12,7 +12,7 @@ class ScheduleRepositoryImpl implements ScheduleRepository {
     final scheduleDtos =
         await _scheduleDataSource.getSchedulesByIds(scheduleIds);
     return scheduleDtos
-        .map((dto) => Schedule.fromDto(dto))
+        .map((dto) => Schedule.fromJson(dto.toJson()))
         .toList(); // DTO를 Entity로 변환
   }
 

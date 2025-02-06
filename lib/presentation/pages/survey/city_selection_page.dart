@@ -1,21 +1,65 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/presentation/provider/recommendation_provider.dart';
+import 'package:wetravel/domain/entity/survey_response.dart';
+import 'package:flutter/foundation.dart' as dev;
+
+// 국가별 도시 데이터를 클래스 외부로 이동
+const Map<String, List<String>> cityCategories = {
+  '일본': ['도쿄', '오사카', '시즈오카', '나고야', '삿포로', '후쿠오카', '교토', '나라'],
+  '한국': ['서울', '부산', '제주', '강릉', '여수', '경주'],
+  '동남아시아': ['방콕', '싱가포르', '발리', '세부', '다낭', '하노이', '호치민', '쿠알라룸푸르'],
+  '미국': ['뉴욕', '로스앤젤레스', '샌프란시스코', '라스베가스', '시애틀', '하와이'],
+  '유럽': ['파리', '런던', '로마', '바르셀로나', '암스테르담', '프라하', '비엔나', '베니스'],
+};
 
 class CitySelectionPage extends ConsumerWidget {
   const CitySelectionPage({super.key});
 
-  // 국가별 도시 데이터
-  static const Map<String, List<String>> cityCategories = {
-    '일본': ['도쿄', '오사카', '시즈오카', '나고야', '삿포로', '후쿠오카', '교토', '나라'],
-    '한국': ['서울', '부산', '제주', '강릉', '여수', '경주'],
-    '동남아시아': ['방콕', '싱가포르', '발리', '세부', '다낭', '하노이', '호치민', '쿠알라룸푸르'],
-    '미국': ['뉴욕', '로스앤젤레스', '샌프란시스코', '라스베가스', '시애틀', '하와이'],
-    '유럽': ['파리', '런던', '로마', '바르셀로나', '암스테르담', '프라하', '비엔나', '베니스'],
-  };
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    void _onCitySelected(BuildContext context, String city) {
+      // 선택된 도시만 설정하고 나머지는 초기화
+      ref.read(recommendationStateProvider.notifier).resetState(
+            selectedCity: city,
+          );
+
+      Navigator.pushNamed(
+        context,
+        '/survey',
+        arguments: SurveyResponse(
+          travelPeriod: '',
+          travelDuration: '',
+          companions: const [],
+          travelStyles: const [],
+          accommodationTypes: const [],
+          considerations: const [],
+          selectedCity: city,
+        ),
+      );
+    }
+
+    Widget _buildCityChip(String city) {
+      final isSelected =
+          ref.watch(recommendationStateProvider).selectedCities.contains(city);
+
+      return FilterChip(
+        label: Text(city),
+        selected: isSelected,
+        onSelected: (selected) {
+          if (selected) {
+            ref.read(recommendationStateProvider.notifier).toggleCity(city);
+            _onCitySelected(context, city);
+          }
+        },
+        backgroundColor: Colors.grey[200],
+        selectedColor: Colors.grey[600],
+        labelStyle: TextStyle(
+          color: isSelected ? Colors.white : Colors.black,
+        ),
+      );
+    }
+
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -103,7 +147,7 @@ class CitySelectionPage extends ConsumerWidget {
                                 spacing: 8,
                                 runSpacing: 8,
                                 children: entry.value
-                                    .map((city) => _buildCityChip(city, ref))
+                                    .map((city) => _buildCityChip(city))
                                     .toList(),
                               ),
                             ],
@@ -144,24 +188,6 @@ class CitySelectionPage extends ConsumerWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildCityChip(String city, WidgetRef ref) {
-    final isSelected =
-        ref.watch(recommendationStateProvider).selectedCities.contains(city);
-
-    return FilterChip(
-      label: Text(city),
-      selected: isSelected,
-      onSelected: (selected) {
-        ref.read(recommendationStateProvider.notifier).toggleCity(city);
-      },
-      backgroundColor: Colors.grey[200],
-      selectedColor: Colors.grey[600],
-      labelStyle: TextStyle(
-        color: isSelected ? Colors.white : Colors.black,
       ),
     );
   }
