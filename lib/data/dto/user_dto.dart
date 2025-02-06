@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wetravel/data/dto/package_dto.dart';
-import 'package:wetravel/domain/entity/package.dart';
 import 'package:wetravel/domain/entity/user.dart';
 
 class UserDto {
@@ -74,8 +73,8 @@ class UserDto {
           id: json['id'] as String,
           email: json['email'] as String,
           password: json['password'] as String?,
-          name: json['name'] as String?,
-          imageUrl: json['imageUrl'] as String?,
+          name: json['name'] ?? '',
+          imageUrl: json['imageUrl'] ?? '',
           introduction: json['introduction'] as String?,
           loginType: json['loginType'] as String,
           isGuide: json['isGuide'] as bool,

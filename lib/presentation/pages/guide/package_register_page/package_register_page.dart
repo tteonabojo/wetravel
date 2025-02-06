@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
@@ -24,6 +26,13 @@ class PackageRegisterPage extends StatefulWidget {
 class _PackageRegisterPageState extends State<PackageRegisterPage> {
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _durationController = TextEditingController();
+  bool isGuide = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserIsGuide();
+  }
 
   String _selectedImagePath = "";
   String _title = '제목';
@@ -187,6 +196,27 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
     }
   }
 
+  // 로그인된 사용자의 isGuide 값 가져오기
+  Future<void> _fetchUserIsGuide() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      try {
+        DocumentSnapshot userDoc = await FirebaseFirestore.instance
+            .collection('users') // 사용자 컬렉션이 있는 위치로 수정
+            .doc(user.uid)
+            .get();
+
+        if (userDoc.exists) {
+          setState(() {
+            isGuide = userDoc['isGuide'] ?? false; // isGuide 필드 값을 가져옵니다.
+          });
+        }
+      } catch (e) {
+        print("Error fetching user data: $e");
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_schedules.length < _selectedDay) {
@@ -272,7 +302,7 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
                         StandardButton.primary(
                           onPressed: _registerPackage,
                           sizeType: ButtonSizeType.normal,
-                          text: '작성 완료',
+                          text: isGuide ? '작성 완료' : '제출하기',
                         ),
                       ],
                     ),
