@@ -13,7 +13,7 @@ class ScrapPackagesPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scrapPackagesAsync = ref.watch(scrapPackagesProvider);
-
+    print('스크랩 페이지임');
     return Scaffold(
       appBar: AppBar(title: const Text('스크랩한 패키지')),
       body: Padding(
@@ -48,20 +48,20 @@ class ScrapPackagesPage extends ConsumerWidget {
                               actions: [
                                 CupertinoDialogAction(
                                   onPressed: () =>
-                                      Navigator.of(context).pop(false), // No
+                                      Navigator.of(context).pop(false),
                                   child: const Text("아니오"),
                                 ),
                                 CupertinoDialogAction(
                                   onPressed: () =>
-                                      Navigator.of(context).pop(true), // Yes
-                                  isDestructiveAction: true, // Make "Yes" red
+                                      Navigator.of(context).pop(true),
+                                  isDestructiveAction: true,
                                   child: const Text("네"),
                                 ),
                               ],
                             );
                           },
                         ) ??
-                        false; // Handle null case
+                        false;
 
                     if (confirmed) {
                       await _removeScrapPackage(ref, packageId);
@@ -81,17 +81,15 @@ class ScrapPackagesPage extends ConsumerWidget {
   Future<void> _removeScrapPackage(WidgetRef ref, String packageId) async {
     try {
       final firestore = FirebaseFirestore.instance;
-      final auth = FirebaseAuth.instance; // Get FirebaseAuth instance
+      final auth = FirebaseAuth.instance;
 
-      final userId = auth.currentUser?.uid; // Get current user's UID
+      final userId = auth.currentUser?.uid;
       if (userId == null) {
-        // Handle the case where the user is not logged in.  Show a message or navigate to the login screen.
         print("User is not logged in!");
-        return; // Important: Stop execution if no user
+        return;
       }
 
-      final userDocRef =
-          firestore.collection('users').doc(userId); // Use userId here
+      final userDocRef = firestore.collection('users').doc(userId);
 
       await firestore.runTransaction((transaction) async {
         final userDoc = await transaction.get(userDocRef);
@@ -109,7 +107,6 @@ class ScrapPackagesPage extends ConsumerWidget {
       ref.invalidate(scrapPackagesProvider);
     } catch (e) {
       debugPrint('스크랩 해제 실패: $e');
-      // Show error message to the user (SnackBar, dialog, etc.)
     }
   }
 }

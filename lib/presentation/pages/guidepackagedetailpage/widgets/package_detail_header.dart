@@ -101,7 +101,14 @@ class PackageDetailHeader extends StatelessWidget {
                               ),
                             ),
                             if (index < selectedKeywords.length - 1)
-                              const SizedBox(width: 8),
+                              const SizedBox(
+                                height: 12, // 높이 조절
+                                child: VerticalDivider(
+                                  color: AppColors.grayScale_450,
+                                  thickness: 1,
+                                  width: 16,
+                                ),
+                              ),
                           ];
                         })
                         .expand((widget) => widget)

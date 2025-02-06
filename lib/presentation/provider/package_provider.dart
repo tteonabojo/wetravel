@@ -84,12 +84,13 @@ final scrapPackagesProvider = StreamProvider<List<Map<String, dynamic>>>((ref) {
   final auth = FirebaseAuth.instance;
 
   final userId = auth.currentUser?.uid;
+  print('호출됨 : $userId');
   if (userId == null) {
-    // Return an empty stream if the user is not logged in.
-    return Stream.empty();
+    return Stream.value([]);
   }
 
   final userDocRef = firestore.collection('users').doc(userId);
+  print('호출됨');
 
   return userDocRef.snapshots().asyncMap((userSnapshot) async {
     if (!userSnapshot.exists) {
@@ -98,11 +99,11 @@ final scrapPackagesProvider = StreamProvider<List<Map<String, dynamic>>>((ref) {
 
     final scrapIdList =
         List<String>.from(userSnapshot.data()?['scrapIdList'] ?? []);
+    print('scrapIdList : $scrapIdList');
 
     if (scrapIdList.isEmpty) {
       return [];
     }
-
     final List<Map<String, dynamic>> allPackages = [];
 
     for (var i = 0; i < scrapIdList.length; i += 10) {
