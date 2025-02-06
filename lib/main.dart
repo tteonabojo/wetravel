@@ -1,10 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wetravel/presentation/pages/auth_wrapper/auth_wrapper.dart';
 import 'package:wetravel/presentation/pages/guidepackage/filtered_guide_package_page.dart';
 import 'package:wetravel/presentation/pages/login/login_page.dart';
 import 'package:wetravel/presentation/pages/stack/stack_page.dart';
@@ -24,6 +24,8 @@ void main() async {
       widgetsBinding: WidgetsFlutterBinding.ensureInitialized()); // 스플래시 유지
 
   await Firebase.initializeApp(); // firebase 초기화
+  final initialRoute =
+      FirebaseAuth.instance.currentUser == null ? '/login' : '/';
   await dotenv.load(fileName: "assets/.env"); // .env 파일 로드
   FlutterNativeSplash.remove(); // 스플래시 제거
 
@@ -35,25 +37,27 @@ void main() async {
     ),
   );
 
-  runApp(const ProviderScope(child: MyApp()));
+  runApp(ProviderScope(
+      child: MyApp(
+    initialRoute: initialRoute,
+  )));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
+  const MyApp({super.key, required this.initialRoute});
+  final String initialRoute;
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: AppTheme.themeData,
-      initialRoute: '/init',
+      initialRoute: initialRoute,
       routes: {
         '/': (context) {
           final int initialIndex =
               ModalRoute.of(context)?.settings.arguments as int? ?? 0;
           return StackPage(initialIndex: initialIndex);
         },
-        '/init': (context) => const AuthWrapper(),
         '/login': (context) => const LoginPage(),
         '/city-selection': (context) => const CitySelectionPage(),
         '/survey': (context) => const SurveyPage(),
