@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,6 +25,15 @@ void main() async {
   await Firebase.initializeApp(); // firebase 초기화
   await dotenv.load(fileName: "assets/.env"); // .env 파일 로드
   FlutterNativeSplash.remove(); // 스플래시 제거
+
+  // 앱 실행 시 상태 표시줄 글씨 색을 검은색으로 설정
+  SystemChrome.setSystemUIOverlayStyle(
+    SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+    ),
+  );
+
   runApp(const ProviderScope(child: MyApp()));
 }
 
