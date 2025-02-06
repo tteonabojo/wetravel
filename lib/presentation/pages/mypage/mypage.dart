@@ -9,6 +9,7 @@ import 'package:wetravel/core/constants/app_shadow.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/presentation/pages/mypagecorrection/mypage_correction.dart';
 import 'package:wetravel/presentation/provider/user_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class MyPage extends ConsumerWidget {
   @override
@@ -26,7 +27,7 @@ class MyPage extends ConsumerWidget {
             SizedBox(height: 8),
             _buildInquiryBox(context),
             SizedBox(height: 8),
-            _buildBoxWithText('이용약관/개인정보 처리방침'),
+            _buildTermsAndPrivacyBox(),
             SizedBox(height: 8),
             _buildLogoutBox(context, ref),
             SizedBox(height: 8),
@@ -159,6 +160,21 @@ class MyPage extends ConsumerWidget {
       },
     );
   }
+
+  Widget _buildTermsAndPrivacyBox() {
+    return GestureDetector(
+      onTap: () async {
+        final url = 'https://weetravel.notion.site/188e73dd935881a8af01f4f12db0d7c9';
+        if (await canLaunch(url)) {
+          await launch(url);
+        } else {
+          throw 'Could not launch $url';
+        }
+      },
+      child: _buildBoxWithText('이용약관/개인정보 처리방침'),
+    );
+  }
+}
 
   Widget _buildBoxWithText(String text) {
     return Container(
@@ -301,4 +317,3 @@ class MyPage extends ConsumerWidget {
       const SnackBar(content: Text("회원 탈퇴 중 오류가 발생했습니다.")),
     );
   }
-}
