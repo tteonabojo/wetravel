@@ -30,7 +30,7 @@ class PackageDetailHeader extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      height: 156,
+      height: 116,
       padding: const EdgeInsets.all(16),
       decoration: const BoxDecoration(color: Colors.white),
       child: Column(
@@ -68,16 +68,16 @@ class PackageDetailHeader extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 8),
-          SizedBox(
-            width: double.infinity,
-            child: Text(
-              title,
-              style: AppTypography.headline2.copyWith(
-                color: AppColors.grayScale_950,
-              ),
-            ),
-          ),
+          // const SizedBox(height: 8),
+          // SizedBox(
+          //   width: double.infinity,
+          //   child: Text(
+          //     title,
+          //     style: AppTypography.headline2.copyWith(
+          //       color: AppColors.grayScale_950,
+          //     ),
+          //   ),
+          // ),
           const SizedBox(height: 8),
           SizedBox(
             width: double.infinity,

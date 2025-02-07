@@ -152,7 +152,7 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
 
         if (scrapIdList.contains(package?.id)) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('이 패키지는 이미 담았습니다.')),
+            const SnackBar(content: Text('이미 담긴 패키지입니다.')),
           );
         } else {
           scrapIdList.add(package?.id ?? '');
@@ -219,7 +219,7 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+              padding: AppSpacing.medium16,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

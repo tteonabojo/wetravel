@@ -18,7 +18,6 @@ class MainRecentlyPackages extends ConsumerWidget {
     final getPackageUseCase = ref.read(getPackageUseCaseProvider);
     final getSchedulesUseCase = ref.read(getSchedulesUseCaseProvider);
     return Container(
-      height: 168,
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -57,7 +56,7 @@ class MainRecentlyPackages extends ConsumerWidget {
                       );
                     },
                     separatorBuilder: (context, index) {
-                      return SizedBox(width: 20);
+                      return SizedBox(width: 8);
                     },
                   )
                 : Center(

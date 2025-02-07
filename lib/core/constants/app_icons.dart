@@ -71,4 +71,7 @@ class AppIcons {
       'assets/icons/app_logo/logo_bg_white_40x40.svg';
   static const String logoBgWhite76 =
       'assets/icons/app_logo/logo_bg_white_76x76.svg';
+
+  // AI Package Icon
+  static const String lightFill = 'assets/icons/app_logo/light_fill.svg';
 }
