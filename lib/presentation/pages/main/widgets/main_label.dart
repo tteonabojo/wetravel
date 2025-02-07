@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:wetravel/core/constants/app_colors.dart';
+import 'package:wetravel/core/constants/app_typography.dart';
 
 class MainLabel extends StatelessWidget {
   final String label;
@@ -14,9 +16,8 @@ class MainLabel extends StatelessWidget {
         children: [
           Text(
             label,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+            style: AppTypography.headline4.copyWith(
+              color: AppColors.grayScale_950,
             ),
           ),
           // GestureDetector(

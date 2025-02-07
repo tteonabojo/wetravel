@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wetravel/presentation/pages/guidepackage/widgets/app_bar.dart';
+import 'package:wetravel/core/constants/app_colors.dart';
+import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/presentation/pages/guidepackage/widgets/filterd_package_list.dart';
 import 'package:wetravel/presentation/provider/recommendation_provider.dart';
 import 'widgets/filters.dart';
@@ -25,10 +26,20 @@ class FilteredGuidePackagePage extends ConsumerWidget {
         .toList();
 
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        shadowColor: Colors.transparent,
+        bottom: PreferredSize(
+            preferredSize: Size.fromHeight(1),
+            child: Container(color: AppColors.grayScale_150, height: 1)),
+        backgroundColor: Colors.white,
+        title: Text(
+          "가이드 맞춤 패키지 추천",
+          style:
+              AppTypography.headline4.copyWith(color: AppColors.grayScale_950),
+        ),
+      ),
       body: Column(
         children: [
-          GuideAppBar(),
           GuideFilters(allKeywords: allKeywords),
           FilteredPackageList(allKeywords: allKeywords),
         ],

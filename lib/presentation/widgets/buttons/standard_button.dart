@@ -98,19 +98,19 @@ class _ButtonState extends State<StandardButton> {
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              if (widget.text != null)
-                Text(
-                  widget.text ?? '',
-                  style: _getTypograph(),
-                ),
               if (widget.icon != null) ...[
-                const SizedBox(width: 8), // 텍스트와 아이콘 사이 간격 8px
                 SizedBox(
                   width: widget.sizeType == ButtonSizeType.normal ? 20 : 16,
                   height: widget.sizeType == ButtonSizeType.normal ? 20 : 16,
                   child: Image.asset(widget.icon!),
                 ),
+                if (widget.text != null) const SizedBox(width: 8),
               ],
+              if (widget.text != null)
+                Text(
+                  widget.text ?? '',
+                  style: _getTypograph(),
+                ),
             ],
           ),
         ),

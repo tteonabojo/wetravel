@@ -6,6 +6,7 @@ import 'package:wetravel/domain/entity/travel_schedule.dart';
 import 'package:wetravel/presentation/provider/schedule_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:wetravel/presentation/widgets/buttons/standard_button.dart';
 
 class AISchedulePage extends ConsumerStatefulWidget {
   const AISchedulePage({super.key});
@@ -21,6 +22,7 @@ class _AISchedulePageState extends ConsumerState<AISchedulePage> {
         ModalRoute.of(context)!.settings.arguments as SurveyResponse;
 
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
@@ -126,18 +128,18 @@ class _AISchedulePageState extends ConsumerState<AISchedulePage> {
               Row(
                 children: [
                   Expanded(
-                    child: OutlinedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      child: const Text('뒤로가기'),
-                    ),
-                  ),
+                      child: StandardButton.secondary(
+                          sizeType: ButtonSizeType.medium,
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          text: '뒤로가기')),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Consumer(
                       builder: (context, ref, child) {
-                        return ElevatedButton(
+                        return StandardButton.primary(
+                          sizeType: ButtonSizeType.medium,
                           onPressed: () async {
                             try {
                               final scheduleAsync =
@@ -155,11 +157,7 @@ class _AISchedulePageState extends ConsumerState<AISchedulePage> {
                               }
                             }
                           },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
-                          ),
-                          child: const Text('일정 담기',
-                              style: TextStyle(color: Colors.white)),
+                          text: '일정 담기',
                         );
                       },
                     ),

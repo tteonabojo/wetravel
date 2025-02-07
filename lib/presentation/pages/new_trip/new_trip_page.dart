@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wetravel/core/constants/app_border_radius.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
+import 'package:wetravel/core/constants/app_icons.dart';
 import 'package:wetravel/core/constants/app_shadow.dart';
 import 'package:wetravel/core/constants/app_spacing.dart';
+import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/presentation/widgets/buttons/standard_button.dart';
 
 class NewTripPage extends StatelessWidget {
@@ -17,37 +20,35 @@ class NewTripPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 12),
+              const SizedBox(height: 20),
               Expanded(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Container(
                       decoration: BoxDecoration(
-                        borderRadius: AppBorderRadius.medium16,
+                        borderRadius: AppBorderRadius.small12,
                         color: Colors.white,
                         boxShadow: AppShadow.generalShadow,
                       ),
                       child: Padding(
-                        padding: AppSpacing.large24,
+                        padding: AppSpacing.medium16,
                         child: Column(
                           children: [
-                            const Text(
+                            SizedBox(height: 20),
+                            Text(
                               '쉽고 빠르게\n여행 일정을 만들어볼까요?',
                               textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                height: 1.3,
+                              style: AppTypography.headline4.copyWith(
+                                color: AppColors.grayScale_950,
                               ),
                             ),
                             const SizedBox(height: 12),
                             Text(
                               '맞춤 AI와 가이드로 나만의 일정을 찾아드릴게요',
                               textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[600],
+                              style: AppTypography.body3.copyWith(
+                                color: AppColors.grayScale_550,
                               ),
                             ),
                             const SizedBox(height: 24),
@@ -80,21 +81,17 @@ class NewTripPage extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                           child: Container(
                             width: double.infinity,
-                            padding: const EdgeInsets.all(16),
+                            padding: AppSpacing.large20,
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Text(
-                                  '내가 담은 AI패키지',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                Icon(
-                                  Icons.chevron_right,
-                                  color: Colors.grey[600],
-                                ),
+                                Text('내가 담은 AI패키지',
+                                    style:
+                                        AppTypography.buttonLabelSmall.copyWith(
+                                      color: AppColors.grayScale_450,
+                                    )),
+                                SvgPicture.asset(AppIcons.chevronRight,
+                                    color: AppColors.grayScale_450, width: 20),
                               ],
                             ),
                           ),
@@ -105,31 +102,27 @@ class NewTripPage extends StatelessWidget {
                     Container(
                       decoration: BoxDecoration(
                         color: AppColors.grayScale_150,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: AppBorderRadius.small12,
                       ),
                       child: Material(
                         color: Colors.transparent,
                         child: InkWell(
                           onTap: () => Navigator.pushNamed(
                               context, '/saved-guide-plans'),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: AppBorderRadius.small12,
                           child: Container(
                             width: double.infinity,
-                            padding: const EdgeInsets.all(16),
+                            padding: AppSpacing.large20,
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Text(
-                                  '내가 담은 가이드 패키지',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                Icon(
-                                  Icons.chevron_right,
-                                  color: Colors.grey[600],
-                                ),
+                                Text('내가 담은 가이드 패키지',
+                                    style:
+                                        AppTypography.buttonLabelSmall.copyWith(
+                                      color: AppColors.grayScale_450,
+                                    )),
+                                SvgPicture.asset(AppIcons.chevronRight,
+                                    color: AppColors.grayScale_450, width: 20),
                               ],
                             ),
                           ),

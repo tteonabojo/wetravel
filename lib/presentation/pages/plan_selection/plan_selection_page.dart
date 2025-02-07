@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wetravel/core/constants/app_border_radius.dart';
+import 'package:wetravel/core/constants/app_colors.dart';
+import 'package:wetravel/core/constants/app_spacing.dart';
+import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/domain/entity/survey_response.dart';
 import 'package:wetravel/presentation/provider/recommendation_provider.dart';
 
@@ -9,6 +13,7 @@ class PlanSelectionPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
@@ -22,17 +27,12 @@ class PlanSelectionPage extends ConsumerWidget {
               const SizedBox(height: 20),
               const LinearProgressIndicator(
                 value: 0.75,
-                backgroundColor: Colors.grey,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                backgroundColor: AppColors.grayScale_150,
+                valueColor:
+                    AlwaysStoppedAnimation<Color>(AppColors.primary_450),
               ),
               const SizedBox(height: 40),
-              const Text(
-                '어떤 방식으로\n여행 일정을 추천받으시겠어요?',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              Text('어떤 방식으로\n여행 일정을 추천받으시겠어요?', style: AppTypography.headline2),
               const SizedBox(height: 40),
               Expanded(
                 child: GridView.count(
@@ -104,29 +104,23 @@ class PlanSelectionPage extends ConsumerWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.grey[100],
-          borderRadius: BorderRadius.circular(12),
+          color: AppColors.primary_050,
+          borderRadius: AppBorderRadius.small12,
         ),
         child: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: AppSpacing.large20,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              Text(title,
+                  style: AppTypography.headline3.copyWith(
+                    color: AppColors.grayScale_750,
+                  )),
               const SizedBox(height: 8),
-              Text(
-                subtitle,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey[600],
-                ),
-              ),
+              Text(subtitle,
+                  style: AppTypography.body2.copyWith(
+                    color: AppColors.grayScale_550,
+                  )),
             ],
           ),
         ),
