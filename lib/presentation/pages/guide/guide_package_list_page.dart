@@ -90,14 +90,12 @@ class GuidePackageListPage extends ConsumerWidget {
           .collection('schedules')
           .where('packageId', isEqualTo: packageId)
           .get();
-      
+
       await FirebaseFirestore.instance
           .collection('packages')
           .doc(packageId)
           .delete();
       print('패키지 삭제 성공');
-
-     
 
       for (var scheduleDoc in schedulesQuerySnapshot.docs) {
         await scheduleDoc.reference.delete();
@@ -115,11 +113,11 @@ class GuidePackageListPage extends ConsumerWidget {
 
     return Scaffold(
       body: Padding(
-        padding: AppSpacing.large20,
+        padding: AppSpacing.medium16,
         child: Column(
           spacing: 16,
           children: [
-            const GuideInfo(),
+            GuideInfo(),
             Expanded(
               child: FutureBuilder<Map<String, dynamic>>(
                 future: withMinimumDelay(

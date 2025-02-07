@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wetravel/core/constants/app_colors.dart';
+import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/domain/entity/survey_response.dart';
 import 'package:wetravel/presentation/widgets/schedule_card.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -14,11 +17,10 @@ class SavedPlansPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          '내가 담은 패키지',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
+        title: Text(
+          '내가 담은 AI 패키지',
+          style: AppTypography.headline4.copyWith(
+            color: AppColors.grayScale_950,
           ),
         ),
         leading: IconButton(
@@ -26,7 +28,6 @@ class SavedPlansPage extends ConsumerWidget {
           onPressed: () => Navigator.pop(context),
         ),
         centerTitle: true,
-        backgroundColor: Colors.white,
         elevation: 0,
       ),
       body: StreamBuilder<QuerySnapshot>(
@@ -60,17 +61,17 @@ class SavedPlansPage extends ConsumerWidget {
               return ScheduleCard(
                 schedule: schedule,
                 onDelete: () {
-                  showDialog(
+                  showCupertinoDialog(
                     context: context,
-                    builder: (context) => AlertDialog(
+                    builder: (context) => CupertinoAlertDialog(
                       title: const Text('패키지를 삭제하시겠어요?'),
                       content: const Text('삭제된 패키지는 다시 복구할 수 없어요.'),
                       actions: [
-                        TextButton(
+                        CupertinoDialogAction(
                           onPressed: () => Navigator.pop(context),
                           child: const Text('취소'),
                         ),
-                        TextButton(
+                        CupertinoDialogAction(
                           onPressed: () async {
                             try {
                               await ref
@@ -87,10 +88,8 @@ class SavedPlansPage extends ConsumerWidget {
                               );
                             }
                           },
-                          child: const Text(
-                            '삭제',
-                            style: TextStyle(color: Colors.red),
-                          ),
+                          isDestructiveAction: true,
+                          child: const Text('삭제'),
                         ),
                       ],
                     ),

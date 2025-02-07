@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wetravel/core/constants/app_border_radius.dart';
+import 'package:wetravel/core/constants/app_colors.dart';
+import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/presentation/provider/recommendation_provider.dart';
 import 'package:wetravel/domain/entity/survey_response.dart';
-import 'package:flutter/foundation.dart' as dev;
+import 'package:wetravel/presentation/widgets/buttons/standard_button.dart';
 
 // 국가별 도시 데이터를 클래스 외부로 이동
 const Map<String, List<String>> cityCategories = {
@@ -52,15 +55,19 @@ class CitySelectionPage extends ConsumerWidget {
             _onCitySelected(context, city);
           }
         },
-        backgroundColor: Colors.grey[200],
-        selectedColor: Colors.grey[600],
+        showCheckmark: false,
+        side: BorderSide(style: BorderStyle.none),
+        shape: RoundedRectangleBorder(borderRadius: AppBorderRadius.large20),
+        backgroundColor: AppColors.grayScale_050,
+        selectedColor: AppColors.grayScale_650,
         labelStyle: TextStyle(
-          color: isSelected ? Colors.white : Colors.black,
+          color: isSelected ? Colors.white : AppColors.grayScale_350,
         ),
       );
     }
 
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
@@ -74,28 +81,25 @@ class CitySelectionPage extends ConsumerWidget {
               const SizedBox(height: 20),
               LinearProgressIndicator(
                 value: 0.25,
-                backgroundColor: Colors.grey[300],
-                valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
+                backgroundColor: AppColors.grayScale_150,
+                valueColor:
+                    const AlwaysStoppedAnimation<Color>(AppColors.primary_450),
               ),
               const SizedBox(height: 30),
-              const Text(
+              Text(
                 '떠나고 싶은\n도시를 선택해주세요',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: AppTypography.headline2,
               ),
               Expanded(
                 child: SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 20),
-                      const Text(
+                      const SizedBox(height: 28),
+                      Text(
                         'AI 맞춤 추천',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey,
+                        style: AppTypography.headline6.copyWith(
+                          color: AppColors.grayScale_650,
                         ),
                       ),
                       const SizedBox(height: 10),
@@ -105,25 +109,23 @@ class CitySelectionPage extends ConsumerWidget {
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
+                            horizontal: 16,
+                            vertical: 10,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.blue.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(12),
+                            color: AppColors.primary_050,
+                            borderRadius: AppBorderRadius.large20,
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(Icons.auto_awesome,
-                                  color: Colors.blue[700], size: 16),
+                                  color: AppColors.primary_450, size: 16),
                               const SizedBox(width: 4),
                               Text(
                                 'AI로 도시 추천 받을래요',
-                                style: TextStyle(
-                                  color: Colors.blue[700],
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
+                                style: AppTypography.buttonLabelSmall.copyWith(
+                                  color: AppColors.primary_450,
                                 ),
                               ),
                             ],
@@ -137,9 +139,8 @@ class CitySelectionPage extends ConsumerWidget {
                               const SizedBox(height: 30),
                               Text(
                                 entry.key,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.grey,
+                                style: AppTypography.headline6.copyWith(
+                                  color: AppColors.grayScale_650,
                                 ),
                               ),
                               const SizedBox(height: 10),
@@ -158,33 +159,19 @@ class CitySelectionPage extends ConsumerWidget {
               ),
               const SizedBox(height: 20),
               SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: () {
-                    if (ref
-                        .read(recommendationStateProvider)
-                        .selectedCities
-                        .isNotEmpty) {
-                      Navigator.pushNamed(context, '/survey');
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: const Text(
-                    '다음으로',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
+                  width: double.infinity,
+                  height: 50,
+                  child: StandardButton.primary(
+                      sizeType: ButtonSizeType.normal,
+                      onPressed: () {
+                        if (ref
+                            .read(recommendationStateProvider)
+                            .selectedCities
+                            .isNotEmpty) {
+                          Navigator.pushNamed(context, '/survey');
+                        }
+                      },
+                      text: '다음으로')),
             ],
           ),
         ),

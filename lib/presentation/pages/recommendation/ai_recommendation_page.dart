@@ -2,8 +2,14 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+import 'package:wetravel/core/constants/app_border_radius.dart';
+import 'package:wetravel/core/constants/app_colors.dart';
+import 'package:wetravel/core/constants/app_shadow.dart';
+import 'package:wetravel/core/constants/app_spacing.dart';
+import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/domain/entity/survey_response.dart';
 import 'package:wetravel/presentation/provider/recommendation_provider.dart';
+import 'package:wetravel/presentation/widgets/buttons/standard_button.dart';
 
 class AIRecommendationPage extends ConsumerStatefulWidget {
   const AIRecommendationPage({super.key});
@@ -72,7 +78,15 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
             }
 
             return Scaffold(
+              backgroundColor: Colors.white,
               appBar: AppBar(
+                title: Text(
+                  'AI 맞춤 여행지 추천',
+                  style: AppTypography.headline4.copyWith(
+                    color: AppColors.grayScale_950,
+                  ),
+                ),
+                backgroundColor: Colors.white,
                 automaticallyImplyLeading: false,
                 actions: [
                   IconButton(
@@ -85,52 +99,51 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
                 ],
               ),
               body: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 0),
-                      const Text(
-                        'AI 맞춤 여행지 추천',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      child: Container(
+                        width: double.infinity,
+                        padding: AppSpacing.medium16,
+                        decoration: BoxDecoration(
+                            color: AppColors.grayScale_050,
+                            borderRadius: AppBorderRadius.small12),
+                        child: Text('리스트를 확인하고 나에게 맞는 여행지를 선택해주세요',
+                            style: AppTypography.body2.copyWith(
+                              color: AppColors.grayScale_450,
+                            )),
                       ),
-                      const SizedBox(height: 12),
-                      const Text(
-                        '리스트를 확인하고 나에게 맞는 여행지를 한 가지 선택해주세요',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      Expanded(
-                        child: ListView.builder(
-                          key: const PageStorageKey('destination_list'),
-                          itemCount: destinations.length,
-                          itemBuilder: (context, index) {
-                            final destination = destinations[index];
-                            final reason = reasons[index];
-                            final matchPercent = 95 - (index * 10);
+                    ),
+                    SizedBox(height: 16),
+                    Expanded(
+                      child: ListView.builder(
+                        key: const PageStorageKey('destination_list'),
+                        itemCount: destinations.length,
+                        itemBuilder: (context, index) {
+                          final destination = destinations[index];
+                          final reason = reasons[index];
+                          final matchPercent = 95 - (index * 10);
 
-                            return GestureDetector(
-                              behavior: HitTestBehavior.opaque,
-                              onTap: () {
-                                setState(() {
-                                  selectedDestination = destination;
-                                });
-                              },
+                          return GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () {
+                              setState(() {
+                                selectedDestination = destination;
+                              });
+                            },
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 16),
                               child: Container(
                                 margin: const EdgeInsets.only(bottom: 16.0),
                                 decoration: BoxDecoration(
+                                  boxShadow: AppShadow.generalShadow,
                                   border: Border.all(
                                     color: selectedDestination == destination
-                                        ? Colors.blue
+                                        ? AppColors.primary_450
                                         : Colors.transparent,
-                                    width: 2,
+                                    width: 1,
                                   ),
                                   borderRadius: BorderRadius.circular(16),
                                 ),
@@ -140,58 +153,48 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
                                   matchPercent,
                                 ),
                               ),
-                            );
-                          },
-                        ),
+                            ),
+                          );
+                        },
                       ),
-                      const SizedBox(height: 20),
-                      Row(
+                    ),
+                    const SizedBox(height: 20),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
                         children: [
                           Expanded(
-                            child: OutlinedButton(
-                              onPressed: () {
-                                // 다시 추천받기 기능
-                              },
-                              style: OutlinedButton.styleFrom(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 16),
-                              ),
-                              child: const Text('다시 추천받기'),
-                            ),
-                          ),
+                              child: StandardButton.secondary(
+                            sizeType: ButtonSizeType.normal,
+                            onPressed: () {
+                              // TODO 다시 추천받기 기능 넣을것
+                            },
+                            text: '다시 추천받기',
+                          )),
                           const SizedBox(width: 16),
                           Expanded(
-                            child: ElevatedButton(
-                              onPressed: selectedDestination != null
-                                  ? () {
-                                      // 선택된 도시로 SurveyResponse 업데이트
-                                      final updatedSurveyResponse =
-                                          surveyResponse.copyWith(
-                                        selectedCity: selectedDestination,
-                                      );
+                              child: StandardButton.primary(
+                                  sizeType: ButtonSizeType.normal,
+                                  onPressed: selectedDestination != null
+                                      ? () {
+                                          // 선택된 도시로 SurveyResponse 업데이트
+                                          final updatedSurveyResponse =
+                                              surveyResponse.copyWith(
+                                            selectedCity: selectedDestination,
+                                          );
 
-                                      Navigator.pushNamed(
-                                        context,
-                                        '/ai-schedule',
-                                        arguments: updatedSurveyResponse,
-                                      );
-                                    }
-                                  : null,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue,
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 16),
-                              ),
-                              child: const Text(
-                                '다음으로',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                            ),
-                          ),
+                                          Navigator.pushNamed(
+                                            context,
+                                            '/ai-schedule',
+                                            arguments: updatedSurveyResponse,
+                                          );
+                                        }
+                                      : null,
+                                  text: '다음으로')),
                         ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             );
@@ -285,14 +288,12 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
                     ),
                     Row(
                       children: [
-                        const Icon(Icons.star, color: Colors.blue, size: 16),
-                        Text(
-                          ' $matchPercent% 일치',
-                          style: const TextStyle(
-                            color: Colors.blue,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        const Icon(Icons.star,
+                            color: AppColors.primary_450, size: 16),
+                        Text(' $matchPercent% 일치',
+                            style: AppTypography.body2.copyWith(
+                              color: AppColors.primary_450,
+                            )),
                       ],
                     ),
                   ],

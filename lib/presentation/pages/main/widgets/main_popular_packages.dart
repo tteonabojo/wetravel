@@ -24,6 +24,11 @@ class MainPopularPackages extends ConsumerWidget {
     final visiblePackages =
         popularPackages.where((package) => package.isHidden == false).toList();
 
+    // 10개까지만 리스트를 자름
+    final displayedPackages = visiblePackages.length > 10
+        ? visiblePackages.sublist(0, 10)
+        : visiblePackages;
+
     return Column(
       children: [
         Padding(
@@ -32,11 +37,11 @@ class MainPopularPackages extends ConsumerWidget {
         ),
         visiblePackages.isNotEmpty
             ? Padding(
-                padding: AppSpacing.medium16,
+                padding: EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
                   spacing: 16,
                   children: List.generate(
-                    visiblePackages.length,
+                    displayedPackages.length,
                     (index) {
                       int? rate = index <= 2 ? index + 1 : null; // 3등 까지 순위 표시
                       return GestureDetector(
@@ -46,7 +51,7 @@ class MainPopularPackages extends ConsumerWidget {
                             MaterialPageRoute(
                               builder: (context) {
                                 return PackageDetailPage(
-                                  packageId: visiblePackages[index].id,
+                                  packageId: displayedPackages[index].id,
                                   getPackageUseCase: getPackageUseCase,
                                   getSchedulesUseCase: getSchedulesUseCase,
                                 );
@@ -58,13 +63,14 @@ class MainPopularPackages extends ConsumerWidget {
                           width: double.infinity,
                           child: PackageItem(
                             rate: rate,
-                            title: visiblePackages[index].title,
-                            location: visiblePackages[index].location,
-                            guideImageUrl: visiblePackages[index].userImageUrl,
-                            packageImageUrl: visiblePackages[index].imageUrl,
-                            name: visiblePackages[index].userName,
+                            title: displayedPackages[index].title,
+                            location: displayedPackages[index].location,
+                            guideImageUrl:
+                                displayedPackages[index].userImageUrl,
+                            packageImageUrl: displayedPackages[index].imageUrl,
+                            name: displayedPackages[index].userName,
                             keywords:
-                                visiblePackages[index].keywordList!.toList(),
+                                displayedPackages[index].keywordList!.toList(),
                           ),
                         ),
                       );
