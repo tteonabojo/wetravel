@@ -7,6 +7,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wetravel/core/constants/app_icons.dart';
 import 'package:wetravel/core/constants/app_shadow.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wetravel/presentation/pages/login/login_page.dart';
 import 'package:wetravel/presentation/pages/mypagecorrection/mypage_correction.dart';
 import 'package:wetravel/presentation/provider/user_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -275,27 +276,22 @@ class MyPage extends ConsumerWidget {
     );
   }
 
-  Future<void> deleteUserAccount(BuildContext context, WidgetRef ref) async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("로그인이 필요합니다.")),
-      );
-      return;
-    }
-    final userDoc = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .get();
+  Future<void> deleteUserAccount(BuildContext context,WidgetRef ref) async {
+  final user = FirebaseAuth.instance.currentUser;
+  if (user == null) {
+    print("로그인이 필요합니다.");
+    return;
+  }
 
-    // Firestore에서 프로필 이미지 URL 가져오기
+  try {
+    await _reauthenticateUser(user);
+
+    final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
     final profileImageUrl = userDoc.data()?['profileImageUrl'] as String? ?? '';
 
-    // Firestore에서 사용자 데이터 삭제
     await FirebaseFirestore.instance.collection('users').doc(user.uid).delete();
-    print(" Firestore 사용자 데이터 삭제 완료");
+    print("Firestore 사용자 데이터 삭제 완료");
 
-    // Firebase Storage에서 프로필 이미지 삭제
     if (profileImageUrl.isNotEmpty) {
       try {
         final ref = FirebaseStorage.instance.refFromURL(profileImageUrl);
@@ -306,14 +302,47 @@ class MyPage extends ConsumerWidget {
       }
     }
 
-    // Firebase Authentication에서 사용자 계정 삭제
     await user.delete();
-    print("사용자 계정 삭제 완료");
+    print(" 사용자 계정 삭제 완료");
 
-    // 로그아웃 수행
     await ref.read(signOutUsecaseProvider).signOut();
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("회원 탈퇴 중 오류가 발생했습니다.")),
-    );
+    print(" 로그아웃 완료");
+  } catch (e) {
+    print("회원 탈퇴 실패: $e");
   }
+}
+
+void onDeleteAccountPressed(BuildContext context, WidgetRef ref) async {
+  await deleteUserAccount(context, ref);
+
+  if (context.mounted) {
+    print("회원 탈퇴 후 로그인 페이지로 이동 실행됨"); // 확인용 디버깅
+    Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+  } else {
+    print("context가 dispose됨"); // 확인용 디버깅
+  }
+}
+
+// Google & Apple 로그인 사용자 재인증 함수
+Future<void> _reauthenticateUser(User user) async {
+  try {
+    // 현재 사용자의 인증 제공 방식 확인
+    final providerData = user.providerData;
+    if (providerData.isEmpty) return;
+
+    final providerId = providerData.first.providerId;
+
+    if (providerId == 'google.com') {
+      // Google 로그인 사용자 재인증
+      final GoogleAuthProvider googleProvider = GoogleAuthProvider();
+      await user.reauthenticateWithProvider(googleProvider);
+    } else if (providerId == 'apple.com') {
+      // Apple 로그인 사용자 재인증
+      final OAuthProvider appleProvider = OAuthProvider('apple.com');
+      await user.reauthenticateWithProvider(appleProvider);
+    }
+  } catch (e) {
+    print("재인증 실패: $e");
+    throw FirebaseAuthException(code: 'reauthentication-failed', message: "재인증에 실패했습니다.");
+  }
+}
