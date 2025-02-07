@@ -253,20 +253,20 @@ class MyPage extends ConsumerWidget {
   void _showDeleteAccountDialog(BuildContext context, WidgetRef ref) {
     showCupertinoDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
         return CupertinoAlertDialog(
           title: const Text('회원탈퇴'),
           content: const Text('정말로 회원 탈퇴를 진행하시겠습니까? 이 작업은 되돌릴 수 없습니다.'),
           actions: [
             CupertinoDialogAction(
-              onPressed: () => Navigator.of(context).pop(), // 다이얼로그 닫기
+              onPressed: () => Navigator.of(dialogContext).pop(), // 다이얼로그 닫기
               child: const Text('취소'),
             ),
             CupertinoDialogAction(
               isDestructiveAction: true, // 빨간색 강조
               onPressed: () async {
-                Navigator.of(context).pop(); // 다이얼로그 닫기
-                await deleteUserAccount(context, ref);
+              //  Navigator.of(dialogContext).pop(); // 다이얼로그 닫기
+                onDeleteAccountPressed(context, ref);
               },
               child: const Text('탈퇴'),
             ),
