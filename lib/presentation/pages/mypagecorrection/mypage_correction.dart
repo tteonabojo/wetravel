@@ -116,7 +116,7 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
     }, SetOptions(merge: true));
 
     if (mounted) {
-      Navigator.pushNamed(context, '/mypage');
+      Navigator.pop(context, '/mypage');
     }
   }
 
