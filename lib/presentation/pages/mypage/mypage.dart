@@ -148,7 +148,7 @@ class MyPage extends ConsumerWidget {
       builder: (BuildContext context) {
         return CupertinoAlertDialog(
           title: Text('문의하기'),
-          content: Text('관리자 이메일: admin@example.com'),
+          content: Text('관리자 이메일: ksh20531@gmail.com'),
           actions: [
             CupertinoDialogAction(
               onPressed: () {
