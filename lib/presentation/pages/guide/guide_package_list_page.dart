@@ -11,7 +11,7 @@ import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/presentation/pages/guide/package_edit_page/package_edit_page.dart';
 import 'package:wetravel/presentation/pages/guide/package_register_page/package_register_page.dart';
 import 'package:wetravel/presentation/pages/guide/widgets/guide_info.dart';
-import 'package:wetravel/presentation/pages/guidepackagedetailpage/package_detail_page.dart';
+import 'package:wetravel/presentation/pages/guide_package_detail_page/package_detail_page.dart';
 import 'package:wetravel/presentation/provider/schedule_provider.dart';
 import 'package:wetravel/presentation/provider/user_provider.dart';
 import 'package:wetravel/presentation/provider/package_provider.dart';

@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/presentation/pages/guide/guide_page.dart';
 import 'package:wetravel/presentation/pages/main/main_page.dart';
 import 'package:wetravel/presentation/pages/main/widgets/main_header.dart';
-import 'package:wetravel/presentation/pages/mypage/mypage.dart';
+import 'package:wetravel/presentation/pages/my_page/mypage.dart';
 import 'package:wetravel/presentation/pages/new_trip/new_trip_page.dart';
 import 'package:wetravel/presentation/pages/stack/widgets/custom_bottom_navigation_bar.dart';
 

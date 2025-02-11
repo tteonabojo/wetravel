@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
-import 'package:wetravel/presentation/pages/guidepackage/widgets/filterd_package_list.dart';
+import 'package:wetravel/presentation/pages/guide_package/widgets/filterd_package_list.dart';
 import 'package:wetravel/presentation/provider/recommendation_provider.dart';
 import 'widgets/filters.dart';
 

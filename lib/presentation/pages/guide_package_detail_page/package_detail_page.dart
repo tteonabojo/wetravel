@@ -9,10 +9,10 @@ import 'package:wetravel/domain/entity/package.dart';
 import 'package:wetravel/domain/entity/schedule.dart';
 import 'package:wetravel/domain/usecase/get_package_usecase.dart';
 import 'package:wetravel/domain/usecase/get_schedules_usecase.dart';
-import 'package:wetravel/presentation/pages/guidepackagedetailpage/widgets/detail_schedule_list.dart';
-import 'package:wetravel/presentation/pages/guidepackagedetailpage/widgets/package_detail_header.dart';
-import 'package:wetravel/presentation/pages/guidepackagedetailpage/widgets/package_detail_image.dart';
-import 'package:wetravel/presentation/pages/guidepackagedetailpage/widgets/detail_day_chip_button.dart';
+import 'package:wetravel/presentation/pages/guide_package_detail_page/widgets/detail_schedule_list.dart';
+import 'package:wetravel/presentation/pages/guide_package_detail_page/widgets/package_detail_header.dart';
+import 'package:wetravel/presentation/pages/guide_package_detail_page/widgets/package_detail_image.dart';
+import 'package:wetravel/presentation/pages/guide_package_detail_page/widgets/detail_day_chip_button.dart';
 import 'package:wetravel/presentation/widgets/buttons/standard_button.dart';
 
 class PackageDetailPage extends ConsumerStatefulWidget {
