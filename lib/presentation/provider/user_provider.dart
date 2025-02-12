@@ -76,7 +76,7 @@ final schedulesStreamProvider = StreamProvider<List<Schedule>>((ref) {
   return FirebaseFirestore.instance
       .collection('users')
       .doc(user.id)
-      .collection('schedules')
+      .collection('schedule')
       .snapshots()
       .map((snapshot) {
     print('Schedules collection data: ${snapshot.docs}');

@@ -41,6 +41,7 @@ class SurveyStateNotifier extends StateNotifier<SurveyState> {
   }
 
   void selectTravelPeriod(String period) {
+    print('Updating travel period to: $period');
     state = state.copyWith(travelPeriod: period);
     _updateSurveyStateUseCase.execute(state);
   }

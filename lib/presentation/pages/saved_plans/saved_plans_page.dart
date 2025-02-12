@@ -34,7 +34,7 @@ class SavedPlansPage extends ConsumerWidget {
         stream: FirebaseFirestore.instance
             .collection('users')
             .doc(FirebaseAuth.instance.currentUser?.uid)
-            .collection('schedules')
+            .collection('schedule')
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
@@ -100,10 +100,10 @@ class SavedPlansPage extends ConsumerWidget {
                     context,
                     '/ai-schedule',
                     arguments: SurveyResponse(
-                      travelPeriod: '1개월 이내',
-                      travelDuration: '${schedule.duration}',
-                      companions: ['혼자'],
-                      travelStyles: ['관광지', '맛집'],
+                      travelPeriod: schedule.duration,
+                      travelDuration: schedule.duration,
+                      companions: [schedule.travelStyle],
+                      travelStyles: [schedule.travelStyle],
                       accommodationTypes: ['호텔'],
                       considerations: ['위치'],
                       selectedCity: schedule.location,

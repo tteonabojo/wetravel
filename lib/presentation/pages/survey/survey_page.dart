@@ -107,9 +107,20 @@ class _SurveyPageState extends ConsumerState<SurveyPage> {
                             );
                           } else if (notifier.isAllOptionsSelected()) {
                             final state = ref.read(surveyStateProvider);
+
+                            print('Creating SurveyResponse from main button:');
+                            print('Travel Period: ${state.travelPeriod}');
+                            print('Travel Duration: ${state.travelDuration}');
+                            print('Companion: ${state.companion}');
+                            print('Travel Style: ${state.travelStyle}');
+                            print(
+                                'Accommodation Type: ${state.accommodationType}');
+                            print('Consideration: ${state.consideration}');
+                            print('Selected City: ${state.selectedCities}');
+
                             final surveyResponse = SurveyResponse(
-                              travelPeriod: state.travelPeriod!,
-                              travelDuration: state.travelDuration!,
+                              travelPeriod: state.travelPeriod ?? '',
+                              travelDuration: state.travelDuration ?? '',
                               companions: state.companion != null
                                   ? [state.companion!]
                                   : [],
@@ -154,12 +165,22 @@ class TravelPeriodPage extends ConsumerWidget {
   const TravelPeriodPage({super.key, required this.pageController});
 
   void _checkAndNavigate(BuildContext context, WidgetRef ref) {
-    if (ref.read(surveyStateProvider.notifier).isCurrentPageComplete()) {
-      ref.read(surveyStateProvider.notifier).nextPage();
-      pageController.nextPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
+    final state = ref.read(surveyStateProvider);
+    print('Travel Period Page - Selected values:');
+    print('Travel Period: ${state.travelPeriod}');
+    print('Travel Duration: ${state.travelDuration}');
+
+    // 여행 시기와 기간이 모두 선택되었을 때만 다음 페이지로 이동
+    if (state.travelPeriod != null && state.travelDuration != null) {
+      // 여행 시기와 기간이 서로 다른 카테고리에서 선택되었는지 확인
+      if (state.travelPeriod != state.travelDuration) {
+        // 서로 다른 값이 선택되었는지 확인
+        ref.read(surveyStateProvider.notifier).nextPage();
+        pageController.nextPage(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      }
     }
   }
 
@@ -200,9 +221,9 @@ class TravelPeriodPage extends ConsumerWidget {
               selected: state.travelPeriod == '일주일 이내',
               onSelected: (selected) {
                 if (selected) {
-                  ref
-                      .read(surveyStateProvider.notifier)
-                      .selectTravelPeriod('일주일 이내');
+                  final notifier = ref.read(surveyStateProvider.notifier);
+                  notifier.selectTravelPeriod('일주일 이내');
+                  print('Selected travel period: 일주일 이내');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -232,9 +253,9 @@ class TravelPeriodPage extends ConsumerWidget {
               selected: state.travelPeriod == '1달 내',
               onSelected: (selected) {
                 if (selected) {
-                  ref
-                      .read(surveyStateProvider.notifier)
-                      .selectTravelPeriod('1달 내');
+                  final notifier = ref.read(surveyStateProvider.notifier);
+                  notifier.selectTravelPeriod('1달 내');
+                  print('Selected travel period: 1달 내');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -264,9 +285,9 @@ class TravelPeriodPage extends ConsumerWidget {
               selected: state.travelPeriod == '3개월',
               onSelected: (selected) {
                 if (selected) {
-                  ref
-                      .read(surveyStateProvider.notifier)
-                      .selectTravelPeriod('3개월');
+                  final notifier = ref.read(surveyStateProvider.notifier);
+                  notifier.selectTravelPeriod('3개월');
+                  print('Selected travel period: 3개월');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -296,9 +317,9 @@ class TravelPeriodPage extends ConsumerWidget {
               selected: state.travelPeriod == '일정 계획 없음',
               onSelected: (selected) {
                 if (selected) {
-                  ref
-                      .read(surveyStateProvider.notifier)
-                      .selectTravelPeriod('일정 계획 없음');
+                  final notifier = ref.read(surveyStateProvider.notifier);
+                  notifier.selectTravelPeriod('일정 계획 없음');
+                  print('Selected travel period: 일정 계획 없음');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -535,6 +556,11 @@ class TravelStylePage extends ConsumerWidget {
 
   void _checkAndNavigate(BuildContext context, WidgetRef ref) {
     if (ref.read(surveyStateProvider.notifier).isCurrentPageComplete()) {
+      final state = ref.read(surveyStateProvider);
+      print('Travel Style Page - Selected values:');
+      print('Companion: ${state.companion}');
+      print('Travel Style: ${state.travelStyle}');
+
       ref.read(surveyStateProvider.notifier).nextPage();
       pageController.nextPage(
         duration: const Duration(milliseconds: 300),
@@ -909,24 +935,37 @@ class AccommodationPage extends ConsumerWidget {
   void _checkAndNavigate(BuildContext context, WidgetRef ref) {
     if (ref.read(surveyStateProvider.notifier).isCurrentPageComplete()) {
       final state = ref.read(surveyStateProvider);
-      final surveyResponse = SurveyResponse(
-        travelPeriod: state.travelPeriod!,
-        travelDuration: state.travelDuration!,
-        companions: state.companion != null ? [state.companion!] : [],
-        travelStyles: state.travelStyle != null ? [state.travelStyle!] : [],
-        accommodationTypes:
-            state.accommodationType != null ? [state.accommodationType!] : [],
-        considerations:
-            state.consideration != null ? [state.consideration!] : [],
-        selectedCity:
-            state.selectedCities.isNotEmpty ? state.selectedCities.first : null,
-      );
+      print('Creating SurveyResponse from AccommodationPage:');
+      print('Travel Period: ${state.travelPeriod}');
+      print('Travel Duration: ${state.travelDuration}');
+      print('Companion: ${state.companion}');
+      print('Travel Style: ${state.travelStyle}');
+      print('Accommodation Type: ${state.accommodationType}');
+      print('Consideration: ${state.consideration}');
+      print('Selected City: ${state.selectedCities}');
 
-      Navigator.pushNamed(
-        context,
-        '/plan-selection',
-        arguments: surveyResponse,
-      );
+      // 마지막 페이지에서만 SurveyResponse 생성 및 네비게이션
+      if (state.currentPage == 2) {
+        final surveyResponse = SurveyResponse(
+          travelPeriod: state.travelPeriod ?? '',
+          travelDuration: state.travelDuration ?? '',
+          companions: state.companion != null ? [state.companion!] : [],
+          travelStyles: state.travelStyle != null ? [state.travelStyle!] : [],
+          accommodationTypes:
+              state.accommodationType != null ? [state.accommodationType!] : [],
+          considerations:
+              state.consideration != null ? [state.consideration!] : [],
+          selectedCity: state.selectedCities.isNotEmpty
+              ? state.selectedCities.first
+              : null,
+        );
+
+        Navigator.pushNamed(
+          context,
+          '/plan-selection',
+          arguments: surveyResponse,
+        );
+      }
     }
   }
 
