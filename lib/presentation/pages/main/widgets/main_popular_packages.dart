@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/domain/entity/package.dart';
-import 'package:wetravel/presentation/pages/guidepackagedetailpage/package_detail_page.dart';
+import 'package:wetravel/presentation/pages/guide_package_detail_page/package_detail_page.dart';
 import 'package:wetravel/presentation/pages/main/widgets/main_label.dart';
 import 'package:wetravel/presentation/provider/package_provider.dart';
 import 'package:wetravel/presentation/provider/schedule_provider.dart';
@@ -39,7 +39,7 @@ class MainPopularPackages extends ConsumerWidget {
             ? Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
-                  spacing: 16,
+                  spacing: 8,
                   children: List.generate(
                     displayedPackages.length,
                     (index) {

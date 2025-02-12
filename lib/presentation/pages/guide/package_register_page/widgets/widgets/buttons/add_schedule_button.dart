@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wetravel/core/constants/app_border_radius.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
+import 'package:wetravel/core/constants/app_icons.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 
 class AddScheduleButton extends StatefulWidget {
@@ -59,11 +61,8 @@ class _AddScheduleButtonState extends State<AddScheduleButton> {
             ),
           ),
           child: Center(
-            child: Text(
-              '일정 추가',
-              style: AppTypography.buttonLabelMedium
-                  .copyWith(color: AppColors.grayScale_550),
-            ),
+            child:
+                SvgPicture.asset(AppIcons.plus, color: AppColors.grayScale_450),
           ),
         ),
       ),

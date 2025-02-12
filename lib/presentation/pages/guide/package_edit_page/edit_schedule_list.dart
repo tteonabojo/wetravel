@@ -49,10 +49,10 @@ class EditScheduleList extends ConsumerWidget {
           ),
           child: ScheduleItem(
             totalScheduleItemCount: totalScheduleCount,
-            time: schedule.time,
-            title: schedule.title,
-            location: schedule.location,
-            content: schedule.content ?? '설명',
+            time: schedule.time.isEmpty ? '오전 9:00' : schedule.time,
+            title: schedule.title.isEmpty ? '제목' : schedule.title,
+            location: schedule.location.isEmpty ? '위치' : schedule.location,
+            content: schedule.content.isEmpty ? '설명' : schedule.content,
             bodyStyle:
                 AppTypography.body2.copyWith(color: AppColors.grayScale_650),
             headlineStyle: AppTypography.headline5
@@ -73,11 +73,26 @@ class EditScheduleList extends ConsumerWidget {
                     time: schedule.time,
                     title: schedule.title,
                     location: schedule.location,
-                    content: schedule.content ?? '설명',
-                    onSave: (title, location, time, description) {
+                    content: schedule.content,
+                    onSave: (
+                      title,
+                      location,
+                      time,
+                      description,
+                    ) {
                       scheduleViewModel.updateSchedule(
-                          time, title, location, description);
-                      onSave(time, title, location, description, entry.key);
+                        time,
+                        title,
+                        location,
+                        description,
+                      );
+                      onSave(
+                        time,
+                        title,
+                        location,
+                        description,
+                        entry.key,
+                      );
                     },
                   );
                 },

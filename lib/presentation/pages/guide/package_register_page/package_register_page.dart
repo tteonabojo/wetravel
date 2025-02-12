@@ -1,10 +1,11 @@
 import 'dart:io';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
+import 'package:wetravel/core/constants/app_icons.dart';
+import 'package:wetravel/core/constants/app_spacing.dart';
+import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/data/dto/schedule_dto.dart';
 import 'package:wetravel/presentation/pages/guide/package_register_page/widgets/package_header.dart';
 import 'package:wetravel/presentation/pages/guide/package_register_page/widgets/package_hero_image.dart';
@@ -24,25 +25,20 @@ class PackageRegisterPage extends StatefulWidget {
 }
 
 class _PackageRegisterPageState extends State<PackageRegisterPage> {
-  final TextEditingController _descriptionController = TextEditingController();
-  final TextEditingController _durationController = TextEditingController();
-  bool isGuide = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchUserIsGuide();
-  }
-
   String _selectedImagePath = "";
-  String _title = '제목';
-  List<String> _keywordList = ['2박 3일', '혼자', '액티비티'];
-  String _location = '위치';
+  String _title = '';
+  List<String> _keywordList = [];
+  String _location = '';
   int _dayCount = 1;
   int _selectedDay = 1;
   final List<List<Map<String, String>>> _schedules = [[]];
 
   bool isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   void _onDelete(int dayIndex, int scheduleIndex) {
     setState(() {
@@ -54,10 +50,10 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
     if (_schedules[_selectedDay - 1].length < 9) {
       setState(() {
         _schedules[_selectedDay - 1].add({
-          'time': '오전 9:00',
-          'title': '제목',
-          'location': '위치',
-          'content': '설명',
+          'time': '',
+          'title': '',
+          'location': '',
+          'content': '',
         });
       });
     }
@@ -152,12 +148,10 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
         await _packageRegisterService.registerPackage(
           title: _title,
           location: _location,
-          description: _descriptionController.text,
-          duration: _durationController.text,
           imageUrl: imageUrl,
           keywordList: _keywordList,
           scheduleList: scheduleList,
-          isHidden: !isGuide, // isGuide가 false일 때만 isHidden을 true로 설정
+          isHidden: true,
         );
 
         setState(() {
@@ -197,27 +191,6 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
     }
   }
 
-  // 로그인된 사용자의 isGuide 값 가져오기
-  Future<void> _fetchUserIsGuide() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      try {
-        DocumentSnapshot userDoc = await FirebaseFirestore.instance
-            .collection('users') // 사용자 컬렉션이 있는 위치로 수정
-            .doc(user.uid)
-            .get();
-
-        if (userDoc.exists) {
-          setState(() {
-            isGuide = userDoc['isGuide'] ?? false; // isGuide 필드 값을 가져옵니다.
-          });
-        }
-      } catch (e) {
-        print("Error fetching user data: $e");
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     if (_schedules.length < _selectedDay) {
@@ -225,85 +198,104 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
     }
 
     return Scaffold(
-      appBar: AppBar(),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(color: AppColors.grayScale_050),
+      appBar: AppBar(
+        title: Text(
+          _title.isEmpty ? '제목을 입력해주세요' : _title,
+          style: AppTypography.headline4.copyWith(
+              color: _title.isEmpty
+                  ? AppColors.grayScale_350
+                  : AppColors.grayScale_950),
+        ),
+        leading: IconButton(
+          icon: SvgPicture.asset(AppIcons.chevronLeft),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
               child: Column(
                 children: [
-                  PackageHeroImage(
-                    imagePath: _selectedImagePath,
-                    onImageSelected: (newPath) {
-                      print('Selected image path: $newPath');
-                      setState(() {
-                        _selectedImagePath = newPath;
-                      });
-                    },
-                  ),
-                  PackageHeader(
-                    title: _title,
-                    keywordList: _keywordList,
-                    location: _location,
-                    onUpdate: (newTitle, newKeywordList, newLocation) {
-                      setState(() {
-                        _title = newTitle;
-                        _keywordList = newKeywordList;
-                        _location = newLocation;
-                      });
-                    },
-                  ),
-                  divider(1),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 20),
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(color: AppColors.grayScale_050),
                     child: Column(
-                      spacing: 16,
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        DayChipButton(
-                          onPressed: _onAddDay,
-                          currentDayCount: _dayCount,
-                          onSelectDay: _onSelectDay,
-                          selectedDay: _selectedDay,
-                        ),
-                        ScheduleList(
-                          schedules: _schedules[_selectedDay - 1]
-                              .map((scheduleMap) =>
-                                  ScheduleDto.fromJson(scheduleMap))
-                              .toList(),
-                          totalScheduleCount:
-                              _schedules[_selectedDay - 1].length,
-                          dayIndex: _selectedDay - 1,
-                          onSave:
-                              (time, title, location, content, scheduleIndex) {
-                            _onEditSchedule(
-                              _selectedDay - 1,
-                              scheduleIndex,
-                              time,
-                              title,
-                              location,
-                              content,
-                            );
+                        PackageHeroImage(
+                          imagePath: _selectedImagePath,
+                          onImageSelected: (newPath) {
+                            setState(() {
+                              _selectedImagePath = newPath;
+                            });
                           },
-                          onDelete: _onDelete,
                         ),
-                        AddScheduleButton(
-                          onPressed: _onAddSchedule,
-                          currentScheduleCount:
-                              _schedules[_selectedDay - 1].length,
+                        PackageHeader(
+                          title: _title,
+                          keywordList: _keywordList,
+                          location: _location,
+                          onUpdate: (newTitle, newKeywordList, newLocation) {
+                            setState(() {
+                              _title = newTitle;
+                              _keywordList = newKeywordList;
+                              _location = newLocation;
+                            });
+                          },
                         ),
-                        if (_dayCount > 1)
-                          DeleteDayButton(
-                            onPressed: _deleteDay,
+                        divider(1),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 20),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              DayChipButton(
+                                onPressed: _onAddDay,
+                                currentDayCount: _dayCount,
+                                onSelectDay: _onSelectDay,
+                                selectedDay: _selectedDay,
+                              ),
+                              SizedBox(height: 16),
+                              ScheduleList(
+                                schedules: _schedules[_selectedDay - 1]
+                                    .map((scheduleMap) =>
+                                        ScheduleDto.fromJson(scheduleMap))
+                                    .toList(),
+                                totalScheduleCount:
+                                    _schedules[_selectedDay - 1].length,
+                                dayIndex: _selectedDay - 1,
+                                onSave: (time, title, location, content,
+                                    scheduleIndex) {
+                                  _onEditSchedule(
+                                    _selectedDay - 1,
+                                    scheduleIndex,
+                                    time,
+                                    title,
+                                    location,
+                                    content,
+                                  );
+                                },
+                                onDelete: _onDelete,
+                              ),
+                              AddScheduleButton(
+                                onPressed: _onAddSchedule,
+                                currentScheduleCount:
+                                    _schedules[_selectedDay - 1].length,
+                              ),
+                              if (_dayCount > 1)
+                                Column(
+                                  children: [
+                                    SizedBox(height: 12),
+                                    DeleteDayButton(
+                                      onPressed: _deleteDay,
+                                    ),
+                                  ],
+                                ),
+                              const SizedBox(height: 40),
+                            ],
                           ),
-                        const SizedBox(height: 40),
-                        StandardButton.primary(
-                          onPressed: _registerPackage,
-                          sizeType: ButtonSizeType.normal,
-                          text: isGuide ? '작성 완료' : '제출하기',
                         ),
                       ],
                     ),
@@ -311,7 +303,15 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
                 ],
               ),
             ),
-          ],
+          ),
+        ],
+      ),
+      bottomNavigationBar: Container(
+        padding: AppSpacing.medium16.copyWith(bottom: 30),
+        child: StandardButton.primary(
+          onPressed: _registerPackage,
+          sizeType: ButtonSizeType.normal,
+          text: '작성 완료',
         ),
       ),
     );

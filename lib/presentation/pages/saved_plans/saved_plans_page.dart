@@ -101,7 +101,7 @@ class SavedPlansPage extends ConsumerWidget {
                     '/ai-schedule',
                     arguments: SurveyResponse(
                       travelPeriod: '1개월 이내',
-                      travelDuration: '${schedule.duration}일',
+                      travelDuration: '${schedule.duration}',
                       companions: ['혼자'],
                       travelStyles: ['관광지', '맛집'],
                       accommodationTypes: ['호텔'],

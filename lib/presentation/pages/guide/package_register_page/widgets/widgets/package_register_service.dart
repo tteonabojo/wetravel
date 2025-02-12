@@ -5,8 +5,6 @@ class PackageRegisterService {
   Future<void> registerPackage({
     required String title,
     required String location,
-    required String description,
-    required String duration,
     required String imageUrl,
     required List<String> keywordList,
     required List<Map<String, dynamic>> scheduleList,
@@ -69,14 +67,12 @@ class PackageRegisterService {
         'userImageUrl': userImageUrl, // 로그인한 사용자의 이미지 URL 추가
         'title': title,
         'location': location,
-        'description': description,
-        'duration': duration,
         'imageUrl': imageUrl,
         'keywordList': keywordList,
         'scheduleIdList': scheduleIdList, // 생성된 scheduleId 리스트
         'createdAt': Timestamp.now(),
         'reportCount': 0,
-        'isHidden': isHidden, // isHidden 값 추가
+        'isHidden': isHidden,
         'viewCount': 0,
       };
 
@@ -96,6 +92,7 @@ class PackageRegisterService {
     required String imageUrl,
     required List<String> keywordList,
     required List<Map<String, dynamic>> scheduleList,
+    required bool isHidden,
   }) async {
     final currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) {

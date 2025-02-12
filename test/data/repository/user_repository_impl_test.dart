@@ -42,7 +42,6 @@
 //                 imageUrl: 'imageUrl',
 //                 introduction: 'introduction',
 //                 loginType: 'loginType',
-//                 isGuide: true,
 //                 createdAt: Timestamp.now(),
 //                 updatedAt: Timestamp.now(),
 //                 deletedAt: Timestamp.now(),

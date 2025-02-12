@@ -29,13 +29,12 @@ void main() {
                 imageUrl: 'imageUrl',
                 introduction: 'introduction',
                 loginType: 'loginType',
-                isGuide: true,
                 createdAt: Timestamp.now(),
                 updatedAt: Timestamp.now(),
+                recentPackages: [],
               ));
 
       final result = await fetchUserUsecase.execute();
-      expect(result!.isGuide, false);
       expect(result.loginType, 'loginType');
     },
   );

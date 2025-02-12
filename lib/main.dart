@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wetravel/presentation/pages/guidepackage/filtered_guide_package_page.dart';
+import 'package:wetravel/presentation/pages/guide_package/filtered_guide_package_page.dart';
 import 'package:wetravel/presentation/pages/login/login_page.dart';
 import 'package:wetravel/presentation/pages/new_trip/scrap_package_page.dart';
 import 'package:wetravel/presentation/pages/stack/stack_page.dart';
@@ -15,7 +15,7 @@ import 'package:wetravel/presentation/pages/recommendation/ai_recommendation_pag
 import 'package:wetravel/presentation/pages/schedule/ai_schedule_page.dart';
 import 'package:wetravel/presentation/pages/new_trip/new_trip_page.dart';
 import 'package:wetravel/presentation/pages/plan_selection/plan_selection_page.dart';
-import 'package:wetravel/presentation/pages/mypage/mypage.dart';
+import 'package:wetravel/presentation/pages/my_page/mypage.dart';
 import 'package:wetravel/presentation/pages/saved_plans/saved_plans_page.dart';
 import 'package:wetravel/theme.dart';
 import 'package:flutter/cupertino.dart';
