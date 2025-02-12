@@ -8,6 +8,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_icons.dart';
 import 'package:wetravel/core/constants/app_spacing.dart';
+import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/presentation/pages/guide/package_edit_page/package_edit_page.dart';
 import 'package:wetravel/presentation/pages/guide/package_register_page/package_register_page.dart';
 import 'package:wetravel/presentation/pages/guide/widgets/guide_info.dart';
@@ -183,7 +184,11 @@ class GuidePackageListPage extends ConsumerWidget {
                                   context: context,
                                   builder: (BuildContext context) =>
                                       CupertinoActionSheet(
-                                    title: Text(package.title),
+                                    title: Text(
+                                      package.title,
+                                      style: AppTypography.headline4.copyWith(
+                                          color: AppColors.grayScale_950),
+                                    ),
                                     actions: <CupertinoActionSheetAction>[
                                       CupertinoActionSheetAction(
                                         onPressed: () {
@@ -197,7 +202,12 @@ class GuidePackageListPage extends ConsumerWidget {
                                                     )),
                                           );
                                         },
-                                        child: const Text('수정'),
+                                        child: Text(
+                                          '수정',
+                                          style: AppTypography.buttonLabelNormal
+                                              .copyWith(
+                                                  color: AppColors.primary_550),
+                                        ),
                                       ),
                                       CupertinoActionSheetAction(
                                         onPressed: () async {
@@ -209,14 +219,23 @@ class GuidePackageListPage extends ConsumerWidget {
                                               .execute(user.id);
                                         },
                                         isDestructiveAction: true,
-                                        child: const Text('삭제'),
+                                        child: Text(
+                                          '삭제',
+                                          style: AppTypography.buttonLabelNormal
+                                              .copyWith(color: AppColors.red),
+                                        ),
                                       ),
                                     ],
                                     cancelButton: CupertinoActionSheetAction(
                                       onPressed: () {
                                         Navigator.pop(context);
                                       },
-                                      child: const Text('취소'),
+                                      child: Text(
+                                        '취소',
+                                        style: AppTypography.buttonLabelNormal
+                                            .copyWith(
+                                                color: AppColors.grayScale_550),
+                                      ),
                                     ),
                                   ),
                                 );

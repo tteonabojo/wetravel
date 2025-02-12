@@ -284,16 +284,15 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
                 ],
               ),
             ),
-            Padding(
-              padding: AppSpacing.medium16,
-              child: StandardButton.primary(
-                  onPressed: _addToScrapList,
-                  sizeType: ButtonSizeType.normal,
-                  text: '패키지 담기'),
-            ),
-            SizedBox(height: 32)
           ],
         ),
+      ),
+      bottomNavigationBar: Padding(
+        padding: AppSpacing.medium16.copyWith(bottom: 30),
+        child: StandardButton.primary(
+            onPressed: _addToScrapList,
+            sizeType: ButtonSizeType.normal,
+            text: '패키지 담기'),
       ),
     );
   }
