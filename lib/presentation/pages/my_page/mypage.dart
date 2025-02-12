@@ -14,29 +14,36 @@ import 'package:url_launcher/url_launcher.dart';
 
 class MyPage extends ConsumerWidget {
   @override
-Widget build(BuildContext context, WidgetRef ref) {
-  return Scaffold(
-    body: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(height: 20),
-          _buildProfileBox(context, ref),
-          SizedBox(height: 8),
-          _buildNoticeBox(), // 공지사항 추가
-          SizedBox(height: 8),
-          _buildInquiryBox(context),
-          SizedBox(height: 8),
-          _buildTermsAndPrivacyBox(),
-          SizedBox(height: 8),
-          _buildLogoutBox(context, ref),
-          SizedBox(height: 8),
-          _buildDeleteAccount(context, ref),
-        ],
+  Widget build(BuildContext context, WidgetRef ref) {
+    final userAsync = ref.watch(userStreamProvider);
+
+    return Scaffold(
+      body: userAsync.when(
+        data: (userData) => Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 20),
+              _buildProfileBox(context, ref), // 유저 데이터 전달
+              SizedBox(height: 8),
+              _buildNoticeBox(),
+              SizedBox(height: 8),
+              _buildInquiryBox(context),
+              SizedBox(height: 8),
+              _buildTermsAndPrivacyBox(),
+              SizedBox(height: 8),
+              _buildLogoutBox(context, ref),
+              SizedBox(height: 8),
+              _buildDeleteAccount(context, ref),
+            ],
+          ),
+        ),
+        loading: () => Center(child: CircularProgressIndicator()), // 로딩 중 UI
+        error: (error, stack) => Center(child: Text("오류 발생: $error")), // 에러 처리
       ),
-    ),
-  );
+    );
+  }
 }
 
 Widget _buildNoticeBox() {
@@ -199,7 +206,6 @@ Widget _buildNoticeBox() {
       child: _buildBoxWithText('이용약관/개인정보 처리방침'),
     );
   }
-}
 
 Widget _buildBoxWithText(String text) {
   return Container(
@@ -328,6 +334,16 @@ Future<void> deleteUserAccount(BuildContext context, WidgetRef ref) async {
         print("프로필 이미지 삭제 실패: $e");
       }
     }
+
+    // 상태 초기화
+    print('캐시삭제');
+    ref.invalidate(signOutUsecaseProvider); // 로그아웃 상태 초기화
+    print('캐시삭제');
+    ref.invalidate(userRepositoryProvider); // 사용자 관련 상태 초기화
+    print('캐시삭제');
+    ref.invalidate(signInWithProviderUsecaseProvider);
+    print('캐시삭제');
+    ref.invalidate(userStreamProvider);
 
     await user.delete();
     print(" 사용자 계정 삭제 완료");
