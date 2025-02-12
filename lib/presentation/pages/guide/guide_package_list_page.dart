@@ -48,6 +48,21 @@ class _GuidePackageListPageState extends ConsumerState<GuidePackageListPage> {
     }
   }
 
+  Future<void> _toggleIsHidden(String packageId, bool currentStatus) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('packages')
+          .doc(packageId)
+          .update({'isHidden': !currentStatus});
+
+      setState(() {
+        showHiddenPackages = !showHiddenPackages;
+      });
+    } catch (e) {
+      print('isHidden 변경 실패: $e');
+    }
+  }
+
   Future<void> _deletePackage(String packageId) async {
     try {
       final packageDoc = await FirebaseFirestore.instance
@@ -77,6 +92,8 @@ class _GuidePackageListPageState extends ConsumerState<GuidePackageListPage> {
       for (var scheduleDoc in schedulesQuerySnapshot.docs) {
         await scheduleDoc.reference.delete();
       }
+
+      setState(() {});
     } catch (e) {
       print('패키지 및 관련 스케줄 삭제 실패: $e');
     }
@@ -179,6 +196,20 @@ class _GuidePackageListPageState extends ConsumerState<GuidePackageListPage> {
                                       .copyWith(color: AppColors.grayScale_950),
                                 ),
                                 actions: <CupertinoActionSheetAction>[
+                                  CupertinoActionSheetAction(
+                                    onPressed: () async {
+                                      Navigator.pop(context);
+                                      await _toggleIsHidden(
+                                          package.id, package.isHidden);
+                                    },
+                                    child: Text(
+                                      package.isHidden ? '공개 전환' : '비공개 전환',
+                                      style: AppTypography.buttonLabelNormal
+                                          .copyWith(
+                                        color: AppColors.primary_550,
+                                      ),
+                                    ),
+                                  ),
                                   CupertinoActionSheetAction(
                                     onPressed: () {
                                       Navigator.pop(context);
