@@ -18,6 +18,7 @@ import 'package:wetravel/presentation/pages/plan_selection/plan_selection_page.d
 import 'package:wetravel/presentation/pages/my_page/mypage.dart';
 import 'package:wetravel/presentation/pages/saved_plans/saved_plans_page.dart';
 import 'package:wetravel/theme.dart';
+import 'package:flutter/cupertino.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -76,6 +77,21 @@ class MyApp extends StatelessWidget {
         return MaterialPageRoute(
           builder: (context) => const StackPage(),
         );
+      },
+      onGenerateRoute: (settings) {
+        if (settings.name == '/ai-recommendation') {
+          return PageRouteBuilder(
+            settings: settings,
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                const AIRecommendationPage(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return child;
+            },
+            fullscreenDialog: true,
+          );
+        }
+        return null;
       },
     );
   }
