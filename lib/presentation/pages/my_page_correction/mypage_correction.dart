@@ -2,12 +2,14 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/presentation/widgets/custom_input_field.dart';
+import 'package:image/image.dart' as img;
 
 class MyPageCorrection extends StatefulWidget {
   const MyPageCorrection({super.key});
@@ -31,6 +33,9 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
   String _initialName = "";
   String _initialIntro = "";
 
+  TextEditingController _nameController = TextEditingController();
+  TextEditingController _introController = TextEditingController();
+
   bool _isChanged() {
     return _name != _initialName ||
         _intro != _initialIntro ||
@@ -42,10 +47,7 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
     super.initState();
     _getUserData();
   }
-
-  TextEditingController _nameController = TextEditingController();
-  TextEditingController _introController = TextEditingController();
-
+  
   // Firestore에서 사용자 데이터 가져오기
   Future<void> _getUserData() async {
     User? user = _auth.currentUser;
@@ -87,9 +89,22 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
     if (user == null) return;
 
     try {
+      // 이미지 파일을 Uint8List로 변환
+      Uint8List imageBytes = await image.readAsBytesSync();
+
+      // 이미지 디코딩 및 리사이징 (300*300)
+      img.Image? originalImage = img.decodeImage(imageBytes);
+      if (originalImage == null) throw Exception("이미지 디코딩 실패");
+
+      img.Image resizedImage = img.copyResize(originalImage, width:300, height: 300);
+
+      // JPG로 변환 및 품질 85%로 설정
+      Uint8List compressedImage = Uint8List.fromList(img.encodeJpg(resizedImage, quality: 85));
+
+      // Firebase Storage에 업로드
       String filePath = 'profile_images/${user.uid}.jpg';
       UploadTask uploadTask =
-          FirebaseStorage.instance.ref(filePath).putFile(image);
+          FirebaseStorage.instance.ref(filePath).putData(compressedImage);
       TaskSnapshot snapshot = await uploadTask;
       String downloadUrl = await snapshot.ref.getDownloadURL();
 
@@ -116,7 +131,7 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
     }, SetOptions(merge: true));
 
     if (mounted) {
-      Navigator.pop(context, '/mypage');
+      Navigator.pop(context);
     }
   }
 

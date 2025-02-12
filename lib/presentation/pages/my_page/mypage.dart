@@ -15,29 +15,59 @@ import 'package:url_launcher/url_launcher.dart';
 class MyPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final userAsync = ref.watch(userStreamProvider);
+
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 16,
+      body: userAsync.when(
+        data: (userData) => Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 20),
+              _buildProfileBox(context, ref), // 유저 데이터 전달
+              SizedBox(height: 8),
+              _buildNoticeBox(),
+              SizedBox(height: 8),
+              _buildInquiryBox(context),
+              SizedBox(height: 8),
+              _buildTermsAndPrivacyBox(),
+              SizedBox(height: 8),
+              _buildLogoutBox(context, ref),
+              SizedBox(height: 8),
+              _buildDeleteAccount(context, ref),
+            ],
+          ),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 20),
-            _buildProfileBox(context, ref), // 프로필 정보 표시
-            SizedBox(height: 8),
-            _buildInquiryBox(context),
-            SizedBox(height: 8),
-            _buildTermsAndPrivacyBox(),
-            SizedBox(height: 8),
-            _buildLogoutBox(context, ref),
-            SizedBox(height: 8),
-            _buildDeleteAccount(context, ref),
-          ],
-        ),
+        loading: () => Center(child: CircularProgressIndicator()), // 로딩 중 UI
+        error: (error, stack) => Center(child: Text("오류 발생: $error")), // 에러 처리
       ),
     );
   }
+}
+
+Widget _buildNoticeBox() {
+  return Container(
+    height: 56,
+    padding: const EdgeInsets.symmetric(horizontal: 16),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(12),
+      boxShadow: AppShadow.generalShadow,
+    ),
+    child: Align(
+      alignment: Alignment.centerLeft,
+      child: Text(
+        '공지사항',
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          color: Colors.black,
+        ),
+      ),
+    ),
+  );
+}
 
   Widget _buildProfileBox(BuildContext context, WidgetRef ref) {
     final userAsync = ref.watch(userStreamProvider); // Firestore 실시간 데이터 사용
@@ -48,7 +78,11 @@ class MyPage extends ConsumerWidget {
           return Text('사용자 데이터를 불러올 수 없습니다.');
         }
 
-        final name = userData['name'] ?? '이름 없음';
+        // 닉네임 기본값 설정 (Apple 로그인 시 닉네임 없을 경우 대비)
+        final uid = userData['uid'] ?? ''; 
+        final defaultNickname = uid.isNotEmpty ? "AppleUser_${uid.substring(0, 6)}" : "사용자"; 
+        final name = userData['name']?.isNotEmpty == true ? userData['name'] : defaultNickname;
+
         final email = userData['email'] ?? '이메일 없음';
         final imageUrl = userData['imageUrl']; // Firestore에서 가져온 프로필 이미지 URL
         final validUrl = '$imageUrl'.startsWith('http');
@@ -148,7 +182,7 @@ class MyPage extends ConsumerWidget {
       builder: (BuildContext context) {
         return CupertinoAlertDialog(
           title: Text('문의하기'),
-          content: Text('관리자 이메일: admin@example.com'),
+          content: Text('관리자 이메일: ksh20531@gmail.com'),
           actions: [
             CupertinoDialogAction(
               onPressed: () {
@@ -176,7 +210,6 @@ class MyPage extends ConsumerWidget {
       child: _buildBoxWithText('이용약관/개인정보 처리방침'),
     );
   }
-}
 
 Widget _buildBoxWithText(String text) {
   return Container(
@@ -305,6 +338,16 @@ Future<void> deleteUserAccount(BuildContext context, WidgetRef ref) async {
         print("프로필 이미지 삭제 실패: $e");
       }
     }
+
+    // 상태 초기화
+    print('캐시삭제');
+    ref.invalidate(signOutUsecaseProvider); // 로그아웃 상태 초기화
+    print('캐시삭제');
+    ref.invalidate(userRepositoryProvider); // 사용자 관련 상태 초기화
+    print('캐시삭제');
+    ref.invalidate(signInWithProviderUsecaseProvider);
+    print('캐시삭제');
+    ref.invalidate(userStreamProvider);
 
     await user.delete();
     print(" 사용자 계정 삭제 완료");
