@@ -109,7 +109,6 @@ class _GuidePackageListPageState extends ConsumerState<GuidePackageListPage> {
         child: Column(
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ChipButton(
                   disabledType: DisabledType.disabled150,
