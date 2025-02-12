@@ -325,6 +325,8 @@ class RecommendationNotifier extends StateNotifier<RecommendationState> {
       selectedKeywords: [],
     );
   }
+
+  void previousPage() {}
 }
 
 final recommendationStateProvider =

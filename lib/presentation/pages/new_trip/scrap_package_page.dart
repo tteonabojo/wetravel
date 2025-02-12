@@ -116,7 +116,9 @@ class ScrapPackagesPage extends ConsumerWidget {
         return;
       }
 
-      final userDocRef = firestore.collection('users').doc(userId);
+      final userDocRef = firestore
+          .collection('users') // 환경에 따른 컬렉션 이름 사용
+          .doc(userId);
 
       await firestore.runTransaction((transaction) async {
         final userDoc = await transaction.get(userDocRef);
