@@ -78,7 +78,11 @@ Widget _buildNoticeBox() {
           return Text('사용자 데이터를 불러올 수 없습니다.');
         }
 
-        final name = userData['name'] ?? '이름 없음';
+        // 닉네임 기본값 설정 (Apple 로그인 시 닉네임 없을 경우 대비)
+        final uid = userData['uid'] ?? ''; 
+        final defaultNickname = uid.isNotEmpty ? "AppleUser_${uid.substring(0, 6)}" : "사용자"; 
+        final name = userData['name']?.isNotEmpty == true ? userData['name'] : defaultNickname;
+
         final email = userData['email'] ?? '이메일 없음';
         final imageUrl = userData['imageUrl']; // Firestore에서 가져온 프로필 이미지 URL
         final validUrl = '$imageUrl'.startsWith('http');
