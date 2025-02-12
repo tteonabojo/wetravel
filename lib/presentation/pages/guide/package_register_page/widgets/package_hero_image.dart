@@ -7,6 +7,7 @@ import 'package:image/image.dart' as img;
 import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_icons.dart';
 import 'package:wetravel/core/constants/app_spacing.dart';
+import 'package:wetravel/core/constants/app_typography.dart';
 
 class PackageHeroImage extends StatefulWidget {
   final String? imagePath;
@@ -23,43 +24,55 @@ class PackageHeroImage extends StatefulWidget {
 }
 
 class _PackageHeroImageState extends State<PackageHeroImage> {
-  String? _currentImagePath;
+  late String? _currentImagePath = widget.imagePath;
 
-  @override
-  void initState() {
-    super.initState();
-    _currentImagePath = widget.imagePath;
-  }
+  bool get hasImage =>
+      _currentImagePath != null && _currentImagePath!.isNotEmpty;
 
   Future<void> _selectImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (pickedFile == null) return;
 
-    if (pickedFile != null) {
-      // 이미지 리사이즈
-      final resizedImage = await _resizeImage(pickedFile);
+    final resizedImage = await _resizeImage(pickedFile);
 
-      setState(() {
-        _currentImagePath = resizedImage.path;
-      });
-
-      widget.onImageSelected(resizedImage.path);
-    }
+    setState(() => _currentImagePath = resizedImage.path);
+    widget.onImageSelected(resizedImage.path);
   }
 
   Future<File> _resizeImage(XFile pickedFile) async {
     final imageBytes = await pickedFile.readAsBytes();
     final image = img.decodeImage(Uint8List.fromList(imageBytes));
 
-    if (image != null) {
-      final resizedImage = img.copyResize(image, width: 500);
+    if (image == null) throw Exception('이미지 리사이즈 실패');
 
-      final resizedFile = File(pickedFile.path)
-        ..writeAsBytesSync(img.encodeJpg(resizedImage));
-      return resizedFile;
+    final resizedImage = img.copyResize(image, width: 400);
+    return File(pickedFile.path)..writeAsBytesSync(img.encodeJpg(resizedImage));
+  }
+
+  ImageProvider getImageProvider() {
+    if (_currentImagePath!.startsWith('http')) {
+      return NetworkImage(_currentImagePath!);
     }
+    return FileImage(File(_currentImagePath!));
+  }
 
-    throw Exception('이미지 리사이즈 실패');
+  Widget _buildCameraButton() {
+    return Align(
+      alignment: Alignment.bottomRight,
+      child: Container(
+        width: 28,
+        height: 28,
+        decoration: const ShapeDecoration(
+          color: AppColors.grayScale_450,
+          shape: CircleBorder(),
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(5),
+          child: SvgPicture.asset(AppIcons.camera, color: Colors.white),
+        ),
+      ),
+    );
   }
 
   @override
@@ -72,34 +85,21 @@ class _PackageHeroImageState extends State<PackageHeroImage> {
         padding: AppSpacing.medium16,
         decoration: BoxDecoration(
           color: AppColors.grayScale_150,
-          image: _currentImagePath != null && _currentImagePath!.isNotEmpty
-              ? DecorationImage(
-                  image: _currentImagePath!.startsWith('http')
-                      ? NetworkImage(_currentImagePath!)
-                      : FileImage(File(_currentImagePath!)) as ImageProvider,
-                  fit: BoxFit.cover,
-                )
+          image: hasImage
+              ? DecorationImage(image: getImageProvider(), fit: BoxFit.cover)
               : null,
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          crossAxisAlignment: CrossAxisAlignment.end,
+        child: Stack(
           children: [
-            Container(
-              width: 28,
-              height: 28,
-              decoration: ShapeDecoration(
-                color: AppColors.grayScale_450,
-                shape: const CircleBorder(),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(4),
-                child: SvgPicture.asset(
-                  AppIcons.camera,
-                  color: Colors.white,
+            if (!hasImage)
+              Center(
+                child: Text(
+                  "이미지를 선택해주세요",
+                  style: AppTypography.body3
+                      .copyWith(color: AppColors.grayScale_450),
                 ),
               ),
-            ),
+            _buildCameraButton(),
           ],
         ),
       ),

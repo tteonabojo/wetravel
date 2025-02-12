@@ -8,7 +8,7 @@ import 'package:wetravel/core/constants/app_icons.dart';
 import 'package:wetravel/core/constants/app_shadow.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/presentation/pages/login/login_page.dart';
-import 'package:wetravel/presentation/pages/mypagecorrection/mypage_correction.dart';
+import 'package:wetravel/presentation/pages/my_page_correction/mypage_correction.dart';
 import 'package:wetravel/presentation/provider/user_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -188,7 +188,8 @@ Widget _buildNoticeBox() {
   Widget _buildTermsAndPrivacyBox() {
     return GestureDetector(
       onTap: () async {
-        final url = 'https://weetravel.notion.site/188e73dd935881a8af01f4f12db0d7c9';
+        final url =
+            'https://weetravel.notion.site/188e73dd935881a8af01f4f12db0d7c9';
         if (await canLaunch(url)) {
           await launch(url);
         } else {
@@ -200,8 +201,39 @@ Widget _buildNoticeBox() {
   }
 }
 
-  Widget _buildBoxWithText(String text) {
-    return Container(
+Widget _buildBoxWithText(String text) {
+  return Container(
+    height: 56,
+    padding: const EdgeInsets.symmetric(horizontal: 16),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(12),
+      boxShadow: AppShadow.generalShadow,
+    ),
+    child: Align(
+      alignment: Alignment.centerLeft,
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          color: Colors.black,
+        ),
+      ),
+    ),
+  );
+}
+
+Widget _buildLogoutBox(BuildContext context, WidgetRef ref) {
+  return GestureDetector(
+    onTap: () async {
+      final signOutUsecase = ref.read(signOutUsecaseProvider);
+      await signOutUsecase.signOut();
+
+      // 로그아웃 후 로그인 페이지로 이동 (예: LoginPage())
+      Navigator.pushReplacementNamed(context, '/login');
+    },
+    child: Container(
       height: 56,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
@@ -212,7 +244,7 @@ Widget _buildNoticeBox() {
       child: Align(
         alignment: Alignment.centerLeft,
         child: Text(
-          text,
+          '로그아웃',
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
@@ -220,86 +252,55 @@ Widget _buildNoticeBox() {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
-  Widget _buildLogoutBox(BuildContext context, WidgetRef ref) {
-    return GestureDetector(
-      onTap: () async {
-        final signOutUsecase = ref.read(signOutUsecaseProvider);
-        await signOutUsecase.signOut();
-
-        // 로그아웃 후 로그인 페이지로 이동 (예: LoginPage())
-        Navigator.pushReplacementNamed(context, '/login');
+Widget _buildDeleteAccount(BuildContext context, WidgetRef ref) {
+  return Padding(
+    padding: const EdgeInsets.only(left: 16),
+    child: GestureDetector(
+      onTap: () {
+        _showDeleteAccountDialog(context, ref);
       },
-      child: Container(
-        height: 56,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: AppShadow.generalShadow,
-        ),
-        child: Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            '로그아웃',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: Colors.black,
-            ),
-          ),
+      child: Text(
+        '회원탈퇴',
+        style: TextStyle(
+          fontSize: 12,
+          color: Colors.grey[600],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
-  Widget _buildDeleteAccount(BuildContext context, WidgetRef ref) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 16),
-      child: GestureDetector(
-        onTap: () {
-          _showDeleteAccountDialog(context, ref);
-        },
-        child: Text(
-          '회원탈퇴',
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey[600],
+void _showDeleteAccountDialog(BuildContext context, WidgetRef ref) {
+  showCupertinoDialog(
+    context: context,
+    builder: (BuildContext dialogContext) {
+      return CupertinoAlertDialog(
+        title: const Text('회원탈퇴'),
+        content: const Text('정말로 회원 탈퇴를 진행하시겠습니까? 이 작업은 되돌릴 수 없습니다.'),
+        actions: [
+          CupertinoDialogAction(
+            onPressed: () => Navigator.of(dialogContext).pop(), // 다이얼로그 닫기
+            child: const Text('취소'),
           ),
-        ),
-      ),
-    );
-  }
-
-  void _showDeleteAccountDialog(BuildContext context, WidgetRef ref) {
-    showCupertinoDialog(
-      context: context,
-      builder: (BuildContext dialogContext) {
-        return CupertinoAlertDialog(
-          title: const Text('회원탈퇴'),
-          content: const Text('정말로 회원 탈퇴를 진행하시겠습니까? 이 작업은 되돌릴 수 없습니다.'),
-          actions: [
-            CupertinoDialogAction(
-              onPressed: () => Navigator.of(dialogContext).pop(), // 다이얼로그 닫기
-              child: const Text('취소'),
-            ),
-            CupertinoDialogAction(
-              isDestructiveAction: true, // 빨간색 강조
-              onPressed: () async {
+          CupertinoDialogAction(
+            isDestructiveAction: true, // 빨간색 강조
+            onPressed: () async {
               //  Navigator.of(dialogContext).pop(); // 다이얼로그 닫기
-                onDeleteAccountPressed(context, ref);
-              },
-              child: const Text('탈퇴'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+              onDeleteAccountPressed(context, ref);
+            },
+            child: const Text('탈퇴'),
+          ),
+        ],
+      );
+    },
+  );
+}
 
-  Future<void> deleteUserAccount(BuildContext context,WidgetRef ref) async {
+Future<void> deleteUserAccount(BuildContext context, WidgetRef ref) async {
   final user = FirebaseAuth.instance.currentUser;
   if (user == null) {
     print("로그인이 필요합니다.");
@@ -309,7 +310,10 @@ Widget _buildNoticeBox() {
   try {
     await _reauthenticateUser(user);
 
-    final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+    final userDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .get();
     final profileImageUrl = userDoc.data()?['profileImageUrl'] as String? ?? '';
 
     await FirebaseFirestore.instance.collection('users').doc(user.uid).delete();
@@ -366,6 +370,7 @@ Future<void> _reauthenticateUser(User user) async {
     }
   } catch (e) {
     print("재인증 실패: $e");
-    throw FirebaseAuthException(code: 'reauthentication-failed', message: "재인증에 실패했습니다.");
+    throw FirebaseAuthException(
+        code: 'reauthentication-failed', message: "재인증에 실패했습니다.");
   }
 }

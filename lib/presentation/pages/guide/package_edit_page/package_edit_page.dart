@@ -2,8 +2,12 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
+import 'package:wetravel/core/constants/app_icons.dart';
+import 'package:wetravel/core/constants/app_spacing.dart';
+import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/data/dto/schedule_dto.dart';
 import 'package:wetravel/presentation/pages/guide/package_edit_page/edit_schedule_list.dart';
 import 'package:wetravel/presentation/pages/guide/package_edit_page/package_edit_image.dart';
@@ -27,12 +31,12 @@ class _PackageEditPageState extends State<PackageEditPage> {
   final TextEditingController _durationController = TextEditingController();
 
   String _selectedImagePath = "";
-  String _title = '제목';
-  List<String> _keywordList = ['2박 3일', '혼자', '액티비티'];
-  String _location = '위치';
+  String _title = '';
+  List<String> _keywordList = [];
+  String _location = '';
   int _dayCount = 1;
   int _selectedDay = 1;
-  final List<List<ScheduleDto>> _schedules = [];
+  final List<List<ScheduleDto>> _schedules = [[]];
 
   bool isLoading = true;
 
@@ -129,10 +133,10 @@ class _PackageEditPageState extends State<PackageEditPage> {
         _schedules[_selectedDay - 1].add(
           ScheduleDto(
             id: uuid.v4(),
-            time: '오전 9:00',
-            title: '제목',
-            location: '위치',
-            content: '설명',
+            time: '',
+            title: '',
+            location: '',
+            content: '',
             day: _selectedDay,
             order: _schedules[_selectedDay - 1].length + 1,
             packageId: '',
@@ -253,6 +257,7 @@ class _PackageEditPageState extends State<PackageEditPage> {
             };
           });
         }).toList(),
+        isHidden: true,
       );
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('패키지 수정 성공')),
@@ -302,7 +307,21 @@ class _PackageEditPageState extends State<PackageEditPage> {
     }
 
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: Text(
+          _title.isEmpty ? '제목을 입력해주세요' : _title,
+          style: AppTypography.headline4.copyWith(
+              color: _title.isEmpty
+                  ? AppColors.grayScale_350
+                  : AppColors.grayScale_950),
+        ),
+        leading: IconButton(
+          icon: SvgPicture.asset(AppIcons.chevronLeft),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -369,11 +388,6 @@ class _PackageEditPageState extends State<PackageEditPage> {
                             onPressed: _deleteDay,
                           ),
                         const SizedBox(height: 40),
-                        StandardButton.primary(
-                          onPressed: _updatePackage,
-                          sizeType: ButtonSizeType.normal,
-                          text: '수정 완료',
-                        ),
                       ],
                     ),
                   ),
@@ -381,6 +395,14 @@ class _PackageEditPageState extends State<PackageEditPage> {
               ),
             ),
           ],
+        ),
+      ),
+      bottomNavigationBar: Container(
+        padding: AppSpacing.medium16.copyWith(bottom: 30),
+        child: StandardButton.primary(
+          onPressed: _updatePackage,
+          sizeType: ButtonSizeType.normal,
+          text: '수정 완료',
         ),
       ),
     );

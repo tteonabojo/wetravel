@@ -14,6 +14,7 @@ class CustomInputField extends StatefulWidget {
   final int? maxLines;
   final int? minLines;
   final String? Function(String?)? validator;
+  final FocusNode? focusNode;
 
   const CustomInputField({
     super.key,
@@ -27,6 +28,7 @@ class CustomInputField extends StatefulWidget {
     this.maxLines = 1,
     this.minLines = 1,
     this.validator,
+    this.focusNode,
   });
 
   @override

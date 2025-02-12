@@ -6,31 +6,22 @@ import 'package:wetravel/core/constants/app_icons.dart';
 import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 
-enum DisabledType { disabled50, disabled150 }
-
-class DayChipButton extends StatefulWidget {
+class DayChipButton extends StatelessWidget {
   final VoidCallback onPressed;
   final int currentDayCount;
-  final Function(int) onSelectDay; // 선택된 Day 전달
-  final int selectedDay; // 선택된 Day
+  final Function(int) onSelectDay;
+  final int selectedDay;
 
   const DayChipButton({
     super.key,
     required this.onPressed,
     required this.currentDayCount,
-    required this.onSelectDay, // 선택된 Day 전달
-    required this.selectedDay, // 선택된 Day
+    required this.onSelectDay,
+    required this.selectedDay,
   });
 
-  @override
-  _DayChipButtonState createState() => _DayChipButtonState();
-}
-
-class _DayChipButtonState extends State<DayChipButton> {
-  bool _isHovered = false;
-
-  void _handleAddDay() {
-    if (widget.currentDayCount >= 10) {
+  void _handleAddDay(BuildContext context) {
+    if (currentDayCount >= 10) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('등록 가능한 여행일정은 최대 10일입니다.'),
@@ -38,7 +29,7 @@ class _DayChipButtonState extends State<DayChipButton> {
         ),
       );
     } else {
-      widget.onPressed();
+      onPressed();
     }
   }
 
@@ -48,56 +39,92 @@ class _DayChipButtonState extends State<DayChipButton> {
       padding: AppSpacing.small4,
       scrollDirection: Axis.horizontal,
       child: Row(
-        spacing: 8,
         children: [
-          ...List.generate(widget.currentDayCount, (index) {
-            bool isSelected = widget.selectedDay == index + 1;
-            return Material(
-              color: isSelected
-                  ? AppColors.grayScale_650
-                  : AppColors.grayScale_150, // 선택된 상태 색상
-              borderRadius: AppBorderRadius.large20,
-              child: InkWell(
-                onTap: () => widget.onSelectDay(index + 1),
-                borderRadius: AppBorderRadius.large20,
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  child: Text(
-                    'Day ${index + 1}',
-                    style: AppTypography.buttonLabelSmall.copyWith(
-                      color: isSelected
-                          ? Colors.white
-                          : AppColors.grayScale_450, // 선택된 상태 텍스트 색상
-                    ),
-                  ),
-                ),
+          ...List.generate(currentDayCount, (index) {
+            return Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: DayButton(
+                dayIndex: index + 1,
+                isSelected: selectedDay == index + 1,
+                onSelectDay: onSelectDay,
               ),
             );
           }),
-          MouseRegion(
-            onEnter: (_) => setState(() => _isHovered = true),
-            onExit: (_) => setState(() => _isHovered = false),
-            child: Material(
-              color: _isHovered
-                  ? AppColors.grayScale_250
-                  : AppColors.grayScale_150,
-              borderRadius: AppBorderRadius.large20,
-              child: InkWell(
-                onTap: _handleAddDay, // 플러스 버튼 클릭 시 처리
-                borderRadius: AppBorderRadius.large20,
-                child: Padding(
-                  padding: AppSpacing.small8,
-                  child: SvgPicture.asset(
-                    AppIcons.plus,
-                    color: AppColors.grayScale_450,
-                    height: 20,
-                  ),
-                ),
-              ),
+          AddDayButton(onPressed: () => _handleAddDay(context)),
+        ],
+      ),
+    );
+  }
+}
+
+/// 몇일차 선택버튼
+class DayButton extends StatelessWidget {
+  final int dayIndex;
+  final bool isSelected;
+  final Function(int) onSelectDay;
+
+  const DayButton({
+    required this.dayIndex,
+    required this.isSelected,
+    required this.onSelectDay,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: isSelected ? AppColors.grayScale_650 : AppColors.grayScale_150,
+      borderRadius: AppBorderRadius.large20,
+      child: InkWell(
+        onTap: () => onSelectDay(dayIndex),
+        borderRadius: AppBorderRadius.large20,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: Text(
+            'Day $dayIndex',
+            style: AppTypography.buttonLabelSmall.copyWith(
+              color: isSelected ? Colors.white : AppColors.grayScale_450,
             ),
           ),
-        ],
+        ),
+      ),
+    );
+  }
+}
+
+/// 일수 추가 버튼
+class AddDayButton extends StatefulWidget {
+  final VoidCallback onPressed;
+
+  const AddDayButton({required this.onPressed, super.key});
+
+  @override
+  _AddDayButtonState createState() => _AddDayButtonState();
+}
+
+class _AddDayButtonState extends State<AddDayButton> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: Material(
+        color: _isHovered ? AppColors.grayScale_250 : AppColors.grayScale_150,
+        borderRadius: AppBorderRadius.large20,
+        child: InkWell(
+          onTap: widget.onPressed,
+          borderRadius: AppBorderRadius.large20,
+          child: Padding(
+            padding: AppSpacing.small8,
+            child: SvgPicture.asset(
+              AppIcons.plus,
+              color: AppColors.grayScale_450,
+              height: 20,
+            ),
+          ),
+        ),
       ),
     );
   }

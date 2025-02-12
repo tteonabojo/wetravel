@@ -21,7 +21,6 @@ void main() {
       "imageUrl": "https://picsum.photos/200/300",
       "introduction": "I am a software engineer who loves traveling and meeting new people.",
       "loginType": "EMAIL",
-      "isGuide": false,
       "createdAt": "2023-01-01 00:00:00",
       "updatedAt": "2023-01-01 00:00:00",
       "deletedAt": null,
