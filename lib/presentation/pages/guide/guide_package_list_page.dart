@@ -11,26 +11,31 @@ import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/presentation/pages/guide/package_edit_page/package_edit_page.dart';
 import 'package:wetravel/presentation/pages/guide/package_register_page/package_register_page.dart';
-import 'package:wetravel/presentation/pages/guide/widgets/guide_info.dart';
 import 'package:wetravel/presentation/pages/guide_package_detail_page/package_detail_page.dart';
 import 'package:wetravel/presentation/provider/schedule_provider.dart';
 import 'package:wetravel/presentation/provider/user_provider.dart';
 import 'package:wetravel/presentation/provider/package_provider.dart';
+import 'package:wetravel/presentation/widgets/buttons/chip_button.dart';
 import 'package:wetravel/presentation/widgets/package_item.dart';
 
-class GuidePackageListPage extends ConsumerWidget {
+class GuidePackageListPage extends ConsumerStatefulWidget {
   const GuidePackageListPage({super.key});
+
+  @override
+  _GuidePackageListPageState createState() => _GuidePackageListPageState();
+}
+
+class _GuidePackageListPageState extends ConsumerState<GuidePackageListPage> {
+  bool showHiddenPackages = true;
 
   Future<Map<String, dynamic>> loadData(ref) async {
     try {
       final fetchUserUsecase = ref.read(fetchUserUsecaseProvider);
       final user = await fetchUserUsecase.execute();
-      print('유저 데이터: ${user.toString()}');
 
       final fetchUserPackagesUsecase =
           ref.read(fetchUserPackagesUsecaseProvider);
       final packages = await fetchUserPackagesUsecase.execute(user.id);
-      print('패키지 데이터: ${packages.toString()}');
 
       return {
         'user': user,
@@ -43,34 +48,8 @@ class GuidePackageListPage extends ConsumerWidget {
     }
   }
 
-  Future<T> withMinimumDelay<T>(Future<T> future, Duration minDuration) async {
-    final results = await Future.wait([
-      future,
-      Future.delayed(minDuration),
-    ]);
-    return results.first as T;
-  }
-
-  Future<String?> _getPackageImageUrl(String packageId) async {
-    try {
-      final packageDoc = await FirebaseFirestore.instance
-          .collection('packages')
-          .doc(packageId)
-          .get();
-      print('패키지 문서 데이터: ${packageDoc.data()}');
-
-      if (packageDoc.exists) {
-        return packageDoc.data()?['imageUrl'] as String?;
-      }
-    } catch (e) {
-      print('Error fetching package image URL: $e');
-    }
-    return null;
-  }
-
   Future<void> _deletePackage(String packageId) async {
     try {
-      // 1. Firestore에서 패키지 정보 삭제
       final packageDoc = await FirebaseFirestore.instance
           .collection('packages')
           .doc(packageId)
@@ -79,11 +58,9 @@ class GuidePackageListPage extends ConsumerWidget {
       if (packageDoc.exists) {
         final imageUrl = packageDoc.data()?['imageUrl'] as String?;
 
-        // 2. Firebase Storage에서 이미지 삭제 (이미지가 존재하는 경우)
         if (imageUrl != null && imageUrl.isNotEmpty) {
           final storageRef = FirebaseStorage.instance.refFromURL(imageUrl);
           await storageRef.delete();
-          print('스토리지에서 이미지 삭제 성공');
         }
       }
 
@@ -96,11 +73,9 @@ class GuidePackageListPage extends ConsumerWidget {
           .collection('packages')
           .doc(packageId)
           .delete();
-      print('패키지 삭제 성공');
 
       for (var scheduleDoc in schedulesQuerySnapshot.docs) {
         await scheduleDoc.reference.delete();
-        print('스케줄 삭제 성공: ${scheduleDoc.id}');
       }
     } catch (e) {
       print('패키지 및 관련 스케줄 삭제 실패: $e');
@@ -108,21 +83,44 @@ class GuidePackageListPage extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, ref) {
+  Widget build(BuildContext context) {
     final getPackageUseCase = ref.read(getPackageUseCaseProvider);
     final getSchedulesUseCase = ref.read(getSchedulesUseCaseProvider);
-
     return Scaffold(
       body: Padding(
         padding: AppSpacing.medium16,
         child: Column(
-          spacing: 16,
           children: [
-            GuideInfo(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ChipButton(
+                  disabledType: DisabledType.disabled150,
+                  text: "비공개 리스트",
+                  isSelected: showHiddenPackages,
+                  onPressed: () {
+                    setState(() {
+                      showHiddenPackages = true;
+                    });
+                  },
+                ),
+                const SizedBox(width: 10),
+                ChipButton(
+                  disabledType: DisabledType.disabled150,
+                  text: "공개 리스트",
+                  isSelected: !showHiddenPackages,
+                  onPressed: () {
+                    setState(() {
+                      showHiddenPackages = false;
+                    });
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
             Expanded(
               child: FutureBuilder<Map<String, dynamic>>(
-                future: withMinimumDelay(
-                    loadData(ref), const Duration(milliseconds: 500)),
+                future: loadData(ref),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
@@ -140,120 +138,111 @@ class GuidePackageListPage extends ConsumerWidget {
                   }
 
                   final user = snapshot.data!['user'];
-                  final packages = snapshot.data!['packages'];
+                  final packages = (snapshot.data!['packages'] as List)
+                      .where(
+                          (package) => package.isHidden == showHiddenPackages)
+                      .toList();
 
                   if (packages.isEmpty) {
-                    return const Center(child: Text('등록된 패키지가 없습니다.'));
+                    return Center(
+                        child: Text(showHiddenPackages
+                            ? '비공개 패키지가 없습니다.'
+                            : '공개 패키지가 없습니다.'));
                   }
 
                   return ListView.separated(
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(height: 16),
                     itemCount: packages.length,
                     itemBuilder: (context, index) {
                       final package = packages[index];
-
-                      return FutureBuilder<String?>(
-                        future: _getPackageImageUrl(package.id),
-                        builder: (context, imageSnapshot) {
-                          String packageImageUrl = '';
-                          if (imageSnapshot.connectionState ==
-                              ConnectionState.done) {
-                            if (imageSnapshot.hasData &&
-                                imageSnapshot.data != null) {
-                              packageImageUrl = imageSnapshot.data!;
-                            }
-                          }
-
-                          return GestureDetector(
-                            onTap: () async {
-                              Navigator.push(context, MaterialPageRoute(
-                                builder: (context) {
-                                  return PackageDetailPage(
-                                    packageId: package.id,
-                                    getPackageUseCase: getPackageUseCase,
-                                    getSchedulesUseCase: getSchedulesUseCase,
-                                  );
-                                },
-                              ));
+                      return GestureDetector(
+                        onTap: () async {
+                          Navigator.push(context, MaterialPageRoute(
+                            builder: (context) {
+                              return PackageDetailPage(
+                                packageId: package.id,
+                                getPackageUseCase: getPackageUseCase,
+                                getSchedulesUseCase: getSchedulesUseCase,
+                              );
                             },
-                            child: PackageItem(
-                              icon: SvgPicture.asset(AppIcons.ellipsisVertical),
-                              onIconTap: () async {
-                                showCupertinoModalPopup(
-                                  context: context,
-                                  builder: (BuildContext context) =>
-                                      CupertinoActionSheet(
-                                    title: Text(
-                                      package.title,
-                                      style: AppTypography.headline4.copyWith(
-                                          color: AppColors.grayScale_950),
-                                    ),
-                                    actions: <CupertinoActionSheetAction>[
-                                      CupertinoActionSheetAction(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    PackageEditPage(
-                                                      packageId: package.id,
-                                                    )),
-                                          );
-                                        },
-                                        child: Text(
-                                          '수정',
-                                          style: AppTypography.buttonLabelNormal
-                                              .copyWith(
-                                                  color: AppColors.primary_550),
-                                        ),
-                                      ),
-                                      CupertinoActionSheetAction(
-                                        onPressed: () async {
-                                          Navigator.pop(context);
-                                          await _deletePackage(package.id);
-                                          ref.invalidate(
-                                              fetchUserPackagesUsecaseProvider);
-                                          await loadData(ref);
-                                          ref
-                                              .read(
-                                                  fetchUserPackagesUsecaseProvider)
-                                              .execute(user.id);
-                                        },
-                                        isDestructiveAction: true,
-                                        child: Text(
-                                          '삭제',
-                                          style: AppTypography.buttonLabelNormal
-                                              .copyWith(color: AppColors.red),
-                                        ),
-                                      ),
-                                    ],
-                                    cancelButton: CupertinoActionSheetAction(
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                      },
-                                      child: Text(
-                                        '취소',
-                                        style: AppTypography.buttonLabelNormal
-                                            .copyWith(
-                                                color: AppColors.grayScale_550),
-                                      ),
+                          ));
+                        },
+                        child: PackageItem(
+                          icon: SvgPicture.asset(AppIcons.ellipsisVertical),
+                          onIconTap: () async {
+                            showCupertinoModalPopup(
+                              context: context,
+                              builder: (BuildContext context) =>
+                                  CupertinoActionSheet(
+                                title: Text(
+                                  package.title,
+                                  style: AppTypography.headline4
+                                      .copyWith(color: AppColors.grayScale_950),
+                                ),
+                                actions: <CupertinoActionSheetAction>[
+                                  CupertinoActionSheetAction(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                PackageEditPage(
+                                                  packageId: package.id,
+                                                )),
+                                      );
+                                    },
+                                    child: Text(
+                                      '수정',
+                                      style: AppTypography.buttonLabelNormal
+                                          .copyWith(
+                                              color: AppColors.primary_550),
                                     ),
                                   ),
-                                );
-                              },
-                              title: package.title,
-                              location: package.location,
-                              guideImageUrl: user.imageUrl ?? '',
-                              name: user.name ?? '이름 없음',
-                              keywords: package.keywordList ??
-                                  ['키워드 없음', '키워드 없음', '키워드 없음'],
-                              packageImageUrl: packageImageUrl,
-                            ),
-                          );
-                        },
+                                  CupertinoActionSheetAction(
+                                    onPressed: () async {
+                                      Navigator.pop(context);
+                                      await _deletePackage(package.id);
+                                      ref.invalidate(
+                                          fetchUserPackagesUsecaseProvider);
+                                      await loadData(ref);
+                                      ref
+                                          .read(
+                                              fetchUserPackagesUsecaseProvider)
+                                          .execute(user.id);
+                                    },
+                                    isDestructiveAction: true,
+                                    child: Text(
+                                      '삭제',
+                                      style: AppTypography.buttonLabelNormal
+                                          .copyWith(color: AppColors.red),
+                                    ),
+                                  ),
+                                ],
+                                cancelButton: CupertinoActionSheetAction(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: Text(
+                                    '취소',
+                                    style: AppTypography.buttonLabelNormal
+                                        .copyWith(
+                                            color: AppColors.grayScale_550),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                          title: package.title,
+                          location: package.location,
+                          guideImageUrl: user.imageUrl ?? '',
+                          name: user.name ?? '이름 없음',
+                          keywords: package.keywordList ?? ['키워드 없음'],
+                          packageImageUrl: package.imageUrl ?? '',
+                        ),
                       );
+                    },
+                    separatorBuilder: (BuildContext context, int index) {
+                      return SizedBox(height: 8);
                     },
                   );
                 },

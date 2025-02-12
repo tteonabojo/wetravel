@@ -39,7 +39,7 @@ class MainPopularPackages extends ConsumerWidget {
             ? Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
-                  spacing: 16,
+                  spacing: 8,
                   children: List.generate(
                     displayedPackages.length,
                     (index) {
