@@ -196,20 +196,6 @@ class _GuidePackageListPageState extends ConsumerState<GuidePackageListPage> {
                                 ),
                                 actions: <CupertinoActionSheetAction>[
                                   CupertinoActionSheetAction(
-                                    onPressed: () async {
-                                      Navigator.pop(context);
-                                      await _toggleIsHidden(
-                                          package.id, package.isHidden);
-                                    },
-                                    child: Text(
-                                      package.isHidden ? '공개 전환' : '비공개 전환',
-                                      style: AppTypography.buttonLabelNormal
-                                          .copyWith(
-                                        color: AppColors.primary_550,
-                                      ),
-                                    ),
-                                  ),
-                                  CupertinoActionSheetAction(
                                     onPressed: () {
                                       Navigator.pop(context);
                                       Navigator.push(
@@ -226,6 +212,22 @@ class _GuidePackageListPageState extends ConsumerState<GuidePackageListPage> {
                                       style: AppTypography.buttonLabelNormal
                                           .copyWith(
                                               color: AppColors.primary_550),
+                                    ),
+                                  ),
+                                  CupertinoActionSheetAction(
+                                    onPressed: () async {
+                                      Navigator.pop(context);
+                                      await _toggleIsHidden(
+                                          package.id, package.isHidden);
+                                    },
+                                    child: Text(
+                                      package.isHidden ? '공개 전환' : '비공개 전환',
+                                      style: AppTypography.buttonLabelNormal
+                                          .copyWith(
+                                        color: package.isHidden
+                                            ? AppColors.primary_550
+                                            : AppColors.red,
+                                      ),
                                     ),
                                   ),
                                   CupertinoActionSheetAction(
