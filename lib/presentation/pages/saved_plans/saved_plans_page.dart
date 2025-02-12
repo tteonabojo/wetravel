@@ -34,7 +34,7 @@ class SavedPlansPage extends ConsumerWidget {
         stream: FirebaseFirestore.instance
             .collection('users')
             .doc(FirebaseAuth.instance.currentUser?.uid)
-            .collection('schedule')
+            .collection('schedules')
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
