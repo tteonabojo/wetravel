@@ -46,6 +46,11 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
   void initState() {
     super.initState();
     _getUserData();
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      statusBarBrightness: Brightness.light,
+    ));
   }
   
   // Firestore에서 사용자 데이터 가져오기
@@ -198,6 +203,7 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
         return true; // 변경사항이 없으면 바로 뒤로 가기
       },
       child: Scaffold(
+        backgroundColor: Colors.white,
         appBar: AppBar(
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
@@ -211,7 +217,7 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
               }
             },
           ),
-          backgroundColor: Colors.transparent,
+          backgroundColor: Colors.white,
           elevation: 0,
         ),
         body: SingleChildScrollView(

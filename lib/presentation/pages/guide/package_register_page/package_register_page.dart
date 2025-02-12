@@ -112,6 +112,9 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('이미지를 등록해주세요.')),
       );
+      setState(() {
+        isLoading = false;
+      });
       return;
     }
 
@@ -122,6 +125,9 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('일정을 등록해주세요.')),
       );
+      setState(() {
+        isLoading = false;
+      });
       return;
     }
 
@@ -168,6 +174,9 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
           (route) => false,
         );
       } catch (e) {
+        setState(() {
+          isLoading = false;
+        });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('패키지 등록 실패: $e')),
         );
@@ -197,123 +206,140 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
       _schedules.add([]);
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          _title.isEmpty ? '제목을 입력해주세요' : _title,
-          style: AppTypography.headline4.copyWith(
-              color: _title.isEmpty
-                  ? AppColors.grayScale_350
-                  : AppColors.grayScale_950),
-        ),
-        leading: IconButton(
-          icon: SvgPicture.asset(AppIcons.chevronLeft),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(color: AppColors.grayScale_050),
-                    child: Column(
-                      children: [
-                        PackageHeroImage(
-                          imagePath: _selectedImagePath,
-                          onImageSelected: (newPath) {
-                            setState(() {
-                              _selectedImagePath = newPath;
-                            });
-                          },
-                        ),
-                        PackageHeader(
-                          title: _title,
-                          keywordList: _keywordList,
-                          location: _location,
-                          onUpdate: (newTitle, newKeywordList, newLocation) {
-                            setState(() {
-                              _title = newTitle;
-                              _keywordList = newKeywordList;
-                              _location = newLocation;
-                            });
-                          },
-                        ),
-                        divider(1),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              DayChipButton(
-                                onPressed: _onAddDay,
-                                currentDayCount: _dayCount,
-                                onSelectDay: _onSelectDay,
-                                selectedDay: _selectedDay,
-                              ),
-                              SizedBox(height: 16),
-                              ScheduleList(
-                                schedules: _schedules[_selectedDay - 1]
-                                    .map((scheduleMap) =>
-                                        ScheduleDto.fromJson(scheduleMap))
-                                    .toList(),
-                                totalScheduleCount:
-                                    _schedules[_selectedDay - 1].length,
-                                dayIndex: _selectedDay - 1,
-                                onSave: (time, title, location, content,
-                                    scheduleIndex) {
-                                  _onEditSchedule(
-                                    _selectedDay - 1,
-                                    scheduleIndex,
-                                    time,
-                                    title,
-                                    location,
-                                    content,
-                                  );
-                                },
-                                onDelete: _onDelete,
-                              ),
-                              AddScheduleButton(
-                                onPressed: _onAddSchedule,
-                                currentScheduleCount:
-                                    _schedules[_selectedDay - 1].length,
-                              ),
-                              if (_dayCount > 1)
-                                Column(
-                                  children: [
-                                    SizedBox(height: 12),
-                                    DeleteDayButton(
-                                      onPressed: _deleteDay,
-                                    ),
-                                  ],
-                                ),
-                              const SizedBox(height: 40),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+    return Stack(
+      children: [
+        Scaffold(
+          appBar: AppBar(
+            title: Text(
+              _title.isEmpty ? '제목을 입력해주세요' : _title,
+              style: AppTypography.headline4.copyWith(
+                  color: _title.isEmpty
+                      ? AppColors.grayScale_350
+                      : AppColors.grayScale_950),
+            ),
+            leading: IconButton(
+              icon: SvgPicture.asset(AppIcons.chevronLeft),
+              onPressed: isLoading ? null : () => Navigator.pop(context),
             ),
           ),
-        ],
-      ),
-      bottomNavigationBar: Container(
-        padding: AppSpacing.medium16.copyWith(bottom: 30),
-        child: StandardButton.primary(
-          onPressed: _registerPackage,
-          sizeType: ButtonSizeType.normal,
-          text: '작성 완료',
+          body: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        decoration:
+                            BoxDecoration(color: AppColors.grayScale_050),
+                        child: Column(
+                          children: [
+                            PackageHeroImage(
+                              imagePath: _selectedImagePath,
+                              onImageSelected: (newPath) {
+                                if (!isLoading) {
+                                  setState(() {
+                                    _selectedImagePath = newPath;
+                                  });
+                                }
+                              },
+                            ),
+                            PackageHeader(
+                              title: _title,
+                              keywordList: _keywordList,
+                              location: _location,
+                              onUpdate:
+                                  (newTitle, newKeywordList, newLocation) {
+                                if (!isLoading) {
+                                  setState(() {
+                                    _title = newTitle;
+                                    _keywordList = newKeywordList;
+                                    _location = newLocation;
+                                  });
+                                }
+                              },
+                            ),
+                            divider(1),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 20),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  DayChipButton(
+                                    onPressed: _onAddDay,
+                                    currentDayCount: _dayCount,
+                                    onSelectDay: _onSelectDay,
+                                    selectedDay: _selectedDay,
+                                  ),
+                                  SizedBox(height: 16),
+                                  ScheduleList(
+                                    schedules: _schedules[_selectedDay - 1]
+                                        .map((scheduleMap) =>
+                                            ScheduleDto.fromJson(scheduleMap))
+                                        .toList(),
+                                    totalScheduleCount:
+                                        _schedules[_selectedDay - 1].length,
+                                    dayIndex: _selectedDay - 1,
+                                    onSave: (time, title, location, content,
+                                        scheduleIndex) {
+                                      _onEditSchedule(
+                                        _selectedDay - 1,
+                                        scheduleIndex,
+                                        time,
+                                        title,
+                                        location,
+                                        content,
+                                      );
+                                    },
+                                    onDelete: _onDelete,
+                                  ),
+                                  AddScheduleButton(
+                                    onPressed:
+                                        isLoading ? null : _onAddSchedule,
+                                    currentScheduleCount:
+                                        _schedules[_selectedDay - 1].length,
+                                  ),
+                                  if (_dayCount > 1)
+                                    Column(
+                                      children: [
+                                        SizedBox(height: 12),
+                                        DeleteDayButton(
+                                          onPressed:
+                                              isLoading ? null : _deleteDay,
+                                        ),
+                                      ],
+                                    ),
+                                  const SizedBox(height: 40),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          bottomNavigationBar: Container(
+            padding: AppSpacing.medium16.copyWith(bottom: 30),
+            child: StandardButton.primary(
+              onPressed: isLoading ? null : _registerPackage,
+              sizeType: ButtonSizeType.normal,
+              text: '작성 완료',
+            ),
+          ),
         ),
-      ),
+        if (isLoading)
+          Container(
+            color: Colors.black.withOpacity(0.5),
+            child: Center(
+              child: CircularProgressIndicator(),
+            ),
+          ),
+      ],
     );
   }
 
