@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_icons.dart';
-import 'package:wetravel/presentation/pages/new_trip/new_trip_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class CustomBottomNavigationBar extends StatelessWidget {
@@ -73,6 +72,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
       onTap: (index) {
         onItemTapped(index);
       },
+      selectedFontSize: 0,
       showSelectedLabels: false,
       showUnselectedLabels: false,
       type: BottomNavigationBarType.fixed,

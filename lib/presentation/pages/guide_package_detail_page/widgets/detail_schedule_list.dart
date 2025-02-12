@@ -6,8 +6,8 @@ import 'package:wetravel/core/constants/app_shadow.dart';
 import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/presentation/pages/guide/package_register_page/widgets/widgets/bottom_sheet/list_bottom_sheet.dart';
-import 'package:wetravel/presentation/pages/guidepackagedetailpage/widgets/detail_schedule_list_view_model.dart';
-import 'package:wetravel/presentation/pages/guidepackagedetailpage/widgets/schedule_detail_item.dart';
+import 'package:wetravel/presentation/pages/guide_package_detail_page/widgets/detail_schedule_list_view_model.dart';
+import 'package:wetravel/presentation/pages/guide_package_detail_page/widgets/schedule_detail_item.dart';
 
 class DetailScheduleList extends ConsumerWidget {
   const DetailScheduleList({

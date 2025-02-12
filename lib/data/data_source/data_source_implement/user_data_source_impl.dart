@@ -103,7 +103,6 @@ class UserDataSourceImpl implements UserDataSource {
             'email': currentUser.email,
             'name': currentUser.displayName ?? '',
             'loginType': provider,
-            'isGuide': false,
             'createdAt': Timestamp.fromDate(DateTime.now()),
             'imageUrl': currentUser.photoURL ?? '',
           };

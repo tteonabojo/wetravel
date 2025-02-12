@@ -10,7 +10,6 @@ class UserDto {
   final String? imageUrl;
   final String? introduction;
   final String loginType;
-  final bool isGuide;
   final Timestamp createdAt;
   final Timestamp? updatedAt;
   final Timestamp? deletedAt;
@@ -26,7 +25,6 @@ class UserDto {
     this.imageUrl,
     this.introduction,
     required this.loginType,
-    required this.isGuide,
     required this.createdAt,
     this.updatedAt,
     this.deletedAt,
@@ -43,7 +41,6 @@ class UserDto {
     String? imageUrl,
     String? introduction,
     String? loginType,
-    bool? isGuide,
     Timestamp? createdAt,
     Timestamp? updatedAt,
     Timestamp? deletedAt,
@@ -59,7 +56,6 @@ class UserDto {
         imageUrl: imageUrl ?? this.imageUrl,
         introduction: introduction ?? this.introduction,
         loginType: loginType ?? this.loginType,
-        isGuide: isGuide ?? this.isGuide,
         createdAt: createdAt ?? this.createdAt,
         updatedAt: updatedAt ?? this.updatedAt,
         deletedAt: deletedAt ?? this.deletedAt,
@@ -77,7 +73,6 @@ class UserDto {
           imageUrl: json['imageUrl'] ?? '',
           introduction: json['introduction'] as String?,
           loginType: json['loginType'] as String,
-          isGuide: json['isGuide'] as bool,
           createdAt: json['createdAt'] as Timestamp,
           updatedAt:
               json['updatedAt'] != null ? json['updatedAt'] as Timestamp : null,
@@ -103,7 +98,6 @@ class UserDto {
         "imageUrl": imageUrl,
         "introduction": introduction,
         "loginType": loginType,
-        "isGuide": isGuide,
         "createdAt": createdAt,
         "updatedAt": updatedAt,
         "deletedAt": deletedAt,
@@ -121,7 +115,6 @@ class UserDto {
       imageUrl: imageUrl,
       introduction: introduction,
       loginType: loginType,
-      isGuide: isGuide,
       createdAt: createdAt,
       updatedAt: updatedAt,
       deletedAt: deletedAt,

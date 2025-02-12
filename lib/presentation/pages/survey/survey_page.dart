@@ -31,6 +31,7 @@ class _SurveyPageState extends ConsumerState<SurveyPage> {
     final state = ref.watch(recommendationStateProvider);
 
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20.0),

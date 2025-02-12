@@ -46,12 +46,6 @@ final signInWithProviderUsecaseProvider = Provider((ref) {
   return SignInWithProviderUsecase(userRepo);
 });
 
-final isGuideProvider = FutureProvider<bool>((ref) async {
-  final fetchUserUsecase = ref.watch(fetchUserUsecaseProvider);
-  final user = await fetchUserUsecase.execute();
-  return user.isGuide;
-});
-
 /// 로그아웃
 final signOutUsecaseProvider =
     Provider((ref) => ref.read(userRepositoryProvider));
