@@ -39,173 +39,176 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
     final surveyResponse =
         ModalRoute.of(context)!.settings.arguments as SurveyResponse;
 
-    return ref.watch(recommendationProvider(surveyResponse)).when(
-          data: (recommendation) {
-            if (recommendation.destinations.isNotEmpty &&
-                destinations.isEmpty) {
-              if (surveyResponse.selectedCity != null) {
-                final recommendedCities = ref
-                    .read(recommendationStateProvider.notifier)
-                    .getRecommendedCitiesFromSameCategory(
-                        surveyResponse.selectedCity!);
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: ref.watch(recommendationProvider(surveyResponse)).when(
+            data: (recommendation) {
+              if (recommendation.destinations.isNotEmpty &&
+                  destinations.isEmpty) {
+                if (surveyResponse.selectedCity != null) {
+                  final recommendedCities = ref
+                      .read(recommendationStateProvider.notifier)
+                      .getRecommendedCitiesFromSameCategory(
+                          surveyResponse.selectedCity!);
 
-                destinations = [
-                  surveyResponse.selectedCity!,
-                  ...recommendedCities
-                ];
+                  destinations = [
+                    surveyResponse.selectedCity!,
+                    ...recommendedCities
+                  ];
 
-                if (recommendation.reasons.isNotEmpty) {
-                  final maxLength =
-                      destinations.length < recommendation.reasons.length
-                          ? destinations.length
-                          : recommendation.reasons.length;
-                  reasons = recommendation.reasons.sublist(0, maxLength);
+                  if (recommendation.reasons.isNotEmpty) {
+                    final maxLength =
+                        destinations.length < recommendation.reasons.length
+                            ? destinations.length
+                            : recommendation.reasons.length;
+                    reasons = recommendation.reasons.sublist(0, maxLength);
+                  } else {
+                    reasons = List.generate(
+                      destinations.length,
+                      (index) => '추천 여행지입니다.',
+                    );
+                  }
                 } else {
-                  reasons = List.generate(
-                    destinations.length,
-                    (index) => '추천 여행지입니다.',
-                  );
+                  destinations = List.from(recommendation.destinations);
+                  reasons = recommendation.reasons.isNotEmpty
+                      ? List.from(recommendation.reasons)
+                      : List.generate(
+                          destinations.length,
+                          (index) => '추천 여행지입니다.',
+                        );
                 }
-              } else {
-                destinations = List.from(recommendation.destinations);
-                reasons = recommendation.reasons.isNotEmpty
-                    ? List.from(recommendation.reasons)
-                    : List.generate(
-                        destinations.length,
-                        (index) => '추천 여행지입니다.',
-                      );
               }
-            }
 
-            return Scaffold(
-              backgroundColor: Colors.white,
-              appBar: AppBar(
-                title: Text(
-                  'AI 맞춤 여행지 추천',
-                  style: AppTypography.headline4.copyWith(
-                    color: AppColors.grayScale_950,
-                  ),
-                ),
+              return Scaffold(
                 backgroundColor: Colors.white,
-                automaticallyImplyLeading: false,
-                actions: [
-                  IconButton(
-                    icon: Padding(
-                      padding: const EdgeInsets.only(right: 16.0),
-                      child: const Icon(Icons.close),
+                appBar: AppBar(
+                  title: Text(
+                    'AI 맞춤 여행지 추천',
+                    style: AppTypography.headline4.copyWith(
+                      color: AppColors.grayScale_950,
                     ),
-                    onPressed: () => Navigator.pushNamed(context, '/'),
                   ),
-                ],
-              ),
-              body: SafeArea(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      child: Container(
-                        width: double.infinity,
-                        padding: AppSpacing.medium16,
-                        decoration: BoxDecoration(
-                            color: AppColors.grayScale_050,
-                            borderRadius: AppBorderRadius.small12),
-                        child: Text('리스트를 확인하고 나에게 맞는 여행지를 선택해주세요',
-                            style: AppTypography.body2.copyWith(
-                              color: AppColors.grayScale_450,
-                            )),
+                  backgroundColor: Colors.white,
+                  automaticallyImplyLeading: false,
+                  actions: [
+                    IconButton(
+                      icon: Padding(
+                        padding: const EdgeInsets.only(right: 16.0),
+                        child: const Icon(Icons.close),
                       ),
-                    ),
-                    SizedBox(height: 16),
-                    Expanded(
-                      child: ListView.builder(
-                        key: const PageStorageKey('destination_list'),
-                        itemCount: destinations.length,
-                        itemBuilder: (context, index) {
-                          final destination = destinations[index];
-                          final reason = reasons[index];
-                          final matchPercent = 95 - (index * 10);
-
-                          return GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: () {
-                              setState(() {
-                                selectedDestination = destination;
-                              });
-                            },
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 16),
-                              child: Container(
-                                margin: const EdgeInsets.only(bottom: 16.0),
-                                decoration: BoxDecoration(
-                                  boxShadow: AppShadow.generalShadow,
-                                  border: Border.all(
-                                    color: selectedDestination == destination
-                                        ? AppColors.primary_450
-                                        : Colors.transparent,
-                                    width: 1,
-                                  ),
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                child: _buildDestinationCard(
-                                  destination,
-                                  reason,
-                                  matchPercent,
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      child: Row(
-                        children: [
-                          Expanded(
-                              child: StandardButton.secondary(
-                            sizeType: ButtonSizeType.normal,
-                            onPressed: () {
-                              // TODO 다시 추천받기 기능 넣을것
-                            },
-                            text: '다시 추천받기',
-                          )),
-                          const SizedBox(width: 16),
-                          Expanded(
-                              child: StandardButton.primary(
-                                  sizeType: ButtonSizeType.normal,
-                                  onPressed: selectedDestination != null
-                                      ? () {
-                                          // 선택된 도시로 SurveyResponse 업데이트
-                                          final updatedSurveyResponse =
-                                              surveyResponse.copyWith(
-                                            selectedCity: selectedDestination,
-                                          );
-
-                                          Navigator.pushNamed(
-                                            context,
-                                            '/ai-schedule',
-                                            arguments: updatedSurveyResponse,
-                                          );
-                                        }
-                                      : null,
-                                  text: '다음으로')),
-                        ],
-                      ),
+                      onPressed: () => Navigator.pushNamed(context, '/'),
                     ),
                   ],
                 ),
-              ),
-            );
-          },
-          loading: () => const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
+                body: SafeArea(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        child: Container(
+                          width: double.infinity,
+                          padding: AppSpacing.medium16,
+                          decoration: BoxDecoration(
+                              color: AppColors.grayScale_050,
+                              borderRadius: AppBorderRadius.small12),
+                          child: Text('리스트를 확인하고 나에게 맞는 여행지를 선택해주세요',
+                              style: AppTypography.body2.copyWith(
+                                color: AppColors.grayScale_450,
+                              )),
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                      Expanded(
+                        child: ListView.builder(
+                          key: const PageStorageKey('destination_list'),
+                          itemCount: destinations.length,
+                          itemBuilder: (context, index) {
+                            final destination = destinations[index];
+                            final reason = reasons[index];
+                            final matchPercent = 95 - (index * 10);
+
+                            return GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: () {
+                                setState(() {
+                                  selectedDestination = destination;
+                                });
+                              },
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 16),
+                                child: Container(
+                                  margin: const EdgeInsets.only(bottom: 16.0),
+                                  decoration: BoxDecoration(
+                                    boxShadow: AppShadow.generalShadow,
+                                    border: Border.all(
+                                      color: selectedDestination == destination
+                                          ? AppColors.primary_450
+                                          : Colors.transparent,
+                                      width: 1,
+                                    ),
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  child: _buildDestinationCard(
+                                    destination,
+                                    reason,
+                                    matchPercent,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        child: Row(
+                          children: [
+                            Expanded(
+                                child: StandardButton.secondary(
+                              sizeType: ButtonSizeType.normal,
+                              onPressed: () {
+                                // TODO 다시 추천받기 기능 넣을것
+                              },
+                              text: '다시 추천받기',
+                            )),
+                            const SizedBox(width: 16),
+                            Expanded(
+                                child: StandardButton.primary(
+                                    sizeType: ButtonSizeType.normal,
+                                    onPressed: selectedDestination != null
+                                        ? () {
+                                            // 선택된 도시로 SurveyResponse 업데이트
+                                            final updatedSurveyResponse =
+                                                surveyResponse.copyWith(
+                                              selectedCity: selectedDestination,
+                                            );
+
+                                            Navigator.pushNamed(
+                                              context,
+                                              '/ai-schedule',
+                                              arguments: updatedSurveyResponse,
+                                            );
+                                          }
+                                        : null,
+                                    text: '다음으로')),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+            loading: () => const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            ),
+            error: (error, stack) => Scaffold(
+              body: Center(child: Text('Error: $error')),
+            ),
           ),
-          error: (error, stack) => Scaffold(
-            body: Center(child: Text('Error: $error')),
-          ),
-        );
+    );
   }
 
   Widget _buildDestinationCard(
