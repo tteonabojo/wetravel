@@ -151,6 +151,7 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
           imageUrl: imageUrl,
           keywordList: _keywordList,
           scheduleList: scheduleList,
+          isHidden: true,
         );
 
         setState(() {

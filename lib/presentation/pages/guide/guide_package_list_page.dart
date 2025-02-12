@@ -213,6 +213,9 @@ class GuidePackageListPage extends ConsumerWidget {
                                         onPressed: () async {
                                           Navigator.pop(context);
                                           await _deletePackage(package.id);
+                                          ref.invalidate(
+                                              fetchUserPackagesUsecaseProvider);
+                                          await loadData(ref);
                                           ref
                                               .read(
                                                   fetchUserPackagesUsecaseProvider)

@@ -91,7 +91,6 @@ Firestore
 │   │   ├── email: String
 │   │   ├── id: String
 │   │   ├── imageUrl: String
-│   │   ├── isGuide: Boolean
 │   │   ├── loginType: String
 │   │   ├── name: String
 │   │   ├── recentPackages: List<String>

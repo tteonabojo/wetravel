@@ -257,6 +257,7 @@ class _PackageEditPageState extends State<PackageEditPage> {
             };
           });
         }).toList(),
+        isHidden: true,
       );
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('패키지 수정 성공')),
