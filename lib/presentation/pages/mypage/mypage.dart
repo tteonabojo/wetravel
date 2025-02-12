@@ -14,53 +14,30 @@ import 'package:url_launcher/url_launcher.dart';
 
 class MyPage extends ConsumerWidget {
   @override
-Widget build(BuildContext context, WidgetRef ref) {
-  return Scaffold(
-    body: Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(height: 20),
-          _buildProfileBox(context, ref),
-          SizedBox(height: 8),
-          _buildNoticeBox(), // 공지사항 추가
-          SizedBox(height: 8),
-          _buildInquiryBox(context),
-          SizedBox(height: 8),
-          _buildTermsAndPrivacyBox(),
-          SizedBox(height: 8),
-          _buildLogoutBox(context, ref),
-          SizedBox(height: 8),
-          _buildDeleteAccount(context, ref),
-        ],
-      ),
-    ),
-  );
-}
-
-Widget _buildNoticeBox() {
-  return Container(
-    height: 56,
-    padding: const EdgeInsets.symmetric(horizontal: 16),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(12),
-      boxShadow: AppShadow.generalShadow,
-    ),
-    child: Align(
-      alignment: Alignment.centerLeft,
-      child: Text(
-        '공지사항',
-        style: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
-          color: Colors.black,
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 16,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 20),
+            _buildProfileBox(context, ref), // 프로필 정보 표시
+            SizedBox(height: 8),
+            _buildInquiryBox(context),
+            SizedBox(height: 8),
+            _buildTermsAndPrivacyBox(),
+            SizedBox(height: 8),
+            _buildLogoutBox(context, ref),
+            SizedBox(height: 8),
+            _buildDeleteAccount(context, ref),
+          ],
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildProfileBox(BuildContext context, WidgetRef ref) {
     final userAsync = ref.watch(userStreamProvider); // Firestore 실시간 데이터 사용
