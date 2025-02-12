@@ -20,6 +20,7 @@ class _MainBannerState extends State<MainBanner> {
   @override
   Widget build(BuildContext context) {
     final banners = widget.banners;
+    if (banners.isEmpty) return Center(child: CircularProgressIndicator());
 
     return Padding(
       padding: const EdgeInsets.only(top: 20),
