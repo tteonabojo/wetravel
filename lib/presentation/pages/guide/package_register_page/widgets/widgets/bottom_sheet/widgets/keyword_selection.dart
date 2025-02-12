@@ -40,47 +40,45 @@ class _KeywordSelectionState extends State<KeywordSelection> {
     final initialIndex = _keywordLists[index]
         .indexOf(_selectedKeywords[index] ?? _keywordLists[index][0]);
 
+    int selectedIndex = initialIndex;
+
     showCupertinoModalPopup(
       context: context,
-      builder: (context) => _buildKeywordPicker(context, index, initialIndex),
-    );
-  }
-
-  Widget _buildKeywordPicker(
-      BuildContext context, int index, int initialIndex) {
-    return CupertinoActionSheet(
-      title: Text('키워드 선택', style: AppTypography.headline6),
-      actions: [
-        SizedBox(
-          height: 200,
-          child: CupertinoPicker(
-            backgroundColor: AppColors.grayScale_050,
-            scrollController:
-                FixedExtentScrollController(initialItem: initialIndex),
-            itemExtent: 40,
-            onSelectedItemChanged: (pickerIndex) {
-              setState(() {
-                _selectedKeywords[index] = _keywordLists[index][pickerIndex];
-              });
-              widget.onKeywordsSelected(_selectedKeywords);
-            },
-            children: _keywordLists[index]
-                .map(
-                  (keyword) => Center(
-                    child: Text(
-                      keyword,
-                      style: AppTypography.body1
-                          .copyWith(color: AppColors.grayScale_950),
-                    ),
-                  ),
-                )
-                .toList(),
+      builder: (context) => CupertinoActionSheet(
+        title: Text('키워드 선택', style: AppTypography.headline6),
+        actions: [
+          SizedBox(
+            height: 200,
+            child: CupertinoPicker(
+              backgroundColor: AppColors.grayScale_050,
+              scrollController:
+                  FixedExtentScrollController(initialItem: initialIndex),
+              itemExtent: 40,
+              onSelectedItemChanged: (pickerIndex) {
+                selectedIndex = pickerIndex;
+              },
+              children: _keywordLists[index]
+                  .map((keyword) => Center(
+                        child: Text(
+                          keyword,
+                          style: AppTypography.body1
+                              .copyWith(color: AppColors.grayScale_950),
+                        ),
+                      ))
+                  .toList(),
+            ),
           ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () {
+            setState(() {
+              _selectedKeywords[index] = _keywordLists[index][selectedIndex];
+            });
+            widget.onKeywordsSelected(_selectedKeywords);
+            Navigator.pop(context);
+          },
+          child: const Text('확인'),
         ),
-      ],
-      cancelButton: CupertinoActionSheetAction(
-        onPressed: () => Navigator.pop(context),
-        child: const Text('확인'),
       ),
     );
   }
