@@ -2,25 +2,25 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class BannerDto {
   final String id;
-  final String linkUrl;
   final String imageUrl;
+  final String? linkUrl;
+  final bool isHidden;
+  final Timestamp? startDate;
+  final Timestamp? endDate;
   final String? company;
   final String? description;
-  final Timestamp startDate;
-  final Timestamp endDate;
-  final bool isHidden;
-  final int order;
+  final int? order;
 
   BannerDto({
     required this.id,
-    required this.linkUrl,
     required this.imageUrl,
-    required this.company,
-    required this.description,
-    required this.startDate,
-    required this.endDate,
-    required this.isHidden,
-    required this.order,
+    this.isHidden = false,
+    this.linkUrl,
+    this.startDate,
+    this.endDate,
+    this.company,
+    this.description,
+    this.order,
   });
 
   BannerDto copyWith({
@@ -48,15 +48,15 @@ class BannerDto {
 
   BannerDto.fromJson(Map<String, dynamic> json)
       : this(
-          id: json['id'] as String,
-          linkUrl: json['linkUrl'] as String,
-          imageUrl: json['imageUrl'] as String,
-          company: json['company'] as String,
-          description: json['description'] as String,
-          startDate: Timestamp.fromDate(DateTime.parse(json['startDate'])),
-          endDate: Timestamp.fromDate(DateTime.parse(json['endDate'])),
-          isHidden: json['isHidden'] as bool,
-          order: json['order'] as int,
+          id: json['id'],
+          linkUrl: json['linkUrl'],
+          imageUrl: json['imageUrl'],
+          company: json['company'],
+          description: json['description'],
+          startDate: json['startDate'],
+          endDate: json['endDate'],
+          isHidden: json['isHidden'],
+          order: json['order'],
         );
 
   Map<String, dynamic> toJson() {

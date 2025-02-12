@@ -2,24 +2,24 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Banner {
   final String id;
-  final String linkUrl;
   final String imageUrl;
-  final Timestamp startDate;
-  final Timestamp endDate;
+  final String? linkUrl;
   final bool isHidden;
+  final Timestamp? startDate;
+  final Timestamp? endDate;
   final String? company;
   final String? description;
-  final int order;
+  final int? order;
 
   Banner({
     required this.id,
-    required this.linkUrl,
     required this.imageUrl,
-    required this.startDate,
-    required this.endDate,
-    required this.isHidden,
-    required this.company,
-    required this.description,
-    required this.order,
+    this.isHidden = false,
+    this.linkUrl,
+    this.startDate,
+    this.endDate,
+    this.company,
+    this.description,
+    this.order,
   });
 }

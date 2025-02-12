@@ -12,14 +12,14 @@ final _bannerDataSourceProvider = Provider<BannerDataSource>((ref) {
 
 final _bannerRepositoryProvider = Provider<BannerRepository>(
   (ref) {
-    final dataSource = ref.watch(_bannerDataSourceProvider);
+    final dataSource = ref.read(_bannerDataSourceProvider);
     return BannerRepositoryImpl(dataSource);
   },
 );
 
 final fetchBannersUsecaseProvider = Provider(
   (ref) {
-    final bannerRepo = ref.watch(_bannerRepositoryProvider);
+    final bannerRepo = ref.read(_bannerRepositoryProvider);
     return FetchBannersUsecase(bannerRepo);
   },
 );
