@@ -16,11 +16,25 @@ const Map<String, List<String>> cityCategories = {
   '유럽': ['파리', '런던', '로마', '바르셀로나', '암스테르담', '프라하', '비엔나', '베니스'],
 };
 
-class CitySelectionPage extends ConsumerWidget {
+class CitySelectionPage extends ConsumerStatefulWidget {
   const CitySelectionPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CitySelectionPage> createState() => _CitySelectionPageState();
+}
+
+class _CitySelectionPageState extends ConsumerState<CitySelectionPage> {
+  @override
+  void initState() {
+    super.initState();
+    // 페이지 접속 시 상태 초기화
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(recommendationStateProvider.notifier).resetState();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     void _onCitySelected(BuildContext context, String city) {
       // 선택된 도시만 설정하고 나머지는 초기화
       ref.read(recommendationStateProvider.notifier).resetState(
