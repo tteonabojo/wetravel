@@ -297,7 +297,9 @@ class _PackageEditPageState extends State<PackageEditPage> {
       return const Scaffold(
         backgroundColor: Colors.white,
         body: Center(
-          child: CircularProgressIndicator(),
+          child: CircularProgressIndicator(
+            color: AppColors.primary_450,
+          ),
         ),
       );
     }

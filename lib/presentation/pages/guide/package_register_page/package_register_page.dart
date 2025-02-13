@@ -346,7 +346,9 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
           Container(
             color: Colors.black.withOpacity(0.5),
             child: Center(
-              child: CircularProgressIndicator(),
+              child: CircularProgressIndicator(
+                color: AppColors.primary_450,
+              ),
             ),
           ),
       ],

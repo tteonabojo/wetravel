@@ -42,7 +42,10 @@ class SavedPlansPage extends ConsumerWidget {
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+                child: CircularProgressIndicator(
+              color: AppColors.primary_450,
+            ));
           }
 
           final schedules = snapshot.data?.docs ?? [];

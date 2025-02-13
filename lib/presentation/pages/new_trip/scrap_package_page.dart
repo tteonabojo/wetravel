@@ -37,7 +37,10 @@ class _ScrapPackagesPageState extends ConsumerState<ScrapPackagesPage> {
       stream: authStateStream,
       builder: (context, authSnapshot) {
         if (authSnapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(
+              child: CircularProgressIndicator(
+            color: AppColors.primary_450,
+          ));
         }
 
         if (authSnapshot.hasError) {
@@ -64,7 +67,10 @@ class _ScrapPackagesPageState extends ConsumerState<ScrapPackagesPage> {
               future: scrapPackagesFuture,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(
+                      child: CircularProgressIndicator(
+                    color: AppColors.primary_450,
+                  ));
                 }
                 if (snapshot.hasError) {
                   return Center(child: Text('오류 발생: ${snapshot.error}'));

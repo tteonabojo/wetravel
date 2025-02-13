@@ -140,7 +140,10 @@ class _GuidePackageListPageState extends ConsumerState<GuidePackageListPage> {
               future: loadData(ref),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(
+                      child: CircularProgressIndicator(
+                    color: AppColors.primary_450,
+                  ));
                 }
 
                 if (snapshot.hasError) {

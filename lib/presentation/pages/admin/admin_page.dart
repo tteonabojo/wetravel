@@ -158,7 +158,10 @@ class _AdminPageState extends ConsumerState<AdminPage> {
             },
           );
         },
-        loading: () => Center(child: CircularProgressIndicator()),
+        loading: () => Center(
+            child: CircularProgressIndicator(
+          color: AppColors.primary_450,
+        )),
         error: (error, stack) => Center(child: Text('오류 발생: $error')),
       ),
     );

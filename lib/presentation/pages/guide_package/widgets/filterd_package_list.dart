@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/presentation/pages/guide_package_detail_page/package_detail_page.dart';
 import 'package:wetravel/presentation/provider/package_provider.dart';
 import 'package:wetravel/presentation/provider/schedule_provider.dart';
@@ -23,7 +24,10 @@ class FilteredPackageList extends ConsumerWidget {
           .get(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(
+              child: CircularProgressIndicator(
+            color: AppColors.primary_450,
+          ));
         }
 
         if (snapshot.hasError) {

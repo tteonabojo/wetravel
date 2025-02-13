@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/domain/entity/survey_response.dart';
 import 'package:wetravel/domain/entity/travel_schedule.dart';
 import 'package:wetravel/presentation/provider/schedule_provider.dart';
@@ -117,7 +118,9 @@ class _AISchedulePageState extends ConsumerState<AISchedulePage> {
                         );
                       },
                       loading: () => const Center(
-                        child: CircularProgressIndicator(),
+                        child: CircularProgressIndicator(
+                          color: AppColors.primary_450,
+                        ),
                       ),
                       error: (error, stack) => Center(
                         child: Text('Error: $error'),

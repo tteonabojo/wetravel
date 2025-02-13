@@ -175,7 +175,9 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
       return const Scaffold(
         backgroundColor: Colors.white,
         body: Center(
-          child: CircularProgressIndicator(),
+          child: CircularProgressIndicator(
+            color: AppColors.primary_450,
+          ),
         ),
       );
     }

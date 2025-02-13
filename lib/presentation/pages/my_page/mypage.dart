@@ -49,7 +49,10 @@ class MyPage extends ConsumerWidget {
             ],
           ),
         ),
-        loading: () => Center(child: CircularProgressIndicator()), // 로딩 중 UI
+        loading: () => Center(
+            child: CircularProgressIndicator(
+          color: AppColors.primary_450,
+        )), // 로딩 중 UI
         error: (error, stack) => Center(child: Text("오류 발생: $error")), // 에러 처리
       ),
     );
@@ -178,7 +181,10 @@ Widget _buildProfileBox(BuildContext context, WidgetRef ref) {
         ),
       );
     },
-    loading: () => const Center(child: CircularProgressIndicator()),
+    loading: () => const Center(
+        child: CircularProgressIndicator(
+      color: AppColors.primary_450,
+    )),
     error: (err, stack) => Text('오류 발생: $err'),
   );
 }

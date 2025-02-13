@@ -202,7 +202,10 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
               );
             },
             loading: () => const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
+              body: Center(
+                  child: CircularProgressIndicator(
+                color: AppColors.primary_450,
+              )),
             ),
             error: (error, stack) => Scaffold(
               body: Center(child: Text('Error: $error')),
@@ -237,7 +240,9 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
                           return const Center(
-                              child: CircularProgressIndicator());
+                              child: CircularProgressIndicator(
+                            color: AppColors.primary_450,
+                          ));
                         }
                         if (snapshot.hasError || !snapshot.hasData) {
                           return Container(
