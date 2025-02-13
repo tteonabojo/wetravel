@@ -11,36 +11,61 @@ import 'package:wetravel/presentation/provider/schedule_provider.dart';
 import 'package:wetravel/presentation/widgets/package_item.dart';
 import 'package:wetravel/core/constants/app_spacing.dart';
 
-class ScrapPackagesPage extends ConsumerWidget {
+class ScrapPackagesPage extends ConsumerStatefulWidget {
   const ScrapPackagesPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  _ScrapPackagesPageState createState() => _ScrapPackagesPageState();
+}
+
+class _ScrapPackagesPageState extends ConsumerState<ScrapPackagesPage> {
+  late final Future<List<dynamic>> scrapPackagesFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    scrapPackagesFuture = ref.read(scrapPackagesProvider.future);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final getPackageUseCase = ref.read(getPackageUseCaseProvider);
     final getSchedulesUseCase = ref.read(getSchedulesUseCaseProvider);
-    final scrapPackagesAsync = ref.watch(scrapPackagesProvider);
+
     return Scaffold(
       appBar: AppBar(
-          title: Text(
-        '내가 담은 가이드 패키지',
-        style: AppTypography.headline4.copyWith(
-          color: AppColors.grayScale_950,
+        title: Text(
+          '내가 담은 가이드 패키지',
+          style: AppTypography.headline4.copyWith(
+            color: AppColors.grayScale_950,
+          ),
         ),
-      )),
+      ),
       body: Padding(
         padding: AppSpacing.medium16,
-        child: scrapPackagesAsync.when(
-          data: (packages) {
+        child: FutureBuilder<List<dynamic>>(
+          future: scrapPackagesFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (snapshot.hasError) {
+              return Center(child: Text('오류 발생: ${snapshot.error}'));
+            }
+            final packages = snapshot.data ?? [];
+
             if (packages.isEmpty) {
               return const Center(child: Text('스크랩한 패키지가 없습니다.'));
             }
+
+            _checkAndRemoveNonExistentPackages(ref, packages);
+
             return ListView.separated(
               itemCount: packages.length,
               separatorBuilder: (_, __) => const SizedBox(height: 12),
               itemBuilder: (context, index) {
                 final package = packages[index];
                 final packageId = package['id'];
-
                 return GestureDetector(
                   onTap: () async {
                     Navigator.push(
@@ -88,7 +113,6 @@ class ScrapPackagesPage extends ConsumerWidget {
                             },
                           ) ??
                           false;
-
                       if (confirmed) {
                         await _removeScrapPackage(ref, packageId);
                       }
@@ -98,11 +122,59 @@ class ScrapPackagesPage extends ConsumerWidget {
               },
             );
           },
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (err, stack) => Center(child: Text('오류 발생: $err')),
         ),
       ),
     );
+  }
+
+  Future<void> _checkAndRemoveNonExistentPackages(
+    WidgetRef ref,
+    List<dynamic> packages,
+  ) async {
+    try {
+      final firestore = FirebaseFirestore.instance;
+      final auth = FirebaseAuth.instance;
+
+      final userId = auth.currentUser?.uid;
+      if (userId == null) {
+        print("User is not logged in!");
+        return;
+      }
+
+      final userDocRef = firestore.collection('users').doc(userId);
+
+      await firestore.runTransaction((transaction) async {
+        final userDoc = await transaction.get(userDocRef);
+        if (!userDoc.exists) return;
+
+        final List<String> scrapIdList =
+            List<String>.from(userDoc.data()?['scrapIdList'] ?? []);
+
+        if (scrapIdList.isEmpty) return;
+
+        final packageSnapshot = await firestore
+            .collection('packages')
+            .where(FieldPath.documentId, whereIn: scrapIdList)
+            .get();
+
+        final existingPackageIds =
+            packageSnapshot.docs.map((doc) => doc.id).toList();
+
+        final nonExistentPackageIds = scrapIdList
+            .where((id) => !existingPackageIds.contains(id))
+            .toList();
+
+        if (nonExistentPackageIds.isNotEmpty) {
+          scrapIdList.removeWhere((id) => nonExistentPackageIds.contains(id));
+          transaction.update(userDocRef, {'scrapIdList': scrapIdList});
+          print("Deleted non-existent package IDs: $nonExistentPackageIds");
+        }
+      });
+
+      ref.invalidate(scrapPackagesProvider);
+    } catch (e) {
+      debugPrint('스크랩 목록 자동 삭제 실패: $e');
+    }
   }
 
   Future<void> _removeScrapPackage(WidgetRef ref, String packageId) async {
