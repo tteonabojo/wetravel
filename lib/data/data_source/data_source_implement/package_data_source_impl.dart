@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:wetravel/core/constants/firestore_constants.dart';
 import 'package:wetravel/data/data_source/package_data_source.dart';
 import 'package:wetravel/data/dto/package_dto.dart';
 
-class PackageDataSourceImpl implements PackageDataSource {
+class PackageDataSourceImpl extends FirestoreConstants
+    implements PackageDataSource {
   final FirebaseFirestore _firestore;
   PackageDataSourceImpl(FirebaseFirestore firestore) : _firestore = firestore {
     _firestore.settings = Settings(
@@ -84,8 +86,10 @@ class PackageDataSourceImpl implements PackageDataSource {
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser == null) throw ('로그인이 필요합니다');
 
-      final userSnapshot =
-          await _firestore.collection('users').doc(currentUser.uid).get();
+      final userSnapshot = await _firestore
+          .collection(usersCollection)
+          .doc(currentUser.uid)
+          .get();
 
       List<String> recentPackageIds = [];
       if (userSnapshot.exists) {
@@ -100,7 +104,7 @@ class PackageDataSourceImpl implements PackageDataSource {
 
       if (recentPackageIds.isNotEmpty) {
         final packageSnapshot = await _firestore
-            .collection('packages')
+            .collection(packagesCollection)
             .where(FieldPath.documentId, whereIn: recentPackageIds)
             .get();
 
@@ -109,7 +113,7 @@ class PackageDataSourceImpl implements PackageDataSource {
             .toList();
 
         final userSnapshot = await _firestore
-            .collection('users')
+            .collection(usersCollection)
             .where(FieldPath.documentId, whereIn: userIds)
             .get();
 
@@ -141,7 +145,7 @@ class PackageDataSourceImpl implements PackageDataSource {
   Future<List<PackageDto>> fetchPopularPackages() async {
     try {
       final packageSnapshot = await _firestore
-          .collection('packages')
+          .collection(packagesCollection)
           .orderBy('viewCount', descending: true)
           .limit(10)
           .get();
@@ -151,7 +155,7 @@ class PackageDataSourceImpl implements PackageDataSource {
           .toList();
 
       final userSnapshot = await _firestore
-          .collection('users')
+          .collection(usersCollection)
           .where(FieldPath.documentId, whereIn: userIds)
           .get();
 
@@ -185,7 +189,7 @@ class PackageDataSourceImpl implements PackageDataSource {
     }
 
     yield* _firestore
-        .collection('users')
+        .collection(usersCollection)
         .doc(user.uid)
         .snapshots()
         .asyncMap((userSnapshot) async {
@@ -196,7 +200,7 @@ class PackageDataSourceImpl implements PackageDataSource {
             userSnapshot.data()?['recentPackages']?.toList() ?? [];
         if (recentPackageIds.isEmpty) return [];
         final packageSnapshot = await _firestore
-            .collection('packages')
+            .collection(packagesCollection)
             .where(FieldPath.documentId, whereIn: recentPackageIds)
             .get();
 
@@ -213,7 +217,7 @@ class PackageDataSourceImpl implements PackageDataSource {
         if (userIds.isEmpty) return [];
 
         final userSnapshot2 = await _firestore
-            .collection('users')
+            .collection(usersCollection)
             .where(FieldPath.documentId, whereIn: userIds)
             .get();
 

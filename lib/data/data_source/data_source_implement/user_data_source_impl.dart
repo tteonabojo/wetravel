@@ -4,12 +4,14 @@ import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:wetravel/core/constants/auth_providers.dart';
+import 'package:wetravel/core/constants/firestore_constants.dart';
+import 'package:wetravel/data/data_source/data_source_implement/base_firestore_impl.dart';
 import 'package:wetravel/data/data_source/user_data_source.dart';
 import 'package:wetravel/data/dto/user_dto.dart';
 
-class UserDataSourceImpl implements UserDataSource {
-  UserDataSourceImpl(this._firestore);
+class UserDataSourceImpl extends FirestoreConstants implements UserDataSource {
   final FirebaseFirestore _firestore;
+  UserDataSourceImpl(this._firestore);
 
   Future<UserDto> fetchUser() async {
     try {
@@ -81,20 +83,11 @@ class UserDataSourceImpl implements UserDataSource {
           await FirebaseAuth.instance.signInWithCredential(credential);
       User? currentUser = FirebaseAuth.instance.currentUser;
 
-      // 계정 통합
-      // // 유저의 provider 목록
-      // final currentProviders =
-      //     currentUser?.providerData.map((p) => p.providerId).toList() ?? [];
-      //
-      // // 유저의 provider에 선택한 provider가 없는 경우 추가
-      // if (!currentProviders.contains(provider)) {
-      //   await currentUser?.linkWithCredential(credential);
-      // }
-
       // Firestore 사용자 정보 생성 혹은 업데이트
       if (currentUser != null) {
         final firestore = FirebaseFirestore.instance;
-        final userRef = firestore.collection('users').doc(currentUser.uid);
+        final userRef =
+            firestore.collection(usersCollection).doc(currentUser.uid);
         final userDoc = await userRef.get();
 
         if (!userDoc.exists) {
@@ -110,13 +103,6 @@ class UserDataSourceImpl implements UserDataSource {
 
           await userRef.set(userData);
         }
-        // 계정 통합 기능이 생긴 다음 필요 할 듯, 지금은 로그인 한다 해서 업데이트 할 정보가 없음
-        // }else {
-        //   final userData = {
-        //     'loginType': FieldValue.arrayUnion([provider]),
-        //   };
-        //   await userRef.set(userData, SetOptions(merge: true));
-        // }
 
         final updatedUserDoc = await userRef.get();
         return UserDto.fromJson(updatedUserDoc.data() ?? {});
