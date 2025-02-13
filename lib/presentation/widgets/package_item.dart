@@ -40,11 +40,12 @@ class PackageItem extends StatelessWidget {
       height: 120,
       padding: AppSpacing.medium16,
       decoration: ShapeDecoration(
-          color: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: AppBorderRadius.small12,
-          ),
-          shadows: AppShadow.generalShadow),
+        color: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: AppBorderRadius.small12,
+        ),
+        // shadows: AppShadow.generalShadow,
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -23,7 +23,7 @@ class _MainPageState extends ConsumerState<MainPage> {
         body: SingleChildScrollView(
           child: Column(
             children: [
-              MainBanner(),
+              MainBanner(banners: vm.banners),
               MainRecentlyPackages(recentPackages: vm.recentPackages),
               SizedBox(height: 12),
               MainPopularPackages(popularPackages: vm.popularPackages),
