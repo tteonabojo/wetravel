@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_icons.dart';
+import 'package:wetravel/core/constants/app_shadow.dart';
 import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/presentation/pages/guide/package_edit_page/package_edit_page.dart';
@@ -104,11 +105,11 @@ class _GuidePackageListPageState extends ConsumerState<GuidePackageListPage> {
     final getPackageUseCase = ref.read(getPackageUseCaseProvider);
     final getSchedulesUseCase = ref.read(getSchedulesUseCaseProvider);
     return Scaffold(
-      body: Padding(
-        padding: AppSpacing.medium16,
-        child: Column(
-          children: [
-            Row(
+      body: Column(
+        children: [
+          Padding(
+            padding: AppSpacing.medium16,
+            child: Row(
               children: [
                 ChipButton(
                   disabledType: DisabledType.disabled150,
@@ -133,155 +134,157 @@ class _GuidePackageListPageState extends ConsumerState<GuidePackageListPage> {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: FutureBuilder<Map<String, dynamic>>(
-                future: loadData(ref),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
+          ),
+          Expanded(
+            child: FutureBuilder<Map<String, dynamic>>(
+              future: loadData(ref),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-                  if (snapshot.hasError) {
-                    return Center(
-                      child:
-                          Text('내가 등록한 패키지 리스트 가져오기 Error: ${snapshot.error}'),
-                    );
-                  }
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Text('내가 등록한 패키지 리스트 가져오기 Error: ${snapshot.error}'),
+                  );
+                }
 
-                  if (!snapshot.hasData || snapshot.data == null) {
-                    return const Center(child: Text('데이터가 없습니다.'));
-                  }
+                if (!snapshot.hasData || snapshot.data == null) {
+                  return const Center(child: Text('데이터가 없습니다.'));
+                }
 
-                  final user = snapshot.data!['user'];
-                  final packages = (snapshot.data!['packages'] as List)
-                      .where(
-                          (package) => package.isHidden == showHiddenPackages)
-                      .toList();
+                final user = snapshot.data!['user'];
+                final packages = (snapshot.data!['packages'] as List)
+                    .where((package) => package.isHidden == showHiddenPackages)
+                    .toList();
 
-                  if (packages.isEmpty) {
-                    return Center(
-                        child: Text(showHiddenPackages
-                            ? '비공개 패키지가 없습니다.'
-                            : '공개 패키지가 없습니다.'));
-                  }
+                if (packages.isEmpty) {
+                  return Center(
+                      child: Text(showHiddenPackages
+                          ? '비공개 패키지가 없습니다.'
+                          : '공개 패키지가 없습니다.'));
+                }
 
-                  return ListView.separated(
-                    itemCount: packages.length,
-                    itemBuilder: (context, index) {
-                      final package = packages[index];
-                      return GestureDetector(
-                        onTap: () async {
-                          Navigator.push(context, MaterialPageRoute(
-                            builder: (context) {
-                              return PackageDetailPage(
-                                packageId: package.id,
-                                getPackageUseCase: getPackageUseCase,
-                                getSchedulesUseCase: getSchedulesUseCase,
-                              );
-                            },
-                          ));
-                        },
-                        child: PackageItem(
-                          icon: SvgPicture.asset(AppIcons.ellipsisVertical),
-                          onIconTap: () async {
-                            showCupertinoModalPopup(
-                              context: context,
-                              builder: (BuildContext context) =>
-                                  CupertinoActionSheet(
-                                title: Text(
-                                  package.title,
-                                  style: AppTypography.headline4
-                                      .copyWith(color: AppColors.grayScale_950),
-                                ),
-                                actions: <CupertinoActionSheetAction>[
-                                  CupertinoActionSheetAction(
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                PackageEditPage(
-                                                  packageId: package.id,
-                                                )),
-                                      );
-                                    },
-                                    child: Text(
-                                      '수정',
-                                      style: AppTypography.buttonLabelNormal
-                                          .copyWith(
-                                              color: AppColors.primary_550),
-                                    ),
+                return ListView.builder(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: packages.length,
+                  itemBuilder: (context, index) {
+                    final package = packages[index];
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: Container(
+                        decoration:
+                            BoxDecoration(boxShadow: AppShadow.generalShadow),
+                        child: GestureDetector(
+                          onTap: () async {
+                            Navigator.push(context, MaterialPageRoute(
+                              builder: (context) {
+                                return PackageDetailPage(
+                                  packageId: package.id,
+                                  getPackageUseCase: getPackageUseCase,
+                                  getSchedulesUseCase: getSchedulesUseCase,
+                                );
+                              },
+                            ));
+                          },
+                          child: PackageItem(
+                            icon: SvgPicture.asset(AppIcons.ellipsisVertical),
+                            onIconTap: () async {
+                              showCupertinoModalPopup(
+                                context: context,
+                                builder: (BuildContext context) =>
+                                    CupertinoActionSheet(
+                                  title: Text(
+                                    package.title,
+                                    style: AppTypography.headline4.copyWith(
+                                        color: AppColors.grayScale_950),
                                   ),
-                                  CupertinoActionSheetAction(
-                                    onPressed: () async {
-                                      Navigator.pop(context);
-                                      await _toggleIsHidden(
-                                          package.id, package.isHidden);
-                                    },
-                                    child: Text(
-                                      package.isHidden ? '공개 전환' : '비공개 전환',
-                                      style: AppTypography.buttonLabelNormal
-                                          .copyWith(
-                                        color: package.isHidden
-                                            ? AppColors.primary_550
-                                            : AppColors.red,
+                                  actions: <CupertinoActionSheetAction>[
+                                    CupertinoActionSheetAction(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  PackageEditPage(
+                                                    packageId: package.id,
+                                                  )),
+                                        );
+                                      },
+                                      child: Text(
+                                        '수정',
+                                        style: AppTypography.buttonLabelNormal
+                                            .copyWith(
+                                                color: AppColors.primary_550),
                                       ),
                                     ),
-                                  ),
-                                  CupertinoActionSheetAction(
-                                    onPressed: () async {
+                                    CupertinoActionSheetAction(
+                                      onPressed: () async {
+                                        Navigator.pop(context);
+                                        await _toggleIsHidden(
+                                            package.id, package.isHidden);
+                                      },
+                                      child: Text(
+                                        package.isHidden ? '공개 전환' : '비공개 전환',
+                                        style: AppTypography.buttonLabelNormal
+                                            .copyWith(
+                                          color: package.isHidden
+                                              ? AppColors.primary_550
+                                              : AppColors.red,
+                                        ),
+                                      ),
+                                    ),
+                                    CupertinoActionSheetAction(
+                                      onPressed: () async {
+                                        Navigator.pop(context);
+                                        await _deletePackage(package.id);
+                                        ref.invalidate(
+                                            fetchUserPackagesUsecaseProvider);
+                                        await loadData(ref);
+                                        ref
+                                            .read(
+                                                fetchUserPackagesUsecaseProvider)
+                                            .execute(user.id);
+                                      },
+                                      isDestructiveAction: true,
+                                      child: Text(
+                                        '삭제',
+                                        style: AppTypography.buttonLabelNormal
+                                            .copyWith(color: AppColors.red),
+                                      ),
+                                    ),
+                                  ],
+                                  cancelButton: CupertinoActionSheetAction(
+                                    onPressed: () {
                                       Navigator.pop(context);
-                                      await _deletePackage(package.id);
-                                      ref.invalidate(
-                                          fetchUserPackagesUsecaseProvider);
-                                      await loadData(ref);
-                                      ref
-                                          .read(
-                                              fetchUserPackagesUsecaseProvider)
-                                          .execute(user.id);
                                     },
-                                    isDestructiveAction: true,
                                     child: Text(
-                                      '삭제',
+                                      '취소',
                                       style: AppTypography.buttonLabelNormal
-                                          .copyWith(color: AppColors.red),
+                                          .copyWith(
+                                              color: AppColors.grayScale_550),
                                     ),
                                   ),
-                                ],
-                                cancelButton: CupertinoActionSheetAction(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(
-                                    '취소',
-                                    style: AppTypography.buttonLabelNormal
-                                        .copyWith(
-                                            color: AppColors.grayScale_550),
-                                  ),
                                 ),
-                              ),
-                            );
-                          },
-                          title: package.title,
-                          location: package.location,
-                          guideImageUrl: user.imageUrl ?? '',
-                          name: user.name ?? '이름 없음',
-                          keywords: package.keywordList ?? ['키워드 없음'],
-                          packageImageUrl: package.imageUrl ?? '',
+                              );
+                            },
+                            title: package.title,
+                            location: package.location,
+                            guideImageUrl: user.imageUrl ?? '',
+                            name: user.name ?? '이름 없음',
+                            keywords: package.keywordList ?? ['키워드 없음'],
+                            packageImageUrl: package.imageUrl ?? '',
+                          ),
                         ),
-                      );
-                    },
-                    separatorBuilder: (BuildContext context, int index) {
-                      return SizedBox(height: 8);
-                    },
-                  );
-                },
-              ),
+                      ),
+                    );
+                  },
+                );
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {

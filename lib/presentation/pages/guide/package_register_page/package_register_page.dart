@@ -32,7 +32,8 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
   int _dayCount = 1;
   int _selectedDay = 1;
   final List<List<Map<String, String>>> _schedules = [[]];
-
+  final GlobalKey<PackageHeaderState> _packageHeaderKey =
+      GlobalKey<PackageHeaderState>();
   bool isLoading = false;
 
   @override
@@ -210,12 +211,17 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
       children: [
         Scaffold(
           appBar: AppBar(
-            title: Text(
-              _title.isEmpty ? '제목을 입력해주세요' : _title,
-              style: AppTypography.headline4.copyWith(
-                  color: _title.isEmpty
-                      ? AppColors.grayScale_350
-                      : AppColors.grayScale_950),
+            title: GestureDetector(
+              onTap: () {
+                _packageHeaderKey.currentState!.showEditBottomSheet();
+              },
+              child: Text(
+                _title.isEmpty ? '제목을 입력해주세요' : _title,
+                style: AppTypography.headline4.copyWith(
+                    color: _title.isEmpty
+                        ? AppColors.grayScale_350
+                        : AppColors.grayScale_950),
+              ),
             ),
             leading: IconButton(
               icon: SvgPicture.asset(AppIcons.chevronLeft),
@@ -245,6 +251,7 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
                               },
                             ),
                             PackageHeader(
+                              key: _packageHeaderKey,
                               title: _title,
                               keywordList: _keywordList,
                               location: _location,

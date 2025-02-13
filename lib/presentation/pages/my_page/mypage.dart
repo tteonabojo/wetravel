@@ -4,10 +4,13 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:wetravel/core/constants/app_border_radius.dart';
+import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_icons.dart';
 import 'package:wetravel/core/constants/app_shadow.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wetravel/presentation/pages/login/login_page.dart';
+import 'package:wetravel/core/constants/app_typography.dart';
+import 'package:wetravel/presentation/pages/admin/admin_page.dart';
 import 'package:wetravel/presentation/pages/my_page_correction/mypage_correction.dart';
 import 'package:wetravel/presentation/provider/user_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -26,6 +29,13 @@ class MyPage extends ConsumerWidget {
             children: [
               SizedBox(height: 20),
               _buildProfileBox(context, ref), // 유저 데이터 전달
+              if (userData?['isAdmin'] == true)
+                Column(
+                  children: [
+                    SizedBox(height: 8),
+                    _buildAdminBox(context),
+                  ],
+                ),
               SizedBox(height: 8),
               _buildNoticeBox(),
               SizedBox(height: 8),
@@ -46,6 +56,35 @@ class MyPage extends ConsumerWidget {
   }
 }
 
+Widget _buildAdminBox(context) {
+  return GestureDetector(
+    onTap: () {
+      Navigator.push(context, MaterialPageRoute(
+        builder: (context) {
+          return AdminPage();
+        },
+      ));
+    },
+    child: Container(
+      height: 56,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: AppBorderRadius.small12,
+        boxShadow: AppShadow.generalShadow,
+      ),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          '관리자 메뉴 : 패키지 관리',
+          style: AppTypography.buttonLabelSmall
+              .copyWith(color: AppColors.grayScale_750),
+        ),
+      ),
+    ),
+  );
+}
+
 Widget _buildNoticeBox() {
   return Container(
     height: 56,
@@ -59,157 +98,152 @@ Widget _buildNoticeBox() {
       alignment: Alignment.centerLeft,
       child: Text(
         '공지사항',
-        style: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
-          color: Colors.black,
+        style: AppTypography.body2.copyWith(color: AppColors.grayScale_750),
+      ),
+    ),
+  );
+}
+
+Widget _buildProfileBox(BuildContext context, WidgetRef ref) {
+  final userAsync = ref.watch(userStreamProvider); // Firestore 실시간 데이터 사용
+
+  return userAsync.when(
+    data: (userData) {
+      if (userData == null) {
+        return Text('사용자 데이터를 불러올 수 없습니다.');
+      }
+
+      // 닉네임 기본값 설정 (Apple 로그인 시 닉네임 없을 경우 대비)
+      final uid = userData['uid'] ?? '';
+      final defaultNickname =
+          uid.isNotEmpty ? "AppleUser_${uid.substring(0, 6)}" : "사용자";
+      final name = userData['name']?.isNotEmpty == true
+          ? userData['name']
+          : defaultNickname;
+
+      final email = userData['email'] ?? '이메일 없음';
+      final imageUrl = userData['imageUrl']; // Firestore에서 가져온 프로필 이미지 URL
+      final validUrl = '$imageUrl'.startsWith('http');
+      return Container(
+        height: 89,
+        padding: const EdgeInsets.symmetric(vertical: 16.5, horizontal: 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: AppShadow.generalShadow,
+        ),
+        child: Row(
+          children: [
+            CircleAvatar(
+                radius: 28,
+                backgroundImage: validUrl ? NetworkImage(imageUrl) : null,
+                child: validUrl ? null : SvgPicture.asset(AppIcons.userRound)),
+            SizedBox(width: 16),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  name,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  (email.length > 25) ? '${email.substring(0, 20)}...' : email,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+            Spacer(),
+            IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => MyPageCorrection()),
+                );
+              },
+              icon: SvgPicture.asset(
+                AppIcons.pen,
+                width: 24,
+                height: 24,
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+    loading: () => const Center(child: CircularProgressIndicator()),
+    error: (err, stack) => Text('오류 발생: $err'),
+  );
+}
+
+Widget _buildInquiryBox(BuildContext context) {
+  return GestureDetector(
+    onTap: () {
+      _showInquiryDialog(context);
+    },
+    child: Container(
+      height: 56,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: AppShadow.generalShadow,
+      ),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          '문의하기',
+          style: AppTypography.body2.copyWith(color: AppColors.grayScale_750),
         ),
       ),
     ),
   );
 }
 
-  Widget _buildProfileBox(BuildContext context, WidgetRef ref) {
-    final userAsync = ref.watch(userStreamProvider); // Firestore 실시간 데이터 사용
-
-    return userAsync.when(
-      data: (userData) {
-        if (userData == null) {
-          return Text('사용자 데이터를 불러올 수 없습니다.');
-        }
-
-        // 닉네임 기본값 설정 (Apple 로그인 시 닉네임 없을 경우 대비)
-        final uid = userData['uid'] ?? ''; 
-        final defaultNickname = uid.isNotEmpty ? "AppleUser_${uid.substring(0, 6)}" : "사용자"; 
-        final name = userData['name']?.isNotEmpty == true ? userData['name'] : defaultNickname;
-
-        final email = userData['email'] ?? '이메일 없음';
-        final imageUrl = userData['imageUrl']; // Firestore에서 가져온 프로필 이미지 URL
-        final validUrl = '$imageUrl'.startsWith('http');
-        return Container(
-          height: 89,
-          padding: const EdgeInsets.symmetric(vertical: 16.5, horizontal: 16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: AppShadow.generalShadow,
-          ),
-          child: Row(
-            children: [
-              CircleAvatar(
-                  radius: 28,
-                  backgroundImage: validUrl ? NetworkImage(imageUrl) : null,
-                  child:
-                      validUrl ? null : SvgPicture.asset(AppIcons.userRound)),
-              SizedBox(width: 16),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    name,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    (email.length > 25)
-                        ? '${email.substring(0, 20)}...'
-                        : email,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                ],
-              ),
-              Spacer(),
-              IconButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => MyPageCorrection()),
-                  );
-                },
-                icon: SvgPicture.asset(
-                  AppIcons.pen,
-                  width: 24,
-                  height: 24,
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (err, stack) => Text('오류 발생: $err'),
-    );
-  }
-
-  Widget _buildInquiryBox(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        _showInquiryDialog(context);
-      },
-      child: Container(
-        height: 56,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: AppShadow.generalShadow,
+void _showInquiryDialog(BuildContext context) {
+  showCupertinoDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return CupertinoAlertDialog(
+        title: Text(
+          '문의하기',
+          style: AppTypography.body2.copyWith(color: AppColors.grayScale_750),
         ),
-        child: Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            '문의하기',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: Colors.black,
-            ),
+        content: Text('관리자 이메일: ksh20531@gmail.com'),
+        actions: [
+          CupertinoDialogAction(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text('확인'),
           ),
-        ),
-      ),
-    );
-  }
+        ],
+      );
+    },
+  );
+}
 
-  void _showInquiryDialog(BuildContext context) {
-    showCupertinoDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return CupertinoAlertDialog(
-          title: Text('문의하기'),
-          content: Text('관리자 이메일: ksh20531@gmail.com'),
-          actions: [
-            CupertinoDialogAction(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('확인'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _buildTermsAndPrivacyBox() {
-    return GestureDetector(
-      onTap: () async {
-        final url =
-            'https://weetravel.notion.site/188e73dd935881a8af01f4f12db0d7c9';
-        if (await canLaunch(url)) {
-          await launch(url);
-        } else {
-          throw 'Could not launch $url';
-        }
-      },
-      child: _buildBoxWithText('이용약관/개인정보 처리방침'),
-    );
-  }
+Widget _buildTermsAndPrivacyBox() {
+  return GestureDetector(
+    onTap: () async {
+      final url =
+          'https://weetravel.notion.site/188e73dd935881a8af01f4f12db0d7c9';
+      if (await canLaunch(url)) {
+        await launch(url);
+      } else {
+        throw 'Could not launch $url';
+      }
+    },
+    child: _buildBoxWithText('이용약관/개인정보 처리방침'),
+  );
+}
 
 Widget _buildBoxWithText(String text) {
   return Container(
@@ -224,11 +258,7 @@ Widget _buildBoxWithText(String text) {
       alignment: Alignment.centerLeft,
       child: Text(
         text,
-        style: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
-          color: Colors.black,
-        ),
+        style: AppTypography.body2.copyWith(color: AppColors.grayScale_750),
       ),
     ),
   );
@@ -255,11 +285,7 @@ Widget _buildLogoutBox(BuildContext context, WidgetRef ref) {
         alignment: Alignment.centerLeft,
         child: Text(
           '로그아웃',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: Colors.black,
-          ),
+          style: AppTypography.body2.copyWith(color: AppColors.grayScale_750),
         ),
       ),
     ),
@@ -290,7 +316,7 @@ void _showDeleteAccountDialog(BuildContext context, WidgetRef ref) {
     builder: (BuildContext dialogContext) {
       return CupertinoAlertDialog(
         title: const Text('회원탈퇴'),
-        content: const Text('정말로 회원 탈퇴를 진행하시겠습니까? 이 작업은 되돌릴 수 없습니다.'),
+        content: const Text('탈퇴 확인을 위해 재인증이 필요합니다.\n이 작업은 되돌릴 수 없습니다.'),
         actions: [
           CupertinoDialogAction(
             onPressed: () => Navigator.of(dialogContext).pop(), // 다이얼로그 닫기

@@ -14,20 +14,21 @@ class PackageHeader extends ConsumerStatefulWidget {
   final List<String> keywordList;
   final String location;
   final Function(String, List<String>, String) onUpdate;
+  final GlobalKey<PackageHeaderState> key;
 
   const PackageHeader({
-    super.key,
     required this.title,
     required this.keywordList,
     required this.location,
     required this.onUpdate,
+    required this.key,
   });
 
   @override
-  _PackageHeaderState createState() => _PackageHeaderState();
+  PackageHeaderState createState() => PackageHeaderState();
 }
 
-class _PackageHeaderState extends ConsumerState<PackageHeader> {
+class PackageHeaderState extends ConsumerState<PackageHeader> {
   late String _title;
   late String _location;
   late List<String?> _selectedKeywords;
@@ -42,7 +43,7 @@ class _PackageHeaderState extends ConsumerState<PackageHeader> {
         : [null, null, null]);
   }
 
-  void _showEditBottomSheet() {
+  void showEditBottomSheet() {
     showModalBottomSheet(
       backgroundColor: Colors.white,
       context: context,
@@ -81,7 +82,7 @@ class _PackageHeaderState extends ConsumerState<PackageHeader> {
         } else if (snapshot.hasData) {
           final user = snapshot.data!;
           return GestureDetector(
-            onTap: _showEditBottomSheet,
+            onTap: showEditBottomSheet,
             child: Container(
               padding: AppSpacing.medium16,
               decoration: const BoxDecoration(color: Colors.white),

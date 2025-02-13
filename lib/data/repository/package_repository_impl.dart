@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wetravel/data/data_source/package_data_source.dart';
 import 'package:wetravel/domain/entity/package.dart';
 import 'package:wetravel/domain/repository/package_repository.dart';
@@ -29,6 +30,16 @@ class PackageRepositoryImpl implements PackageRepository {
               userName: e.userName!,
             ))
         .toList();
+  }
+
+  @override
+  Stream<List<Package>> watchPackages() {
+    return FirebaseFirestore.instance
+        .collection('packages')
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) => Package.fromJson(doc.data())).toList();
+    });
   }
 
   @override
