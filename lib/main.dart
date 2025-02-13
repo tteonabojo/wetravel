@@ -55,7 +55,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: AppTheme.themeData,
-      initialRoute: '/banner',
+      initialRoute: initialRoute,
       routes: {
         '/': (context) {
           final int initialIndex =
