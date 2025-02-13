@@ -361,7 +361,6 @@ class _PackageEditPageState extends State<PackageEditPage> {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 20),
                     child: Column(
-                      spacing: 16,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         DayChipButton(
@@ -370,6 +369,7 @@ class _PackageEditPageState extends State<PackageEditPage> {
                           onSelectDay: _onSelectDay,
                           selectedDay: _selectedDay,
                         ),
+                        SizedBox(height: 16),
                         EditScheduleList(
                           schedules: _schedules[_selectedDay - 1],
                           totalScheduleCount:
@@ -383,6 +383,8 @@ class _PackageEditPageState extends State<PackageEditPage> {
                           onDelete: (dayIndex, scheduleIndex) {
                             _onDelete(dayIndex, scheduleIndex);
                           },
+                          onReorder: (oldIndex, newIndex) => _onReorderSchedule(
+                              _selectedDay - 1, oldIndex, newIndex),
                         ),
                         AddScheduleButton(
                           onPressed: _onAddSchedule,
@@ -422,5 +424,12 @@ class _PackageEditPageState extends State<PackageEditPage> {
         color: AppColors.grayScale_150,
       ),
     );
+  }
+
+  void _onReorderSchedule(int dayIndex, int oldIndex, int newIndex) {
+    setState(() {
+      final item = _schedules[dayIndex].removeAt(oldIndex);
+      _schedules[dayIndex].insert(newIndex, item);
+    });
   }
 }

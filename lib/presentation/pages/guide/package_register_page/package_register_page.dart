@@ -300,6 +300,9 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
                                       );
                                     },
                                     onDelete: _onDelete,
+                                    onReorder: (oldIndex, newIndex) =>
+                                        _onReorderSchedule(_selectedDay - 1,
+                                            oldIndex, newIndex),
                                   ),
                                   AddScheduleButton(
                                     onPressed:
@@ -358,5 +361,12 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
         color: AppColors.grayScale_150,
       ),
     );
+  }
+
+  void _onReorderSchedule(int dayIndex, int oldIndex, int newIndex) {
+    setState(() {
+      final item = _schedules[dayIndex].removeAt(oldIndex);
+      _schedules[dayIndex].insert(newIndex, item);
+    });
   }
 }
