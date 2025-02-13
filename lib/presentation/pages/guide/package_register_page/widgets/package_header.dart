@@ -108,16 +108,29 @@ class PackageHeaderState extends ConsumerState<PackageHeader> {
   Widget _buildUserInfo(User user) {
     return Row(
       children: [
-        CircleAvatar(
-          radius: 12,
-          backgroundImage: user.imageUrl?.isNotEmpty ?? false
-              ? NetworkImage(user.imageUrl!)
-              : const AssetImage("assets/images/sample_profile.jpg"),
+        ClipOval(
+          child: Container(
+            width: 24,
+            height: 24,
+            color: AppColors.primary_250,
+            child: user.imageUrl?.isNotEmpty ?? false
+                ? Image.network(
+                    user.imageUrl!,
+                    fit: BoxFit.cover,
+                  )
+                : Container(
+                    margin: AppSpacing.small4,
+                    child: SvgPicture.asset(
+                      AppIcons.userRound,
+                      color: Colors.white,
+                    ),
+                  ),
+          ),
         ),
         const SizedBox(width: 8),
         Expanded(
           child: Text(
-            user.name?.trim().isNotEmpty ?? false ? user.name! : '닉네임 없음',
+            user.name?.trim().isNotEmpty ?? false ? user.name! : 'no name',
             style: AppTypography.body2.copyWith(color: AppColors.grayScale_950),
           ),
         ),
