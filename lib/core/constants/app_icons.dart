@@ -35,6 +35,7 @@ class AppIcons {
   static const String x = 'assets/icons/x.svg';
   static const String chevronDown = 'assets/icons/chevron_down.svg';
   static const String chevronUp = 'assets/icons/chevron_up.svg';
+  static const String dateDash = 'assets/icons/date_dash.svg';
 
   // Blue Background Logos
   static const String logoBgBlue160 =

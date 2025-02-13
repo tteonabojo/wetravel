@@ -1,20 +1,24 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:wetravel/core/constants/firestore_constants.dart';
 import 'package:wetravel/data/data_source/schedule_data_source.dart';
 import 'package:wetravel/data/dto/schedule_dto.dart';
 import 'package:wetravel/domain/entity/travel_schedule.dart';
 
-class ScheduleDataSourceImpl implements ScheduleDataSource {
+class ScheduleDataSourceImpl extends FirestoreConstants
+    implements ScheduleDataSource {
   final FirebaseFirestore _firestore;
 
   ScheduleDataSourceImpl(this._firestore);
 
   @override
   Future<void> saveSchedule(String userId, TravelSchedule schedule) async {
+    print(usersCollection);
+    print(schedulesCollection);
     try {
       await _firestore
-          .collection('users')
+          .collection(usersCollection)
           .doc(userId)
-          .collection('schedules')
+          .collection(schedulesCollection)
           .add({
         'destination': schedule.destination,
         'createdAt': FieldValue.serverTimestamp(),

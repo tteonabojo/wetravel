@@ -3,8 +3,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wetravel/presentation/pages/banner/banner_page.dart';
 import 'package:wetravel/presentation/pages/guide_package/filtered_guide_package_page.dart';
 import 'package:wetravel/presentation/pages/login/login_page.dart';
 import 'package:wetravel/presentation/pages/new_trip/scrap_package_page.dart';
@@ -53,7 +55,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: AppTheme.themeData,
-      initialRoute: initialRoute,
+      initialRoute: '/banner',
       routes: {
         '/': (context) {
           final int initialIndex =
@@ -72,6 +74,7 @@ class MyApp extends StatelessWidget {
         '/mypage': (context) => MyPage(),
         '/saved-plans': (context) => const SavedPlansPage(),
         '/saved-guide-plans': (context) => ScrapPackagesPage(),
+        '/banner': (context) => BannerPage(),
       },
       onUnknownRoute: (settings) {
         return MaterialPageRoute(
@@ -93,6 +96,16 @@ class MyApp extends StatelessWidget {
         }
         return null;
       },
+      // 로케일 설정
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('ko', ''),
+        Locale('en', ''),
+      ],
     );
   }
 }
