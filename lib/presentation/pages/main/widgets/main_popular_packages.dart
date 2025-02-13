@@ -89,10 +89,13 @@ class MainPopularPackages extends ConsumerWidget {
                   ),
                 ),
               )
-            : Center(
-                child: Text(
-                  '인기있는 패키지가 없어요',
-                  style: AppTypography.body3,
+            : Container(
+                constraints: BoxConstraints(minHeight: 120),
+                child: Center(
+                  child: Text(
+                    '인기있는 패키지가 없어요',
+                    style: AppTypography.body3,
+                  ),
                 ),
               ),
         SizedBox(height: 16)
