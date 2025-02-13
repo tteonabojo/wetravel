@@ -4,12 +4,14 @@ import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:wetravel/core/constants/auth_providers.dart';
+import 'package:wetravel/core/constants/firestore_constants.dart';
 import 'package:wetravel/data/data_source/data_source_implement/base_firestore_impl.dart';
 import 'package:wetravel/data/data_source/user_data_source.dart';
 import 'package:wetravel/data/dto/user_dto.dart';
 
-class UserDataSourceImpl extends BaseFirestoreImpl implements UserDataSource {
-  UserDataSourceImpl(FirebaseFirestore firestore) : super('users', firestore);
+class UserDataSourceImpl extends FirestoreConstants implements UserDataSource {
+  final FirebaseFirestore _firestore;
+  UserDataSourceImpl(this._firestore);
 
   Future<UserDto> fetchUser() async {
     try {
@@ -17,7 +19,7 @@ class UserDataSourceImpl extends BaseFirestoreImpl implements UserDataSource {
       if (currentUser == null) {
         throw Exception('사용자가 로그인되지 않았습니다.');
       }
-      final userRef = firestore.collection(collectionName).doc(currentUser.uid);
+      final userRef = _firestore.collection('users').doc(currentUser.uid);
       final userDoc = await userRef.get();
       if (userDoc.exists) {
         print("Found user: ${userDoc.id}");
@@ -85,7 +87,7 @@ class UserDataSourceImpl extends BaseFirestoreImpl implements UserDataSource {
       if (currentUser != null) {
         final firestore = FirebaseFirestore.instance;
         final userRef =
-            firestore.collection(collectionName).doc(currentUser.uid);
+            firestore.collection(usersCollection).doc(currentUser.uid);
         final userDoc = await userRef.get();
 
         if (!userDoc.exists) {
