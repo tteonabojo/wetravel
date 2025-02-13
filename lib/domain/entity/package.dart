@@ -40,6 +40,32 @@ class Package {
     this.viewCount = 0,
   });
 
+  factory Package.fromJson(Map<String, dynamic> json) {
+    return Package(
+      id: json["id"] as String,
+      userId: json["userId"] as String,
+      userName: json["userName"] as String?,
+      userImageUrl: json["userImageUrl"] as String?,
+      title: json["title"] as String,
+      location: json["location"] as String,
+      description: json["description"] as String?,
+      duration: json["duration"] as String?,
+      imageUrl: json["imageUrl"] as String?,
+      keywordList: (json["keywordList"] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
+      scheduleIdList: (json["scheduleIdList"] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
+      createdAt: json["createdAt"] as Timestamp,
+      updatedAt: json["updatedAt"] as Timestamp?,
+      deletedAt: json["deletedAt"] as Timestamp?,
+      reportCount: json["reportCount"] as int? ?? 0,
+      isHidden: json["isHidden"] as bool? ?? false,
+      viewCount: json["viewCount"] as int? ?? 0,
+    );
+  }
+
   Map<String, dynamic> toJson() => {
         "id": id,
         "userId": userId,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wetravel/core/constants/app_spacing.dart';
+import 'package:wetravel/core/constants/app_border_radius.dart';
+import 'package:wetravel/core/constants/app_shadow.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/domain/entity/package.dart';
 import 'package:wetravel/presentation/pages/guide_package_detail_page/package_detail_page.dart';
@@ -39,7 +40,6 @@ class MainPopularPackages extends ConsumerWidget {
             ? Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
-                  spacing: 8,
                   children: List.generate(
                     displayedPackages.length,
                     (index) {
@@ -59,18 +59,29 @@ class MainPopularPackages extends ConsumerWidget {
                             ),
                           );
                         },
-                        child: SizedBox(
-                          width: double.infinity,
-                          child: PackageItem(
-                            rate: rate,
-                            title: displayedPackages[index].title,
-                            location: displayedPackages[index].location,
-                            guideImageUrl:
-                                displayedPackages[index].userImageUrl,
-                            packageImageUrl: displayedPackages[index].imageUrl,
-                            name: displayedPackages[index].userName,
-                            keywords:
-                                displayedPackages[index].keywordList!.toList(),
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              boxShadow: AppShadow.generalShadow,
+                              borderRadius: AppBorderRadius.small12,
+                            ),
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: PackageItem(
+                                rate: rate,
+                                title: displayedPackages[index].title,
+                                location: displayedPackages[index].location,
+                                guideImageUrl:
+                                    displayedPackages[index].userImageUrl,
+                                packageImageUrl:
+                                    displayedPackages[index].imageUrl,
+                                name: displayedPackages[index].userName,
+                                keywords: displayedPackages[index]
+                                    .keywordList!
+                                    .toList(),
+                              ),
+                            ),
                           ),
                         ),
                       );

@@ -77,7 +77,7 @@ class UserDto {
           imageUrl: json['imageUrl'] ?? '',
           introduction: json['introduction'] as String?,
           loginType: json['loginType'] as String,
-          isAdmin: json['isAdmin'],
+          isAdmin: json['isAdmin'] ?? false,
           createdAt: json['createdAt'] as Timestamp,
           updatedAt:
               json['updatedAt'] != null ? json['updatedAt'] as Timestamp : null,

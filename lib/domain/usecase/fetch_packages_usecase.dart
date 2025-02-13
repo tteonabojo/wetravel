@@ -8,4 +8,8 @@ class FetchPackagesUsecase {
   Future<List<Package>> execute() async {
     return await _packageRepository.fetchPackages();
   }
+
+  Stream<List<Package>> watch() {
+    return _packageRepository.watchPackages();
+  }
 }
