@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
+import 'package:wetravel/core/constants/app_shadow.dart';
 import 'package:wetravel/presentation/pages/guide_package_detail_page/package_detail_page.dart';
 import 'package:wetravel/presentation/provider/package_provider.dart';
 import 'package:wetravel/presentation/provider/schedule_provider.dart';
@@ -58,29 +59,33 @@ class FilteredPackageList extends ConsumerWidget {
                 final packageId = packages[index].id; // 패키지 id 추출
 
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: GestureDetector(
-                    onTap: () async {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) {
-                            return PackageDetailPage(
-                              packageId: packageId,
-                              getPackageUseCase: getPackageUseCase,
-                              getSchedulesUseCase: getSchedulesUseCase,
-                            );
-                          },
-                        ),
-                      );
-                    },
-                    child: PackageItem(
-                      title: packageTitle,
-                      location: packageLocation,
-                      packageImageUrl: packageImageUrl,
-                      keywords: packageKeywords,
-                      guideImageUrl: guideImageUrl,
-                      name: guideName,
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Container(
+                    decoration:
+                        BoxDecoration(boxShadow: AppShadow.generalShadow),
+                    child: GestureDetector(
+                      onTap: () async {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) {
+                              return PackageDetailPage(
+                                packageId: packageId,
+                                getPackageUseCase: getPackageUseCase,
+                                getSchedulesUseCase: getSchedulesUseCase,
+                              );
+                            },
+                          ),
+                        );
+                      },
+                      child: PackageItem(
+                        title: packageTitle,
+                        location: packageLocation,
+                        packageImageUrl: packageImageUrl,
+                        keywords: packageKeywords,
+                        guideImageUrl: guideImageUrl,
+                        name: guideName,
+                      ),
                     ),
                   ),
                 );
