@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/domain/entity/survey_response.dart';
@@ -229,8 +230,8 @@ class _AISchedulePageState extends ConsumerState<AISchedulePage> {
 
       final now = DateTime.now();
       final id = now.millisecondsSinceEpoch.toString();
+      final collectionPath = kDebugMode ? 'users_test' : 'users';
 
-      // 도시 이름이 null이거나 빈 문자열인 경우 처리
       final cityName = surveyResponse.selectedCity?.trim() ?? '';
       if (cityName.isEmpty) {
         throw Exception('도시 이름이 없습니다.');
@@ -238,19 +239,19 @@ class _AISchedulePageState extends ConsumerState<AISchedulePage> {
 
       final scheduleData = {
         'id': id,
-        'title': '$cityName 여행', // 도시 이름으로 제목 설정
-        'location': cityName, // 도시 이름으로 위치 설정
+        'title': '$cityName 여행',
+        'location': cityName,
         'duration': '${schedule.days.length - 1}박 ${schedule.days.length}일',
         'imageUrl': await _getImageUrl(cityName),
         'isAIRecommended': true,
         'travelStyle': surveyResponse.travelStyles.isNotEmpty
             ? surveyResponse.travelStyles[0]
-            : '관광',
-        'createdAt': now.toIso8601String(), // 생성 시간 추가
+            : '관광지',
+        'createdAt': now.toIso8601String(),
       };
 
       await FirebaseFirestore.instance
-          .collection('users')
+          .collection(collectionPath)
           .doc(user.uid)
           .collection('schedule')
           .doc(id)

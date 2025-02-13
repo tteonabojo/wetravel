@@ -97,6 +97,18 @@ class DaySchedule {
   final List<ScheduleItem> schedules;
 
   DaySchedule({required this.schedules});
+
+  Map<String, dynamic> toJson() {
+    return {
+      'schedules': schedules
+          .map((item) => {
+                'time': item.time,
+                'title': item.title,
+                'location': item.location,
+              })
+          .toList(),
+    };
+  }
 }
 
 class ScheduleItem {
