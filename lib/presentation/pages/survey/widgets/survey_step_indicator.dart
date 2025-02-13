@@ -8,7 +8,7 @@ class SurveyStepIndicator extends StatelessWidget {
   const SurveyStepIndicator({
     super.key,
     required this.currentStep,
-    this.totalSteps = 5,
+    this.totalSteps = 6,
   });
 
   @override

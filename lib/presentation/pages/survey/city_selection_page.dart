@@ -94,7 +94,7 @@ class _CitySelectionPageState extends ConsumerState<CitySelectionPage> {
               ),
               const SizedBox(height: 20),
               LinearProgressIndicator(
-                value: 0,
+                value: 1 / 6,
                 backgroundColor: AppColors.grayScale_150,
                 valueColor:
                     const AlwaysStoppedAnimation<Color>(AppColors.primary_450),

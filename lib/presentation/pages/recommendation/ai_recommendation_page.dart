@@ -202,6 +202,7 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
               );
             },
             loading: () => const Scaffold(
+              backgroundColor: Colors.white,
               body: Center(
                   child: CircularProgressIndicator(
                 color: AppColors.primary_450,
