@@ -35,10 +35,22 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
   final GlobalKey<PackageHeaderState> _packageHeaderKey =
       GlobalKey<PackageHeaderState>();
   bool isLoading = false;
+  bool _showTooltip = false;
 
   @override
   void initState() {
     super.initState();
+    Future.delayed(Duration(milliseconds: 500), () {
+      setState(() {
+        _showTooltip = true;
+      });
+
+      Future.delayed(Duration(seconds: 3), () {
+        setState(() {
+          _showTooltip = false;
+        });
+      });
+    });
   }
 
   void _onDelete(int dayIndex, int scheduleIndex) {
@@ -304,11 +316,33 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
                                         _onReorderSchedule(_selectedDay - 1,
                                             oldIndex, newIndex),
                                   ),
-                                  AddScheduleButton(
-                                    onPressed:
-                                        isLoading ? null : _onAddSchedule,
-                                    currentScheduleCount:
-                                        _schedules[_selectedDay - 1].length,
+                                  Stack(
+                                    children: [
+                                      AddScheduleButton(
+                                        onPressed:
+                                            isLoading ? null : _onAddSchedule,
+                                        currentScheduleCount:
+                                            _schedules[_selectedDay - 1].length,
+                                      ),
+                                      if (_showTooltip)
+                                        Positioned(
+                                          right: 0,
+                                          bottom: 50,
+                                          child: Container(
+                                            padding: EdgeInsets.all(8),
+                                            decoration: BoxDecoration(
+                                              color: Colors.black87,
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                            child: Text(
+                                              '일정을 추가하세요!',
+                                              style: TextStyle(
+                                                  color: Colors.white),
+                                            ),
+                                          ),
+                                        ),
+                                    ],
                                   ),
                                   if (_dayCount > 1)
                                     Column(
