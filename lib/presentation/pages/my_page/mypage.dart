@@ -129,7 +129,7 @@ Widget _buildProfileBox(BuildContext context, WidgetRef ref) {
         padding: const EdgeInsets.symmetric(vertical: 16.5, horizontal: 16),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: AppBorderRadius.small12,
           boxShadow: AppShadow.generalShadow,
         ),
         child: Row(
