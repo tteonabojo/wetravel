@@ -231,7 +231,7 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
               const SizedBox(height: 20),
               CustomInputField(
                 controller: _nameController,
-                hintText: _name.isNotEmpty ? _name : '샘플',
+                hintText: _name.isNotEmpty ? _name : '닉네임을 입력하세요.',
                 maxLength: 15,
                 labelText: '닉네임',
                 onChanged: (value) => setState(() {
@@ -264,13 +264,15 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
   }
 
   // 프로필 이미지 위젯
-  Widget _buildProfileImage() {
-    bool isValidUrl = _imageUrl != null && _imageUrl!.startsWith('http');
+Widget _buildProfileImage() {
+  bool isValidUrl = _imageUrl != null && _imageUrl!.startsWith('http');
 
-    return Center(
-      child: Stack(
-        children: [
-          ClipOval(
+  return Center(
+    child: Stack(
+      children: [
+        GestureDetector( // 프로필 이미지 전체를 클릭 가능하게 변경
+          onTap: _pickImage,
+          child: ClipOval(
             child: Container(
               width: 82,
               height: 82,
@@ -293,26 +295,27 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
                     ),
             ),
           ),
-          Positioned(
-            bottom: 0,
-            right: 0,
-            child: InkWell(
-              onTap: _pickImage,
-              child: Container(
-                padding: const EdgeInsets.all(6),
-                decoration: const BoxDecoration(
-                  color: Colors.grey,
-                  shape: BoxShape.circle,
-                ),
-                child:
-                    const Icon(Icons.camera_alt, color: Colors.white, size: 20),
+        ),
+        Positioned(
+          bottom: 0,
+          right: 0,
+          child: InkWell(
+            onTap: _pickImage, // 기존 아이콘 클릭 기능 유지
+            child: Container(
+              padding: const EdgeInsets.all(6),
+              decoration: const BoxDecoration(
+                color: Colors.grey,
+                shape: BoxShape.circle,
               ),
+              child:
+                  const Icon(Icons.camera_alt, color: Colors.white, size: 20),
             ),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
 
   // 이메일 필드
   Widget _buildEmailField() {
