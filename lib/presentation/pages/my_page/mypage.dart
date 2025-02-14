@@ -12,6 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/presentation/pages/admin/admin_page.dart';
 import 'package:wetravel/presentation/pages/my_page_correction/mypage_correction.dart';
+import 'package:wetravel/presentation/pages/notice_page/noticepage.dart';
 import 'package:wetravel/presentation/provider/user_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -22,33 +23,34 @@ class MyPage extends ConsumerWidget {
 
     return Scaffold(
       body: userAsync.when(
-        data: (userData) => Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: 20),
-              _buildProfileBox(context, ref), // 유저 데이터 전달
-              if (userData?['isAdmin'] == true)
-                Column(
-                  children: [
-                    SizedBox(height: 8),
-                    _buildAdminBox(context),
-                  ],
-                ),
-              SizedBox(height: 8),
-              _buildNoticeBox(),
-              SizedBox(height: 8),
-              _buildInquiryBox(context),
-              SizedBox(height: 8),
-              _buildTermsAndPrivacyBox(),
-              SizedBox(height: 8),
-              _buildLogoutBox(context, ref),
-              SizedBox(height: 8),
-              _buildDeleteAccount(context, ref),
-            ],
-          ),
-        ),
+        data: (userData) {
+          final bool isAdmin = userData?['isAdmin'] == true; // isAdmin 값 가져오기
+
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: 20),
+                _buildProfileBox(context, ref), // 유저 데이터 전달
+                if (isAdmin) ...[
+                  SizedBox(height: 8),
+                  _buildAdminBox(context),
+                ],
+                SizedBox(height: 8),
+                _buildNoticeBox(context, isAdmin), // isAdmin 값 전달
+                SizedBox(height: 8),
+                _buildInquiryBox(context),
+                SizedBox(height: 8),
+                _buildTermsAndPrivacyBox(),
+                SizedBox(height: 8),
+                _buildLogoutBox(context, ref),
+                SizedBox(height: 8),
+                _buildDeleteAccount(context, ref),
+              ],
+            ),
+          );
+        },
         loading: () => Center(child: CircularProgressIndicator()), // 로딩 중 UI
         error: (error, stack) => Center(child: Text("오류 발생: $error")), // 에러 처리
       ),
@@ -85,20 +87,30 @@ Widget _buildAdminBox(context) {
   );
 }
 
-Widget _buildNoticeBox() {
-  return Container(
-    height: 56,
-    padding: const EdgeInsets.symmetric(horizontal: 16),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(12),
-      boxShadow: AppShadow.generalShadow,
-    ),
-    child: Align(
-      alignment: Alignment.centerLeft,
-      child: Text(
-        '공지사항',
-        style: AppTypography.body2.copyWith(color: AppColors.grayScale_750),
+Widget _buildNoticeBox(BuildContext context, bool isAdmin) {
+  return GestureDetector(
+    onTap: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => NoticePage(isAdmin: userData?['isAdmin'] ?? false), //isAdmin 값 전달
+        ),
+      );
+    },
+    child: Container(
+      height: 56,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: AppShadow.generalShadow,
+      ),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          '공지사항',
+          style: AppTypography.body2.copyWith(color: AppColors.grayScale_750),
+        ),
       ),
     ),
   );
