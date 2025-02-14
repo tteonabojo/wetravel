@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wetravel/core/constants/firestore_constants.dart';
 import 'package:wetravel/data/data_source/data_source_implement/user_data_source_impl.dart';
 import 'package:wetravel/data/data_source/user_data_source.dart';
 import 'package:wetravel/data/repository/user_repository_impl.dart';
@@ -57,10 +58,11 @@ final userProvider = FutureProvider((ref) async {
 
 final userStreamProvider = StreamProvider.autoDispose((ref) {
   final uid = FirebaseAuth.instance.currentUser?.uid;
+  final firestoreConstants = FirestoreConstants();
   if (uid == null) return Stream.value(null);
 
   return FirebaseFirestore.instance
-      .collection('users')
+      .collection(firestoreConstants.usersCollection)
       .doc(uid)
       .snapshots()
       .map((snapshot) {
@@ -71,12 +73,13 @@ final userStreamProvider = StreamProvider.autoDispose((ref) {
 // 현재 사용자의 schedules 컬렉션을 실시간으로 감시하는 provider
 final schedulesStreamProvider = StreamProvider<List<Schedule>>((ref) {
   final user = ref.watch(userProvider).value;
+  final firestoreConstants = FirestoreConstants();
   if (user == null) return Stream.value([]);
 
   return FirebaseFirestore.instance
-      .collection('users')
+      .collection(firestoreConstants.usersCollection)
       .doc(user.id)
-      .collection('schedule')
+      .collection(firestoreConstants.schedulesCollection)
       .snapshots()
       .map((snapshot) {
     print('Schedules collection data: ${snapshot.docs}');
@@ -91,15 +94,16 @@ final scheduleActionsProvider = Provider((ref) => ScheduleActions());
 
 // 스케줄 관리 클래스
 class ScheduleActions {
+  final firestoreConstants = FirestoreConstants();
   Future<void> addSchedule(Schedule schedule) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
     try {
       final schedulesRef = FirebaseFirestore.instance
-          .collection('users')
+          .collection(firestoreConstants.usersCollection)
           .doc(user.uid)
-          .collection('schedules');
+          .collection(firestoreConstants.schedulesCollection);
 
       print('Adding schedule with ID: ${schedule.id}');
       print('Schedule data: ${schedule.toJson()}');
@@ -118,9 +122,9 @@ class ScheduleActions {
 
     try {
       await FirebaseFirestore.instance
-          .collection('users')
+          .collection(firestoreConstants.usersCollection)
           .doc(user.uid)
-          .collection('schedules')
+          .collection(firestoreConstants.schedulesCollection)
           .doc(scheduleId)
           .delete();
 

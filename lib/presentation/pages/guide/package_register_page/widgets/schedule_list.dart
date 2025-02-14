@@ -18,6 +18,7 @@ class ScheduleList extends ConsumerWidget {
     required this.dayIndex,
     required this.onSave,
     required this.onDelete,
+    required this.onReorder,
   });
 
   final List<ScheduleDto> schedules;
@@ -26,26 +27,40 @@ class ScheduleList extends ConsumerWidget {
   final Function(String time, String title, String location, String content,
       int scheduleIndex) onSave;
   final Function(int dayIndex, int scheduleIndex) onDelete;
+  final Function(int oldIndex, int newIndex) onReorder;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scheduleViewModel = ref.watch(scheduleViewModelProvider);
 
-    return Column(
-      children: schedules.asMap().entries.map((entry) {
-        final schedule = entry.value;
+    return ReorderableListView.builder(
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      itemCount: schedules.length,
+      proxyDecorator: (child, index, animation) {
+        return Material(
+          color: Colors.transparent,
+          child: child,
+        );
+      },
+      onReorder: (oldIndex, newIndex) {
+        if (newIndex > oldIndex) newIndex--;
+        onReorder(oldIndex, newIndex);
+      },
+      itemBuilder: (context, index) {
+        final schedule = schedules[index];
 
         return Column(
+          key: ValueKey(schedule),
           children: [
             AnimatedContainer(
-              duration: Durations.medium2,
+              duration: Duration.zero,
               curve: Curves.easeInOut,
               padding: AppSpacing.medium16,
               decoration: ShapeDecoration(
                 color: Colors.white,
                 shape: RoundedRectangleBorder(
-                  borderRadius: AppBorderRadius.small12,
-                ),
+                    borderRadius: AppBorderRadius.small12),
                 shadows: AppShadow.generalShadow,
               ),
               child: ScheduleItem(
@@ -58,7 +73,7 @@ class ScheduleList extends ConsumerWidget {
                     .copyWith(color: AppColors.grayScale_650),
                 headlineStyle: AppTypography.headline5
                     .copyWith(color: AppColors.grayScale_950),
-                onDelete: () => onDelete(dayIndex, entry.key),
+                onDelete: () => onDelete(dayIndex, index),
                 onEdit: () {
                   showModalBottomSheet(
                     context: context,
@@ -75,25 +90,10 @@ class ScheduleList extends ConsumerWidget {
                         location: schedule.location,
                         content: schedule.content,
                         time: schedule.time,
-                        onSave: (
-                          title,
-                          location,
-                          time,
-                          description,
-                        ) {
+                        onSave: (title, location, time, description) {
                           scheduleViewModel.updateSchedule(
-                            time,
-                            title,
-                            location,
-                            description,
-                          );
-                          onSave(
-                            time,
-                            title,
-                            location,
-                            description,
-                            entry.key,
-                          );
+                              time, title, location, description);
+                          onSave(time, title, location, description, index);
                         },
                       );
                     },
@@ -104,7 +104,7 @@ class ScheduleList extends ConsumerWidget {
             SizedBox(height: 12)
           ],
         );
-      }).toList(),
+      },
     );
   }
 }

@@ -10,6 +10,7 @@ import 'package:wetravel/core/constants/app_icons.dart';
 import 'package:wetravel/core/constants/app_shadow.dart';
 import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
+import 'package:wetravel/core/constants/firestore_constants.dart';
 import 'package:wetravel/presentation/pages/guide/package_edit_page/package_edit_page.dart';
 import 'package:wetravel/presentation/pages/guide/package_register_page/package_register_page.dart';
 import 'package:wetravel/presentation/pages/guide_package_detail_page/package_detail_page.dart';
@@ -27,6 +28,7 @@ class GuidePackageListPage extends ConsumerStatefulWidget {
 }
 
 class _GuidePackageListPageState extends ConsumerState<GuidePackageListPage> {
+  final FirestoreConstants firestoreConstants = FirestoreConstants();
   bool showHiddenPackages = true;
 
   Future<Map<String, dynamic>> loadData(ref) async {
@@ -39,8 +41,8 @@ class _GuidePackageListPageState extends ConsumerState<GuidePackageListPage> {
       final packages = await fetchUserPackagesUsecase.execute(user.id);
 
       return {
-        'user': user,
-        'packages': packages,
+        firestoreConstants.usersCollection: user,
+        firestoreConstants.packagesCollection: packages,
       };
     } catch (e, stackTrace) {
       print('loadData 에러: $e');
@@ -52,7 +54,7 @@ class _GuidePackageListPageState extends ConsumerState<GuidePackageListPage> {
   Future<void> _toggleIsHidden(String packageId, bool currentStatus) async {
     try {
       await FirebaseFirestore.instance
-          .collection('packages')
+          .collection(firestoreConstants.packagesCollection)
           .doc(packageId)
           .update({'isHidden': !currentStatus});
 
@@ -67,7 +69,7 @@ class _GuidePackageListPageState extends ConsumerState<GuidePackageListPage> {
   Future<void> _deletePackage(String packageId) async {
     try {
       final packageDoc = await FirebaseFirestore.instance
-          .collection('packages')
+          .collection(firestoreConstants.packagesCollection)
           .doc(packageId)
           .get();
 
@@ -81,12 +83,12 @@ class _GuidePackageListPageState extends ConsumerState<GuidePackageListPage> {
       }
 
       final schedulesQuerySnapshot = await FirebaseFirestore.instance
-          .collection('schedules')
+          .collection(firestoreConstants.schedulesCollection)
           .where('packageId', isEqualTo: packageId)
           .get();
 
       await FirebaseFirestore.instance
-          .collection('packages')
+          .collection(firestoreConstants.packagesCollection)
           .doc(packageId)
           .delete();
 
@@ -140,7 +142,10 @@ class _GuidePackageListPageState extends ConsumerState<GuidePackageListPage> {
               future: loadData(ref),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(
+                      child: CircularProgressIndicator(
+                    color: AppColors.primary_450,
+                  ));
                 }
 
                 if (snapshot.hasError) {
@@ -153,8 +158,9 @@ class _GuidePackageListPageState extends ConsumerState<GuidePackageListPage> {
                   return const Center(child: Text('데이터가 없습니다.'));
                 }
 
-                final user = snapshot.data!['user'];
-                final packages = (snapshot.data!['packages'] as List)
+                final user = snapshot.data![firestoreConstants.usersCollection];
+                final packages = (snapshot
+                        .data![firestoreConstants.packagesCollection] as List)
                     .where((package) => package.isHidden == showHiddenPackages)
                     .toList();
 

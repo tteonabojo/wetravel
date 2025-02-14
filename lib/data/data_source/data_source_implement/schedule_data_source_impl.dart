@@ -22,7 +22,7 @@ class ScheduleDataSourceImpl extends FirestoreConstants
         'createdAt': FieldValue.serverTimestamp(),
         'days': schedule.days
             .map((day) => {
-                  'schedules': day.schedules
+                  schedulesCollection: day.schedules
                       .map((item) => {
                             'time': item.time,
                             'title': item.title,

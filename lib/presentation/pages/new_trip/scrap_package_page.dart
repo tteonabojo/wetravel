@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
+import 'package:wetravel/core/constants/firestore_constants.dart';
 import 'package:wetravel/presentation/pages/guide_package_detail_page/package_detail_page.dart';
 import 'package:wetravel/presentation/provider/package_provider.dart';
 import 'package:wetravel/presentation/provider/schedule_provider.dart';
@@ -37,7 +38,10 @@ class _ScrapPackagesPageState extends ConsumerState<ScrapPackagesPage> {
       stream: authStateStream,
       builder: (context, authSnapshot) {
         if (authSnapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(
+              child: CircularProgressIndicator(
+            color: AppColors.primary_450,
+          ));
         }
 
         if (authSnapshot.hasError) {
@@ -64,7 +68,10 @@ class _ScrapPackagesPageState extends ConsumerState<ScrapPackagesPage> {
               future: scrapPackagesFuture,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(
+                      child: CircularProgressIndicator(
+                    color: AppColors.primary_450,
+                  ));
                 }
                 if (snapshot.hasError) {
                   return Center(child: Text('오류 발생: ${snapshot.error}'));
@@ -152,6 +159,7 @@ Future<void> _checkAndRemoveNonExistentPackages(
   WidgetRef ref,
   List<dynamic> packages,
 ) async {
+  final firestoreConstants = FirestoreConstants();
   try {
     final firestore = FirebaseFirestore.instance;
     final auth = FirebaseAuth.instance;
@@ -162,7 +170,8 @@ Future<void> _checkAndRemoveNonExistentPackages(
       return;
     }
 
-    final userDocRef = firestore.collection('users').doc(userId);
+    final userDocRef =
+        firestore.collection(firestoreConstants.usersCollection).doc(userId);
 
     await firestore.runTransaction((transaction) async {
       final userDoc = await transaction.get(userDocRef);
@@ -174,7 +183,7 @@ Future<void> _checkAndRemoveNonExistentPackages(
       if (scrapIdList.isEmpty) return;
 
       final packageSnapshot = await firestore
-          .collection('packages')
+          .collection(firestoreConstants.packagesCollection)
           .where(FieldPath.documentId, whereIn: scrapIdList)
           .get();
 
@@ -198,6 +207,8 @@ Future<void> _checkAndRemoveNonExistentPackages(
 }
 
 Future<void> _removeScrapPackage(WidgetRef ref, String packageId) async {
+  final firestoreConstants = FirestoreConstants();
+
   try {
     final firestore = FirebaseFirestore.instance;
     final auth = FirebaseAuth.instance;
@@ -208,7 +219,8 @@ Future<void> _removeScrapPackage(WidgetRef ref, String packageId) async {
       return;
     }
 
-    final userDocRef = firestore.collection('users').doc(userId);
+    final userDocRef =
+        firestore.collection(firestoreConstants.usersCollection).doc(userId);
 
     await firestore.runTransaction((transaction) async {
       final userDoc = await transaction.get(userDocRef);

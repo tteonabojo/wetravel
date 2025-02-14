@@ -35,10 +35,12 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
   final GlobalKey<PackageHeaderState> _packageHeaderKey =
       GlobalKey<PackageHeaderState>();
   bool isLoading = false;
+  bool _showTooltip = false;
 
   @override
   void initState() {
     super.initState();
+    _showTooltip = false;
   }
 
   void _onDelete(int dayIndex, int scheduleIndex) {
@@ -46,6 +48,8 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
       _schedules[dayIndex].removeAt(scheduleIndex);
     });
   }
+
+  bool _isFirstAddSchedule = true;
 
   void _onAddSchedule() {
     if (_schedules[_selectedDay - 1].length < 9) {
@@ -56,6 +60,25 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
           'location': '',
           'content': '',
         });
+        _showTooltip = true;
+      });
+
+      if (_isFirstAddSchedule) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('일정 카드를 길게 눌러 순서변경이 가능합니다.'),
+            duration: Duration(seconds: 3),
+          ),
+        );
+        _isFirstAddSchedule = false;
+      }
+
+      Future.delayed(Duration(seconds: 3), () {
+        if (mounted) {
+          setState(() {
+            _showTooltip = false;
+          });
+        }
       });
     }
   }
@@ -300,12 +323,45 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
                                       );
                                     },
                                     onDelete: _onDelete,
+                                    onReorder: (oldIndex, newIndex) =>
+                                        _onReorderSchedule(_selectedDay - 1,
+                                            oldIndex, newIndex),
                                   ),
-                                  AddScheduleButton(
-                                    onPressed:
-                                        isLoading ? null : _onAddSchedule,
-                                    currentScheduleCount:
-                                        _schedules[_selectedDay - 1].length,
+                                  Stack(
+                                    children: [
+                                      AddScheduleButton(
+                                        onPressed:
+                                            isLoading ? null : _onAddSchedule,
+                                        currentScheduleCount:
+                                            _schedules[_selectedDay - 1].length,
+                                      ),
+                                      if (_showTooltip)
+                                        Positioned(
+                                          left: MediaQuery.of(context)
+                                                      .size
+                                                      .width /
+                                                  2 -
+                                              100, // 화면 중앙으로 정렬
+                                          top: MediaQuery.of(context)
+                                                      .size
+                                                      .height /
+                                                  2 -
+                                              50, // 화면 중앙으로 정렬
+                                          child: Container(
+                                            padding: EdgeInsets.all(8),
+                                            decoration: BoxDecoration(
+                                              color: Colors.black87,
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                            child: Text(
+                                              '일정을 추가하세요!',
+                                              style: TextStyle(
+                                                  color: Colors.white),
+                                            ),
+                                          ),
+                                        ),
+                                    ],
                                   ),
                                   if (_dayCount > 1)
                                     Column(
@@ -343,7 +399,9 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
           Container(
             color: Colors.black.withOpacity(0.5),
             child: Center(
-              child: CircularProgressIndicator(),
+              child: CircularProgressIndicator(
+                color: AppColors.primary_450,
+              ),
             ),
           ),
       ],
@@ -358,5 +416,12 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
         color: AppColors.grayScale_150,
       ),
     );
+  }
+
+  void _onReorderSchedule(int dayIndex, int oldIndex, int newIndex) {
+    setState(() {
+      final item = _schedules[dayIndex].removeAt(oldIndex);
+      _schedules[dayIndex].insert(newIndex, item);
+    });
   }
 }
