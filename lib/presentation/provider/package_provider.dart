@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wetravel/core/constants/firestore_constants.dart';
 import 'package:wetravel/core/di/injection_container.dart';
 import 'package:wetravel/data/data_source/data_source_implement/package_data_source_impl.dart';
 import 'package:wetravel/data/data_source/package_data_source.dart';
@@ -82,6 +83,7 @@ final watchRecentPackagesProvider = Provider(
 final scrapPackagesProvider = StreamProvider<List<Map<String, dynamic>>>((ref) {
   final firestore = FirebaseFirestore.instance;
   final auth = FirebaseAuth.instance;
+  final firestoreConstants = FirestoreConstants();
 
   final userId = auth.currentUser?.uid;
   print('호출됨 : $userId');
@@ -89,7 +91,8 @@ final scrapPackagesProvider = StreamProvider<List<Map<String, dynamic>>>((ref) {
     return Stream.value([]);
   }
 
-  final userDocRef = firestore.collection('users').doc(userId);
+  final userDocRef =
+      firestore.collection(firestoreConstants.usersCollection).doc(userId);
   print('호출됨');
 
   return userDocRef.snapshots().asyncMap((userSnapshot) async {
@@ -111,7 +114,7 @@ final scrapPackagesProvider = StreamProvider<List<Map<String, dynamic>>>((ref) {
           i, i + 10 > scrapIdList.length ? scrapIdList.length : i + 10);
 
       final packageDocs = await firestore
-          .collection('packages')
+          .collection(firestoreConstants.packagesCollection)
           .where(FieldPath.documentId, whereIn: batchIds)
           .get();
 

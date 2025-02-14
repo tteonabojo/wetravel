@@ -70,7 +70,7 @@ class MyApp extends StatelessWidget {
         '/ai-schedule': (context) => const AISchedulePage(),
         '/manual-planning': (context) => FilteredGuidePackagePage(),
         '/mypage': (context) => MyPage(),
-        '/saved-plans': (context) => const SavedPlansPage(),
+        '/saved-plans': (context) => SavedPlansPage(),
         '/saved-guide-plans': (context) => ScrapPackagesPage(),
       },
       onUnknownRoute: (settings) {

@@ -26,7 +26,7 @@ class PlanSelectionPage extends ConsumerWidget {
               ),
               const SizedBox(height: 20),
               const LinearProgressIndicator(
-                value: 0.75,
+                value: 5 / 6,
                 backgroundColor: AppColors.grayScale_150,
                 valueColor:
                     AlwaysStoppedAnimation<Color>(AppColors.primary_450),

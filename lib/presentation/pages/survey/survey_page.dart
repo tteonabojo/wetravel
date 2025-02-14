@@ -44,7 +44,7 @@ class _SurveyPageState extends ConsumerState<SurveyPage> {
               ),
               const SizedBox(height: 20),
               LinearProgressIndicator(
-                value: state.currentPage / 3,
+                value: (state.currentPage + 2) / 6,
                 backgroundColor: AppColors.grayScale_150,
                 valueColor:
                     const AlwaysStoppedAnimation<Color>(AppColors.primary_450),
@@ -173,12 +173,12 @@ class TravelPeriodPage extends ConsumerWidget {
               side: const BorderSide(style: BorderStyle.none),
               shape:
                   RoundedRectangleBorder(borderRadius: AppBorderRadius.large20),
-              backgroundColor: AppColors.grayScale_150,
+              backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
                 color: state.travelPeriod == '일주일 이내'
                     ? Colors.white
-                    : AppColors.grayScale_650,
+                    : AppColors.grayScale_350,
               ),
             ),
             FilterChip(
@@ -205,12 +205,12 @@ class TravelPeriodPage extends ConsumerWidget {
               side: const BorderSide(style: BorderStyle.none),
               shape:
                   RoundedRectangleBorder(borderRadius: AppBorderRadius.large20),
-              backgroundColor: AppColors.grayScale_150,
+              backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
                 color: state.travelPeriod == '1달 내'
                     ? Colors.white
-                    : AppColors.grayScale_650,
+                    : AppColors.grayScale_350,
               ),
             ),
             FilterChip(
@@ -237,12 +237,12 @@ class TravelPeriodPage extends ConsumerWidget {
               side: const BorderSide(style: BorderStyle.none),
               shape:
                   RoundedRectangleBorder(borderRadius: AppBorderRadius.large20),
-              backgroundColor: AppColors.grayScale_150,
+              backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
                 color: state.travelPeriod == '3개월'
                     ? Colors.white
-                    : AppColors.grayScale_650,
+                    : AppColors.grayScale_350,
               ),
             ),
             FilterChip(
@@ -269,12 +269,12 @@ class TravelPeriodPage extends ConsumerWidget {
               side: const BorderSide(style: BorderStyle.none),
               shape:
                   RoundedRectangleBorder(borderRadius: AppBorderRadius.large20),
-              backgroundColor: AppColors.grayScale_150,
+              backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
                 color: state.travelPeriod == '일정 계획 없음'
                     ? Colors.white
-                    : AppColors.grayScale_650,
+                    : AppColors.grayScale_350,
               ),
             ),
           ],
@@ -315,12 +315,12 @@ class TravelPeriodPage extends ConsumerWidget {
               side: const BorderSide(style: BorderStyle.none),
               shape:
                   RoundedRectangleBorder(borderRadius: AppBorderRadius.large20),
-              backgroundColor: AppColors.grayScale_150,
+              backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
                 color: state.travelDuration == '당일치기'
                     ? Colors.white
-                    : AppColors.grayScale_650,
+                    : AppColors.grayScale_350,
               ),
             ),
             FilterChip(
@@ -347,12 +347,12 @@ class TravelPeriodPage extends ConsumerWidget {
               side: const BorderSide(style: BorderStyle.none),
               shape:
                   RoundedRectangleBorder(borderRadius: AppBorderRadius.large20),
-              backgroundColor: AppColors.grayScale_150,
+              backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
                 color: state.travelDuration == '1박 2일'
                     ? Colors.white
-                    : AppColors.grayScale_650,
+                    : AppColors.grayScale_350,
               ),
             ),
             FilterChip(
@@ -379,12 +379,12 @@ class TravelPeriodPage extends ConsumerWidget {
               side: const BorderSide(style: BorderStyle.none),
               shape:
                   RoundedRectangleBorder(borderRadius: AppBorderRadius.large20),
-              backgroundColor: AppColors.grayScale_150,
+              backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
                 color: state.travelDuration == '2박 3일'
                     ? Colors.white
-                    : AppColors.grayScale_650,
+                    : AppColors.grayScale_350,
               ),
             ),
             FilterChip(
@@ -411,12 +411,12 @@ class TravelPeriodPage extends ConsumerWidget {
               side: const BorderSide(style: BorderStyle.none),
               shape:
                   RoundedRectangleBorder(borderRadius: AppBorderRadius.large20),
-              backgroundColor: AppColors.grayScale_150,
+              backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
                 color: state.travelDuration == '3박 4일'
                     ? Colors.white
-                    : AppColors.grayScale_650,
+                    : AppColors.grayScale_350,
               ),
             ),
             FilterChip(
@@ -443,12 +443,12 @@ class TravelPeriodPage extends ConsumerWidget {
               side: const BorderSide(style: BorderStyle.none),
               shape:
                   RoundedRectangleBorder(borderRadius: AppBorderRadius.large20),
-              backgroundColor: AppColors.grayScale_150,
+              backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
                 color: state.travelDuration == '4박 5일'
                     ? Colors.white
-                    : AppColors.grayScale_650,
+                    : AppColors.grayScale_350,
               ),
             ),
             FilterChip(
@@ -475,12 +475,12 @@ class TravelPeriodPage extends ConsumerWidget {
               side: const BorderSide(style: BorderStyle.none),
               shape:
                   RoundedRectangleBorder(borderRadius: AppBorderRadius.large20),
-              backgroundColor: AppColors.grayScale_150,
+              backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
                 color: state.travelDuration == '5박 6일'
                     ? Colors.white
-                    : AppColors.grayScale_650,
+                    : AppColors.grayScale_350,
               ),
             ),
           ],
@@ -555,12 +555,12 @@ class TravelStylePage extends ConsumerWidget {
               side: const BorderSide(style: BorderStyle.none),
               shape:
                   RoundedRectangleBorder(borderRadius: AppBorderRadius.large20),
-              backgroundColor: AppColors.grayScale_150,
+              backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
                 color: state.companions.contains('혼자')
                     ? Colors.white
-                    : AppColors.grayScale_650,
+                    : AppColors.grayScale_350,
               ),
             ),
             FilterChip(
@@ -587,12 +587,12 @@ class TravelStylePage extends ConsumerWidget {
               side: const BorderSide(style: BorderStyle.none),
               shape:
                   RoundedRectangleBorder(borderRadius: AppBorderRadius.large20),
-              backgroundColor: AppColors.grayScale_150,
+              backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
                 color: state.companions.contains('연인과')
                     ? Colors.white
-                    : AppColors.grayScale_650,
+                    : AppColors.grayScale_350,
               ),
             ),
             FilterChip(
@@ -619,12 +619,12 @@ class TravelStylePage extends ConsumerWidget {
               side: const BorderSide(style: BorderStyle.none),
               shape:
                   RoundedRectangleBorder(borderRadius: AppBorderRadius.large20),
-              backgroundColor: AppColors.grayScale_150,
+              backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
                 color: state.companions.contains('친구와')
                     ? Colors.white
-                    : AppColors.grayScale_650,
+                    : AppColors.grayScale_350,
               ),
             ),
             FilterChip(
@@ -651,12 +651,12 @@ class TravelStylePage extends ConsumerWidget {
               side: const BorderSide(style: BorderStyle.none),
               shape:
                   RoundedRectangleBorder(borderRadius: AppBorderRadius.large20),
-              backgroundColor: AppColors.grayScale_150,
+              backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
                 color: state.companions.contains('가족과')
                     ? Colors.white
-                    : AppColors.grayScale_650,
+                    : AppColors.grayScale_350,
               ),
             ),
           ],
@@ -698,12 +698,12 @@ class TravelStylePage extends ConsumerWidget {
               side: const BorderSide(style: BorderStyle.none),
               shape:
                   RoundedRectangleBorder(borderRadius: AppBorderRadius.large20),
-              backgroundColor: AppColors.grayScale_150,
+              backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
                 color: state.travelStyles.contains('액티비티')
                     ? Colors.white
-                    : AppColors.grayScale_650,
+                    : AppColors.grayScale_350,
               ),
             ),
             FilterChip(
@@ -730,12 +730,12 @@ class TravelStylePage extends ConsumerWidget {
               side: const BorderSide(style: BorderStyle.none),
               shape:
                   RoundedRectangleBorder(borderRadius: AppBorderRadius.large20),
-              backgroundColor: AppColors.grayScale_150,
+              backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
                 color: state.travelStyles.contains('휴양')
                     ? Colors.white
-                    : AppColors.grayScale_650,
+                    : AppColors.grayScale_350,
               ),
             ),
             FilterChip(
@@ -762,12 +762,12 @@ class TravelStylePage extends ConsumerWidget {
               side: const BorderSide(style: BorderStyle.none),
               shape:
                   RoundedRectangleBorder(borderRadius: AppBorderRadius.large20),
-              backgroundColor: AppColors.grayScale_150,
+              backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
                 color: state.travelStyles.contains('관광지')
                     ? Colors.white
-                    : AppColors.grayScale_650,
+                    : AppColors.grayScale_350,
               ),
             ),
             FilterChip(
@@ -794,12 +794,12 @@ class TravelStylePage extends ConsumerWidget {
               side: const BorderSide(style: BorderStyle.none),
               shape:
                   RoundedRectangleBorder(borderRadius: AppBorderRadius.large20),
-              backgroundColor: AppColors.grayScale_150,
+              backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
                 color: state.travelStyles.contains('맛집')
                     ? Colors.white
-                    : AppColors.grayScale_650,
+                    : AppColors.grayScale_350,
               ),
             ),
             FilterChip(
@@ -826,12 +826,12 @@ class TravelStylePage extends ConsumerWidget {
               side: const BorderSide(style: BorderStyle.none),
               shape:
                   RoundedRectangleBorder(borderRadius: AppBorderRadius.large20),
-              backgroundColor: AppColors.grayScale_150,
+              backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
                 color: state.travelStyles.contains('문화/예술/역사')
                     ? Colors.white
-                    : AppColors.grayScale_650,
+                    : AppColors.grayScale_350,
               ),
             ),
             FilterChip(
@@ -858,12 +858,12 @@ class TravelStylePage extends ConsumerWidget {
               side: const BorderSide(style: BorderStyle.none),
               shape:
                   RoundedRectangleBorder(borderRadius: AppBorderRadius.large20),
-              backgroundColor: AppColors.grayScale_150,
+              backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
                 color: state.travelStyles.contains('쇼핑')
                     ? Colors.white
-                    : AppColors.grayScale_650,
+                    : AppColors.grayScale_350,
               ),
             ),
           ],
@@ -950,12 +950,12 @@ class AccommodationPage extends ConsumerWidget {
               side: const BorderSide(style: BorderStyle.none),
               shape:
                   RoundedRectangleBorder(borderRadius: AppBorderRadius.large20),
-              backgroundColor: AppColors.grayScale_150,
+              backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
                 color: state.accommodationTypes.contains('호텔')
                     ? Colors.white
-                    : AppColors.grayScale_650,
+                    : AppColors.grayScale_350,
               ),
             ),
             FilterChip(
@@ -982,12 +982,12 @@ class AccommodationPage extends ConsumerWidget {
               side: const BorderSide(style: BorderStyle.none),
               shape:
                   RoundedRectangleBorder(borderRadius: AppBorderRadius.large20),
-              backgroundColor: AppColors.grayScale_150,
+              backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
                 color: state.accommodationTypes.contains('게스트 하우스')
                     ? Colors.white
-                    : AppColors.grayScale_650,
+                    : AppColors.grayScale_350,
               ),
             ),
             FilterChip(
@@ -1014,12 +1014,12 @@ class AccommodationPage extends ConsumerWidget {
               side: const BorderSide(style: BorderStyle.none),
               shape:
                   RoundedRectangleBorder(borderRadius: AppBorderRadius.large20),
-              backgroundColor: AppColors.grayScale_150,
+              backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
                 color: state.accommodationTypes.contains('에어비앤비')
                     ? Colors.white
-                    : AppColors.grayScale_650,
+                    : AppColors.grayScale_350,
               ),
             ),
             FilterChip(
@@ -1046,12 +1046,12 @@ class AccommodationPage extends ConsumerWidget {
               side: const BorderSide(style: BorderStyle.none),
               shape:
                   RoundedRectangleBorder(borderRadius: AppBorderRadius.large20),
-              backgroundColor: AppColors.grayScale_150,
+              backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
                 color: state.accommodationTypes.contains('캠핑')
                     ? Colors.white
-                    : AppColors.grayScale_650,
+                    : AppColors.grayScale_350,
               ),
             ),
           ],
@@ -1092,12 +1092,12 @@ class AccommodationPage extends ConsumerWidget {
               side: const BorderSide(style: BorderStyle.none),
               shape:
                   RoundedRectangleBorder(borderRadius: AppBorderRadius.large20),
-              backgroundColor: AppColors.grayScale_150,
+              backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
                 color: state.considerations.contains('가성비')
                     ? Colors.white
-                    : AppColors.grayScale_650,
+                    : AppColors.grayScale_350,
               ),
             ),
             FilterChip(
@@ -1124,12 +1124,12 @@ class AccommodationPage extends ConsumerWidget {
               side: const BorderSide(style: BorderStyle.none),
               shape:
                   RoundedRectangleBorder(borderRadius: AppBorderRadius.large20),
-              backgroundColor: AppColors.grayScale_150,
+              backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
                 color: state.considerations.contains('시설')
                     ? Colors.white
-                    : AppColors.grayScale_650,
+                    : AppColors.grayScale_350,
               ),
             ),
             FilterChip(
@@ -1156,12 +1156,12 @@ class AccommodationPage extends ConsumerWidget {
               side: const BorderSide(style: BorderStyle.none),
               shape:
                   RoundedRectangleBorder(borderRadius: AppBorderRadius.large20),
-              backgroundColor: AppColors.grayScale_150,
+              backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
                 color: state.considerations.contains('위치')
                     ? Colors.white
-                    : AppColors.grayScale_650,
+                    : AppColors.grayScale_350,
               ),
             ),
             FilterChip(
@@ -1188,12 +1188,12 @@ class AccommodationPage extends ConsumerWidget {
               side: const BorderSide(style: BorderStyle.none),
               shape:
                   RoundedRectangleBorder(borderRadius: AppBorderRadius.large20),
-              backgroundColor: AppColors.grayScale_150,
+              backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
                 color: state.considerations.contains('청결')
                     ? Colors.white
-                    : AppColors.grayScale_650,
+                    : AppColors.grayScale_350,
               ),
             ),
             FilterChip(
@@ -1220,12 +1220,12 @@ class AccommodationPage extends ConsumerWidget {
               side: const BorderSide(style: BorderStyle.none),
               shape:
                   RoundedRectangleBorder(borderRadius: AppBorderRadius.large20),
-              backgroundColor: AppColors.grayScale_150,
+              backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
                 color: state.considerations.contains('기온')
                     ? Colors.white
-                    : AppColors.grayScale_650,
+                    : AppColors.grayScale_350,
               ),
             ),
             FilterChip(
@@ -1252,12 +1252,12 @@ class AccommodationPage extends ConsumerWidget {
               side: const BorderSide(style: BorderStyle.none),
               shape:
                   RoundedRectangleBorder(borderRadius: AppBorderRadius.large20),
-              backgroundColor: AppColors.grayScale_150,
+              backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
                 color: state.considerations.contains('시차')
                     ? Colors.white
-                    : AppColors.grayScale_650,
+                    : AppColors.grayScale_350,
               ),
             ),
             FilterChip(
@@ -1284,12 +1284,12 @@ class AccommodationPage extends ConsumerWidget {
               side: const BorderSide(style: BorderStyle.none),
               shape:
                   RoundedRectangleBorder(borderRadius: AppBorderRadius.large20),
-              backgroundColor: AppColors.grayScale_150,
+              backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
                 color: state.considerations.contains('없음')
                     ? Colors.white
-                    : AppColors.grayScale_650,
+                    : AppColors.grayScale_350,
               ),
             ),
           ],

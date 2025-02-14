@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
+import 'package:wetravel/core/constants/firestore_constants.dart';
 import 'package:wetravel/domain/entity/package.dart';
 import 'package:wetravel/domain/entity/schedule.dart';
 import 'package:wetravel/domain/usecase/get_package_usecase.dart';
@@ -35,6 +36,7 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
   int selectedDay = 1;
   Package? package;
   Map<int, List<Schedule>> scheduleMap = {};
+  final FirestoreConstants firestoreConstants = FirestoreConstants();
 
   late final GetPackageUseCase getPackageUseCase;
   late final GetSchedulesUsecase getSchedulesUseCase;
@@ -89,8 +91,9 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
         return;
       }
 
-      final userRef =
-          FirebaseFirestore.instance.collection('users').doc(currentUser.uid);
+      final userRef = FirebaseFirestore.instance
+          .collection(firestoreConstants.usersCollection)
+          .doc(currentUser.uid);
 
       final userSnapshot = await userRef.get();
       if (userSnapshot.exists) {
@@ -118,8 +121,9 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
 
   Future<void> _incrementViewCount(String packageId) async {
     try {
-      final packageRef =
-          FirebaseFirestore.instance.collection('packages').doc(packageId);
+      final packageRef = FirebaseFirestore.instance
+          .collection(firestoreConstants.packagesCollection)
+          .doc(packageId);
 
       final packageSnapshot = await packageRef.get();
       if (packageSnapshot.exists) {
@@ -142,8 +146,9 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
         return;
       }
 
-      final userRef =
-          FirebaseFirestore.instance.collection('users').doc(currentUser.uid);
+      final userRef = FirebaseFirestore.instance
+          .collection(firestoreConstants.usersCollection)
+          .doc(currentUser.uid);
       final userSnapshot = await userRef.get();
       if (userSnapshot.exists) {
         final data = userSnapshot.data();
@@ -175,7 +180,9 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
       return const Scaffold(
         backgroundColor: Colors.white,
         body: Center(
-          child: CircularProgressIndicator(),
+          child: CircularProgressIndicator(
+            color: AppColors.primary_450,
+          ),
         ),
       );
     }
