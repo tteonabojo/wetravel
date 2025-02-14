@@ -249,26 +249,30 @@ class PackageItem extends StatelessWidget {
       child: Row(
         spacing: 6,
         children: [
-          Container(
-            width: 16,
-            height: 16,
-            decoration: ShapeDecoration(
-              image: DecorationImage(
-                image: guideImageUrl != null && guideImageUrl!.isNotEmpty
-                    ? NetworkImage(guideImageUrl!)
-                    : AssetImage("assets/images/sample_profile.jpg")
-                        as ImageProvider,
-                fit: BoxFit.cover,
-              ),
-              shape: CircleBorder(),
+          ClipOval(
+            child: Container(
+              width: 16,
+              height: 16,
+              color: AppColors.primary_250,
+              child: guideImageUrl?.isNotEmpty ?? false
+                  ? Image.network(
+                      guideImageUrl!,
+                      fit: BoxFit.cover,
+                    )
+                  : Container(
+                      margin: EdgeInsets.all(2),
+                      child: SvgPicture.asset(
+                        AppIcons.userRound,
+                        color: Colors.white,
+                      ),
+                    ),
             ),
           ),
           Expanded(
-            child: SizedBox(
-              child: Text(name!,
-                  style: AppTypography.body3.copyWith(
-                    color: AppColors.grayScale_750,
-                  )),
+            child: Text(
+              name?.trim().isNotEmpty ?? false ? name! : 'no name',
+              style:
+                  AppTypography.body3.copyWith(color: AppColors.grayScale_750),
             ),
           ),
         ],

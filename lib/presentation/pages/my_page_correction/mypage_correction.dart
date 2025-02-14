@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
+import 'package:wetravel/core/constants/firestore_constants.dart';
 import 'package:wetravel/presentation/widgets/custom_input_field.dart';
 import 'package:image/image.dart' as img;
 
@@ -22,6 +23,7 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final ImagePicker _picker = ImagePicker();
+  final firestoreConstants = FirestoreConstants();
 
   String? _userEmail;
   String? _imageUrl;
@@ -53,12 +55,15 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
       statusBarBrightness: Brightness.light,
     ));
   }
-  
+
   // Firestore에서 사용자 데이터 가져오기
   Future<void> _getUserData() async {
     User? user = _auth.currentUser;
     if (user != null) {
-      final doc = await _firestore.collection('users').doc(user.uid).get();
+      final doc = await _firestore
+          .collection(firestoreConstants.usersCollection)
+          .doc(user.uid)
+          .get();
       if (doc.exists) {
         final data = doc.data()!;
         setState(() {
@@ -120,7 +125,7 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
     print("이미지 URL 업데이트됨: $_imageUrl");
 
     // Firestore에 저장
-    await _firestore.collection('users').doc(user.uid).set(
+    await _firestore.collection(firestoreConstants.usersCollection).doc(user.uid).set(
       {'imageUrl': downloadUrl},
       SetOptions(merge: true),
     );
@@ -134,7 +139,10 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
     User? user = _auth.currentUser;
     if (user == null) return;
 
-    await _firestore.collection('users').doc(user.uid).set({
+    await _firestore
+        .collection(firestoreConstants.usersCollection)
+        .doc(user.uid)
+        .set({
       'name': _name,
       'intro': _intro,
       'imageUrl': _imageUrl,

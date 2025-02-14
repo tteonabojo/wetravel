@@ -8,6 +8,7 @@ import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_icons.dart';
 import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
+import 'package:wetravel/core/constants/firestore_constants.dart';
 import 'package:wetravel/data/dto/schedule_dto.dart';
 import 'package:wetravel/presentation/pages/guide/package_edit_page/edit_schedule_list.dart';
 import 'package:wetravel/presentation/pages/guide/package_edit_page/package_edit_image.dart';
@@ -30,6 +31,8 @@ class _PackageEditPageState extends State<PackageEditPage> {
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _durationController = TextEditingController();
 
+  final FirestoreConstants firestoreConstants = FirestoreConstants();
+
   String _selectedImagePath = "";
   String _title = '';
   List<String> _keywordList = [];
@@ -49,7 +52,7 @@ class _PackageEditPageState extends State<PackageEditPage> {
   Future<void> _loadPackageData() async {
     try {
       final doc = await FirebaseFirestore.instance
-          .collection('packages')
+          .collection(firestoreConstants.packagesCollection)
           .doc(widget.packageId)
           .get();
 
@@ -64,7 +67,7 @@ class _PackageEditPageState extends State<PackageEditPage> {
 
         for (String scheduleId in scheduleIdList) {
           final scheduleDoc = await FirebaseFirestore.instance
-              .collection('schedules')
+              .collection(firestoreConstants.schedulesCollection)
               .doc(scheduleId)
               .get();
 
@@ -111,7 +114,7 @@ class _PackageEditPageState extends State<PackageEditPage> {
 
       try {
         await FirebaseFirestore.instance
-            .collection('schedules')
+            .collection(firestoreConstants.schedulesCollection)
             .doc(scheduleToDelete.id)
             .delete();
         print('스케줄 삭제 성공: ${scheduleToDelete.id}');
@@ -194,7 +197,7 @@ class _PackageEditPageState extends State<PackageEditPage> {
 
     try {
       final schedulesToDeleteQuery = await FirebaseFirestore.instance
-          .collection('schedules')
+          .collection(firestoreConstants.schedulesCollection)
           .where('packageId', isEqualTo: widget.packageId)
           .where('day', isEqualTo: _selectedDay)
           .get();
@@ -297,7 +300,9 @@ class _PackageEditPageState extends State<PackageEditPage> {
       return const Scaffold(
         backgroundColor: Colors.white,
         body: Center(
-          child: CircularProgressIndicator(),
+          child: CircularProgressIndicator(
+            color: AppColors.primary_450,
+          ),
         ),
       );
     }
@@ -361,7 +366,6 @@ class _PackageEditPageState extends State<PackageEditPage> {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 20),
                     child: Column(
-                      spacing: 16,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         DayChipButton(
@@ -370,6 +374,7 @@ class _PackageEditPageState extends State<PackageEditPage> {
                           onSelectDay: _onSelectDay,
                           selectedDay: _selectedDay,
                         ),
+                        SizedBox(height: 16),
                         EditScheduleList(
                           schedules: _schedules[_selectedDay - 1],
                           totalScheduleCount:
@@ -383,6 +388,8 @@ class _PackageEditPageState extends State<PackageEditPage> {
                           onDelete: (dayIndex, scheduleIndex) {
                             _onDelete(dayIndex, scheduleIndex);
                           },
+                          onReorder: (oldIndex, newIndex) => _onReorderSchedule(
+                              _selectedDay - 1, oldIndex, newIndex),
                         ),
                         AddScheduleButton(
                           onPressed: _onAddSchedule,
@@ -422,5 +429,12 @@ class _PackageEditPageState extends State<PackageEditPage> {
         color: AppColors.grayScale_150,
       ),
     );
+  }
+
+  void _onReorderSchedule(int dayIndex, int oldIndex, int newIndex) {
+    setState(() {
+      final item = _schedules[dayIndex].removeAt(oldIndex);
+      _schedules[dayIndex].insert(newIndex, item);
+    });
   }
 }
