@@ -38,12 +38,9 @@ class NewTripPage extends ConsumerWidget {
                         Text(
                           '쉽고 빠르게\n여행 일정을 만들어볼까요?',
                           textAlign: TextAlign.center,
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineMedium
-                              ?.copyWith(
-                                color: AppColors.grayScale_950,
-                              ),
+                          style: AppTypography.headline4.copyWith(
+                            color: AppColors.grayScale_950,
+                          ),
                         ),
                         const SizedBox(height: 12),
                         Text(

@@ -75,6 +75,32 @@ class MainPageViewModel extends AutoDisposeNotifier<MainPageState> {
       state = state.copyWith(banners: []);
     }
   }
+
+  /// 데이터 새로고침 메서드
+  Future<void> refreshData() async {
+    try {
+      // 모든 데이터를 새로고침
+      final freshBanners =
+          await ref.read(fetchBannersUsecaseProvider).execute();
+      final freshRecentPackages =
+          await ref.read(watchRecentPackagesProvider).execute().first;
+      final freshPopularPackages =
+          await ref.read(fetchPopularPackagesProvider).execute();
+
+      state = state.copyWith(
+        banners: freshBanners,
+        recentPackages: freshRecentPackages,
+        popularPackages: freshPopularPackages,
+      );
+    } catch (e) {
+      // 오류 발생 시 처리
+      state = state.copyWith(
+        banners: [],
+        recentPackages: [],
+        popularPackages: [],
+      );
+    }
+  }
 }
 
 final mainPageViewModel =

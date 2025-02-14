@@ -89,6 +89,11 @@ final schedulesStreamProvider = StreamProvider<List<Schedule>>((ref) {
   });
 });
 
+final authStateChangesProvider = StreamProvider<User?>((ref) {
+  final firebaseAuth = ref.watch(_firebaseAuthProvider);
+  return firebaseAuth.authStateChanges(); // 인증 상태 변화를 실시간으로 추적
+});
+
 // 스케줄 관리를 위한 provider
 final scheduleActionsProvider = Provider((ref) => ScheduleActions());
 
