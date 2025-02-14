@@ -129,7 +129,6 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
       if (packageSnapshot.exists) {
         final currentViewCount = packageSnapshot.data()?['viewCount'] ?? 0;
         await packageRef.update({'viewCount': currentViewCount + 1});
-        print('viewCount가 증가했습니다: ${currentViewCount + 1}');
       } else {
         print('패키지 문서를 찾을 수 없습니다.');
       }

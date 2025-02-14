@@ -47,6 +47,12 @@ class _PackageEditPageState extends State<PackageEditPage> {
   void initState() {
     super.initState();
     _loadPackageData();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('일정 카드를 길게 눌러 순서변경이 가능합니다.')),
+      );
+    });
   }
 
   Future<void> _loadPackageData() async {
