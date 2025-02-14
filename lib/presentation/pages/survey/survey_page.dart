@@ -5,6 +5,7 @@ import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/domain/entity/survey_response.dart';
 import 'package:wetravel/presentation/provider/recommendation_provider.dart';
+import 'package:wetravel/presentation/provider/survey/survey_provider.dart';
 import 'package:wetravel/presentation/widgets/buttons/standard_button.dart';
 
 class SurveyPage extends ConsumerStatefulWidget {
@@ -20,9 +21,8 @@ class _SurveyPageState extends ConsumerState<SurveyPage> {
   @override
   void initState() {
     super.initState();
-    // 페이지 접속 시 상태 초기화
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(recommendationStateProvider.notifier).resetState();
+      ref.read(surveyStateProvider.notifier).resetState();
     });
   }
 
@@ -115,20 +115,28 @@ class TravelPeriodPage extends ConsumerWidget {
   const TravelPeriodPage({super.key, required this.pageController});
 
   void _checkAndNavigate(BuildContext context, WidgetRef ref) {
-    if (ref
-        .read(recommendationStateProvider.notifier)
-        .isCurrentPageComplete()) {
-      ref.read(recommendationStateProvider.notifier).nextPage();
-      pageController.nextPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
+    final state = ref.read(surveyStateProvider);
+    print('Travel Period Page - Selected values:');
+    print('Travel Period: ${state.travelPeriod}');
+    print('Travel Duration: ${state.travelDuration}');
+
+    // 여행 시기와 기간이 모두 선택되었을 때만 다음 페이지로 이동
+    if (state.travelPeriod != null && state.travelDuration != null) {
+      // 여행 시기와 기간이 서로 다른 카테고리에서 선택되었는지 확인
+      if (state.travelPeriod != state.travelDuration) {
+        // 서로 다른 값이 선택되었는지 확인
+        ref.read(surveyStateProvider.notifier).nextPage();
+        pageController.nextPage(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      }
     }
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(recommendationStateProvider);
+    final state = ref.watch(surveyStateProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -163,9 +171,9 @@ class TravelPeriodPage extends ConsumerWidget {
               selected: state.travelPeriod == '일주일 이내',
               onSelected: (selected) {
                 if (selected) {
-                  ref
-                      .read(recommendationStateProvider.notifier)
-                      .selectTravelPeriod('일주일 이내');
+                  final notifier = ref.read(surveyStateProvider.notifier);
+                  notifier.selectTravelPeriod('일주일 이내');
+                  print('Selected travel period: 일주일 이내');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -195,9 +203,9 @@ class TravelPeriodPage extends ConsumerWidget {
               selected: state.travelPeriod == '1달 내',
               onSelected: (selected) {
                 if (selected) {
-                  ref
-                      .read(recommendationStateProvider.notifier)
-                      .selectTravelPeriod('1달 내');
+                  final notifier = ref.read(surveyStateProvider.notifier);
+                  notifier.selectTravelPeriod('1달 내');
+                  print('Selected travel period: 1달 내');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -227,9 +235,9 @@ class TravelPeriodPage extends ConsumerWidget {
               selected: state.travelPeriod == '3개월',
               onSelected: (selected) {
                 if (selected) {
-                  ref
-                      .read(recommendationStateProvider.notifier)
-                      .selectTravelPeriod('3개월');
+                  final notifier = ref.read(surveyStateProvider.notifier);
+                  notifier.selectTravelPeriod('3개월');
+                  print('Selected travel period: 3개월');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -259,9 +267,9 @@ class TravelPeriodPage extends ConsumerWidget {
               selected: state.travelPeriod == '일정 계획 없음',
               onSelected: (selected) {
                 if (selected) {
-                  ref
-                      .read(recommendationStateProvider.notifier)
-                      .selectTravelPeriod('일정 계획 없음');
+                  final notifier = ref.read(surveyStateProvider.notifier);
+                  notifier.selectTravelPeriod('일정 계획 없음');
+                  print('Selected travel period: 일정 계획 없음');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -306,7 +314,7 @@ class TravelPeriodPage extends ConsumerWidget {
               onSelected: (selected) {
                 if (selected) {
                   ref
-                      .read(recommendationStateProvider.notifier)
+                      .read(surveyStateProvider.notifier)
                       .selectTravelDuration('당일치기');
                   _checkAndNavigate(context, ref);
                 }
@@ -338,7 +346,7 @@ class TravelPeriodPage extends ConsumerWidget {
               onSelected: (selected) {
                 if (selected) {
                   ref
-                      .read(recommendationStateProvider.notifier)
+                      .read(surveyStateProvider.notifier)
                       .selectTravelDuration('1박 2일');
                   _checkAndNavigate(context, ref);
                 }
@@ -370,7 +378,7 @@ class TravelPeriodPage extends ConsumerWidget {
               onSelected: (selected) {
                 if (selected) {
                   ref
-                      .read(recommendationStateProvider.notifier)
+                      .read(surveyStateProvider.notifier)
                       .selectTravelDuration('2박 3일');
                   _checkAndNavigate(context, ref);
                 }
@@ -402,7 +410,7 @@ class TravelPeriodPage extends ConsumerWidget {
               onSelected: (selected) {
                 if (selected) {
                   ref
-                      .read(recommendationStateProvider.notifier)
+                      .read(surveyStateProvider.notifier)
                       .selectTravelDuration('3박 4일');
                   _checkAndNavigate(context, ref);
                 }
@@ -434,7 +442,7 @@ class TravelPeriodPage extends ConsumerWidget {
               onSelected: (selected) {
                 if (selected) {
                   ref
-                      .read(recommendationStateProvider.notifier)
+                      .read(surveyStateProvider.notifier)
                       .selectTravelDuration('4박 5일');
                   _checkAndNavigate(context, ref);
                 }
@@ -466,7 +474,7 @@ class TravelPeriodPage extends ConsumerWidget {
               onSelected: (selected) {
                 if (selected) {
                   ref
-                      .read(recommendationStateProvider.notifier)
+                      .read(surveyStateProvider.notifier)
                       .selectTravelDuration('5박 6일');
                   _checkAndNavigate(context, ref);
                 }
@@ -497,10 +505,13 @@ class TravelStylePage extends ConsumerWidget {
   const TravelStylePage({super.key, required this.pageController});
 
   void _checkAndNavigate(BuildContext context, WidgetRef ref) {
-    if (ref
-        .read(recommendationStateProvider.notifier)
-        .isCurrentPageComplete()) {
-      ref.read(recommendationStateProvider.notifier).nextPage();
+    if (ref.read(surveyStateProvider.notifier).isCurrentPageComplete()) {
+      final state = ref.read(surveyStateProvider);
+      print('Travel Style Page - Selected values:');
+      print('Companion: ${state.companion}');
+      print('Travel Style: ${state.travelStyle}');
+
+      ref.read(surveyStateProvider.notifier).nextPage();
       pageController.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
@@ -510,7 +521,7 @@ class TravelStylePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(recommendationStateProvider);
+    final state = ref.watch(surveyStateProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -535,19 +546,17 @@ class TravelStylePage extends ConsumerWidget {
               label: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (state.companions.contains('혼자')) ...[
+                  if (state.companion == '혼자') ...[
                     const Icon(Icons.check, size: 16, color: Colors.white),
                     const SizedBox(width: 4),
                   ],
                   const Text('혼자'),
                 ],
               ),
-              selected: state.companions.contains('혼자'),
+              selected: state.companion == '혼자',
               onSelected: (selected) {
                 if (selected) {
-                  ref
-                      .read(recommendationStateProvider.notifier)
-                      .toggleCompanion('혼자');
+                  ref.read(surveyStateProvider.notifier).selectCompanion('혼자');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -558,7 +567,7 @@ class TravelStylePage extends ConsumerWidget {
               backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
-                color: state.companions.contains('혼자')
+                color: state.companion == '혼자'
                     ? Colors.white
                     : AppColors.grayScale_350,
               ),
@@ -567,19 +576,17 @@ class TravelStylePage extends ConsumerWidget {
               label: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (state.companions.contains('연인과')) ...[
+                  if (state.companion == '연인과') ...[
                     const Icon(Icons.check, size: 16, color: Colors.white),
                     const SizedBox(width: 4),
                   ],
                   const Text('연인과'),
                 ],
               ),
-              selected: state.companions.contains('연인과'),
+              selected: state.companion == '연인과',
               onSelected: (selected) {
                 if (selected) {
-                  ref
-                      .read(recommendationStateProvider.notifier)
-                      .toggleCompanion('연인과');
+                  ref.read(surveyStateProvider.notifier).selectCompanion('연인과');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -590,7 +597,7 @@ class TravelStylePage extends ConsumerWidget {
               backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
-                color: state.companions.contains('연인과')
+                color: state.companion == '연인과'
                     ? Colors.white
                     : AppColors.grayScale_350,
               ),
@@ -599,19 +606,17 @@ class TravelStylePage extends ConsumerWidget {
               label: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (state.companions.contains('친구와')) ...[
+                  if (state.companion == '친구와') ...[
                     const Icon(Icons.check, size: 16, color: Colors.white),
                     const SizedBox(width: 4),
                   ],
                   const Text('친구와'),
                 ],
               ),
-              selected: state.companions.contains('친구와'),
+              selected: state.companion == '친구와',
               onSelected: (selected) {
                 if (selected) {
-                  ref
-                      .read(recommendationStateProvider.notifier)
-                      .toggleCompanion('친구와');
+                  ref.read(surveyStateProvider.notifier).selectCompanion('친구와');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -622,7 +627,7 @@ class TravelStylePage extends ConsumerWidget {
               backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
-                color: state.companions.contains('친구와')
+                color: state.companion == '친구와'
                     ? Colors.white
                     : AppColors.grayScale_350,
               ),
@@ -631,19 +636,17 @@ class TravelStylePage extends ConsumerWidget {
               label: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (state.companions.contains('가족과')) ...[
+                  if (state.companion == '가족과') ...[
                     const Icon(Icons.check, size: 16, color: Colors.white),
                     const SizedBox(width: 4),
                   ],
                   const Text('가족과'),
                 ],
               ),
-              selected: state.companions.contains('가족과'),
+              selected: state.companion == '가족과',
               onSelected: (selected) {
                 if (selected) {
-                  ref
-                      .read(recommendationStateProvider.notifier)
-                      .toggleCompanion('가족과');
+                  ref.read(surveyStateProvider.notifier).selectCompanion('가족과');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -654,7 +657,7 @@ class TravelStylePage extends ConsumerWidget {
               backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
-                color: state.companions.contains('가족과')
+                color: state.companion == '가족과'
                     ? Colors.white
                     : AppColors.grayScale_350,
               ),
@@ -678,19 +681,19 @@ class TravelStylePage extends ConsumerWidget {
               label: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (state.travelStyles.contains('액티비티')) ...[
+                  if (state.travelStyle == '액티비티') ...[
                     const Icon(Icons.check, size: 16, color: Colors.white),
                     const SizedBox(width: 4),
                   ],
                   const Text('액티비티'),
                 ],
               ),
-              selected: state.travelStyles.contains('액티비티'),
+              selected: state.travelStyle == '액티비티',
               onSelected: (selected) {
                 if (selected) {
                   ref
-                      .read(recommendationStateProvider.notifier)
-                      .toggleTravelStyle('액티비티');
+                      .read(surveyStateProvider.notifier)
+                      .selectTravelStyle('액티비티');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -701,7 +704,7 @@ class TravelStylePage extends ConsumerWidget {
               backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
-                color: state.travelStyles.contains('액티비티')
+                color: state.travelStyle == '액티비티'
                     ? Colors.white
                     : AppColors.grayScale_350,
               ),
@@ -710,19 +713,19 @@ class TravelStylePage extends ConsumerWidget {
               label: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (state.travelStyles.contains('휴양')) ...[
+                  if (state.travelStyle == '휴양') ...[
                     const Icon(Icons.check, size: 16, color: Colors.white),
                     const SizedBox(width: 4),
                   ],
                   const Text('휴양'),
                 ],
               ),
-              selected: state.travelStyles.contains('휴양'),
+              selected: state.travelStyle == '휴양',
               onSelected: (selected) {
                 if (selected) {
                   ref
-                      .read(recommendationStateProvider.notifier)
-                      .toggleTravelStyle('휴양');
+                      .read(surveyStateProvider.notifier)
+                      .selectTravelStyle('휴양');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -733,7 +736,7 @@ class TravelStylePage extends ConsumerWidget {
               backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
-                color: state.travelStyles.contains('휴양')
+                color: state.travelStyle == '휴양'
                     ? Colors.white
                     : AppColors.grayScale_350,
               ),
@@ -742,19 +745,19 @@ class TravelStylePage extends ConsumerWidget {
               label: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (state.travelStyles.contains('관광지')) ...[
+                  if (state.travelStyle == '관광지') ...[
                     const Icon(Icons.check, size: 16, color: Colors.white),
                     const SizedBox(width: 4),
                   ],
                   const Text('관광지'),
                 ],
               ),
-              selected: state.travelStyles.contains('관광지'),
+              selected: state.travelStyle == '관광지',
               onSelected: (selected) {
                 if (selected) {
                   ref
-                      .read(recommendationStateProvider.notifier)
-                      .toggleTravelStyle('관광지');
+                      .read(surveyStateProvider.notifier)
+                      .selectTravelStyle('관광지');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -765,7 +768,7 @@ class TravelStylePage extends ConsumerWidget {
               backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
-                color: state.travelStyles.contains('관광지')
+                color: state.travelStyle == '관광지'
                     ? Colors.white
                     : AppColors.grayScale_350,
               ),
@@ -774,19 +777,19 @@ class TravelStylePage extends ConsumerWidget {
               label: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (state.travelStyles.contains('맛집')) ...[
+                  if (state.travelStyle == '맛집') ...[
                     const Icon(Icons.check, size: 16, color: Colors.white),
                     const SizedBox(width: 4),
                   ],
                   const Text('맛집'),
                 ],
               ),
-              selected: state.travelStyles.contains('맛집'),
+              selected: state.travelStyle == '맛집',
               onSelected: (selected) {
                 if (selected) {
                   ref
-                      .read(recommendationStateProvider.notifier)
-                      .toggleTravelStyle('맛집');
+                      .read(surveyStateProvider.notifier)
+                      .selectTravelStyle('맛집');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -797,7 +800,7 @@ class TravelStylePage extends ConsumerWidget {
               backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
-                color: state.travelStyles.contains('맛집')
+                color: state.travelStyle == '맛집'
                     ? Colors.white
                     : AppColors.grayScale_350,
               ),
@@ -806,19 +809,19 @@ class TravelStylePage extends ConsumerWidget {
               label: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (state.travelStyles.contains('문화/예술/역사')) ...[
+                  if (state.travelStyle == '문화/예술/역사') ...[
                     const Icon(Icons.check, size: 16, color: Colors.white),
                     const SizedBox(width: 4),
                   ],
                   const Text('문화/예술/역사'),
                 ],
               ),
-              selected: state.travelStyles.contains('문화/예술/역사'),
+              selected: state.travelStyle == '문화/예술/역사',
               onSelected: (selected) {
                 if (selected) {
                   ref
-                      .read(recommendationStateProvider.notifier)
-                      .toggleTravelStyle('문화/예술/역사');
+                      .read(surveyStateProvider.notifier)
+                      .selectTravelStyle('문화/예술/역사');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -829,7 +832,7 @@ class TravelStylePage extends ConsumerWidget {
               backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
-                color: state.travelStyles.contains('문화/예술/역사')
+                color: state.travelStyle == '문화/예술/역사'
                     ? Colors.white
                     : AppColors.grayScale_350,
               ),
@@ -838,19 +841,19 @@ class TravelStylePage extends ConsumerWidget {
               label: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (state.travelStyles.contains('쇼핑')) ...[
+                  if (state.travelStyle == '쇼핑') ...[
                     const Icon(Icons.check, size: 16, color: Colors.white),
                     const SizedBox(width: 4),
                   ],
                   const Text('쇼핑'),
                 ],
               ),
-              selected: state.travelStyles.contains('쇼핑'),
+              selected: state.travelStyle == '쇼핑',
               onSelected: (selected) {
                 if (selected) {
                   ref
-                      .read(recommendationStateProvider.notifier)
-                      .toggleTravelStyle('쇼핑');
+                      .read(surveyStateProvider.notifier)
+                      .selectTravelStyle('쇼핑');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -861,7 +864,7 @@ class TravelStylePage extends ConsumerWidget {
               backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
-                color: state.travelStyles.contains('쇼핑')
+                color: state.travelStyle == '쇼핑'
                     ? Colors.white
                     : AppColors.grayScale_350,
               ),
@@ -880,32 +883,45 @@ class AccommodationPage extends ConsumerWidget {
   const AccommodationPage({super.key, required this.pageController});
 
   void _checkAndNavigate(BuildContext context, WidgetRef ref) {
-    if (ref
-        .read(recommendationStateProvider.notifier)
-        .isCurrentPageComplete()) {
-      final state = ref.read(recommendationStateProvider);
-      final surveyResponse = SurveyResponse(
-        travelPeriod: state.travelPeriod!,
-        travelDuration: state.travelDuration!,
-        companions: state.companions,
-        travelStyles: state.travelStyles,
-        accommodationTypes: state.accommodationTypes,
-        considerations: state.considerations,
-        selectedCity:
-            state.selectedCities.isNotEmpty ? state.selectedCities.first : null,
-      );
+    if (ref.read(surveyStateProvider.notifier).isCurrentPageComplete()) {
+      final state = ref.read(surveyStateProvider);
+      print('Creating SurveyResponse from AccommodationPage:');
+      print('Travel Period: ${state.travelPeriod}');
+      print('Travel Duration: ${state.travelDuration}');
+      print('Companion: ${state.companion}');
+      print('Travel Style: ${state.travelStyle}');
+      print('Accommodation Type: ${state.accommodationType}');
+      print('Consideration: ${state.consideration}');
+      print('Selected City: ${state.selectedCities}');
 
-      Navigator.pushNamed(
-        context,
-        '/plan-selection',
-        arguments: surveyResponse,
-      );
+      // 마지막 페이지에서만 SurveyResponse 생성 및 네비게이션
+      if (state.currentPage == 2) {
+        final surveyResponse = SurveyResponse(
+          travelPeriod: state.travelPeriod ?? '',
+          travelDuration: state.travelDuration ?? '',
+          companions: state.companion != null ? [state.companion!] : [],
+          travelStyles: state.travelStyle != null ? [state.travelStyle!] : [],
+          accommodationTypes:
+              state.accommodationType != null ? [state.accommodationType!] : [],
+          considerations:
+              state.consideration != null ? [state.consideration!] : [],
+          selectedCity: state.selectedCities.isNotEmpty
+              ? state.selectedCities.first
+              : null,
+        );
+
+        Navigator.pushNamed(
+          context,
+          '/plan-selection',
+          arguments: surveyResponse,
+        );
+      }
     }
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(recommendationStateProvider);
+    final state = ref.watch(surveyStateProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -930,19 +946,19 @@ class AccommodationPage extends ConsumerWidget {
               label: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (state.accommodationTypes.contains('호텔')) ...[
+                  if (state.accommodationType == '호텔') ...[
                     const Icon(Icons.check, size: 16, color: Colors.white),
                     const SizedBox(width: 4),
                   ],
                   const Text('호텔'),
                 ],
               ),
-              selected: state.accommodationTypes.contains('호텔'),
+              selected: state.accommodationType == '호텔',
               onSelected: (selected) {
                 if (selected) {
                   ref
-                      .read(recommendationStateProvider.notifier)
-                      .toggleAccommodationType('호텔');
+                      .read(surveyStateProvider.notifier)
+                      .selectAccommodationType('호텔');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -953,7 +969,7 @@ class AccommodationPage extends ConsumerWidget {
               backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
-                color: state.accommodationTypes.contains('호텔')
+                color: state.accommodationType == '호텔'
                     ? Colors.white
                     : AppColors.grayScale_350,
               ),
@@ -962,19 +978,19 @@ class AccommodationPage extends ConsumerWidget {
               label: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (state.accommodationTypes.contains('게스트 하우스')) ...[
+                  if (state.accommodationType == '게스트 하우스') ...[
                     const Icon(Icons.check, size: 16, color: Colors.white),
                     const SizedBox(width: 4),
                   ],
                   const Text('게스트 하우스'),
                 ],
               ),
-              selected: state.accommodationTypes.contains('게스트 하우스'),
+              selected: state.accommodationType == '게스트 하우스',
               onSelected: (selected) {
                 if (selected) {
                   ref
-                      .read(recommendationStateProvider.notifier)
-                      .toggleAccommodationType('게스트 하우스');
+                      .read(surveyStateProvider.notifier)
+                      .selectAccommodationType('게스트 하우스');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -985,7 +1001,7 @@ class AccommodationPage extends ConsumerWidget {
               backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
-                color: state.accommodationTypes.contains('게스트 하우스')
+                color: state.accommodationType == '게스트 하우스'
                     ? Colors.white
                     : AppColors.grayScale_350,
               ),
@@ -994,19 +1010,19 @@ class AccommodationPage extends ConsumerWidget {
               label: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (state.accommodationTypes.contains('에어비앤비')) ...[
+                  if (state.accommodationType == '에어비앤비') ...[
                     const Icon(Icons.check, size: 16, color: Colors.white),
                     const SizedBox(width: 4),
                   ],
                   const Text('에어비앤비'),
                 ],
               ),
-              selected: state.accommodationTypes.contains('에어비앤비'),
+              selected: state.accommodationType == '에어비앤비',
               onSelected: (selected) {
                 if (selected) {
                   ref
-                      .read(recommendationStateProvider.notifier)
-                      .toggleAccommodationType('에어비앤비');
+                      .read(surveyStateProvider.notifier)
+                      .selectAccommodationType('에어비앤비');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -1017,7 +1033,7 @@ class AccommodationPage extends ConsumerWidget {
               backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
-                color: state.accommodationTypes.contains('에어비앤비')
+                color: state.accommodationType == '에어비앤비'
                     ? Colors.white
                     : AppColors.grayScale_350,
               ),
@@ -1026,19 +1042,19 @@ class AccommodationPage extends ConsumerWidget {
               label: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (state.accommodationTypes.contains('캠핑')) ...[
+                  if (state.accommodationType == '캠핑') ...[
                     const Icon(Icons.check, size: 16, color: Colors.white),
                     const SizedBox(width: 4),
                   ],
                   const Text('캠핑'),
                 ],
               ),
-              selected: state.accommodationTypes.contains('캠핑'),
+              selected: state.accommodationType == '캠핑',
               onSelected: (selected) {
                 if (selected) {
                   ref
-                      .read(recommendationStateProvider.notifier)
-                      .toggleAccommodationType('캠핑');
+                      .read(surveyStateProvider.notifier)
+                      .selectAccommodationType('캠핑');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -1049,7 +1065,7 @@ class AccommodationPage extends ConsumerWidget {
               backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
-                color: state.accommodationTypes.contains('캠핑')
+                color: state.accommodationType == '캠핑'
                     ? Colors.white
                     : AppColors.grayScale_350,
               ),
@@ -1072,19 +1088,19 @@ class AccommodationPage extends ConsumerWidget {
               label: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (state.considerations.contains('가성비')) ...[
+                  if (state.consideration == '가성비') ...[
                     const Icon(Icons.check, size: 16, color: Colors.white),
                     const SizedBox(width: 4),
                   ],
                   const Text('가성비'),
                 ],
               ),
-              selected: state.considerations.contains('가성비'),
+              selected: state.consideration == '가성비',
               onSelected: (selected) {
                 if (selected) {
                   ref
-                      .read(recommendationStateProvider.notifier)
-                      .toggleConsideration('가성비');
+                      .read(surveyStateProvider.notifier)
+                      .selectConsideration('가성비');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -1095,7 +1111,7 @@ class AccommodationPage extends ConsumerWidget {
               backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
-                color: state.considerations.contains('가성비')
+                color: state.consideration == '가성비'
                     ? Colors.white
                     : AppColors.grayScale_350,
               ),
@@ -1104,19 +1120,19 @@ class AccommodationPage extends ConsumerWidget {
               label: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (state.considerations.contains('시설')) ...[
+                  if (state.consideration == '시설') ...[
                     const Icon(Icons.check, size: 16, color: Colors.white),
                     const SizedBox(width: 4),
                   ],
                   const Text('시설'),
                 ],
               ),
-              selected: state.considerations.contains('시설'),
+              selected: state.consideration == '시설',
               onSelected: (selected) {
                 if (selected) {
                   ref
-                      .read(recommendationStateProvider.notifier)
-                      .toggleConsideration('시설');
+                      .read(surveyStateProvider.notifier)
+                      .selectConsideration('시설');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -1127,7 +1143,7 @@ class AccommodationPage extends ConsumerWidget {
               backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
-                color: state.considerations.contains('시설')
+                color: state.consideration == '시설'
                     ? Colors.white
                     : AppColors.grayScale_350,
               ),
@@ -1136,19 +1152,19 @@ class AccommodationPage extends ConsumerWidget {
               label: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (state.considerations.contains('위치')) ...[
+                  if (state.consideration == '위치') ...[
                     const Icon(Icons.check, size: 16, color: Colors.white),
                     const SizedBox(width: 4),
                   ],
                   const Text('위치'),
                 ],
               ),
-              selected: state.considerations.contains('위치'),
+              selected: state.consideration == '위치',
               onSelected: (selected) {
                 if (selected) {
                   ref
-                      .read(recommendationStateProvider.notifier)
-                      .toggleConsideration('위치');
+                      .read(surveyStateProvider.notifier)
+                      .selectConsideration('위치');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -1159,7 +1175,7 @@ class AccommodationPage extends ConsumerWidget {
               backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
-                color: state.considerations.contains('위치')
+                color: state.consideration == '위치'
                     ? Colors.white
                     : AppColors.grayScale_350,
               ),
@@ -1168,19 +1184,19 @@ class AccommodationPage extends ConsumerWidget {
               label: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (state.considerations.contains('청결')) ...[
+                  if (state.consideration == '청결') ...[
                     const Icon(Icons.check, size: 16, color: Colors.white),
                     const SizedBox(width: 4),
                   ],
                   const Text('청결'),
                 ],
               ),
-              selected: state.considerations.contains('청결'),
+              selected: state.consideration == '청결',
               onSelected: (selected) {
                 if (selected) {
                   ref
-                      .read(recommendationStateProvider.notifier)
-                      .toggleConsideration('청결');
+                      .read(surveyStateProvider.notifier)
+                      .selectConsideration('청결');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -1191,7 +1207,7 @@ class AccommodationPage extends ConsumerWidget {
               backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
-                color: state.considerations.contains('청결')
+                color: state.consideration == '청결'
                     ? Colors.white
                     : AppColors.grayScale_350,
               ),
@@ -1200,19 +1216,19 @@ class AccommodationPage extends ConsumerWidget {
               label: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (state.considerations.contains('기온')) ...[
+                  if (state.consideration == '기온') ...[
                     const Icon(Icons.check, size: 16, color: Colors.white),
                     const SizedBox(width: 4),
                   ],
                   const Text('기온'),
                 ],
               ),
-              selected: state.considerations.contains('기온'),
+              selected: state.consideration == '기온',
               onSelected: (selected) {
                 if (selected) {
                   ref
-                      .read(recommendationStateProvider.notifier)
-                      .toggleConsideration('기온');
+                      .read(surveyStateProvider.notifier)
+                      .selectConsideration('기온');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -1223,7 +1239,7 @@ class AccommodationPage extends ConsumerWidget {
               backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
-                color: state.considerations.contains('기온')
+                color: state.consideration == '기온'
                     ? Colors.white
                     : AppColors.grayScale_350,
               ),
@@ -1232,19 +1248,19 @@ class AccommodationPage extends ConsumerWidget {
               label: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (state.considerations.contains('시차')) ...[
+                  if (state.consideration == '시차') ...[
                     const Icon(Icons.check, size: 16, color: Colors.white),
                     const SizedBox(width: 4),
                   ],
                   const Text('시차'),
                 ],
               ),
-              selected: state.considerations.contains('시차'),
+              selected: state.consideration == '시차',
               onSelected: (selected) {
                 if (selected) {
                   ref
-                      .read(recommendationStateProvider.notifier)
-                      .toggleConsideration('시차');
+                      .read(surveyStateProvider.notifier)
+                      .selectConsideration('시차');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -1255,7 +1271,7 @@ class AccommodationPage extends ConsumerWidget {
               backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
-                color: state.considerations.contains('시차')
+                color: state.consideration == '시차'
                     ? Colors.white
                     : AppColors.grayScale_350,
               ),
@@ -1264,19 +1280,19 @@ class AccommodationPage extends ConsumerWidget {
               label: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (state.considerations.contains('없음')) ...[
+                  if (state.consideration == '없음') ...[
                     const Icon(Icons.check, size: 16, color: Colors.white),
                     const SizedBox(width: 4),
                   ],
                   const Text('없음'),
                 ],
               ),
-              selected: state.considerations.contains('없음'),
+              selected: state.consideration == '없음',
               onSelected: (selected) {
                 if (selected) {
                   ref
-                      .read(recommendationStateProvider.notifier)
-                      .toggleConsideration('없음');
+                      .read(surveyStateProvider.notifier)
+                      .selectConsideration('없음');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -1287,7 +1303,7 @@ class AccommodationPage extends ConsumerWidget {
               backgroundColor: AppColors.grayScale_050,
               selectedColor: AppColors.grayScale_650,
               labelStyle: TextStyle(
-                color: state.considerations.contains('없음')
+                color: state.consideration == '없음'
                     ? Colors.white
                     : AppColors.grayScale_350,
               ),

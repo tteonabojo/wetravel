@@ -15,6 +15,7 @@ class CustomInputField extends StatefulWidget {
   final int? minLines;
   final String? Function(String?)? validator;
   final FocusNode? focusNode;
+  final Alignment? counterAlignment; // Align 부분을 nullable로 변경
 
   const CustomInputField({
     super.key,
@@ -29,6 +30,7 @@ class CustomInputField extends StatefulWidget {
     this.minLines = 1,
     this.validator,
     this.focusNode,
+    this.counterAlignment, // Align 부분을 nullable로 변경
   });
 
   @override
@@ -42,7 +44,6 @@ class _InputFieldState extends State<CustomInputField> {
   @override
   void initState() {
     super.initState();
-    // 외부 컨트롤러가 있으면 사용하고, 없으면 내부에서 생성
     _controller = widget.controller ?? TextEditingController();
     _controller.addListener(_updateCurrentLength);
   }
@@ -51,7 +52,6 @@ class _InputFieldState extends State<CustomInputField> {
   void dispose() {
     _controller.removeListener(_updateCurrentLength);
     if (widget.controller == null) {
-      // 외부 컨트롤러가 아닌 경우에만 dispose
       _controller.dispose();
     }
     super.dispose();
@@ -118,18 +118,19 @@ class _InputFieldState extends State<CustomInputField> {
             ),
           ),
         ),
-        Align(
-          alignment: Alignment.centerRight,
-          child: Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: Text(
-              '$_currentLength / ${widget.maxLength}',
-              style: AppTypography.body2.copyWith(
-                color: AppColors.grayScale_350,
+        if (widget.counterAlignment != null)
+          Align(
+            alignment: widget.counterAlignment!,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                '$_currentLength / ${widget.maxLength}',
+                style: AppTypography.body2.copyWith(
+                  color: AppColors.grayScale_350,
+                ),
               ),
             ),
           ),
-        ),
       ],
     );
   }

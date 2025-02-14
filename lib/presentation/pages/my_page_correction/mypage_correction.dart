@@ -243,6 +243,7 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
               _buildProfileImage(),
               const SizedBox(height: 20),
               CustomInputField(
+                counterAlignment: Alignment.centerRight,
                 controller: _nameController,
                 hintText: _name.isNotEmpty ? _name : '닉네임을 입력하세요.',
                 maxLength: 15,
@@ -256,6 +257,7 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
               _buildEmailField(),
               const SizedBox(height: 20),
               CustomInputField(
+                counterAlignment: Alignment.centerRight,
                 controller: _introController,
                 hintText: '멋진 소개를 부탁드려요!',
                 maxLength: 100,
