@@ -41,6 +41,15 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
   void initState() {
     super.initState();
     _showTooltip = false;
+
+    if (_schedules[0].isEmpty) {
+      _schedules[0].add({
+        'time': '',
+        'title': '',
+        'location': '',
+        'content': '',
+      });
+    }
   }
 
   void _onDelete(int dayIndex, int scheduleIndex) {
