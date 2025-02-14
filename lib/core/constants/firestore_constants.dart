@@ -9,4 +9,5 @@ class FirestoreConstants {
   String get schedulesCollection =>
       isDebugMode ? 'schedules_test' : 'schedules';
   String get bannersCollection => isDebugMode ? 'banners_test' : 'banners';
+  String get noticesCollection => isDebugMode ? 'notices_test' : 'notices';
 }

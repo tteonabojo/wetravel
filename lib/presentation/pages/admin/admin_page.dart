@@ -20,8 +20,19 @@ import 'package:wetravel/presentation/provider/user_provider.dart';
 import 'package:wetravel/presentation/widgets/package_item.dart';
 
 final packagesProvider = StreamProvider<List<Package>>((ref) {
-  final fetchPackagesUsecase = ref.watch(fetchPackagesUsecaseProvider);
-  return fetchPackagesUsecase.watch();
+  final authState = ref.watch(authStateChangesProvider); // Firebase 인증 상태 감지
+
+  return authState.when(
+    data: (user) {
+      if (user == null) {
+        return Stream.value([]); // 유저가 없으면 빈 리스트 반환
+      }
+      final fetchPackagesUsecase = ref.watch(fetchPackagesUsecaseProvider);
+      return fetchPackagesUsecase.watch();
+    },
+    loading: () => Stream.value([]), // 로딩 중일 때 빈 리스트 반환
+    error: (_, __) => Stream.value([]), // 오류 발생 시 빈 리스트 반환
+  );
 });
 
 class AdminPage extends ConsumerStatefulWidget {

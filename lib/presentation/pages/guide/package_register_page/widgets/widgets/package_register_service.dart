@@ -172,6 +172,7 @@ class PackageRegisterService {
         'userName': userName,
         'userImageUrl': userImageUrl,
         'scheduleIdList': updatedScheduleIdList,
+        'isHidden': isHidden,
       });
     } catch (e) {
       throw Exception('패키지 업데이트 실패: $e');

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
@@ -36,6 +37,7 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
       GlobalKey<PackageHeaderState>();
   bool isLoading = false;
   bool _showTooltip = false;
+  bool isPublic = true;
 
   @override
   void initState() {
@@ -190,7 +192,7 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
           imageUrl: imageUrl,
           keywordList: _keywordList,
           scheduleList: scheduleList,
-          isHidden: true,
+          isHidden: !isPublic,
         );
 
         setState(() {
@@ -382,6 +384,36 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
                                         ),
                                       ],
                                     ),
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 8),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Padding(
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 8),
+                                          child: Text(
+                                            '공개하기',
+                                            style: AppTypography
+                                                .buttonLabelMedium
+                                                .copyWith(
+                                              color: AppColors.grayScale_650,
+                                            ),
+                                          ),
+                                        ),
+                                        CupertinoSwitch(
+                                          activeColor: AppColors.primary_450,
+                                          value: isPublic,
+                                          onChanged: (bool value) {
+                                            setState(() {
+                                              isPublic = value;
+                                            });
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                   const SizedBox(height: 40),
                                 ],
                               ),
@@ -406,10 +438,10 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
         ),
         if (isLoading)
           Container(
-            color: Colors.black.withOpacity(0.5),
+            color: Colors.black.withOpacity(0.25),
             child: Center(
               child: CircularProgressIndicator(
-                color: AppColors.primary_450,
+                color: Colors.white,
               ),
             ),
           ),

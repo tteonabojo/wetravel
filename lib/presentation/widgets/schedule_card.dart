@@ -73,7 +73,7 @@ class ScheduleCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${schedule.duration}일', // 기간 표시
+                        '${schedule.duration}', // 기간 표시
                         style: const TextStyle(
                           fontSize: 12,
                           color: Colors.grey,

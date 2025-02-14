@@ -30,6 +30,19 @@ class GuidePackageListPage extends ConsumerStatefulWidget {
 class _GuidePackageListPageState extends ConsumerState<GuidePackageListPage> {
   final FirestoreConstants firestoreConstants = FirestoreConstants();
   bool showHiddenPackages = true;
+  late Future<Map<String, dynamic>> _futureData;
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshData();
+  }
+
+  void _refreshData() {
+    setState(() {
+      _futureData = loadData(ref);
+    });
+  }
 
   Future<Map<String, dynamic>> loadData(ref) async {
     try {
@@ -139,7 +152,7 @@ class _GuidePackageListPageState extends ConsumerState<GuidePackageListPage> {
           ),
           Expanded(
             child: FutureBuilder<Map<String, dynamic>>(
-              future: loadData(ref),
+              future: _futureData,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
@@ -183,7 +196,7 @@ class _GuidePackageListPageState extends ConsumerState<GuidePackageListPage> {
                             BoxDecoration(boxShadow: AppShadow.generalShadow),
                         child: GestureDetector(
                           onTap: () async {
-                            Navigator.push(context, MaterialPageRoute(
+                            await Navigator.push(context, MaterialPageRoute(
                               builder: (context) {
                                 return PackageDetailPage(
                                   packageId: package.id,
@@ -192,6 +205,7 @@ class _GuidePackageListPageState extends ConsumerState<GuidePackageListPage> {
                                 );
                               },
                             ));
+                            _refreshData();
                           },
                           child: PackageItem(
                             icon: SvgPicture.asset(AppIcons.ellipsisVertical),
@@ -216,7 +230,7 @@ class _GuidePackageListPageState extends ConsumerState<GuidePackageListPage> {
                                                   PackageEditPage(
                                                     packageId: package.id,
                                                   )),
-                                        );
+                                        ).then((_) => _refreshData());
                                       },
                                       child: Text(
                                         '수정',
@@ -230,6 +244,7 @@ class _GuidePackageListPageState extends ConsumerState<GuidePackageListPage> {
                                         Navigator.pop(context);
                                         await _toggleIsHidden(
                                             package.id, package.isHidden);
+                                        _refreshData();
                                       },
                                       child: Text(
                                         package.isHidden ? '공개 전환' : '비공개 전환',
@@ -245,13 +260,7 @@ class _GuidePackageListPageState extends ConsumerState<GuidePackageListPage> {
                                       onPressed: () async {
                                         Navigator.pop(context);
                                         await _deletePackage(package.id);
-                                        ref.invalidate(
-                                            fetchUserPackagesUsecaseProvider);
-                                        await loadData(ref);
-                                        ref
-                                            .read(
-                                                fetchUserPackagesUsecaseProvider)
-                                            .execute(user.id);
+                                        _refreshData();
                                       },
                                       isDestructiveAction: true,
                                       child: Text(
