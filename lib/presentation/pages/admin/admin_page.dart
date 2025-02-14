@@ -10,6 +10,7 @@ import 'package:wetravel/core/constants/app_icons.dart';
 import 'package:wetravel/core/constants/app_shadow.dart';
 import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
+import 'package:wetravel/core/constants/firestore_constants.dart';
 import 'package:wetravel/domain/entity/package.dart';
 import 'package:wetravel/presentation/pages/guide/package_edit_page/package_edit_page.dart';
 import 'package:wetravel/presentation/pages/guide_package_detail_page/package_detail_page.dart';
@@ -32,6 +33,7 @@ class AdminPage extends ConsumerStatefulWidget {
 
 class _AdminPageState extends ConsumerState<AdminPage> {
   bool showHiddenPackages = false;
+  final FirestoreConstants firestoreConstants = FirestoreConstants();
 
   @override
   Widget build(BuildContext context) {
@@ -170,7 +172,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   Future<void> _toggleIsHidden(String packageId, bool currentStatus) async {
     try {
       await FirebaseFirestore.instance
-          .collection('packages')
+          .collection(firestoreConstants.packagesCollection)
           .doc(packageId)
           .update({'isHidden': !currentStatus});
 
@@ -185,7 +187,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   Future<void> _deletePackage(String packageId) async {
     try {
       final packageDoc = await FirebaseFirestore.instance
-          .collection('packages')
+          .collection(firestoreConstants.packagesCollection)
           .doc(packageId)
           .get();
 
@@ -199,12 +201,12 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       }
 
       final schedulesQuerySnapshot = await FirebaseFirestore.instance
-          .collection('schedules')
+          .collection(firestoreConstants.schedulesCollection)
           .where('packageId', isEqualTo: packageId)
           .get();
 
       await FirebaseFirestore.instance
-          .collection('packages')
+          .collection(firestoreConstants.packagesCollection)
           .doc(packageId)
           .delete();
 
@@ -228,8 +230,8 @@ class _AdminPageState extends ConsumerState<AdminPage> {
       final packages = await fetchUserPackagesUsecase.execute(user.id);
 
       return {
-        'user': user,
-        'packages': packages,
+        firestoreConstants.usersCollection: user,
+        firestoreConstants.packagesCollection: packages,
       };
     } catch (e, stackTrace) {
       print('loadData 에러: $e');

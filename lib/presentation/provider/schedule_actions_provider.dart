@@ -1,8 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wetravel/core/constants/firestore_constants.dart';
 
 class ScheduleActions {
+  final firestoreConstants = FirestoreConstants();
+
   Future<void> deleteSchedule(String scheduleId) async {
     try {
       final user = FirebaseAuth.instance.currentUser;
@@ -11,9 +14,9 @@ class ScheduleActions {
       print('Deleting schedule: $scheduleId for user: ${user.uid}');
 
       await FirebaseFirestore.instance
-          .collection('users')
+          .collection(firestoreConstants.usersCollection)
           .doc(user.uid)
-          .collection('schedule')
+          .collection(firestoreConstants.schedulesCollection)
           .doc(scheduleId)
           .delete();
 

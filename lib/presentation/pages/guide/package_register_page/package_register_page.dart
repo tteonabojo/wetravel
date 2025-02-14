@@ -40,17 +40,7 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration(milliseconds: 500), () {
-      setState(() {
-        _showTooltip = true;
-      });
-
-      Future.delayed(Duration(seconds: 3), () {
-        setState(() {
-          _showTooltip = false;
-        });
-      });
-    });
+    _showTooltip = false;
   }
 
   void _onDelete(int dayIndex, int scheduleIndex) {
@@ -58,6 +48,8 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
       _schedules[dayIndex].removeAt(scheduleIndex);
     });
   }
+
+  bool _isFirstAddSchedule = true;
 
   void _onAddSchedule() {
     if (_schedules[_selectedDay - 1].length < 9) {
@@ -68,6 +60,25 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
           'location': '',
           'content': '',
         });
+        _showTooltip = true;
+      });
+
+      if (_isFirstAddSchedule) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('일정 카드를 길게 눌러 순서변경이 가능합니다.'),
+            duration: Duration(seconds: 3),
+          ),
+        );
+        _isFirstAddSchedule = false;
+      }
+
+      Future.delayed(Duration(seconds: 3), () {
+        if (mounted) {
+          setState(() {
+            _showTooltip = false;
+          });
+        }
       });
     }
   }
@@ -326,8 +337,16 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
                                       ),
                                       if (_showTooltip)
                                         Positioned(
-                                          right: 0,
-                                          bottom: 50,
+                                          left: MediaQuery.of(context)
+                                                      .size
+                                                      .width /
+                                                  2 -
+                                              100, // 화면 중앙으로 정렬
+                                          top: MediaQuery.of(context)
+                                                      .size
+                                                      .height /
+                                                  2 -
+                                              50, // 화면 중앙으로 정렬
                                           child: Container(
                                             padding: EdgeInsets.all(8),
                                             decoration: BoxDecoration(

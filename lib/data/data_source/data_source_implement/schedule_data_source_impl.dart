@@ -16,13 +16,13 @@ class ScheduleDataSourceImpl extends FirestoreConstants
       await _firestore
           .collection(usersCollection)
           .doc(userId)
-          .collection('schedules')
+          .collection(schedulesCollection)
           .add({
         'destination': schedule.destination,
         'createdAt': FieldValue.serverTimestamp(),
         'days': schedule.days
             .map((day) => {
-                  'schedules': day.schedules
+                  schedulesCollection: day.schedules
                       .map((item) => {
                             'time': item.time,
                             'title': item.title,
@@ -60,7 +60,7 @@ class ScheduleDataSourceImpl extends FirestoreConstants
       final snapshot = await _firestore
           .collection(usersCollection)
           .doc(userId)
-          .collection('schedules')
+          .collection(schedulesCollection)
           .orderBy('createdAt', descending: true)
           .get();
 

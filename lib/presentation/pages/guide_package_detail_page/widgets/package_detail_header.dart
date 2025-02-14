@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:wetravel/core/constants/app_border_radius.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_icons.dart';
+import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 
 class PackageDetailHeader extends StatelessWidget {
@@ -39,30 +39,33 @@ class PackageDetailHeader extends StatelessWidget {
             width: double.infinity,
             child: Row(
               children: [
-                Container(
-                  width: 24,
-                  height: 24,
-                  decoration: ShapeDecoration(
-                    image: DecorationImage(
-                      image: (userImageUrl != null &&
-                              userImageUrl!.startsWith('http'))
-                          ? NetworkImage(userImageUrl!)
-                          : const AssetImage('assets/images/sample_profile.jpg')
-                              as ImageProvider,
-                      fit: BoxFit.cover,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: AppBorderRadius.small12,
-                    ),
+                ClipOval(
+                  child: Container(
+                    width: 24,
+                    height: 24,
+                    color: AppColors.primary_250,
+                    child: userImageUrl?.isNotEmpty ?? false
+                        ? Image.network(
+                            userImageUrl!,
+                            fit: BoxFit.cover,
+                          )
+                        : Container(
+                            margin: AppSpacing.small4,
+                            child: SvgPicture.asset(
+                              AppIcons.userRound,
+                              color: Colors.white,
+                            ),
+                          ),
                   ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    userName ?? '작성자 없음',
-                    style: AppTypography.body2.copyWith(
-                      color: AppColors.grayScale_950,
-                    ),
+                    userName?.trim().isNotEmpty ?? false
+                        ? userName!
+                        : 'no name',
+                    style: AppTypography.body2
+                        .copyWith(color: AppColors.grayScale_950),
                   ),
                 ),
               ],

@@ -8,6 +8,7 @@ import 'package:wetravel/core/constants/app_icons.dart';
 import 'package:wetravel/core/constants/app_shadow.dart';
 import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
+import 'package:wetravel/core/constants/firestore_constants.dart';
 import 'package:wetravel/domain/entity/survey_response.dart';
 import 'package:wetravel/domain/entity/travel_schedule.dart';
 import 'package:wetravel/presentation/provider/schedule_provider.dart';
@@ -23,6 +24,8 @@ class AISchedulePage extends ConsumerStatefulWidget {
 }
 
 class _AISchedulePageState extends ConsumerState<AISchedulePage> {
+  final firestoreConstants = FirestoreConstants();
+
   @override
   Widget build(BuildContext context) {
     final surveyResponse =
@@ -284,9 +287,9 @@ class _AISchedulePageState extends ConsumerState<AISchedulePage> {
       };
 
       await FirebaseFirestore.instance
-          .collection('users')
+          .collection(firestoreConstants.usersCollection)
           .doc(user.uid)
-          .collection('schedule')
+          .collection(firestoreConstants.schedulesCollection)
           .doc(id)
           .set(scheduleData);
 

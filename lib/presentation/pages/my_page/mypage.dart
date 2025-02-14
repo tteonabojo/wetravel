@@ -10,6 +10,7 @@ import 'package:wetravel/core/constants/app_icons.dart';
 import 'package:wetravel/core/constants/app_shadow.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
+import 'package:wetravel/core/constants/firestore_constants.dart';
 import 'package:wetravel/presentation/pages/admin/admin_page.dart';
 import 'package:wetravel/presentation/pages/my_page_correction/mypage_correction.dart';
 import 'package:wetravel/presentation/provider/user_provider.dart';
@@ -343,6 +344,7 @@ void _showDeleteAccountDialog(BuildContext context, WidgetRef ref) {
 }
 
 Future<void> deleteUserAccount(BuildContext context, WidgetRef ref) async {
+  final firestoreConstants = FirestoreConstants();
   final user = FirebaseAuth.instance.currentUser;
   if (user == null) {
     print("로그인이 필요합니다.");
@@ -353,12 +355,15 @@ Future<void> deleteUserAccount(BuildContext context, WidgetRef ref) async {
     await _reauthenticateUser(user);
 
     final userDoc = await FirebaseFirestore.instance
-        .collection('users')
+        .collection(firestoreConstants.usersCollection)
         .doc(user.uid)
         .get();
     final profileImageUrl = userDoc.data()?['profileImageUrl'] as String? ?? '';
 
-    await FirebaseFirestore.instance.collection('users').doc(user.uid).delete();
+    await FirebaseFirestore.instance
+        .collection(firestoreConstants.usersCollection)
+        .doc(user.uid)
+        .delete();
     print("Firestore 사용자 데이터 삭제 완료");
 
     if (profileImageUrl.isNotEmpty) {
