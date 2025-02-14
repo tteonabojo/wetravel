@@ -34,6 +34,7 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
   bool _isIntroValid = false;
   String _initialName = "";
   String _initialIntro = "";
+  bool _isUploading = false; // 업로드 중인지 확인 하는 변수
 
   TextEditingController _nameController = TextEditingController();
   TextEditingController _introController = TextEditingController();
@@ -84,7 +85,7 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
   // 이미지 선택 및 Firebase Storage 업로드
   Future<void> _pickImage() async {
     final XFile? pickedFile =
-        await _picker.pickImage(source: ImageSource.gallery);
+    await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile == null) return;
 
     File imageFile = File(pickedFile.path);
@@ -95,45 +96,44 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
 
   // Firebase Storage에 이미지 업로드 후 URL 반환
   Future<void> _uploadImageToFirebase(File image) async {
-    User? user = _auth.currentUser;
-    if (user == null) return;
+  if (_isUploading) return; // 이미 업로드 중이면 실행하지 않음
+  _isUploading = true;
 
-    try {
-      // 이미지 파일을 Uint8List로 변환
-      Uint8List imageBytes = await image.readAsBytesSync();
+  User? user = _auth.currentUser;
+  if (user == null) return;
 
-      // 이미지 디코딩 및 리사이징 (300*300)
-      img.Image? originalImage = img.decodeImage(imageBytes);
-      if (originalImage == null) throw Exception("이미지 디코딩 실패");
+  try {
+    Uint8List imageBytes = await image.readAsBytes();
+    img.Image? originalImage = img.decodeImage(imageBytes);
+    if (originalImage == null) throw Exception("이미지 디코딩 실패");
 
-      img.Image resizedImage =
-          img.copyResize(originalImage, width: 300, height: 300);
+    img.Image resizedImage = img.copyResize(originalImage, width: 300, height: 300);
+    Uint8List compressedImage = Uint8List.fromList(img.encodeJpg(resizedImage, quality: 85));
 
-      // JPG로 변환 및 품질 85%로 설정
-      Uint8List compressedImage =
-          Uint8List.fromList(img.encodeJpg(resizedImage, quality: 85));
+    String filePath = 'profile_images/${user.uid}.jpg';
+    Reference storageRef = FirebaseStorage.instance.ref().child(filePath);
+    
+    UploadTask uploadTask = storageRef.putData(compressedImage);
+    TaskSnapshot snapshot = await uploadTask.whenComplete(() => {}); // 완료될 때까지 기다림
+    String downloadUrl = await snapshot.ref.getDownloadURL();
 
-      // Firebase Storage에 업로드
-      String filePath = 'profile_images/${user.uid}.jpg';
-      UploadTask uploadTask =
-          FirebaseStorage.instance.ref(filePath).putData(compressedImage);
-      TaskSnapshot snapshot = await uploadTask;
-      String downloadUrl = await snapshot.ref.getDownloadURL();
+    setState(() {
+      _imageUrl = downloadUrl;
+      _isUploading = false; // 업로드 완료 후 플래그 해제
+    });
 
-      setState(() => _imageUrl = downloadUrl);
+    print("이미지 URL 업데이트됨: $_imageUrl");
 
-      // Firestore에 이미지 URL 저장
-      await _firestore
-          .collection(firestoreConstants.usersCollection)
-          .doc(user.uid)
-          .update({
-        'imageUrl': downloadUrl,
-      });
-    } catch (e) {
-      print("이미지 업로드 오류: $e");
-    }
+    // Firestore에 저장
+    await _firestore.collection(firestoreConstants.usersCollection).doc(user.uid).set(
+      {'imageUrl': downloadUrl},
+      SetOptions(merge: true),
+    );
+  } catch (e) {
+    print("이미지 업로드 오류: $e");
+    _isUploading = false; // 에러 발생 시 플래그 해제
   }
-
+}
   // 사용자 정보 Firestore에 저장
   Future<void> _saveUserInfo() async {
     User? user = _auth.currentUser;
@@ -245,7 +245,7 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
               CustomInputField(
                 counterAlignment: Alignment.centerRight,
                 controller: _nameController,
-                hintText: _name.isNotEmpty ? _name : '샘플',
+                hintText: _name.isNotEmpty ? _name : '닉네임을 입력하세요.',
                 maxLength: 15,
                 labelText: '닉네임',
                 onChanged: (value) => setState(() {
@@ -279,13 +279,15 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
   }
 
   // 프로필 이미지 위젯
-  Widget _buildProfileImage() {
-    bool isValidUrl = _imageUrl != null && _imageUrl!.startsWith('http');
+Widget _buildProfileImage() {
+  bool isValidUrl = _imageUrl != null && _imageUrl!.startsWith('http');
 
-    return Center(
-      child: Stack(
-        children: [
-          ClipOval(
+  return Center(
+    child: Stack(
+      children: [
+        GestureDetector( // 프로필 이미지 전체를 클릭 가능하게 변경
+          onTap: _pickImage,
+          child: ClipOval(
             child: Container(
               width: 82,
               height: 82,
@@ -308,26 +310,27 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
                     ),
             ),
           ),
-          Positioned(
-            bottom: 0,
-            right: 0,
-            child: InkWell(
-              onTap: _pickImage,
-              child: Container(
-                padding: const EdgeInsets.all(6),
-                decoration: const BoxDecoration(
-                  color: Colors.grey,
-                  shape: BoxShape.circle,
-                ),
-                child:
-                    const Icon(Icons.camera_alt, color: Colors.white, size: 20),
+        ),
+        Positioned(
+          bottom: 0,
+          right: 0,
+          child: InkWell(
+            onTap: _pickImage, // 기존 아이콘 클릭 기능 유지
+            child: Container(
+              padding: const EdgeInsets.all(6),
+              decoration: const BoxDecoration(
+                color: Colors.grey,
+                shape: BoxShape.circle,
               ),
+              child:
+                  const Icon(Icons.camera_alt, color: Colors.white, size: 20),
             ),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
 
   // 이메일 필드
   Widget _buildEmailField() {
