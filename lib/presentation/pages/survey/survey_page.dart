@@ -4,6 +4,7 @@ import 'package:wetravel/core/constants/app_border_radius.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/domain/entity/survey_response.dart';
+import 'package:wetravel/presentation/provider/recommendation_provider.dart';
 import 'package:wetravel/presentation/provider/survey/survey_provider.dart';
 import 'package:wetravel/presentation/widgets/buttons/standard_button.dart';
 
@@ -89,18 +90,17 @@ class _SurveyPageState extends ConsumerState<SurveyPage> {
                                 : null,
                           );
 
-                            Navigator.pushNamed(
-                              context,
-                              '/plan-selection',
-                              arguments: surveyResponse,
-                            );
-                          }
+                          Navigator.pushNamed(
+                            context,
+                            '/plan-selection',
+                            arguments: surveyResponse,
+                          );
                         }
-                      },
-                      text: '다음으로'),
-                ),
-              ],
-            ),
+                      }
+                    },
+                    text: '다음으로'),
+              ),
+            ],
           ),
         ),
       ),

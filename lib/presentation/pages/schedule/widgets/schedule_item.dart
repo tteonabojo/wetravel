@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
+import 'package:wetravel/core/constants/app_border_radius.dart';
+import 'package:wetravel/core/constants/app_shadow.dart';
+import 'package:wetravel/core/constants/app_spacing.dart';
+import 'package:wetravel/core/constants/app_typography.dart';
+import 'package:wetravel/core/constants/app_icons.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class ScheduleItem extends StatelessWidget {
   final String time;
@@ -21,82 +27,48 @@ class ScheduleItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return Container(
       key: itemKey,
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
-        decoration: BoxDecoration(
-          color: AppColors.grayScale_150,
-          borderRadius: BorderRadius.circular(12),
-          border: isEditMode
-              ? Border.all(color: AppColors.primary_550, width: 2)
-              : null,
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: _buildContent(),
-            ),
-            if (isEditMode) ...[
-              Padding(
-                padding: const EdgeInsets.only(right: 8.0),
-                child: Icon(
-                  Icons.edit,
-                  color: AppColors.grayScale_450,
-                  size: 20,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Icon(
-                  Icons.drag_handle,
-                  color: AppColors.grayScale_450,
-                ),
-              ),
-            ],
-          ],
-        ),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: AppBorderRadius.small12,
+        boxShadow: AppShadow.generalShadow,
       ),
-    );
-  }
-
-  Widget _buildContent() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: AppSpacing.medium16,
+      child: Row(
         children: [
-          Text(
-            time,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Row(
-            children: [
-              Icon(Icons.location_on_outlined,
-                  color: Colors.grey[600], size: 16),
-              const SizedBox(width: 4),
-              Text(
-                location,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
+          Expanded(
+            child: Column(
+              spacing: 8,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(time,
+                    style: AppTypography.body2
+                        .copyWith(color: AppColors.grayScale_950)),
+                Text(title,
+                    style: AppTypography.headline5
+                        .copyWith(color: AppColors.grayScale_950)),
+                Row(
+                  spacing: 4,
+                  children: [
+                    SvgPicture.asset(AppIcons.mapPin,
+                        color: AppColors.grayScale_550, height: 16),
+                    Text(location,
+                        style: AppTypography.body2
+                            .copyWith(color: AppColors.grayScale_650)),
+                  ],
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
+          if (isEditMode) ...[
+            IconButton(
+              icon: const Icon(Icons.edit, color: AppColors.grayScale_450),
+              onPressed: onTap,
+            ),
+            const Icon(Icons.drag_handle, color: AppColors.grayScale_450),
+          ],
         ],
       ),
     );

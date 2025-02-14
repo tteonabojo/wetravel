@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/domain/entity/survey_response.dart';
 import 'package:wetravel/presentation/provider/schedule_provider.dart';
 import 'package:wetravel/presentation/pages/schedule/widgets/schedule_item.dart';
@@ -35,8 +36,8 @@ class ScheduleList extends ConsumerWidget {
                     itemBuilder: (context, index) {
                       final item = daySchedule.schedules[index];
                       return ScheduleItem(
-                        key: ValueKey(item.time + item.title),
-                        itemKey: ValueKey(item.time + item.title),
+                        key: ValueKey('${item.time}-${item.title}'),
+                        itemKey: ValueKey('${item.time}-${item.title}'),
                         time: item.time,
                         title: item.title,
                         location: item.location,
@@ -58,18 +59,24 @@ class ScheduleList extends ConsumerWidget {
                     itemBuilder: (context, index) {
                       final item = daySchedule.schedules[index];
                       return ScheduleItem(
-                        key: ValueKey(item.time + item.title),
-                        itemKey: ValueKey(item.time + item.title),
+                        key: ValueKey('${item.time}-${item.title}'),
                         time: item.time,
                         title: item.title,
                         location: item.location,
                         isEditMode: isEditMode,
+                        itemKey: ValueKey('${item.time}-${item.title}'),
                       );
                     },
                   );
           },
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, stack) => Center(child: Text('Error: $error')),
+          loading: () => const Center(
+            child: CircularProgressIndicator(
+              color: AppColors.primary_450,
+            ),
+          ),
+          error: (error, stack) => Center(
+            child: Text('Error: $error'),
+          ),
         );
   }
 
