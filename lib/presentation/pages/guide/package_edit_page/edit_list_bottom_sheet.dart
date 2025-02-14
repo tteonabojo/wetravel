@@ -163,6 +163,7 @@ class _EditListBottomSheetState extends State<EditListBottomSheet> {
     return Column(
       children: [
         CustomInputField(
+          counterAlignment: Alignment.centerRight,
           controller: _titleController,
           hintText: '제목을 입력하세요',
           keyboardType: TextInputType.text,
@@ -172,6 +173,7 @@ class _EditListBottomSheetState extends State<EditListBottomSheet> {
           labelText: '제목',
         ),
         CustomInputField(
+          counterAlignment: Alignment.centerRight,
           controller: _locationController,
           hintText: '위치를 입력하세요',
           keyboardType: TextInputType.text,
@@ -181,6 +183,7 @@ class _EditListBottomSheetState extends State<EditListBottomSheet> {
           labelText: '위치',
         ),
         CustomInputField(
+          counterAlignment: Alignment.centerRight,
           controller: _contentController,
           hintText: '설명을 입력하세요',
           keyboardType: TextInputType.multiline,

@@ -58,6 +58,7 @@ class _HeaderBottomSheetState extends State<HeaderBottomSheet> {
 
   Widget _buildTitleInputField() {
     return CustomInputField(
+      counterAlignment: Alignment.centerRight,
       controller: _titleController,
       hintText: '제목을 입력하세요',
       keyboardType: TextInputType.text,
@@ -69,6 +70,7 @@ class _HeaderBottomSheetState extends State<HeaderBottomSheet> {
 
   Widget _buildLocationInputField() {
     return CustomInputField(
+      counterAlignment: Alignment.centerRight,
       controller: _locationController,
       hintText: '위치를 입력하세요',
       keyboardType: TextInputType.text,
