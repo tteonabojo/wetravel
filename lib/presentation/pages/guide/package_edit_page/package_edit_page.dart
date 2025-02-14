@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:uuid/uuid.dart';
@@ -42,6 +43,7 @@ class _PackageEditPageState extends State<PackageEditPage> {
   final List<List<ScheduleDto>> _schedules = [[]];
   final GlobalKey<PackageHeaderState> _packageHeaderKey = GlobalKey();
   bool isLoading = true;
+  bool isPublic = true;
 
   @override
   void initState() {
@@ -101,7 +103,7 @@ class _PackageEditPageState extends State<PackageEditPage> {
           _keywordList = List<String>.from(data['keywordList'] ?? []);
           _descriptionController.text = data['description'] ?? '';
           _durationController.text = data['duration'] ?? '';
-
+          isPublic = !data['isHidden'];
           _dayCount = loadedSchedules.isNotEmpty ? loadedSchedules.length : 1;
           _schedules.clear();
           _schedules.addAll(loadedSchedules);
@@ -266,7 +268,7 @@ class _PackageEditPageState extends State<PackageEditPage> {
             };
           });
         }).toList(),
-        isHidden: true,
+        isHidden: !isPublic,
       );
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('패키지 수정 성공')),
@@ -406,6 +408,33 @@ class _PackageEditPageState extends State<PackageEditPage> {
                           DeleteDayButton(
                             onPressed: _deleteDay,
                           ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(vertical: 8),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 8),
+                                child: Text(
+                                  '공개하기',
+                                  style:
+                                      AppTypography.buttonLabelMedium.copyWith(
+                                    color: AppColors.grayScale_650,
+                                  ),
+                                ),
+                              ),
+                              CupertinoSwitch(
+                                activeColor: AppColors.primary_450,
+                                value: isPublic,
+                                onChanged: (bool value) {
+                                  setState(() {
+                                    isPublic = value;
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
                         const SizedBox(height: 40),
                       ],
                     ),
