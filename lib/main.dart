@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/presentation/pages/guide_package/filtered_guide_package_page.dart';
 import 'package:wetravel/presentation/pages/login/login_page.dart';
 import 'package:wetravel/presentation/pages/new_trip/scrap_package_page.dart';
+import 'package:wetravel/presentation/pages/on_boarding/on_boarding_page.dart';
 import 'package:wetravel/presentation/pages/stack/stack_page.dart';
 import 'package:wetravel/presentation/pages/survey/city_selection_page.dart';
 import 'package:wetravel/presentation/pages/survey/survey_page.dart';
@@ -72,6 +73,7 @@ class MyApp extends StatelessWidget {
         '/mypage': (context) => MyPage(),
         '/saved-plans': (context) => SavedPlansPage(),
         '/saved-guide-plans': (context) => ScrapPackagesPage(),
+        '/on-boarding': (context) => OnBoardingPage(),
       },
       onUnknownRoute: (settings) {
         return MaterialPageRoute(
