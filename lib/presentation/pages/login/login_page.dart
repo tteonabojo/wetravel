@@ -3,6 +3,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_icons.dart';
@@ -30,20 +31,39 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   int _currentIndex = 0;
 
-  void signInWithProvider({required provider}) async {
+  /// 최초 로그인 판단
+  Future<bool> _isFirstLogin(String userId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final storedUserId = prefs.getString('user_$userId');
+
+    if (storedUserId == null) {
+      await prefs.setString('user_$userId', 'logged');
+      return true;
+    }
+    return false;
+  }
+
+  /// 소셜 로그인
+  Future<void> signInWithProvider({required provider}) async {
     await ref
         .read(loginPageViewModel.notifier)
         .signInWithProvider(provider: provider);
     final user = ref.read(loginPageViewModel);
+
     if (user?.email != null) {
-      Navigator.push(context, MaterialPageRoute(builder: (context) {
-        return StackPage();
-      }));
+      final isFirst = await _isFirstLogin(user!.id);
+
+      if (mounted) {
+        Navigator.pushReplacementNamed(
+          context,
+          isFirst ? '/on-boarding' : '/',
+        );
+      }
     }
   }
 
   /// 약관 url
-  void _launchURL() async {
+  Future<void> _launchURL() async {
     const url =
         'https://weetravel.notion.site/188e73dd935881a8af01f4f12db0d7c9';
     final Uri uri = Uri.parse(url);
