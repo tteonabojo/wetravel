@@ -5,13 +5,15 @@ import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/domain/entity/survey_response.dart';
-import 'package:wetravel/presentation/provider/recommendation_provider.dart';
 
 class PlanSelectionPage extends ConsumerWidget {
   const PlanSelectionPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final surveyResponse =
+        ModalRoute.of(context)?.settings.arguments as SurveyResponse;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -46,32 +48,6 @@ class PlanSelectionPage extends ConsumerWidget {
                       '로 추천받을래요',
                       Icons.auto_awesome,
                       () {
-                        final surveyState =
-                            ref.read(recommendationStateProvider);
-                        final selectedCity =
-                            surveyState.selectedCities.isNotEmpty
-                                ? surveyState.selectedCities.first
-                                : null;
-
-                        final surveyResponse = SurveyResponse(
-                          travelPeriod: surveyState.travelPeriod ?? '1개월 이내',
-                          travelDuration: surveyState.travelDuration ?? '3박 4일',
-                          companions: surveyState.companions.isEmpty
-                              ? ['혼자']
-                              : surveyState.companions,
-                          travelStyles: surveyState.travelStyles.isEmpty
-                              ? ['관광지', '맛집']
-                              : surveyState.travelStyles,
-                          accommodationTypes:
-                              surveyState.accommodationTypes.isEmpty
-                                  ? ['호텔']
-                                  : surveyState.accommodationTypes,
-                          considerations: surveyState.considerations.isEmpty
-                              ? ['위치']
-                              : surveyState.considerations,
-                          selectedCity: selectedCity,
-                        );
-
                         Navigator.pushReplacementNamed(
                           context,
                           '/ai-recommendation',
