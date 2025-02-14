@@ -1,4 +1,6 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:wetravel/core/constants/app_border_radius.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
@@ -69,6 +71,7 @@ class PackageItem extends StatelessWidget {
                   aspectRatio: 1,
                   child: Container(
                     decoration: ShapeDecoration(
+                      color: AppColors.primary_050,
                       image:
                           packageImageUrl != null && packageImageUrl!.isNotEmpty
                               ? DecorationImage(
@@ -98,33 +101,30 @@ class PackageItem extends StatelessWidget {
 
   Widget _buildImageWithLoader(String imageUrl) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(8), // 모서리를 둥글게 할 반경 설정
-      child: Image.network(
-        imageUrl,
+      borderRadius: AppBorderRadius.small8,
+      child: CachedNetworkImage(
+        imageUrl: imageUrl,
         fit: BoxFit.cover,
-        loadingBuilder: (BuildContext context, Widget child,
-            ImageChunkEvent? loadingProgress) {
-          if (loadingProgress == null) {
-            return child; // 이미지가 로드되면 실제 이미지를 반환
-          } else {
-            return Center(
-              child: SizedBox(
-                width: 20, // 로딩 인디케이터의 크기 가로 20
-                height: 20, // 로딩 인디케이터의 크기 세로 20
-                child: CircularProgressIndicator(
-                  value: loadingProgress.expectedTotalBytes != null
-                      ? loadingProgress.cumulativeBytesLoaded /
-                          (loadingProgress.expectedTotalBytes ?? 1)
-                      : null,
-                  strokeWidth: 2, // 로딩 인디케이터의 두께 조정
-                ),
-              ),
-            );
-          }
-        },
-        errorBuilder: (context, error, stackTrace) {
+        cacheKey: imageUrl,
+        progressIndicatorBuilder: (context, url, downloadProgress) {
           return Center(
-              child: Icon(Icons.error, color: Colors.red)); // 로딩 실패 시 에러 아이콘 표시
+            child: downloadProgress.progress == null
+                ? Container()
+                : SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      value: downloadProgress.progress,
+                      color: AppColors.primary_450,
+                      strokeWidth: 2,
+                    ),
+                  ),
+          );
+        },
+        errorWidget: (context, url, error) {
+          return Center(
+            child: Icon(Icons.error, color: AppColors.red),
+          );
         },
       ),
     );

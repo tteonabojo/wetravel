@@ -92,7 +92,7 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
       }
 
       final userRef = FirebaseFirestore.instance
-          .collection(firestoreConstants.usersCollection)
+          .collection(firestoreConstants.usersCollection) // 수정된 부분
           .doc(currentUser.uid);
 
       final userSnapshot = await userRef.get();
@@ -122,7 +122,7 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
   Future<void> _incrementViewCount(String packageId) async {
     try {
       final packageRef = FirebaseFirestore.instance
-          .collection(firestoreConstants.packagesCollection)
+          .collection(firestoreConstants.packagesCollection) // 수정된 부분
           .doc(packageId);
 
       final packageSnapshot = await packageRef.get();
@@ -146,7 +146,7 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
       }
 
       final userRef = FirebaseFirestore.instance
-          .collection(firestoreConstants.usersCollection)
+          .collection(firestoreConstants.usersCollection) // 수정된 부분
           .doc(currentUser.uid);
       final userSnapshot = await userRef.get();
       if (userSnapshot.exists) {
