@@ -406,10 +406,10 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
         ),
         if (isLoading)
           Container(
-            color: Colors.black.withOpacity(0.5),
+            color: Colors.black.withOpacity(0.25),
             child: Center(
               child: CircularProgressIndicator(
-                color: AppColors.primary_450,
+                color: Colors.white,
               ),
             ),
           ),
