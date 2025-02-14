@@ -109,4 +109,6 @@ class AppTypography {
     height: 12 / 12,
     letterSpacing: -2 / 100,
   );
+
+  static var caption;
 }

@@ -38,6 +38,30 @@ class ScheduleDataSourceImpl extends FirestoreConstants
   }
 
   @override
+  Future<void> saveAISchedule(
+      String userId, Map<String, dynamic> aiScheduleData) async {
+    print('Debug Mode: ${isDebugMode}');
+    print('Users Collection: ${usersCollection}');
+    print('Schedules Collection: ${schedulesCollection}');
+
+    await _firestore
+        .collection(usersCollection)
+        .doc(userId)
+        .collection(schedulesCollection)
+        .add(aiScheduleData);
+  }
+
+  @override
+  Stream<List<Map<String, dynamic>>> watchSchedules(String uid) {
+    return _firestore
+        .collection(usersCollection)
+        .doc(uid)
+        .collection(schedulesCollection)
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) => doc.data()).toList());
+  }
+
+  @override
   Future<List<ScheduleDto>> getSchedulesByIds(List<String> scheduleIds) async {
     final schedules = <ScheduleDto>[];
 

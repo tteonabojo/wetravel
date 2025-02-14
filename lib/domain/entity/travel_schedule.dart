@@ -1,3 +1,5 @@
+import 'package:wetravel/domain/entity/schedule.dart';
+
 class TravelSchedule {
   final String destination;
   final List<DaySchedule> days;
@@ -72,12 +74,41 @@ class TravelSchedule {
       days: days,
     );
   }
+
+  Schedule toSchedule() {
+    return Schedule(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      title: '${destination} 여행',
+      location: destination,
+      duration: days.length.toString(),
+      imageUrl: '',
+      day: days.length,
+      isAIRecommended: true,
+      travelStyle: '관광지',
+      content: '',
+      time: DateTime.now().toString(),
+      packageId: '',
+      order: 0,
+    );
+  }
 }
 
 class DaySchedule {
   final List<ScheduleItem> schedules;
 
   DaySchedule({required this.schedules});
+
+  Map<String, dynamic> toJson() {
+    return {
+      'schedules': schedules
+          .map((item) => {
+                'time': item.time,
+                'title': item.title,
+                'location': item.location,
+              })
+          .toList(),
+    };
+  }
 }
 
 class ScheduleItem {
