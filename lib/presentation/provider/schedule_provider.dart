@@ -7,6 +7,8 @@ import 'package:wetravel/domain/entity/survey_response.dart';
 import 'package:wetravel/domain/entity/travel_schedule.dart';
 import 'package:wetravel/presentation/provider/recommendation_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:wetravel/data/data_source/scrap_packages_data_source.dart';
+import 'package:wetravel/data/data_source/data_source_implement/scrap_packages_data_source_impl.dart';
 
 // FirebaseFirestore provider
 final firestoreProvider = Provider<FirebaseFirestore>((ref) {
@@ -64,3 +66,16 @@ final saveScheduleProvider =
     await scheduleRepo.saveSchedule(userId, schedule);
   },
 );
+
+final scrapPackagesDataSourceProvider =
+    Provider<ScrapPackagesDataSource>((ref) {
+  return ScrapPackagesDataSourceImpl(FirebaseFirestore.instance);
+});
+
+final scrapPackagesStreamProvider =
+    StreamProvider<List<Map<String, dynamic>>>((ref) {
+  final dataSource = ref.watch(scrapPackagesDataSourceProvider);
+  final user = FirebaseAuth.instance.currentUser;
+  if (user == null) return Stream.value([]);
+  return dataSource.getScrapPackages(user.uid);
+});

@@ -2,12 +2,18 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wetravel/core/constants/app_colors.dart';
+import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/domain/entity/survey_response.dart';
 import 'package:wetravel/domain/entity/travel_schedule.dart';
 import 'package:wetravel/presentation/provider/schedule_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:wetravel/presentation/widgets/buttons/standard_button.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:wetravel/presentation/pages/schedule/widgets/schedule_header.dart';
+import 'package:wetravel/presentation/pages/schedule/widgets/schedule_day_tabs.dart';
+import 'package:wetravel/presentation/pages/schedule/widgets/schedule_list.dart';
 
 class AISchedulePage extends ConsumerStatefulWidget {
   const AISchedulePage({super.key});
@@ -17,6 +23,8 @@ class AISchedulePage extends ConsumerStatefulWidget {
 }
 
 class _AISchedulePageState extends ConsumerState<AISchedulePage> {
+  bool isEditMode = false; // 수정 모드 상태 추가
+
   @override
   Widget build(BuildContext context) {
     final surveyResponse =
@@ -24,147 +32,26 @@ class _AISchedulePageState extends ConsumerState<AISchedulePage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: _buildAppBar(surveyResponse),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () => Navigator.pop(context),
+              ScheduleHeader(surveyResponse: surveyResponse),
+              const SizedBox(height: 20),
+              ScheduleDayTabs(
+                dayCount: _getDayCount(surveyResponse.travelDuration),
               ),
               const SizedBox(height: 20),
-              Text(
-                '${surveyResponse.selectedCity}에서 즐기기',
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                '${surveyResponse.travelDuration} | ${surveyResponse.companions.join(', ')} | ${surveyResponse.accommodationTypes.join(', ')}',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey[600],
-                ),
-              ),
-              Row(
-                children: [
-                  Icon(Icons.location_on_outlined,
-                      color: Colors.grey[600], size: 20),
-                  const SizedBox(width: 4),
-                  Text(
-                    surveyResponse.selectedCity ?? '',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              // 일자별 탭
-              SizedBox(
-                height: 40,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: _getDayCount(surveyResponse.travelDuration),
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
-                      child: ChoiceChip(
-                        label: Text('Day ${index + 1}'),
-                        selected: ref.watch(selectedDayProvider) == index,
-                        onSelected: (selected) {
-                          if (selected) {
-                            ref.read(selectedDayProvider.notifier).state =
-                                index;
-                          }
-                        },
-                        backgroundColor: Colors.grey[200],
-                        selectedColor: Colors.grey[600],
-                        labelStyle: TextStyle(
-                          color: ref.watch(selectedDayProvider) == index
-                              ? Colors.white
-                              : Colors.black,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 20),
-              // 일정 목록
               Expanded(
-                child: ref.watch(scheduleProvider(surveyResponse)).when(
-                      data: (schedule) {
-                        final selectedDay = ref.watch(selectedDayProvider);
-                        if (selectedDay >= schedule.days.length)
-                          return const SizedBox();
-
-                        final daySchedule = schedule.days[selectedDay];
-                        return ListView.builder(
-                          itemCount: daySchedule.schedules.length,
-                          itemBuilder: (context, index) {
-                            final item = daySchedule.schedules[index];
-                            return _buildScheduleItem(
-                              item.time,
-                              item.title,
-                              item.location,
-                            );
-                          },
-                        );
-                      },
-                      loading: () => const Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                      error: (error, stack) => Center(
-                        child: Text('Error: $error'),
-                      ),
-                    ),
+                child: ScheduleList(
+                  surveyResponse: surveyResponse,
+                  isEditMode: isEditMode,
+                ),
               ),
-              // 하단 버튼
-              Row(
-                children: [
-                  Expanded(
-                      child: StandardButton.secondary(
-                          sizeType: ButtonSizeType.medium,
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          text: '뒤로가기')),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Consumer(
-                      builder: (context, ref, child) {
-                        return StandardButton.primary(
-                          sizeType: ButtonSizeType.medium,
-                          onPressed: () async {
-                            try {
-                              final scheduleAsync =
-                                  ref.read(scheduleProvider(surveyResponse));
-                              if (scheduleAsync.hasValue) {
-                                final schedule = scheduleAsync.value!;
-                                await _saveScheduleToFirebase(
-                                    schedule, surveyResponse);
-                              }
-                            } catch (e) {
-                              if (mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('일정 저장 실패: $e')),
-                                );
-                              }
-                            }
-                          },
-                          text: '일정 담기',
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
+              _buildBottomButtons(context, surveyResponse),
             ],
           ),
         ),
@@ -172,47 +59,75 @@ class _AISchedulePageState extends ConsumerState<AISchedulePage> {
     );
   }
 
-  Widget _buildScheduleItem(String time, String title, String location) {
-    return Card(
-      elevation: 0,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              time,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                Icon(Icons.location_on_outlined,
-                    color: Colors.grey[600], size: 16),
-                const SizedBox(width: 4),
-                Text(
-                  location,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ],
-            ),
-          ],
+  PreferredSizeWidget _buildAppBar(SurveyResponse surveyResponse) {
+    return AppBar(
+      title: Text(
+        '${surveyResponse.selectedCity}와 떠나는 도쿄 여행',
+        style: AppTypography.headline4.copyWith(
+          color: AppColors.grayScale_950,
         ),
       ),
+      actions: [
+        Tooltip(
+          message: isEditMode ? '수정 완료' : '일정 수정',
+          child: IconButton(
+            icon: Icon(isEditMode ? Icons.check : Icons.edit),
+            onPressed: () {
+              setState(() {
+                isEditMode = !isEditMode;
+              });
+              if (isEditMode) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('일정을 수정할 수 있습니다. 수정이 끝나면 체크 버튼을 눌러주세요.'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              }
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBottomButtons(
+      BuildContext context, SurveyResponse surveyResponse) {
+    return Row(
+      children: [
+        Expanded(
+          child: StandardButton.secondary(
+            sizeType: ButtonSizeType.medium,
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            text: '뒤로가기',
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: StandardButton.primary(
+            sizeType: ButtonSizeType.medium,
+            onPressed: () async {
+              try {
+                final scheduleAsync =
+                    ref.read(scheduleProvider(surveyResponse));
+                if (scheduleAsync.hasValue) {
+                  final schedule = scheduleAsync.value!;
+                  await _saveScheduleToFirebase(schedule, surveyResponse);
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('일정 저장 실패: $e')),
+                  );
+                }
+              }
+            },
+            text: '일정 담기',
+          ),
+        ),
+      ],
     );
   }
 
