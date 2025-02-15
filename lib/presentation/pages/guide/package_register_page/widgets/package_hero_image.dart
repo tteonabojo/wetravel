@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image/image.dart' as img;
-import 'package:lottie/lottie.dart';
 import 'package:wetravel/core/constants/app_animations.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_icons.dart';
@@ -94,32 +93,34 @@ class _PackageHeroImageState extends State<PackageHeroImage> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: _selectImage,
-      child: Container(
-        width: double.infinity,
-        height: 260,
-        padding: AppSpacing.medium16,
-        decoration: BoxDecoration(
-          color: AppColors.grayScale_150,
-          image: hasImage
-              ? DecorationImage(image: getImageProvider(), fit: BoxFit.cover)
-              : null,
-        ),
-        child: Stack(
-          children: [
-            if (_isLoading)
-              Center(
-                child: AppAnimations.photoLoading,
-              ),
-            if (!hasImage && !_isLoading)
-              Center(
-                child: Text(
-                  "이미지를 선택해주세요",
-                  style: AppTypography.body3
-                      .copyWith(color: AppColors.grayScale_450),
+      child: AspectRatio(
+        aspectRatio: 4 / 3,
+        child: Container(
+          width: double.infinity,
+          padding: AppSpacing.medium16,
+          decoration: BoxDecoration(
+            color: AppColors.grayScale_150,
+            image: hasImage
+                ? DecorationImage(image: getImageProvider(), fit: BoxFit.cover)
+                : null,
+          ),
+          child: Stack(
+            children: [
+              if (_isLoading)
+                Center(
+                  child: AppAnimations.photoLoading,
                 ),
-              ),
-            _buildCameraButton(),
-          ],
+              if (!hasImage && !_isLoading)
+                Center(
+                  child: Text(
+                    "이미지를 선택해주세요",
+                    style: AppTypography.body3
+                        .copyWith(color: AppColors.grayScale_450),
+                  ),
+                ),
+              _buildCameraButton(),
+            ],
+          ),
         ),
       ),
     );
