@@ -84,7 +84,6 @@ class FilteredPackageList extends ConsumerWidget {
                           location: packageLocation,
                           packageImageUrl: packageImageUrl,
                           keywords: packageKeywords,
-                          onIconTap: () {},
                         ),
                       ),
                     ));
