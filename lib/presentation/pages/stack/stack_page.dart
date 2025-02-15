@@ -48,7 +48,7 @@ class _StackPageState extends ConsumerState<StackPage> {
           child: Column(
             children: [
               SizedBox(height: statusBarHeight),
-              MainHeader(),
+              MainHeader(selectedIndex: _selectedIndex),
             ],
           ),
         ),
