@@ -228,8 +228,6 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
                     Builder(
                       builder: (context) {
                         try {
-                          print('디버깅: 스케줄 데이터 - ${schedule.toString()}');
-
                           final scheduleData = {
                             'id': schedule.id ?? 'ID 없음',
                             'time': schedule.time?.toString() ?? '시간 정보 없음',
@@ -264,6 +262,7 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
                               onSave:
                                   (time, title, location, content, index) {},
                               onDelete: (dayIndex, scheduleIndex) {},
+                              key: ValueKey(selectedDay),
                             ),
                           );
                         } catch (e, stacktrace) {
