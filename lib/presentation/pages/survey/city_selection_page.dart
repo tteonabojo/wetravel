@@ -160,7 +160,6 @@ class _CitySelectionPageState extends ConsumerState<CitySelectionPage> {
                               const SizedBox(height: 10),
                               Wrap(
                                 spacing: 8,
-                                runSpacing: 8,
                                 children: entry.value
                                     .map((city) => _buildCityChip(city))
                                     .toList(),
