@@ -245,7 +245,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         firestoreConstants.packagesCollection: packages,
       };
     } catch (e, stackTrace) {
-      print('loadData 에러: $e');
+      print('Admin loadData 에러: $e');
       print('에러 위치: $stackTrace');
       rethrow;
     }
