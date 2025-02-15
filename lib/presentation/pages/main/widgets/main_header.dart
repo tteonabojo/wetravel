@@ -14,7 +14,7 @@ class MainHeader extends StatelessWidget {
     return Container(
       height: 56,
       width: double.infinity,
-      color: AppColors.grayScale_050,
+      // color: AppColors.grayScale_950,
       alignment: Alignment.centerLeft,
       child: Padding(
         padding: const EdgeInsets.only(left: 16),
