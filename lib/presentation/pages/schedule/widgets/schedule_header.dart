@@ -32,7 +32,7 @@ class ScheduleHeader extends StatelessWidget {
                   color: AppColors.grayScale_450, height: 16),
               Text(
                 surveyResponse.selectedCity ?? '',
-                style: AppTypography.body1
+                style: AppTypography.body2
                     .copyWith(color: AppColors.grayScale_550),
               ),
             ],
