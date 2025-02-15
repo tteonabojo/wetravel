@@ -44,7 +44,7 @@ class _SurveyPageState extends ConsumerState<SurveyPage> {
               ),
               const SizedBox(height: 20),
               LinearProgressIndicator(
-                value: (state.currentPage + 2) / 6,
+                value: 1 / 2,
                 backgroundColor: AppColors.grayScale_150,
                 valueColor:
                     const AlwaysStoppedAnimation<Color>(AppColors.primary_450),
