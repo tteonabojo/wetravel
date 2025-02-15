@@ -69,8 +69,8 @@ class OnBoardingScreen extends StatelessWidget {
             ),
           ),
           SizedBox(height: topImageMargin), // 이미지 위 여백
-          SvgPicture.asset(image),
-          SizedBox(height: topImageMargin), // 이미지와 텍스트 간 여백
+          Image.asset(image),
+          SizedBox(height: 20), // 이미지와 텍스트 간 여백
           SmoothPageIndicator(
             controller: controller,
             count: 3,
