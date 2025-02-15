@@ -1,10 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:wetravel/presentation/pages/guide_package/filtered_guide_package_page.dart';
 import 'package:wetravel/presentation/pages/login/login_page.dart';
 import 'package:wetravel/presentation/pages/new_trip/scrap_package_page.dart';
@@ -40,10 +42,30 @@ void main() async {
     ),
   );
 
-  runApp(ProviderScope(
-      child: MyApp(
-    initialRoute: initialRoute,
-  )));
+  // sentry 활성화
+  if (kReleaseMode) {
+    final String? sentryDns = dotenv.env['SENTRY_DNS_KEY'];
+
+    await SentryFlutter.init(
+      (options) {
+        options.dsn = sentryDns;
+        options.attachStacktrace = true;
+      },
+      appRunner: () => runApp(
+        ProviderScope(
+          child: SentryWidget(
+            child: MyApp(initialRoute: initialRoute),
+          ),
+        ),
+      ),
+    );
+  } else {
+    runApp(
+      ProviderScope(
+        child: MyApp(initialRoute: initialRoute),
+      ),
+    );
+  }
 }
 
 class MyApp extends StatelessWidget {
