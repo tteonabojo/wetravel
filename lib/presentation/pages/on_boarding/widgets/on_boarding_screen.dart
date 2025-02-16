@@ -40,28 +40,37 @@ class OnBoardingScreen extends StatelessWidget {
       }
     }
 
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    final topImageMargin = screenHeight * 0.45 - 350;
+    final bottomPadding = screenHeight * 0.05;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 50, 16, 30),
       child: Column(
         children: [
-          Container(
-            height: 56,
-            alignment: Alignment.centerRight,
-            child: GestureDetector(
-              onTap: () => skip(),
-              child: isLastPage != true
-                  ? Text(
-                      '건너뛰기',
-                      style: AppTypography.body2.copyWith(
-                        color: AppColors.primary_450,
-                      ),
-                    )
-                  : SizedBox(),
+          Padding(
+            padding: EdgeInsets.only(right: screenWidth * 0.025),
+            child: Container(
+              height: 56,
+              alignment: Alignment.centerRight,
+              child: GestureDetector(
+                onTap: () => skip(),
+                child: isLastPage != true
+                    ? Text(
+                        '건너뛰기',
+                        style: AppTypography.body2.copyWith(
+                          color: AppColors.primary_450,
+                        ),
+                      )
+                    : SizedBox(),
+              ),
             ),
           ),
-          SizedBox(height: 20),
-          SvgPicture.asset(image),
-          SizedBox(height: 24),
+          SizedBox(height: topImageMargin), // 이미지 위 여백
+          Image.asset(image),
+          SizedBox(height: 20), // 이미지와 텍스트 간 여백
           SmoothPageIndicator(
             controller: controller,
             count: 3,
@@ -74,7 +83,7 @@ class OnBoardingScreen extends StatelessWidget {
               spacing: 8,
             ),
           ),
-          SizedBox(height: 32),
+          SizedBox(height: bottomPadding), // 텍스트 아래 여백
           Text(
             title,
             style: AppTypography.headline3.copyWith(
@@ -90,12 +99,15 @@ class OnBoardingScreen extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
           Spacer(),
-          StandardButton.primary(
-            sizeType: ButtonSizeType.normal,
-            text: buttonStr,
-            onPressed: () {
-              next();
-            },
+          Padding(
+            padding: EdgeInsets.only(bottom: screenHeight * 0.015),
+            child: StandardButton.primary(
+              sizeType: ButtonSizeType.normal,
+              text: buttonStr,
+              onPressed: () {
+                next();
+              },
+            ),
           )
         ],
       ),

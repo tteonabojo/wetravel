@@ -33,7 +33,6 @@ class _AISchedulePageState extends ConsumerState<AISchedulePage> {
         ModalRoute.of(context)!.settings.arguments as SurveyResponse;
 
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         title: Text(
@@ -48,35 +47,39 @@ class _AISchedulePageState extends ConsumerState<AISchedulePage> {
         actions: [_buildEditButton()],
       ),
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ScheduleHeader(surveyResponse: surveyResponse),
-            Container(
-              width: double.infinity,
-              height: 1,
-              color: AppColors.grayScale_150,
-            ),
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                color: AppColors.grayScale_050,
-                child: Column(
-                  children: [
-                    ScheduleDayTabs(
-                        dayCount: _getDayCount(surveyResponse.travelDuration)),
-                    Expanded(
-                      child: ScheduleList(
-                        surveyResponse: surveyResponse,
-                        isEditMode: isEditMode,
+        child: Container(
+          color: AppColors.grayScale_050,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ScheduleHeader(surveyResponse: surveyResponse),
+              Container(
+                width: double.infinity,
+                height: 1,
+                color: AppColors.grayScale_150,
+              ),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  color: AppColors.grayScale_050,
+                  child: Column(
+                    children: [
+                      ScheduleDayTabs(
+                          dayCount:
+                              _getDayCount(surveyResponse.travelDuration)),
+                      Expanded(
+                        child: ScheduleList(
+                          surveyResponse: surveyResponse,
+                          isEditMode: isEditMode,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-            _buildBottomButtons(surveyResponse),
-          ],
+              _buildBottomButtons(surveyResponse),
+            ],
+          ),
         ),
       ),
     );

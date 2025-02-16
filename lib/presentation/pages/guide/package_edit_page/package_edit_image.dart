@@ -76,21 +76,24 @@ class _PackageEditImageState extends State<PackageEditImage> {
       onTap: _selectImage,
       child: Stack(
         children: [
-          Container(
-            width: double.infinity,
-            height: 260,
-            padding: AppSpacing.medium16,
-            decoration: BoxDecoration(
-              color: AppColors.grayScale_150,
-              image: _currentImagePath != null && _currentImagePath!.isNotEmpty
-                  ? DecorationImage(
-                      image: _currentImagePath!.startsWith('http')
-                          ? NetworkImage(_currentImagePath!)
-                          : FileImage(File(_currentImagePath!))
-                              as ImageProvider,
-                      fit: BoxFit.cover,
-                    )
-                  : null,
+          AspectRatio(
+            aspectRatio: 4 / 3,
+            child: Container(
+              width: double.infinity,
+              padding: AppSpacing.medium16,
+              decoration: BoxDecoration(
+                color: AppColors.grayScale_150,
+                image:
+                    _currentImagePath != null && _currentImagePath!.isNotEmpty
+                        ? DecorationImage(
+                            image: _currentImagePath!.startsWith('http')
+                                ? NetworkImage(_currentImagePath!)
+                                : FileImage(File(_currentImagePath!))
+                                    as ImageProvider,
+                            fit: BoxFit.cover,
+                          )
+                        : null,
+              ),
             ),
           ),
           if (isLoading)

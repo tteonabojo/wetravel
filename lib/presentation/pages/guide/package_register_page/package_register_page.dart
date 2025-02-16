@@ -36,13 +36,11 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
   final GlobalKey<PackageHeaderState> _packageHeaderKey =
       GlobalKey<PackageHeaderState>();
   bool isLoading = false;
-  bool _showTooltip = false;
   bool isPublic = true;
 
   @override
   void initState() {
     super.initState();
-    _showTooltip = false;
 
     if (_schedules[0].isEmpty) {
       _schedules[0].add({
@@ -71,7 +69,6 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
           'location': '',
           'content': '',
         });
-        _showTooltip = true;
       });
 
       if (_isFirstAddSchedule) {
@@ -86,9 +83,7 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
 
       Future.delayed(Duration(seconds: 3), () {
         if (mounted) {
-          setState(() {
-            _showTooltip = false;
-          });
+          setState(() {});
         }
       });
     }
@@ -346,32 +341,6 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
                                         currentScheduleCount:
                                             _schedules[_selectedDay - 1].length,
                                       ),
-                                      if (_showTooltip)
-                                        Positioned(
-                                          left: MediaQuery.of(context)
-                                                      .size
-                                                      .width /
-                                                  2 -
-                                              100, // 화면 중앙으로 정렬
-                                          top: MediaQuery.of(context)
-                                                      .size
-                                                      .height /
-                                                  2 -
-                                              50, // 화면 중앙으로 정렬
-                                          child: Container(
-                                            padding: EdgeInsets.all(8),
-                                            decoration: BoxDecoration(
-                                              color: Colors.black87,
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                            ),
-                                            child: Text(
-                                              '일정을 추가하세요!',
-                                              style: TextStyle(
-                                                  color: Colors.white),
-                                            ),
-                                          ),
-                                        ),
                                     ],
                                   ),
                                   if (_dayCount > 1)

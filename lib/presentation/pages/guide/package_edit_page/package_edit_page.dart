@@ -66,10 +66,8 @@ class _PackageEditPageState extends State<PackageEditPage> {
 
       if (doc.exists) {
         final data = doc.data()!;
-        print(data);
 
         final scheduleIdList = List<String>.from(data['scheduleIdList'] ?? []);
-        print(scheduleIdList);
 
         final List<List<ScheduleDto>> loadedSchedules = [];
 
@@ -81,7 +79,6 @@ class _PackageEditPageState extends State<PackageEditPage> {
 
           final scheduleData = scheduleDoc.data();
           if (scheduleData != null) {
-            print(scheduleData);
             final schedule =
                 ScheduleDto.fromJson({...scheduleData, "id": scheduleDoc.id});
             final day = schedule.day;
@@ -212,7 +209,7 @@ class _PackageEditPageState extends State<PackageEditPage> {
 
       for (var doc in schedulesToDeleteQuery.docs) {
         await doc.reference.delete();
-        print('스케줄 삭제 성공: ${doc.id}');
+        print('Day 삭제 성공: ${doc.id}');
       }
 
       setState(() {
@@ -223,7 +220,7 @@ class _PackageEditPageState extends State<PackageEditPage> {
         }
       });
     } catch (e) {
-      print('스케줄 삭제 실패: $e');
+      print('Day 삭제 실패: $e');
     }
   }
 

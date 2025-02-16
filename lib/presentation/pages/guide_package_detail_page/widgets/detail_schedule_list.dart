@@ -11,12 +11,12 @@ import 'package:wetravel/presentation/pages/guide_package_detail_page/widgets/sc
 
 class DetailScheduleList extends ConsumerWidget {
   const DetailScheduleList({
-    super.key,
     required this.schedules,
     required this.totalScheduleCount,
     required this.dayIndex,
     required this.onSave,
     required this.onDelete,
+    required this.key,
   });
 
   final List<Map<String, String>> schedules;
@@ -25,12 +25,14 @@ class DetailScheduleList extends ConsumerWidget {
   final Function(String time, String title, String location, String content,
       int scheduleIndex) onSave;
   final Function(int dayIndex, int scheduleIndex) onDelete;
+  final Key key;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scheduleViewModel = ref.watch(detailScheduleViewModelProvider);
 
     return Column(
+      key: key,
       children: schedules.asMap().entries.map((entry) {
         return AnimatedContainer(
           duration: Durations.medium2,
@@ -94,6 +96,7 @@ class DetailScheduleList extends ConsumerWidget {
                 },
               );
             },
+            key: key,
           ),
         );
       }).toList(),
