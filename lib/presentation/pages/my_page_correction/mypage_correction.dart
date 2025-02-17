@@ -133,8 +133,6 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
         _isUploading = false; // 업로드 완료 후 플래그 해제
       });
 
-      print("이미지 URL 업데이트됨: $_imageUrl");
-
       // Firestore에 저장
       await _firestore
           .collection(firestoreConstants.usersCollection)
@@ -392,7 +390,7 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
           child: Text(
             '회원탈퇴',
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 14,
               color: Colors.grey[600],
             ),
           ),
@@ -430,15 +428,14 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
   Future<void> deleteUserAccount(BuildContext context, WidgetRef ref) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
-      print("로그인이 필요합니다.");
       return;
     }
 
     try {
-      // ✅ 먼저 재인증 실행 (Firebase에서 필수 요구사항)
+      // 먼저 재인증 실행 (Firebase에서 필수 요구사항)
       await _reauthenticateUser(user);
 
-      // 🔹 Firestore에서 유저 데이터 삭제
+      // Firestore에서 유저 데이터 삭제
       final userDoc = await FirebaseFirestore.instance
           .collection(firestoreConstants.usersCollection)
           .doc(user.uid)
@@ -450,33 +447,28 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
           .collection(firestoreConstants.usersCollection)
           .doc(user.uid)
           .delete();
-      print("Firestore 사용자 데이터 삭제 완료");
 
-      // 🔹 Firebase Storage에 저장된 프로필 이미지 삭제
+      // Firebase Storage에 저장된 프로필 이미지 삭제
       if (profileImageUrl.isNotEmpty) {
         try {
           final storageRef =
               FirebaseStorage.instance.refFromURL(profileImageUrl);
           await storageRef.delete();
-          print("프로필 이미지 삭제 완료");
         } catch (e) {
           print("프로필 이미지 삭제 실패: $e");
         }
       }
 
-      // 🔹 Firebase Authentication 계정 삭제 (마지막 단계)
+      // Firebase Authentication 계정 삭제 (마지막 단계)
       await user.delete();
-      print("Firebase Authentication 사용자 계정 삭제 완료");
 
-      // 🔹 상태 초기화 (ref.invalidate)
-      print('상태 캐시 삭제');
+      // 상태 초기화 (ref.invalidate)
       ref.invalidate(userRepositoryProvider);
       ref.invalidate(signInWithProviderUsecaseProvider);
       ref.invalidate(userStreamProvider);
 
-      // 🔹 로그아웃 처리
+      // 로그아웃 처리
       await ref.read(signOutUsecaseProvider).signOut();
-      print("로그아웃 완료");
     } catch (e) {
       print("회원 탈퇴 실패: $e");
     }
@@ -487,14 +479,11 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
     await deleteUserAccount(context, ref);
 
     if (context.mounted) {
-      print("회원 탈퇴 후 로그인 페이지로 이동 실행됨"); // 확인용 디버깅
       Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
-    } else {
-      print("context가 dispose됨"); // 확인용 디버깅
-    }
+    } else {}
   }
 
-// ✅ Google & Apple 로그인 사용자 재인증 함수
+// Google & Apple 로그인 사용자 재인증 함수
   Future<void> _reauthenticateUser(User user) async {
     try {
       final providerData = user.providerData;

@@ -29,8 +29,6 @@ class _CitySelectionPageState extends ConsumerState<CitySelectionPage> {
     super.initState();
     // 도시 선택 페이지에 진입할 때 완전히 초기화
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      print('Entering city selection - resetting all states');
-      // 모든 상태 완전 초기화
       ref.read(surveyProvider.notifier).resetState();
       ref.read(recommendationStateProvider.notifier).resetState();
       ref.invalidate(recommendationProvider);
@@ -38,12 +36,7 @@ class _CitySelectionPageState extends ConsumerState<CitySelectionPage> {
   }
 
   void _onCitySelected(BuildContext context, String city) {
-    print('Selected city: $city');
-    // 사용자가 선택한 도시를 저장
     ref.read(surveyProvider.notifier).setSelectedCity(city);
-    print('Verifying city selection: ${ref.read(surveyProvider).selectedCity}');
-
-    // 설문 페이지로 이동 (상태 초기화 없이)
     Navigator.pushReplacementNamed(context, '/survey');
   }
 

@@ -79,7 +79,6 @@ class SavedPlansPage extends ConsumerWidget {
                         CupertinoDialogAction(
                           onPressed: () async {
                             try {
-                              print('Document ID: ${scheduleDoc.id}');
                               await ref
                                   .read(scheduleActionsProvider)
                                   .deleteSchedule(scheduleDoc.id);
@@ -88,7 +87,6 @@ class SavedPlansPage extends ConsumerWidget {
                                 const SnackBar(content: Text('일정이 삭제되었습니다')),
                               );
                             } catch (e) {
-                              print('Error in delete action: $e');
                               Navigator.pop(context);
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(content: Text('삭제 실패: $e')),

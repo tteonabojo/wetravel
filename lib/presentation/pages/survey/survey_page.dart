@@ -21,11 +21,7 @@ class _SurveyPageState extends ConsumerState<SurveyPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // 현재 선택된 도시 저장
       final currentCity = ref.read(surveyProvider).selectedCity;
-      print('Preserving selected city: $currentCity');
-
-      // 도시 정보만 유지하고 나머지 초기화
       ref.read(surveyProvider.notifier).resetStateKeepingCity(currentCity);
     });
   }
@@ -107,9 +103,6 @@ class _SurveyPageState extends ConsumerState<SurveyPage> {
       );
     } else {
       final surveyResponse = state.toSurveyResponse();
-      print(
-          'Completing survey with selected city: ${surveyResponse.selectedCity}'); // 디버깅용
-
       Navigator.pushNamed(
         context,
         '/plan-selection',

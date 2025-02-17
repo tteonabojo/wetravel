@@ -75,11 +75,8 @@ class SurveyState {
 
   /// SurveyState를 SurveyResponse로 변환
   SurveyResponse toSurveyResponse() {
-    print('Converting to SurveyResponse:');
-    print('Current selectedCity: ${selectedCity}');
-
-    final response = SurveyResponse(
-      selectedCity: selectedCity, // 선택된 도시 전달
+    return SurveyResponse(
+      selectedCity: selectedCity,
       travelPeriod: travelPeriod ?? '',
       travelDuration: travelDuration ?? '',
       companions: companions,
@@ -87,9 +84,6 @@ class SurveyState {
       accommodationTypes: accommodationTypes,
       considerations: considerations,
     );
-
-    print('Created response with city: ${response.selectedCity}');
-    return response;
   }
 
   /// 현재 페이지의 입력이 완료되었는지 확인
@@ -169,9 +163,7 @@ class SurveyNotifier extends StateNotifier<SurveyState> {
 
   /// 상태 완전 초기화
   void resetState() {
-    print('Resetting survey state');
     state = SurveyState.initial();
-    print('Survey state reset, selectedCity is now null');
   }
 
   /// 현재 페이지 설정
@@ -181,26 +173,19 @@ class SurveyNotifier extends StateNotifier<SurveyState> {
 
   /// 선택한 도시 설정
   void setSelectedCity(String city) {
-    print('Setting primary city: $city');
     state = state.copyWith(selectedCity: city);
-    print('Primary city set to: ${state.selectedCity}');
   }
 
   /// 도시 정보만 유지하고 나머지 초기화
   void resetStateKeepingCity(String? city) {
-    print('Resetting state while keeping city: $city');
     state = SurveyState.initial().copyWith(
       selectedCity: city,
     );
-    print('Reset complete. Current city: ${state.selectedCity}');
   }
 
   SurveyResponse toSurveyResponse() {
-    print('Converting to SurveyResponse:');
-    print('Current selectedCity: ${state.selectedCity}');
-
-    final response = SurveyResponse(
-      selectedCity: state.selectedCity, // 선택된 도시 전달
+    return SurveyResponse(
+      selectedCity: state.selectedCity,
       travelPeriod: state.travelPeriod ?? '',
       travelDuration: state.travelDuration ?? '',
       companions: state.companions,
@@ -208,8 +193,5 @@ class SurveyNotifier extends StateNotifier<SurveyState> {
       accommodationTypes: state.accommodationTypes,
       considerations: state.considerations,
     );
-
-    print('Created response with city: ${response.selectedCity}');
-    return response;
   }
 }
