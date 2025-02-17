@@ -16,7 +16,7 @@ class NewTripPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return SingleChildScrollView(
       child: Padding(
-        padding: AppSpacing.medium16,
+        padding: EdgeInsets.fromLTRB(16, 20, 16, 0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

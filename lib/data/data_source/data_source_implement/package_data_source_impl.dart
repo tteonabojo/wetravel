@@ -19,10 +19,6 @@ class PackageDataSourceImpl extends FirestoreConstants
     final collectionRef = _firestore.collection(packagesCollection);
     final snapshot = await collectionRef.get();
     final documentSnapshot = snapshot.docs;
-    for (var docSnapshot in documentSnapshot) {
-      print(docSnapshot.id);
-      print(docSnapshot.data());
-    }
     return documentSnapshot.map((e) => PackageDto.fromJson(e.data())).toList();
   }
 

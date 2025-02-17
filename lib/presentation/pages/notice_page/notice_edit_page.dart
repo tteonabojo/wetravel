@@ -15,23 +15,40 @@ class NoticeEditPage extends StatefulWidget {
 
 class _NoticeEditPageState extends State<NoticeEditPage> {
   late TextEditingController _titleController;
-  late TextEditingController _dateController;
   late TextEditingController _contentController; // 내용 컨트롤러 추가
+  DateTime? _selectedDate; // 날짜를 String 에서 Date으로 변경
 
   @override
   void initState() {
     super.initState();
     _titleController = TextEditingController(text: widget.noticeData['title']);
-    _dateController = TextEditingController(text: widget.noticeData['date']);
-    _contentController = TextEditingController(text: widget.noticeData['content'] ?? ''); // 내용 컨트롤러 초기화, null 처리 추가
+    _contentController = TextEditingController(text: widget.noticeData['content'] ?? '');
+
+    // Firestore에서 가쟈온 Timestamp 값을 DateTime으로 변환
+    Timestamp? timestamp = widget.noticeData['date'] as Timestamp?;
+    _selectedDate = timestamp?.toDate();
   }
 
   @override
   void dispose() {
     _titleController.dispose();
-    _dateController.dispose();
     _contentController.dispose(); // 내용 컨트롤러 dispose
     super.dispose();
+  }
+
+  // 날짜 선택 다이얼로그
+  Future<void> _pickDate() async {
+    DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate ?? DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+    if (picked != null) {
+      setState(()  {
+        _selectedDate = picked;
+      });
+    }
   }
 
   @override
@@ -51,12 +68,12 @@ class _NoticeEditPageState extends State<NoticeEditPage> {
           TextButton(
             onPressed: () async {
               await FirebaseFirestore.instance
-                  .collection('noticesCollection')
+                  .collection('notices_test')
                   .doc(widget.noticeId)
                   .update({
                 'title': _titleController.text,
-                'date': _dateController.text,
-                'content': _contentController.text, // 내용 업데이트
+                'date': _selectedDate != null ? Timestamp.fromDate(_selectedDate!) : null,
+                'content': _contentController.text,
               });
               Navigator.pop(context);
             },
@@ -66,10 +83,7 @@ class _NoticeEditPageState extends State<NoticeEditPage> {
             ),
           ),
         ],
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(20), // 여백 조절
-          child: Container(),
-        ),
+
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -99,18 +113,25 @@ class _NoticeEditPageState extends State<NoticeEditPage> {
                       color: Colors.black,
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  TextFormField(
-                    controller: _dateController,
-                    decoration: const InputDecoration(
-                      hintText: '날짜',
-                      border: InputBorder.none,
-                      isDense: true,
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.black,
+                  const SizedBox(height: 8),
+                  GestureDetector(
+                    onTap: _pickDate,
+                    child: AbsorbPointer(
+                      child: TextFormField(
+                        decoration: InputDecoration(
+                          hintText: '날짜 선택',
+                          border: InputBorder.none,
+                          isDense: true,
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.black,
+                        ),
+                        controller: TextEditingController(
+                        //  text: _selectedDate != null ? DateFormat('yyyy-MM-dd').format(_selectedDate!) : '',
+                        ),
+                      ),
                     ),
                   ),
                 ],

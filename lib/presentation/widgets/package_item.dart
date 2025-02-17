@@ -45,7 +45,6 @@ class PackageItem extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: AppBorderRadius.small12,
         ),
-        // shadows: AppShadow.generalShadow,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -253,7 +252,7 @@ class PackageItem extends StatelessWidget {
               width: 16,
               height: 16,
               color: AppColors.primary_250,
-              child: guideImageUrl?.isNotEmpty ?? false
+              child: (guideImageUrl != null && guideImageUrl!.isNotEmpty)
                   ? Image.network(
                       guideImageUrl!,
                       fit: BoxFit.cover,
