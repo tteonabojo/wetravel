@@ -86,14 +86,12 @@ final scrapPackagesProvider = StreamProvider<List<Map<String, dynamic>>>((ref) {
   final firestoreConstants = FirestoreConstants();
 
   final userId = auth.currentUser?.uid;
-  print('호출됨 : $userId');
   if (userId == null) {
     return Stream.value([]);
   }
 
   final userDocRef =
       firestore.collection(firestoreConstants.usersCollection).doc(userId);
-  print('호출됨');
 
   return userDocRef.snapshots().asyncMap((userSnapshot) async {
     if (!userSnapshot.exists) {
@@ -102,7 +100,6 @@ final scrapPackagesProvider = StreamProvider<List<Map<String, dynamic>>>((ref) {
 
     final scrapIdList =
         List<String>.from(userSnapshot.data()?['scrapIdList'] ?? []);
-    print('scrapIdList : $scrapIdList');
 
     if (scrapIdList.isEmpty) {
       return [];

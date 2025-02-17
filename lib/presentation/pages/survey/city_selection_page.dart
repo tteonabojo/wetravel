@@ -94,7 +94,7 @@ class _CitySelectionPageState extends ConsumerState<CitySelectionPage> {
               ),
               const SizedBox(height: 20),
               LinearProgressIndicator(
-                value: 1 / 6,
+                value: 1 / 4,
                 backgroundColor: AppColors.grayScale_150,
                 valueColor:
                     const AlwaysStoppedAnimation<Color>(AppColors.primary_450),
@@ -160,7 +160,6 @@ class _CitySelectionPageState extends ConsumerState<CitySelectionPage> {
                               const SizedBox(height: 10),
                               Wrap(
                                 spacing: 8,
-                                runSpacing: 8,
                                 children: entry.value
                                     .map((city) => _buildCityChip(city))
                                     .toList(),

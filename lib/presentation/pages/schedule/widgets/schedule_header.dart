@@ -15,29 +15,33 @@ class ScheduleHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-      child: Column(
-        spacing: 8,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '${surveyResponse.travelDuration} | ${surveyResponse.companions.join(', ')} | ${surveyResponse.accommodationTypes.join(', ')}',
-            style: AppTypography.body2.copyWith(color: AppColors.grayScale_550),
-          ),
-          Row(
-            spacing: 4,
-            children: [
-              SvgPicture.asset(AppIcons.mapPin,
-                  color: AppColors.grayScale_450, height: 16),
-              Text(
-                surveyResponse.selectedCity ?? '',
-                style: AppTypography.body1
-                    .copyWith(color: AppColors.grayScale_550),
-              ),
-            ],
-          ),
-        ],
+    return Container(
+      color: Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+        child: Column(
+          spacing: 8,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '${surveyResponse.travelDuration} | ${surveyResponse.companions.join(', ')} | ${surveyResponse.accommodationTypes.join(', ')}',
+              style:
+                  AppTypography.body2.copyWith(color: AppColors.grayScale_550),
+            ),
+            Row(
+              spacing: 4,
+              children: [
+                SvgPicture.asset(AppIcons.mapPin,
+                    color: AppColors.grayScale_450, height: 16),
+                Text(
+                  surveyResponse.selectedCity ?? '',
+                  style: AppTypography.body2
+                      .copyWith(color: AppColors.grayScale_550),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

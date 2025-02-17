@@ -6,7 +6,6 @@ import 'package:wetravel/presentation/pages/guide/package_register_page/widgets/
 
 class ScheduleDetailItem extends StatelessWidget {
   const ScheduleDetailItem({
-    super.key,
     required this.time,
     required this.title,
     required this.location,
@@ -16,6 +15,7 @@ class ScheduleDetailItem extends StatelessWidget {
     required this.totalScheduleItemCount,
     required this.onDelete,
     required this.onEdit,
+    required this.key,
   });
 
   final String time;
@@ -27,10 +27,12 @@ class ScheduleDetailItem extends StatelessWidget {
   final int totalScheduleItemCount;
   final VoidCallback onDelete;
   final VoidCallback onEdit;
+  final Key key;
 
   @override
   Widget build(BuildContext context) {
     return Column(
+      key: key,
       children: [
         Stack(
           children: [

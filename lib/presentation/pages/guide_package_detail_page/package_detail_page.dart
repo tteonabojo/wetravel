@@ -51,18 +51,14 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
 
   Future<void> _loadData() async {
     try {
-      print('패키지 데이터 로드 시작: ${widget.packageId}');
       final fetchedPackage = await getPackageUseCase.execute(widget.packageId);
-      print('패키지 데이터 로드 완료: ${fetchedPackage.toString()}');
 
       final scheduleIdList = fetchedPackage!.scheduleIdList;
       if (scheduleIdList == null || scheduleIdList.isEmpty) {
         throw Exception('패키지에 연결된 스케줄이 없습니다.');
       }
 
-      print('스케줄 ID 목록: $scheduleIdList');
       final schedules = await getSchedulesUseCase.execute(scheduleIdList);
-      print('스케줄 데이터 로드 완료: ${schedules.toString()}');
 
       final tempScheduleMap = <int, List<Schedule>>{};
 
@@ -110,7 +106,6 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
         }
 
         await userRef.update({'recentPackages': recentPackages});
-        print('최근 본 패키지 리스트 업데이트: $recentPackages');
       } else {
         print('사용자 데이터를 찾을 수 없습니다.');
       }
@@ -233,8 +228,6 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
                     Builder(
                       builder: (context) {
                         try {
-                          print('디버깅: 스케줄 데이터 - ${schedule.toString()}');
-
                           final scheduleData = {
                             'id': schedule.id ?? 'ID 없음',
                             'time': schedule.time?.toString() ?? '시간 정보 없음',
@@ -269,6 +262,7 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
                               onSave:
                                   (time, title, location, content, index) {},
                               onDelete: (dayIndex, scheduleIndex) {},
+                              key: ValueKey(selectedDay),
                             ),
                           );
                         } catch (e, stacktrace) {

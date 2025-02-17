@@ -5,7 +5,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:wetravel/core/constants/app_border_radius.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_icons.dart';
-import 'package:wetravel/core/constants/app_shadow.dart';
 import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 
@@ -115,7 +114,7 @@ class PackageItem extends StatelessWidget {
                     height: 20,
                     child: CircularProgressIndicator(
                       value: downloadProgress.progress,
-                      color: AppColors.primary_450,
+                      color: Colors.white,
                       strokeWidth: 2,
                     ),
                   ),
