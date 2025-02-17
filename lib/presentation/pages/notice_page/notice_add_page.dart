@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wetravel/core/constants/app_colors.dart'; // AppColors 정의 필요
 
@@ -45,11 +44,10 @@ class _NoticeAddPageState extends State<NoticeAddPage> {
       String content = _contentController.text;
       String date = '${_selectedDate.year}.${_selectedDate.month}.${_selectedDate.day}';
 
-      await FirebaseFirestore.instance.collection('noticesCollection').add({
+      await FirebaseFirestore.instance.collection('notices_test').add({
         'title': title,
         'content': content,
-        'date': date,
-        'timestamp': FieldValue.serverTimestamp(),
+        'timestamp': Timestamp.fromDate(_selectedDate), // Timestamp로 저장
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
