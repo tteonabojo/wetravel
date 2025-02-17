@@ -69,7 +69,6 @@ class _AISchedulePageState extends ConsumerState<AISchedulePage> {
                 return Center(child: Text('Error: ${snapshot.error}'));
               }
 
-              final schedule = snapshot.data!;
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -198,10 +197,6 @@ class _AISchedulePageState extends ConsumerState<AISchedulePage> {
         throw Exception('도시 이름이 없습니다.');
       }
 
-      // 세부 일정 데이터 구조 확인을 위한 로그
-      print('Saving schedule days: ${schedule.days.length}');
-      print('First day schedules: ${schedule.days.first.schedules.length}');
-
       final scheduleData = {
         'id': id,
         'title': '$cityName 여행',
@@ -224,16 +219,12 @@ class _AISchedulePageState extends ConsumerState<AISchedulePage> {
             ? surveyResponse.travelStyles[0]
             : '관광지',
         'createdAt': now.toIso8601String(),
-        // 추가 정보 저장
         'travelPeriod': surveyResponse.travelPeriod,
         'companions': surveyResponse.companions,
         'travelStyles': surveyResponse.travelStyles,
         'accommodationTypes': surveyResponse.accommodationTypes,
         'considerations': surveyResponse.considerations,
       };
-
-      // 저장할 데이터 확인을 위한 로그
-      print('Saving schedule data: $scheduleData');
 
       await FirebaseFirestore.instance
           .collection(firestoreConstants.usersCollection)
@@ -248,7 +239,6 @@ class _AISchedulePageState extends ConsumerState<AISchedulePage> {
         );
       }
     } catch (e) {
-      print('Error saving schedule: $e'); // 에러 로그 추가
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('저장 실패: $e')),
