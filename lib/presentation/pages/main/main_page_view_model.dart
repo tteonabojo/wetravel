@@ -10,22 +10,26 @@ class MainPageState {
   final List<Package> recentPackages;
   final List<Package> popularPackages;
   final List<Banner> banners;
+  final bool isLoading;
 
   const MainPageState({
     required this.recentPackages,
     required this.popularPackages,
     required this.banners,
+    this.isLoading = false,
   });
 
   MainPageState copyWith({
     List<Package>? recentPackages,
     List<Package>? popularPackages,
     List<Banner>? banners,
+    bool? isLoading,
   }) {
     return MainPageState(
       recentPackages: recentPackages ?? this.recentPackages,
       popularPackages: popularPackages ?? this.popularPackages,
       banners: banners ?? this.banners,
+      isLoading: isLoading ?? this.isLoading,
     );
   }
 }
@@ -40,6 +44,7 @@ class MainPageViewModel extends AutoDisposeNotifier<MainPageState> {
       recentPackages: [],
       popularPackages: [],
       banners: [],
+      isLoading: true,
     );
   }
 
@@ -50,8 +55,14 @@ class MainPageViewModel extends AutoDisposeNotifier<MainPageState> {
     _streamSubscription?.cancel();
     _streamSubscription =
         ref.watch(watchRecentPackagesProvider).execute().listen(
-              (packages) => state = state.copyWith(recentPackages: packages),
-              onError: (e) => state = state.copyWith(recentPackages: []),
+              (packages) => state = state.copyWith(
+                recentPackages: packages,
+                isLoading: false,
+              ),
+              onError: (e) => state = state.copyWith(
+                recentPackages: [],
+                isLoading: false,
+              ),
             );
   }
 
@@ -79,7 +90,6 @@ class MainPageViewModel extends AutoDisposeNotifier<MainPageState> {
   /// 데이터 새로고침 메서드
   Future<void> refreshData() async {
     try {
-      // 모든 데이터를 새로고침
       final freshBanners =
           await ref.read(fetchBannersUsecaseProvider).execute();
       final freshRecentPackages =
@@ -91,13 +101,14 @@ class MainPageViewModel extends AutoDisposeNotifier<MainPageState> {
         banners: freshBanners,
         recentPackages: freshRecentPackages,
         popularPackages: freshPopularPackages,
+        isLoading: false,
       );
     } catch (e) {
-      // 오류 발생 시 처리
       state = state.copyWith(
         banners: [],
         recentPackages: [],
         popularPackages: [],
+        isLoading: false,
       );
     }
   }

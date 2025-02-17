@@ -31,7 +31,7 @@ class _MainPageState extends ConsumerState<MainPage> {
             child: Column(
               children: [
                 MainBanner(banners: vm.banners),
-                MainRecentlyPackages(recentPackages: vm.recentPackages),
+                MainRecentlyPackages(),
                 SizedBox(height: 12),
                 MainPopularPackages(popularPackages: vm.popularPackages),
               ],
