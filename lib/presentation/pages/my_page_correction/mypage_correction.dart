@@ -139,7 +139,10 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
       });
 
       // Firestore에 저장
-      await _firestore.collection('users').doc(user.uid).set(
+      await _firestore
+          .collection(firestoreConstants.usersCollection)
+          .doc(user.uid)
+          .set(
         {'imageUrl': downloadUrl},
         SetOptions(merge: true), // 기존 데이터와 병합
       );

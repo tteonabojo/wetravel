@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
+import 'package:wetravel/core/constants/firestore_constants.dart';
 import 'package:wetravel/presentation/pages/guide_package/widgets/filterd_package_list.dart';
 import 'package:wetravel/presentation/pages/guide_package/widgets/filters.dart';
 import 'package:wetravel/presentation/provider/survey_provider.dart';
@@ -16,6 +18,7 @@ class FilteredGuidePackagePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(surveyProvider);
+    final FirestoreConstants firestoreConstants = FirestoreConstants();
 
     final selectedKeywords = [
       if (state.selectedCity != null && state.selectedCity!.isNotEmpty)
@@ -58,13 +61,43 @@ class FilteredGuidePackagePage extends ConsumerWidget {
         ],
       ),
       body: selectedKeywords.isNotEmpty
-          ? Column(
-              children: [
-                GuideFilters(
-                  selectedKeywords: selectedKeywords,
-                ),
-                FilteredPackageList(selectedKeywords: selectedKeywords),
-              ],
+          ? FutureBuilder<QuerySnapshot>(
+              future: FirebaseFirestore.instance
+                  .collection(firestoreConstants.packagesCollection)
+                  .where('keywordList', arrayContainsAny: selectedKeywords)
+                  .get(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                      child: CircularProgressIndicator(
+                    color: AppColors.primary_450,
+                  ));
+                }
+
+                if (snapshot.hasError) {
+                  return const Center(child: Text('Error loading data'));
+                }
+
+                final packages = snapshot.data?.docs ?? [];
+
+                if (packages.isEmpty) {
+                  return const Center(child: Text('조건에 맞는 패키지가 없습니다.'));
+                }
+
+                return SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      GuideFilters(
+                        selectedKeywords: selectedKeywords,
+                      ),
+                      FilteredPackageList(
+                        selectedKeywords: selectedKeywords,
+                      ),
+                    ],
+                  ),
+                );
+              },
             )
           : const Center(
               child: Text(
