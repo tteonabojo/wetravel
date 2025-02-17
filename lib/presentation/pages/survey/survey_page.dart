@@ -905,9 +905,8 @@ class AccommodationPage extends ConsumerWidget {
               state.accommodationType != null ? [state.accommodationType!] : [],
           considerations:
               state.consideration != null ? [state.consideration!] : [],
-          selectedCity: state.selectedCities.isNotEmpty
-              ? state.selectedCities.first
-              : null,
+          selectedCity:
+              ref.watch(recommendationStateProvider).selectedCities[0],
         );
 
         Navigator.pushNamed(
