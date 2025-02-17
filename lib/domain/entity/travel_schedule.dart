@@ -1,13 +1,32 @@
 import 'package:wetravel/domain/entity/schedule.dart';
 
 class TravelSchedule {
+  final String id;
   final String destination;
   final List<DaySchedule> days;
+  final String? _duration;
 
   TravelSchedule({
+    required this.id,
     required this.destination,
     required this.days,
-  });
+    String? duration,
+  }) : _duration = duration;
+
+  // ScheduleCard에서 사용하는 getter들 추가
+  String get location => destination;
+  String get duration {
+    if (_duration != null) {
+      return _duration;
+    }
+    if (days.isEmpty) {
+      return '1박 2일';
+    }
+    final dayCount = days.length;
+    return '${dayCount - 1}박 ${dayCount}일';
+  }
+
+  bool get isAIRecommended => true;
 
   factory TravelSchedule.fromGeminiResponse(String response) {
     final List<DaySchedule> days = [];
@@ -51,6 +70,7 @@ class TravelSchedule {
     }
 
     return TravelSchedule(
+      id: '',
       destination: '',
       days: days,
     );
@@ -58,20 +78,41 @@ class TravelSchedule {
 
   // Firebase에서 데이터를 불러올 때 사용하는 팩토리 메서드
   factory TravelSchedule.fromFirestore(Map<String, dynamic> data) {
-    final List<DaySchedule> days = (data['days'] as List).map((dayData) {
-      final schedules = (dayData['schedules'] as List).map((scheduleData) {
-        return ScheduleItem(
-          time: scheduleData['time'],
-          title: scheduleData['title'],
-          location: scheduleData['location'],
-        );
-      }).toList();
-      return DaySchedule(schedules: schedules);
-    }).toList();
+    print('=== Firestore Data Debug ===');
+    print('Raw data: $data');
+
+    List<DaySchedule> days = [];
+
+    try {
+      if (data['days'] != null) {
+        final daysList = data['days'] as List;
+        for (var dayData in daysList) {
+          if (dayData['schedules'] != null) {
+            final schedulesList = dayData['schedules'] as List;
+            final schedules = schedulesList.map((scheduleData) {
+              return ScheduleItem(
+                time: scheduleData['time'] as String,
+                title: scheduleData['title'] as String,
+                location: scheduleData['location'] as String,
+              );
+            }).toList();
+
+            if (schedules.isNotEmpty) {
+              days.add(DaySchedule(schedules: schedules));
+            }
+          }
+        }
+      }
+    } catch (e) {
+      print('Error parsing days from Firestore: $e');
+      print('Data structure: $data');
+    }
 
     return TravelSchedule(
-      destination: data['destination'],
+      id: data['id'] ?? '',
+      destination: data['location'] ?? '',
       days: days,
+      duration: data['duration'],
     );
   }
 

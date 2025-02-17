@@ -4,8 +4,8 @@ import 'package:wetravel/core/constants/app_border_radius.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/presentation/provider/recommendation_provider.dart';
-import 'package:wetravel/domain/entity/survey_response.dart';
 import 'package:wetravel/presentation/widgets/buttons/standard_button.dart';
+import 'package:wetravel/presentation/provider/survey_provider.dart';
 
 // 국가별 도시 데이터를 클래스 외부로 이동
 const Map<String, List<String>> cityCategories = {
@@ -27,33 +27,27 @@ class _CitySelectionPageState extends ConsumerState<CitySelectionPage> {
   @override
   void initState() {
     super.initState();
-    // 페이지 접속 시 상태 초기화
+    // 페이지 진입 시 상태 초기화
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(recommendationStateProvider.notifier).resetState();
+      ref.read(surveyProvider.notifier).resetState();
     });
   }
 
   @override
   Widget build(BuildContext context) {
     void _onCitySelected(BuildContext context, String city) {
-      // 선택된 도시만 설정하고 나머지는 초기화
+      print('City selected: $city');
+
+      // SurveyProvider에 선택한 도시 저장
+      ref.read(surveyProvider.notifier).setSelectedCity(city);
+
+      // RecommendationProvider 초기화 및 선택 도시 설정
       ref.read(recommendationStateProvider.notifier).resetState(
             selectedCity: city,
           );
 
-      Navigator.pushNamed(
-        context,
-        '/survey',
-        arguments: SurveyResponse(
-          travelPeriod: '',
-          travelDuration: '',
-          companions: const [],
-          travelStyles: const [],
-          accommodationTypes: const [],
-          considerations: const [],
-          selectedCity: city,
-        ),
-      );
+      Navigator.pushReplacementNamed(context, '/survey');
     }
 
     Widget _buildCityChip(String city) {
@@ -65,7 +59,6 @@ class _CitySelectionPageState extends ConsumerState<CitySelectionPage> {
         selected: isSelected,
         onSelected: (selected) {
           if (selected) {
-            ref.read(recommendationStateProvider.notifier).toggleCity(city);
             _onCitySelected(context, city);
           }
         },
@@ -94,7 +87,7 @@ class _CitySelectionPageState extends ConsumerState<CitySelectionPage> {
               ),
               const SizedBox(height: 20),
               LinearProgressIndicator(
-                value: 1 / 4,
+                value: 0.2,
                 backgroundColor: AppColors.grayScale_150,
                 valueColor:
                     const AlwaysStoppedAnimation<Color>(AppColors.primary_450),

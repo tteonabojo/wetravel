@@ -3,11 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/core/constants/app_border_radius.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
-import 'package:wetravel/domain/entity/survey_response.dart';
-import 'package:wetravel/presentation/provider/recommendation_provider.dart';
-import 'package:wetravel/presentation/provider/survey/survey_provider.dart';
+import 'package:wetravel/presentation/provider/survey_provider.dart';
 import 'package:wetravel/presentation/widgets/buttons/standard_button.dart';
 
+/// 설문 페이지
 class SurveyPage extends ConsumerStatefulWidget {
   const SurveyPage({super.key});
 
@@ -22,13 +21,17 @@ class _SurveyPageState extends ConsumerState<SurveyPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(surveyStateProvider.notifier).resetState();
+      ref.read(surveyProvider.notifier).resetState();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(recommendationStateProvider);
+    final state = ref.watch(surveyProvider);
+
+    // 현재 페이지에 따른 진행률 계산
+    double progressValue =
+        0.4 + (state.currentPage * 0.2); // 40% 시작, 각 단계마다 20% 증가
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -40,11 +43,23 @@ class _SurveyPageState extends ConsumerState<SurveyPage> {
             children: [
               IconButton(
                 icon: const Icon(Icons.arrow_back),
-                onPressed: () => Navigator.pop(context),
+                onPressed: () {
+                  if (state.currentPage > 0) {
+                    ref
+                        .read(surveyProvider.notifier)
+                        .setCurrentPage(state.currentPage - 1);
+                    pageController.previousPage(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    );
+                  } else {
+                    Navigator.pushReplacementNamed(context, '/city-selection');
+                  }
+                },
               ),
               const SizedBox(height: 20),
               LinearProgressIndicator(
-                value: 1 / 2,
+                value: progressValue, // 동적으로 진행률 설정
                 backgroundColor: AppColors.grayScale_150,
                 valueColor:
                     const AlwaysStoppedAnimation<Color>(AppColors.primary_450),
@@ -65,46 +80,37 @@ class _SurveyPageState extends ConsumerState<SurveyPage> {
                 width: double.infinity,
                 height: 50,
                 child: StandardButton.primary(
-                    sizeType: ButtonSizeType.normal,
-                    onPressed: () {
-                      final notifier =
-                          ref.read(recommendationStateProvider.notifier);
-                      if (notifier.isCurrentPageComplete()) {
-                        if (state.currentPage < 2) {
-                          notifier.nextPage();
-                          pageController.nextPage(
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeInOut,
-                          );
-                        } else if (notifier.isAllOptionsSelected()) {
-                          final state = ref.read(recommendationStateProvider);
-                          final surveyResponse = SurveyResponse(
-                            travelPeriod: state.travelPeriod!,
-                            travelDuration: state.travelDuration!,
-                            companions: state.companions,
-                            travelStyles: state.travelStyles,
-                            accommodationTypes: state.accommodationTypes,
-                            considerations: state.considerations,
-                            selectedCity: state.selectedCities.isNotEmpty
-                                ? state.selectedCities.first
-                                : null,
-                          );
-
-                          Navigator.pushNamed(
-                            context,
-                            '/plan-selection',
-                            arguments: surveyResponse,
-                          );
-                        }
-                      }
-                    },
-                    text: '다음으로'),
+                  sizeType: ButtonSizeType.normal,
+                  onPressed: () => _onNextPressed(state),
+                  text: '다음으로',
+                ),
               ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  /// 다음 버튼 처리
+  void _onNextPressed(SurveyState state) {
+    if (state.currentPage < 2) {
+      ref.read(surveyProvider.notifier).nextPage();
+      pageController.nextPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    } else {
+      final surveyResponse = state.toSurveyResponse();
+      print(
+          'Completing survey with selected city: ${surveyResponse.selectedCity}'); // 디버깅용
+
+      Navigator.pushNamed(
+        context,
+        '/plan-selection',
+        arguments: surveyResponse,
+      );
+    }
   }
 }
 
@@ -114,29 +120,9 @@ class TravelPeriodPage extends ConsumerWidget {
 
   const TravelPeriodPage({super.key, required this.pageController});
 
-  void _checkAndNavigate(BuildContext context, WidgetRef ref) {
-    final state = ref.read(surveyStateProvider);
-    print('Travel Period Page - Selected values:');
-    print('Travel Period: ${state.travelPeriod}');
-    print('Travel Duration: ${state.travelDuration}');
-
-    // 여행 시기와 기간이 모두 선택되었을 때만 다음 페이지로 이동
-    if (state.travelPeriod != null && state.travelDuration != null) {
-      // 여행 시기와 기간이 서로 다른 카테고리에서 선택되었는지 확인
-      if (state.travelPeriod != state.travelDuration) {
-        // 서로 다른 값이 선택되었는지 확인
-        ref.read(surveyStateProvider.notifier).nextPage();
-        pageController.nextPage(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-        );
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(surveyStateProvider);
+    final state = ref.watch(surveyProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -171,9 +157,8 @@ class TravelPeriodPage extends ConsumerWidget {
               selected: state.travelPeriod == '일주일 이내',
               onSelected: (selected) {
                 if (selected) {
-                  final notifier = ref.read(surveyStateProvider.notifier);
+                  final notifier = ref.read(surveyProvider.notifier);
                   notifier.selectTravelPeriod('일주일 이내');
-                  print('Selected travel period: 일주일 이내');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -203,9 +188,8 @@ class TravelPeriodPage extends ConsumerWidget {
               selected: state.travelPeriod == '1달 내',
               onSelected: (selected) {
                 if (selected) {
-                  final notifier = ref.read(surveyStateProvider.notifier);
+                  final notifier = ref.read(surveyProvider.notifier);
                   notifier.selectTravelPeriod('1달 내');
-                  print('Selected travel period: 1달 내');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -235,9 +219,8 @@ class TravelPeriodPage extends ConsumerWidget {
               selected: state.travelPeriod == '3개월',
               onSelected: (selected) {
                 if (selected) {
-                  final notifier = ref.read(surveyStateProvider.notifier);
+                  final notifier = ref.read(surveyProvider.notifier);
                   notifier.selectTravelPeriod('3개월');
-                  print('Selected travel period: 3개월');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -267,9 +250,8 @@ class TravelPeriodPage extends ConsumerWidget {
               selected: state.travelPeriod == '일정 계획 없음',
               onSelected: (selected) {
                 if (selected) {
-                  final notifier = ref.read(surveyStateProvider.notifier);
+                  final notifier = ref.read(surveyProvider.notifier);
                   notifier.selectTravelPeriod('일정 계획 없음');
-                  print('Selected travel period: 일정 계획 없음');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -314,7 +296,7 @@ class TravelPeriodPage extends ConsumerWidget {
               onSelected: (selected) {
                 if (selected) {
                   ref
-                      .read(surveyStateProvider.notifier)
+                      .read(surveyProvider.notifier)
                       .selectTravelDuration('당일치기');
                   _checkAndNavigate(context, ref);
                 }
@@ -346,7 +328,7 @@ class TravelPeriodPage extends ConsumerWidget {
               onSelected: (selected) {
                 if (selected) {
                   ref
-                      .read(surveyStateProvider.notifier)
+                      .read(surveyProvider.notifier)
                       .selectTravelDuration('1박 2일');
                   _checkAndNavigate(context, ref);
                 }
@@ -378,7 +360,7 @@ class TravelPeriodPage extends ConsumerWidget {
               onSelected: (selected) {
                 if (selected) {
                   ref
-                      .read(surveyStateProvider.notifier)
+                      .read(surveyProvider.notifier)
                       .selectTravelDuration('2박 3일');
                   _checkAndNavigate(context, ref);
                 }
@@ -410,7 +392,7 @@ class TravelPeriodPage extends ConsumerWidget {
               onSelected: (selected) {
                 if (selected) {
                   ref
-                      .read(surveyStateProvider.notifier)
+                      .read(surveyProvider.notifier)
                       .selectTravelDuration('3박 4일');
                   _checkAndNavigate(context, ref);
                 }
@@ -442,7 +424,7 @@ class TravelPeriodPage extends ConsumerWidget {
               onSelected: (selected) {
                 if (selected) {
                   ref
-                      .read(surveyStateProvider.notifier)
+                      .read(surveyProvider.notifier)
                       .selectTravelDuration('4박 5일');
                   _checkAndNavigate(context, ref);
                 }
@@ -474,7 +456,7 @@ class TravelPeriodPage extends ConsumerWidget {
               onSelected: (selected) {
                 if (selected) {
                   ref
-                      .read(surveyStateProvider.notifier)
+                      .read(surveyProvider.notifier)
                       .selectTravelDuration('5박 6일');
                   _checkAndNavigate(context, ref);
                 }
@@ -496,6 +478,17 @@ class TravelPeriodPage extends ConsumerWidget {
       ],
     );
   }
+
+  void _checkAndNavigate(BuildContext context, WidgetRef ref) {
+    final state = ref.read(surveyProvider);
+    if (state.isCurrentPageComplete()) {
+      ref.read(surveyProvider.notifier).nextPage();
+      pageController.nextPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
 }
 
 // 여행 스타일 페이지
@@ -504,24 +497,9 @@ class TravelStylePage extends ConsumerWidget {
 
   const TravelStylePage({super.key, required this.pageController});
 
-  void _checkAndNavigate(BuildContext context, WidgetRef ref) {
-    if (ref.read(surveyStateProvider.notifier).isCurrentPageComplete()) {
-      final state = ref.read(surveyStateProvider);
-      print('Travel Style Page - Selected values:');
-      print('Companion: ${state.companion}');
-      print('Travel Style: ${state.travelStyle}');
-
-      ref.read(surveyStateProvider.notifier).nextPage();
-      pageController.nextPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(surveyStateProvider);
+    final state = ref.watch(surveyProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -556,7 +534,7 @@ class TravelStylePage extends ConsumerWidget {
               selected: state.companion == '혼자',
               onSelected: (selected) {
                 if (selected) {
-                  ref.read(surveyStateProvider.notifier).selectCompanion('혼자');
+                  ref.read(surveyProvider.notifier).selectCompanion('혼자');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -586,7 +564,7 @@ class TravelStylePage extends ConsumerWidget {
               selected: state.companion == '연인과',
               onSelected: (selected) {
                 if (selected) {
-                  ref.read(surveyStateProvider.notifier).selectCompanion('연인과');
+                  ref.read(surveyProvider.notifier).selectCompanion('연인과');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -616,7 +594,7 @@ class TravelStylePage extends ConsumerWidget {
               selected: state.companion == '친구와',
               onSelected: (selected) {
                 if (selected) {
-                  ref.read(surveyStateProvider.notifier).selectCompanion('친구와');
+                  ref.read(surveyProvider.notifier).selectCompanion('친구와');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -646,7 +624,7 @@ class TravelStylePage extends ConsumerWidget {
               selected: state.companion == '가족과',
               onSelected: (selected) {
                 if (selected) {
-                  ref.read(surveyStateProvider.notifier).selectCompanion('가족과');
+                  ref.read(surveyProvider.notifier).selectCompanion('가족과');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -691,9 +669,7 @@ class TravelStylePage extends ConsumerWidget {
               selected: state.travelStyle == '액티비티',
               onSelected: (selected) {
                 if (selected) {
-                  ref
-                      .read(surveyStateProvider.notifier)
-                      .selectTravelStyle('액티비티');
+                  ref.read(surveyProvider.notifier).selectTravelStyle('액티비티');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -723,9 +699,7 @@ class TravelStylePage extends ConsumerWidget {
               selected: state.travelStyle == '휴양',
               onSelected: (selected) {
                 if (selected) {
-                  ref
-                      .read(surveyStateProvider.notifier)
-                      .selectTravelStyle('휴양');
+                  ref.read(surveyProvider.notifier).selectTravelStyle('휴양');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -755,9 +729,7 @@ class TravelStylePage extends ConsumerWidget {
               selected: state.travelStyle == '관광지',
               onSelected: (selected) {
                 if (selected) {
-                  ref
-                      .read(surveyStateProvider.notifier)
-                      .selectTravelStyle('관광지');
+                  ref.read(surveyProvider.notifier).selectTravelStyle('관광지');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -787,9 +759,7 @@ class TravelStylePage extends ConsumerWidget {
               selected: state.travelStyle == '맛집',
               onSelected: (selected) {
                 if (selected) {
-                  ref
-                      .read(surveyStateProvider.notifier)
-                      .selectTravelStyle('맛집');
+                  ref.read(surveyProvider.notifier).selectTravelStyle('맛집');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -820,7 +790,7 @@ class TravelStylePage extends ConsumerWidget {
               onSelected: (selected) {
                 if (selected) {
                   ref
-                      .read(surveyStateProvider.notifier)
+                      .read(surveyProvider.notifier)
                       .selectTravelStyle('문화/예술/역사');
                   _checkAndNavigate(context, ref);
                 }
@@ -851,9 +821,7 @@ class TravelStylePage extends ConsumerWidget {
               selected: state.travelStyle == '쇼핑',
               onSelected: (selected) {
                 if (selected) {
-                  ref
-                      .read(surveyStateProvider.notifier)
-                      .selectTravelStyle('쇼핑');
+                  ref.read(surveyProvider.notifier).selectTravelStyle('쇼핑');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -874,6 +842,17 @@ class TravelStylePage extends ConsumerWidget {
       ],
     );
   }
+
+  void _checkAndNavigate(BuildContext context, WidgetRef ref) {
+    final state = ref.read(surveyProvider);
+    if (state.isCurrentPageComplete()) {
+      ref.read(surveyProvider.notifier).nextPage();
+      pageController.nextPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
 }
 
 // 숙소 스타일 페이지
@@ -882,45 +861,9 @@ class AccommodationPage extends ConsumerWidget {
 
   const AccommodationPage({super.key, required this.pageController});
 
-  void _checkAndNavigate(BuildContext context, WidgetRef ref) {
-    if (ref.read(surveyStateProvider.notifier).isCurrentPageComplete()) {
-      final state = ref.read(surveyStateProvider);
-      print('Creating SurveyResponse from AccommodationPage:');
-      print('Travel Period: ${state.travelPeriod}');
-      print('Travel Duration: ${state.travelDuration}');
-      print('Companion: ${state.companion}');
-      print('Travel Style: ${state.travelStyle}');
-      print('Accommodation Type: ${state.accommodationType}');
-      print('Consideration: ${state.consideration}');
-      print('Selected City: ${state.selectedCities}');
-
-      // 마지막 페이지에서만 SurveyResponse 생성 및 네비게이션
-      if (state.currentPage == 2) {
-        final surveyResponse = SurveyResponse(
-          travelPeriod: state.travelPeriod ?? '',
-          travelDuration: state.travelDuration ?? '',
-          companions: state.companion != null ? [state.companion!] : [],
-          travelStyles: state.travelStyle != null ? [state.travelStyle!] : [],
-          accommodationTypes:
-              state.accommodationType != null ? [state.accommodationType!] : [],
-          considerations:
-              state.consideration != null ? [state.consideration!] : [],
-          selectedCity:
-              ref.watch(recommendationStateProvider).selectedCities[0],
-        );
-
-        Navigator.pushNamed(
-          context,
-          '/plan-selection',
-          arguments: surveyResponse,
-        );
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(surveyStateProvider);
+    final state = ref.watch(surveyProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -956,7 +899,7 @@ class AccommodationPage extends ConsumerWidget {
               onSelected: (selected) {
                 if (selected) {
                   ref
-                      .read(surveyStateProvider.notifier)
+                      .read(surveyProvider.notifier)
                       .selectAccommodationType('호텔');
                   _checkAndNavigate(context, ref);
                 }
@@ -988,7 +931,7 @@ class AccommodationPage extends ConsumerWidget {
               onSelected: (selected) {
                 if (selected) {
                   ref
-                      .read(surveyStateProvider.notifier)
+                      .read(surveyProvider.notifier)
                       .selectAccommodationType('게스트 하우스');
                   _checkAndNavigate(context, ref);
                 }
@@ -1020,7 +963,7 @@ class AccommodationPage extends ConsumerWidget {
               onSelected: (selected) {
                 if (selected) {
                   ref
-                      .read(surveyStateProvider.notifier)
+                      .read(surveyProvider.notifier)
                       .selectAccommodationType('에어비앤비');
                   _checkAndNavigate(context, ref);
                 }
@@ -1052,7 +995,7 @@ class AccommodationPage extends ConsumerWidget {
               onSelected: (selected) {
                 if (selected) {
                   ref
-                      .read(surveyStateProvider.notifier)
+                      .read(surveyProvider.notifier)
                       .selectAccommodationType('캠핑');
                   _checkAndNavigate(context, ref);
                 }
@@ -1097,9 +1040,7 @@ class AccommodationPage extends ConsumerWidget {
               selected: state.consideration == '가성비',
               onSelected: (selected) {
                 if (selected) {
-                  ref
-                      .read(surveyStateProvider.notifier)
-                      .selectConsideration('가성비');
+                  ref.read(surveyProvider.notifier).selectConsideration('가성비');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -1129,9 +1070,7 @@ class AccommodationPage extends ConsumerWidget {
               selected: state.consideration == '시설',
               onSelected: (selected) {
                 if (selected) {
-                  ref
-                      .read(surveyStateProvider.notifier)
-                      .selectConsideration('시설');
+                  ref.read(surveyProvider.notifier).selectConsideration('시설');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -1161,9 +1100,7 @@ class AccommodationPage extends ConsumerWidget {
               selected: state.consideration == '위치',
               onSelected: (selected) {
                 if (selected) {
-                  ref
-                      .read(surveyStateProvider.notifier)
-                      .selectConsideration('위치');
+                  ref.read(surveyProvider.notifier).selectConsideration('위치');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -1193,9 +1130,7 @@ class AccommodationPage extends ConsumerWidget {
               selected: state.consideration == '청결',
               onSelected: (selected) {
                 if (selected) {
-                  ref
-                      .read(surveyStateProvider.notifier)
-                      .selectConsideration('청결');
+                  ref.read(surveyProvider.notifier).selectConsideration('청결');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -1225,9 +1160,7 @@ class AccommodationPage extends ConsumerWidget {
               selected: state.consideration == '기온',
               onSelected: (selected) {
                 if (selected) {
-                  ref
-                      .read(surveyStateProvider.notifier)
-                      .selectConsideration('기온');
+                  ref.read(surveyProvider.notifier).selectConsideration('기온');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -1257,9 +1190,7 @@ class AccommodationPage extends ConsumerWidget {
               selected: state.consideration == '시차',
               onSelected: (selected) {
                 if (selected) {
-                  ref
-                      .read(surveyStateProvider.notifier)
-                      .selectConsideration('시차');
+                  ref.read(surveyProvider.notifier).selectConsideration('시차');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -1289,9 +1220,7 @@ class AccommodationPage extends ConsumerWidget {
               selected: state.consideration == '없음',
               onSelected: (selected) {
                 if (selected) {
-                  ref
-                      .read(surveyStateProvider.notifier)
-                      .selectConsideration('없음');
+                  ref.read(surveyProvider.notifier).selectConsideration('없음');
                   _checkAndNavigate(context, ref);
                 }
               },
@@ -1311,5 +1240,25 @@ class AccommodationPage extends ConsumerWidget {
         ),
       ],
     );
+  }
+
+  void _checkAndNavigate(BuildContext context, WidgetRef ref) {
+    final state = ref.read(surveyProvider);
+    if (state.isCurrentPageComplete()) {
+      if (state.currentPage == 2) {
+        final surveyResponse = state.toSurveyResponse();
+        Navigator.pushNamed(
+          context,
+          '/plan-selection',
+          arguments: surveyResponse,
+        );
+      } else {
+        ref.read(surveyProvider.notifier).nextPage();
+        pageController.nextPage(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      }
+    }
   }
 }
