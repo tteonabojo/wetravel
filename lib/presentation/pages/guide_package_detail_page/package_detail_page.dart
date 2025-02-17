@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -258,17 +260,24 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
           ),
           if (!isOwner && package!.isHidden)
             Positioned.fill(
-              child: Container(
-                color: Colors.black.withOpacity(0.5),
-                child: Center(
-                  child: Text(
-                    '비공개 패키지 입니다',
-                    style: AppTypography.headline4.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+              child: Stack(
+                children: [
+                  BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                    child: Container(
+                      color: Colors.black.withOpacity(0.5),
                     ),
                   ),
-                ),
+                  Center(
+                    child: Text(
+                      '비공개 패키지 입니다',
+                      style: AppTypography.headline4.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
         ],
