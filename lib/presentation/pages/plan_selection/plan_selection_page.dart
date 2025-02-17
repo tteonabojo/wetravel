@@ -5,6 +5,8 @@ import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/domain/entity/survey_response.dart';
+import 'package:wetravel/presentation/provider/survey_provider.dart';
+import 'package:wetravel/presentation/provider/recommendation_provider.dart';
 
 /// 여행 계획 방식 선택 페이지
 class PlanSelectionPage extends ConsumerWidget {
@@ -44,7 +46,7 @@ class PlanSelectionPage extends ConsumerWidget {
               _buildHeader(context),
               const SizedBox(height: 40),
               Expanded(
-                child: _buildSelectionGrid(context, surveyResponse),
+                child: _buildSelectionGrid(context, surveyResponse, ref),
               ),
             ],
           ),
@@ -76,14 +78,14 @@ class PlanSelectionPage extends ConsumerWidget {
 
   /// 선택 그리드 구성
   Widget _buildSelectionGrid(
-      BuildContext context, SurveyResponse surveyResponse) {
+      BuildContext context, SurveyResponse surveyResponse, WidgetRef ref) {
     return GridView.count(
       crossAxisCount: 2,
       mainAxisSpacing: 16,
       crossAxisSpacing: 16,
       childAspectRatio: 1,
       children: [
-        _buildAIRecommendationCard(context, surveyResponse),
+        _buildAIRecommendationCard(context, surveyResponse, ref),
         _buildGuideRecommendationCard(context),
       ],
     );
@@ -91,28 +93,29 @@ class PlanSelectionPage extends ConsumerWidget {
 
   /// AI 추천 카드 구성
   Widget _buildAIRecommendationCard(
-      BuildContext context, SurveyResponse surveyResponse) {
+      BuildContext context, SurveyResponse surveyResponse, WidgetRef ref) {
     return InkWell(
       onTap: () {
         try {
-          print('AI card tapped with survey response:');
-          print('Travel Period: ${surveyResponse.travelPeriod}');
-          print('Travel Duration: ${surveyResponse.travelDuration}');
-          print('Companions: ${surveyResponse.companions}');
+          print('Current survey response before AI recommendation:');
+          print('Selected City: ${surveyResponse.selectedCity}');
 
-          Navigator.of(context)
-              .pushNamed(
+          // 새로운 설문 시작 시에만 상태 초기화
+          if (ModalRoute.of(context)?.settings.arguments == null) {
+            print('Starting new survey - resetting states');
+            ref.read(surveyProvider.notifier).resetState();
+          }
+
+          // 추천 관련 상태는 항상 초기화
+          ref.read(recommendationStateProvider.notifier).resetState();
+          ref.invalidate(recommendationProvider);
+
+          Navigator.of(context).pushNamed(
             '/ai-recommendation',
             arguments: surveyResponse,
-          )
-              .then((_) {
-            print('Navigation completed');
-          }).catchError((error) {
-            print('Navigation error: $error');
-          });
-        } catch (e, stack) {
-          print('Error in AI card tap: $e');
-          print('Stack trace: $stack');
+          );
+        } catch (e) {
+          print('Error navigating to AI recommendation: $e');
         }
       },
       child: Container(

@@ -308,33 +308,25 @@ class RecommendationNotifier extends StateNotifier<RecommendationState> {
   void initializeFromSurvey(SurveyResponse survey) {
     state = state.copyWith(
       currentPage: 0,
-      selectedCities: [if (survey.selectedCity != null) survey.selectedCity!],
+      selectedCities: survey.selectedCity != null ? [survey.selectedCity!] : [],
       travelPeriod: survey.travelPeriod,
       travelDuration: survey.travelDuration,
       companions: survey.companions,
       travelStyles: survey.travelStyles,
       accommodationTypes: survey.accommodationTypes,
       considerations: survey.considerations,
-      destinations: [], // 빈 배열로 초기화
-      reasons: [], // 빈 배열로 초기화
+      destinations: [],
+      reasons: [],
       tips: [],
     );
   }
 
   /// 상태 초기화
-  void resetState({String? selectedCity}) {
+  void resetState() {
     state = RecommendationState(
-      currentPage: 0,
-      selectedCities: selectedCity != null ? [selectedCity] : [],
-      travelPeriod: null,
-      travelDuration: null,
-      companions: [],
-      travelStyles: [],
-      accommodationTypes: [],
-      considerations: [],
-      selectedKeywords: [],
       destinations: [],
       reasons: [],
+      selectedCities: [], // 선택된 도시도 초기화
       tips: [],
     );
   }
@@ -350,24 +342,33 @@ class RecommendationNotifier extends StateNotifier<RecommendationState> {
       print('Getting recommendations for survey:');
       print('Selected City: ${surveyResponse.selectedCity}');
 
-      // 선호 도시가 있는 경우 해당 도시만 전달
-      List<String>? selectedCity;
+      // 추천 결과 초기화
+      state = state.copyWith(
+        destinations: [],
+        reasons: [],
+        tips: [],
+      );
+
+      // 선호 도시가 있는 경우 해당 도시의 카테고리에서 추가 도시 가져오기
+      List<String>? selectedCities;
       if (surveyResponse.selectedCity != null &&
           surveyResponse.selectedCity!.isNotEmpty) {
-        selectedCity = [surveyResponse.selectedCity!];
-        print('Setting preferred city: ${surveyResponse.selectedCity}');
+        final recommendedCities =
+            getRecommendedCitiesFromSameCategory(surveyResponse.selectedCity!);
+        selectedCities = [surveyResponse.selectedCity!, ...recommendedCities];
+        print('Using preferred cities: $selectedCities');
       }
 
       final response = await _geminiService.getTravelRecommendation(
         surveyResponse,
-        preferredCities: selectedCity, // 선호 도시만 전달
+        preferredCities: selectedCities,
       );
 
       print('Raw Gemini response: $response');
 
       final recommendation = TravelRecommendation.fromGeminiResponse(
         response,
-        preferredCities: selectedCity ?? [], // 선호 도시만 전달
+        preferredCities: selectedCities ?? [],
       );
 
       print('Final recommendations: ${recommendation.destinations}');
@@ -378,8 +379,7 @@ class RecommendationNotifier extends StateNotifier<RecommendationState> {
       );
     } catch (e) {
       print('Error in getRecommendations: $e');
-      return RecommendationState(
-          destinations: [], reasons: []); // initial() 대신 빈 상태 반환
+      return RecommendationState(destinations: [], reasons: []);
     }
   }
 }
@@ -393,47 +393,23 @@ final recommendationStateProvider =
 final recommendationProvider = FutureProvider.autoDispose
     .family<TravelRecommendation, SurveyResponse>((ref, survey) async {
   try {
-    print('Provider called with survey:');
-    print('Travel Period: ${survey.travelPeriod}');
-    print('Travel Duration: ${survey.travelDuration}');
-    print('Companions: ${survey.companions}');
-    print('Travel Styles: ${survey.travelStyles}');
-    print('Selected City: ${survey.selectedCity}');
-
     final geminiService = ref.read(geminiServiceProvider);
 
-    // 빈 문자열이나 빈 리스트 체크
-    if (survey.travelPeriod.isEmpty ||
-        survey.travelDuration.isEmpty ||
-        survey.companions.isEmpty ||
-        survey.travelStyles.isEmpty) {
-      throw Exception('필수 설문 응답이 누락되었습니다.');
-    }
-
-    List<String>? preferredCities;
-
-    // 선택된 도시가 있는 경우
-    if (survey.selectedCity != null && survey.selectedCity!.isNotEmpty) {
-      final notifier = ref.read(recommendationStateProvider.notifier);
-      final recommendedCities =
-          notifier.getRecommendedCitiesFromSameCategory(survey.selectedCity!);
-      preferredCities = [survey.selectedCity!, ...recommendedCities];
-
-      print('Using preferred cities: $preferredCities');
-    }
+    // 사용자가 선택한 도시가 있으면 해당 도시를 1순위로 전달
+    final preferredCities =
+        survey.selectedCity != null ? [survey.selectedCity!] : null;
 
     final response = await geminiService.getTravelRecommendation(
       survey,
-      preferredCities: preferredCities,
+      preferredCities: preferredCities, // 선택된 도시를 1순위로 전달
     );
 
     return TravelRecommendation.fromGeminiResponse(
       response,
       preferredCities: preferredCities ?? [],
     );
-  } catch (e, stack) {
+  } catch (e) {
     print('Error in recommendation provider: $e');
-    print('Stack trace: $stack');
     rethrow;
   }
 });
