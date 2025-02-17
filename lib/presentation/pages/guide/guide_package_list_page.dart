@@ -36,6 +36,26 @@ class _GuidePackageListPageState extends ConsumerState<GuidePackageListPage> {
   @override
   void initState() {
     super.initState();
+    _checkLoginAndRefreshData();
+  }
+
+  void _checkLoginAndRefreshData() async {
+    try {
+      final user = await ref.read(fetchUserUsecaseProvider).execute();
+      if (user != null) {
+        _refreshData();
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()),
+        );
+      }
+    } catch (e) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => LoginPage()),
+      );
+    }
   }
 
   void _refreshData() {
