@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:intl/intl.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/domain/entity/user.dart';
@@ -58,9 +59,9 @@ class _NoticePageState extends State<NoticePage> {
               ),
             ),
             SizedBox(height: 4),
-            Expanded( // Expanded 추가
+            Expanded(
               child: StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance.collection('notices').snapshots(),
+                stream: FirebaseFirestore.instance.collection('notices_test').snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
                     return Text('Error: ${snapshot.error}');
@@ -73,6 +74,13 @@ class _NoticePageState extends State<NoticePage> {
                   return ListView(
                     children: snapshot.data!.docs.map((DocumentSnapshot document) {
                       Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+
+                      // Timestamp -> DateTime 변환 후 yyyy-MM-dd 형식으로 변환
+                      String formattedDate = '';
+                      if (data['date'] is Timestamp) {
+                        formattedDate = DateFormat('yyyy-MM-dd').format((data['date'] as Timestamp).toDate());
+                      }
+
                       return Container(
                         height: 100,
                         color: Colors.white,
@@ -93,7 +101,7 @@ class _NoticePageState extends State<NoticePage> {
                                   ),
                                   SizedBox(height: 4),
                                   Text(
-                                    data['date'],
+                                    formattedDate, // 변환된 날짜 표시
                                     style: TextStyle(
                                       fontSize: 14,
                                       color: Colors.black,
@@ -121,7 +129,7 @@ class _NoticePageState extends State<NoticePage> {
                                     );
                                   } else if (value == 'delete') {
                                     FirebaseFirestore.instance
-                                        .collection('noticesCollection')
+                                        .collection('notices_test')
                                         .doc(document.id)
                                         .delete();
                                   }
