@@ -1,5 +1,3 @@
-import 'dart:developer' as dev;
-
 class TravelRecommendation {
   final List<String> destinations;
   final List<String> reasons;

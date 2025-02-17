@@ -14,11 +14,8 @@ class PlanSelectionPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // null 체크 추가
     final args = ModalRoute.of(context)?.settings.arguments;
     if (args == null) {
-      print('No arguments passed to PlanSelectionPage');
-      // 인자가 없을 경우 이전 페이지로 돌아가기
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pop(context);
       });
@@ -30,10 +27,6 @@ class PlanSelectionPage extends ConsumerWidget {
     }
 
     final surveyResponse = args as SurveyResponse;
-
-    print('PlanSelectionPage received survey response:');
-    print('Travel Period: ${surveyResponse.travelPeriod}');
-    print('Travel Duration: ${surveyResponse.travelDuration}');
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -97,16 +90,10 @@ class PlanSelectionPage extends ConsumerWidget {
     return InkWell(
       onTap: () {
         try {
-          print('Current survey response before AI recommendation:');
-          print('Selected City: ${surveyResponse.selectedCity}');
-
-          // 새로운 설문 시작 시에만 상태 초기화
           if (ModalRoute.of(context)?.settings.arguments == null) {
-            print('Starting new survey - resetting states');
             ref.read(surveyProvider.notifier).resetState();
           }
 
-          // 추천 관련 상태는 항상 초기화
           ref.read(recommendationStateProvider.notifier).resetState();
           ref.invalidate(recommendationProvider);
 
@@ -115,7 +102,9 @@ class PlanSelectionPage extends ConsumerWidget {
             arguments: surveyResponse,
           );
         } catch (e) {
-          print('Error navigating to AI recommendation: $e');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('오류가 발생했습니다: $e')),
+          );
         }
       },
       child: Container(
@@ -132,11 +121,7 @@ class PlanSelectionPage extends ConsumerWidget {
   Widget _buildGuideRecommendationCard(BuildContext context) {
     return InkWell(
       onTap: () {
-        try {
-          Navigator.of(context).pushNamed('/manual-planning');
-        } catch (e) {
-          print('Error in guide card tap: $e');
-        }
+        Navigator.of(context).pushNamed('/manual-planning');
       },
       child: Container(
         decoration: BoxDecoration(

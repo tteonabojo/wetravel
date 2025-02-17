@@ -8,10 +8,8 @@ import 'package:wetravel/core/constants/app_shadow.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/domain/entity/survey_response.dart';
 import 'package:wetravel/presentation/provider/recommendation_provider.dart';
-import 'package:wetravel/presentation/provider/survey_provider.dart';
 import 'package:wetravel/presentation/widgets/buttons/standard_button.dart';
 import 'package:lottie/lottie.dart';
-import 'package:flutter/scheduler.dart';
 
 class AIRecommendationPage extends ConsumerStatefulWidget {
   const AIRecommendationPage({super.key});
@@ -33,14 +31,8 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_isFirstLoad) {
-      // 전달받은 설문 응답 확인
       final args =
           ModalRoute.of(context)?.settings.arguments as SurveyResponse?;
-      if (args != null) {
-        print('Received survey response:');
-        print('Travel Period: ${args.travelPeriod}');
-        print('Selected City: ${args.selectedCity}');
-      }
       _loadRecommendations();
       _isFirstLoad = false;
     }
@@ -70,10 +62,6 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
         throw Exception('No survey response provided');
       }
 
-      print('Loading recommendations for:');
-      print('Travel Period: ${args.travelPeriod}');
-      print('Selected City: ${args.selectedCity}');
-
       final recommendation =
           await ref.read(recommendationProvider(args).future);
 
@@ -85,7 +73,6 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
         _isLoading = false;
       });
     } catch (e) {
-      print('Error in _loadRecommendations: $e');
       if (!mounted) return;
 
       setState(() {
