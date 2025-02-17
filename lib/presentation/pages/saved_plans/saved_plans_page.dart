@@ -8,8 +8,8 @@ import 'package:wetravel/core/constants/firestore_constants.dart';
 import 'package:wetravel/domain/entity/survey_response.dart';
 import 'package:wetravel/presentation/widgets/schedule_card.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:wetravel/domain/entity/schedule.dart';
 import 'package:wetravel/presentation/provider/schedule_actions_provider.dart';
+import 'package:wetravel/domain/entity/travel_schedule.dart';
 
 class SavedPlansPage extends ConsumerWidget {
   SavedPlansPage({super.key});
@@ -60,11 +60,11 @@ class SavedPlansPage extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             itemCount: schedules.length,
             itemBuilder: (context, index) {
-              final scheduleData =
-                  schedules[index].data() as Map<String, dynamic>;
-              final schedule = Schedule.fromJson(scheduleData);
+              final scheduleDoc = schedules[index];
+              final scheduleData = scheduleDoc.data() as Map<String, dynamic>;
+              final travelSchedule = TravelSchedule.fromFirestore(scheduleData);
               return ScheduleCard(
-                schedule: schedule,
+                schedule: travelSchedule,
                 onDelete: () {
                   showCupertinoDialog(
                     context: context,
@@ -79,14 +79,16 @@ class SavedPlansPage extends ConsumerWidget {
                         CupertinoDialogAction(
                           onPressed: () async {
                             try {
+                              print('Document ID: ${scheduleDoc.id}');
                               await ref
                                   .read(scheduleActionsProvider)
-                                  .deleteSchedule(schedule.id);
+                                  .deleteSchedule(scheduleDoc.id);
                               Navigator.pop(context);
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(content: Text('일정이 삭제되었습니다')),
                               );
                             } catch (e) {
+                              print('Error in delete action: $e');
                               Navigator.pop(context);
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(content: Text('삭제 실패: $e')),
@@ -101,17 +103,25 @@ class SavedPlansPage extends ConsumerWidget {
                   );
                 },
                 onTap: () {
+                  final travelSchedule =
+                      TravelSchedule.fromFirestore(scheduleData);
+
                   Navigator.pushNamed(
                     context,
                     '/ai-schedule',
                     arguments: SurveyResponse(
-                      travelPeriod: '1개월 이내',
-                      travelDuration: '${schedule.duration}',
-                      companions: ['혼자'],
-                      travelStyles: ['관광지', '맛집'],
-                      accommodationTypes: ['호텔'],
-                      considerations: ['위치'],
-                      selectedCity: schedule.location,
+                      selectedCity: travelSchedule.destination,
+                      travelPeriod: scheduleData['travelPeriod'] ?? '1개월 이내',
+                      travelDuration: scheduleData['duration'] ?? '2박 3일',
+                      companions: List<String>.from(
+                          scheduleData['companions'] ?? ['혼자']),
+                      travelStyles: List<String>.from(
+                          scheduleData['travelStyles'] ?? ['관광지']),
+                      accommodationTypes: List<String>.from(
+                          scheduleData['accommodationTypes'] ?? ['호텔']),
+                      considerations: List<String>.from(
+                          scheduleData['considerations'] ?? ['위치']),
+                      savedSchedule: travelSchedule,
                     ),
                   );
                 },
