@@ -82,13 +82,20 @@ Widget _buildAdminBox(context) {
         borderRadius: AppBorderRadius.small12,
         boxShadow: AppShadow.generalShadow,
       ),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: Text(
-          '관리자 메뉴 : 패키지 관리',
-          style: AppTypography.buttonLabelSmall
-              .copyWith(color: AppColors.grayScale_750),
-        ),
+      child: Row(
+        spacing: 8,
+        children: [
+          SvgPicture.asset(AppIcons.noteSearch,
+              height: 20, color: AppColors.grayScale_550),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              '패키지 관리',
+              style: AppTypography.headline6
+                  .copyWith(color: AppColors.grayScale_750),
+            ),
+          ),
+        ],
       ),
     ),
   );
