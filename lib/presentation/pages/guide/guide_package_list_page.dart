@@ -139,6 +139,7 @@ class _GuidePackageListPageState extends ConsumerState<GuidePackageListPage> {
   Widget build(BuildContext context) {
     final getPackageUseCase = ref.read(getPackageUseCaseProvider);
     final getSchedulesUseCase = ref.read(getSchedulesUseCaseProvider);
+    double screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
       body: Column(
@@ -175,7 +176,7 @@ class _GuidePackageListPageState extends ConsumerState<GuidePackageListPage> {
             child: _futureData == null
                 ? const Center(
                     child:
-                        CircularProgressIndicator()) // _futureData가 null일 때 로딩
+                        CircularProgressIndicator(color: AppColors.primary_450))
                 : FutureBuilder<Map<String, dynamic>>(
                     future: _futureData,
                     builder: (context, snapshot) {
@@ -345,20 +346,23 @@ class _GuidePackageListPageState extends ConsumerState<GuidePackageListPage> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => const PackageRegisterPage()),
-          );
-        },
-        backgroundColor: AppColors.primary_450,
-        elevation: 0,
-        child: SvgPicture.asset(
-          AppIcons.plus,
-          width: 30,
-          color: Colors.white,
+      floatingActionButton: Padding(
+        padding: EdgeInsets.all(screenHeight * 0.01),
+        child: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const PackageRegisterPage()),
+            );
+          },
+          backgroundColor: AppColors.primary_450,
+          elevation: 0,
+          child: SvgPicture.asset(
+            AppIcons.plus,
+            width: 30,
+            color: Colors.white,
+          ),
         ),
       ),
     );

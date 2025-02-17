@@ -40,6 +40,46 @@ class Package {
     this.viewCount = 0,
   });
 
+  Package copyWith({
+    String? id,
+    String? userId,
+    String? userName,
+    String? userImageUrl,
+    String? title,
+    String? location,
+    String? description,
+    String? duration,
+    String? imageUrl,
+    List<String>? keywordList,
+    List<String>? scheduleIdList,
+    Timestamp? createdAt,
+    Timestamp? updatedAt,
+    Timestamp? deletedAt,
+    int? reportCount,
+    bool? isHidden,
+    int? viewCount,
+  }) {
+    return Package(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      userName: userName ?? this.userName,
+      userImageUrl: userImageUrl ?? this.userImageUrl,
+      title: title ?? this.title,
+      location: location ?? this.location,
+      description: description ?? this.description,
+      duration: duration ?? this.duration,
+      imageUrl: imageUrl ?? this.imageUrl,
+      keywordList: keywordList ?? this.keywordList,
+      scheduleIdList: scheduleIdList ?? this.scheduleIdList,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      reportCount: reportCount ?? this.reportCount,
+      isHidden: isHidden ?? this.isHidden,
+      viewCount: viewCount ?? this.viewCount,
+    );
+  }
+
   factory Package.fromJson(Map<String, dynamic> json) {
     return Package(
       id: json["id"] as String,

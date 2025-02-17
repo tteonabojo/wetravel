@@ -5,6 +5,7 @@ import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/domain/entity/survey_response.dart';
+import 'package:wetravel/presentation/pages/guide_package/filtered_guide_package_page.dart';
 
 /// 여행 계획 방식 선택 페이지
 class PlanSelectionPage extends ConsumerWidget {
