@@ -269,11 +269,13 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
                   _isIntroValid = value.isNotEmpty;
                 }),
               ),
-              const SizedBox(height: 16),
-              _buildSaveButton(),
             ],
           ),
         ),
+        bottomNavigationBar: Padding(
+          padding: const EdgeInsets.only(bottom: 42, left: 16, right: 16),
+          child: _buildSaveButton(),
+        )
       ),
     );
   }
