@@ -66,9 +66,12 @@ class _ScrapPackagesPageState extends ConsumerState<ScrapPackagesPage> {
 
   Future<Map<String, String>> fetchUserNameAndImageUrl(String userId) async {
     final firestore = FirebaseFirestore.instance;
+    final firebaseConstants = FirestoreConstants();
     try {
-      final userDoc =
-          await firestore.collection('users_test').doc(userId).get();
+      final userDoc = await firestore
+          .collection(firebaseConstants.usersCollection)
+          .doc(userId)
+          .get();
       if (userDoc.exists) {
         final userData = userDoc.data()!;
         return {
