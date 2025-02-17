@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
-import 'package:wetravel/core/constants/app_icons.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/presentation/pages/guide_package/widgets/filterd_package_list.dart';
 import 'package:wetravel/presentation/pages/guide_package/widgets/filters.dart';
+import 'package:wetravel/presentation/provider/survey_provider.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:wetravel/core/constants/app_icons.dart';
 import 'package:wetravel/presentation/pages/stack/stack_page.dart';
-import 'package:wetravel/presentation/provider/survey/survey_provider.dart';
 
 /// 선택한 키워드를 모아서 보여주는 페이지
 class FilteredGuidePackagePage extends ConsumerWidget {
@@ -15,17 +15,21 @@ class FilteredGuidePackagePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(surveyStateProvider);
+    final state = ref.watch(surveyProvider);
 
     final selectedKeywords = [
+      if (state.selectedCity != null && state.selectedCity!.isNotEmpty)
+        {
+          'value': (state.selectedCity is List<String>)
+              ? (state.selectedCity as List<String>).join(', ')
+              : state.selectedCity
+        },
       if (state.travelPeriod != null) {'value': state.travelPeriod},
       if (state.travelDuration != null) {'value': state.travelDuration},
       if (state.companion != null) {'value': state.companion},
       if (state.travelStyle != null) {'value': state.travelStyle},
       if (state.accommodationType != null) {'value': state.accommodationType},
       if (state.consideration != null) {'value': state.consideration},
-      if (state.selectedCities.isNotEmpty)
-        {'value': state.selectedCities.join(', ')},
     ].map((keyword) => keyword['value']).whereType<String>().toList();
 
     return Scaffold(

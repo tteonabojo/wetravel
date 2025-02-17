@@ -131,7 +131,13 @@ class PlanSelectionPage extends ConsumerWidget {
     return InkWell(
       onTap: () {
         try {
-          Navigator.of(context).pushNamed('/manual-planning');
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+              builder: (context) => FilteredGuidePackagePage(),
+            ),
+            (route) => false,
+          );
         } catch (e) {
           print('Error in guide card tap: $e');
         }

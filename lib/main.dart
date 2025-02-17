@@ -8,7 +8,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:wetravel/firebase_options.dart';
 import 'package:wetravel/presentation/pages/guide_package/filtered_guide_package_page.dart';
 import 'package:wetravel/presentation/pages/login/login_page.dart';
 import 'package:wetravel/presentation/pages/new_trip/scrap_package_page.dart';
@@ -102,7 +101,7 @@ class MyApp extends ConsumerWidget {
         '/plan-selection': (context) => const PlanSelectionPage(),
         '/ai-recommendation': (context) => const AIRecommendationPage(),
         '/ai-schedule': (context) => const AISchedulePage(),
-        '/manual-planning': (context) => const FilteredGuidePackagePage(),
+        '/manual-planning': (context) => FilteredGuidePackagePage(),
         '/mypage': (context) => MyPage(),
         '/saved-plans': (context) => SavedPlansPage(),
         '/saved-guide-plans': (context) => ScrapPackagesPage(),
