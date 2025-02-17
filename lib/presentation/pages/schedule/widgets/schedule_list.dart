@@ -19,14 +19,18 @@ class ScheduleList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // savedSchedule이 있으면 그것을 사용하고, 없으면 AI로 새로 생성
     return ref.watch(scheduleProvider(surveyResponse)).when(
           data: (schedule) {
+            // savedSchedule이 있으면 그것을 사용
+            final currentSchedule = surveyResponse.savedSchedule ?? schedule;
+
             final selectedDay = ref.watch(selectedDayProvider);
-            if (selectedDay >= schedule.days.length) {
+            if (selectedDay >= currentSchedule.days.length) {
               return const SizedBox();
             }
 
-            final daySchedule = schedule.days[selectedDay];
+            final daySchedule = currentSchedule.days[selectedDay];
             return isEditMode
                 ? ReorderableListView.builder(
                     padding: AppSpacing.medium16,

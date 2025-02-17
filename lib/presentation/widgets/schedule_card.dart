@@ -5,18 +5,18 @@ import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_icons.dart';
 import 'package:wetravel/core/constants/app_shadow.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
-import 'package:wetravel/domain/entity/schedule.dart';
+import 'package:wetravel/domain/entity/travel_schedule.dart';
 
 class ScheduleCard extends StatelessWidget {
-  final Schedule schedule;
+  final TravelSchedule schedule;
   final VoidCallback onDelete;
-  final VoidCallback? onTap;
+  final VoidCallback onTap;
 
   const ScheduleCard({
     super.key,
     required this.schedule,
     required this.onDelete,
-    this.onTap,
+    required this.onTap,
   });
 
   @override

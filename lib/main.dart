@@ -99,11 +99,10 @@ class MyApp extends ConsumerWidget {
         '/city-selection': (context) => const CitySelectionPage(),
         '/survey': (context) => const SurveyPage(),
         '/new-trip': (context) => const NewTripPage(),
-        '/plan-selection': (_) =>
-            const ProviderScope(child: PlanSelectionPage()),
+        '/plan-selection': (context) => const PlanSelectionPage(),
         '/ai-recommendation': (context) => const AIRecommendationPage(),
         '/ai-schedule': (context) => const AISchedulePage(),
-        '/manual-planning': (context) => FilteredGuidePackagePage(),
+        '/manual-planning': (context) => const FilteredGuidePackagePage(),
         '/mypage': (context) => MyPage(),
         '/saved-plans': (context) => SavedPlansPage(),
         '/saved-guide-plans': (context) => ScrapPackagesPage(),
@@ -113,21 +112,6 @@ class MyApp extends ConsumerWidget {
         return MaterialPageRoute(
           builder: (context) => const StackPage(),
         );
-      },
-      onGenerateRoute: (settings) {
-        if (settings.name == '/ai-recommendation') {
-          return PageRouteBuilder(
-            settings: settings,
-            pageBuilder: (context, animation, secondaryAnimation) =>
-                const AIRecommendationPage(),
-            transitionsBuilder:
-                (context, animation, secondaryAnimation, child) {
-              return child;
-            },
-            fullscreenDialog: true,
-          );
-        }
-        return null;
       },
     );
   }

@@ -32,6 +32,11 @@ class _AISchedulePageState extends ConsumerState<AISchedulePage> {
     final surveyResponse =
         ModalRoute.of(context)!.settings.arguments as SurveyResponse;
 
+    // savedSchedule이 있으면 그것을 사용하고, 없으면 AI로 새로 생성
+    final scheduleAsync = surveyResponse.savedSchedule != null
+        ? Future.value(surveyResponse.savedSchedule!)
+        : ref.watch(scheduleProvider(surveyResponse).future);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -49,41 +54,54 @@ class _AISchedulePageState extends ConsumerState<AISchedulePage> {
       body: SafeArea(
         child: Container(
           color: AppColors.grayScale_050,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ScheduleHeader(surveyResponse: surveyResponse),
-              Container(
-                width: double.infinity,
-                height: 1,
-                color: AppColors.grayScale_150,
-              ),
-              Expanded(
-                child: Container(
-                  color: AppColors.grayScale_050,
-                  child: Padding(
-                    padding: EdgeInsets.only(top: 20),
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16),
-                          child: ScheduleDayTabs(
+          child: FutureBuilder<TravelSchedule>(
+            future: scheduleAsync,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: CircularProgressIndicator(
+                    color: AppColors.primary_450,
+                  ),
+                );
+              }
+
+              if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              }
+
+              final schedule = snapshot.data!;
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ScheduleHeader(surveyResponse: surveyResponse),
+                  Container(
+                    width: double.infinity,
+                    height: 1,
+                    color: AppColors.grayScale_150,
+                  ),
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      color: AppColors.grayScale_050,
+                      child: Column(
+                        children: [
+                          ScheduleDayTabs(
                               dayCount:
                                   _getDayCount(surveyResponse.travelDuration)),
-                        ),
-                        Expanded(
-                          child: ScheduleList(
-                            surveyResponse: surveyResponse,
-                            isEditMode: isEditMode,
+                          Expanded(
+                            child: ScheduleList(
+                              surveyResponse: surveyResponse,
+                              isEditMode: isEditMode,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ),
-              _buildBottomButtons(surveyResponse),
-            ],
+                  _buildBottomButtons(surveyResponse),
+                ],
+              );
+            },
           ),
         ),
       ),
@@ -147,11 +165,16 @@ class _AISchedulePageState extends ConsumerState<AISchedulePage> {
 
   Future<void> _saveSchedule(SurveyResponse surveyResponse) async {
     try {
-      final scheduleAsync = ref.read(scheduleProvider(surveyResponse));
-      if (scheduleAsync.hasValue) {
-        final schedule = scheduleAsync.value!;
-        await _saveScheduleToFirebase(schedule, surveyResponse);
+      // FutureBuilder에서 사용한 것과 동일한 로직으로 일정 가져오기
+      TravelSchedule schedule;
+      if (surveyResponse.savedSchedule != null) {
+        schedule = surveyResponse.savedSchedule!;
+      } else {
+        schedule = await ref.read(scheduleProvider(surveyResponse).future);
       }
+
+      // 가져온 일정 저장
+      await _saveScheduleToFirebase(schedule, surveyResponse);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -175,18 +198,42 @@ class _AISchedulePageState extends ConsumerState<AISchedulePage> {
         throw Exception('도시 이름이 없습니다.');
       }
 
+      // 세부 일정 데이터 구조 확인을 위한 로그
+      print('Saving schedule days: ${schedule.days.length}');
+      print('First day schedules: ${schedule.days.first.schedules.length}');
+
       final scheduleData = {
         'id': id,
         'title': '$cityName 여행',
         'location': cityName,
         'duration': '${schedule.days.length - 1}박 ${schedule.days.length}일',
+        'days': schedule.days
+            .map((day) => {
+                  'schedules': day.schedules
+                      .map((item) => {
+                            'time': item.time,
+                            'title': item.title,
+                            'location': item.location,
+                          })
+                      .toList(),
+                })
+            .toList(),
         'imageUrl': await _getImageUrl(cityName),
         'isAIRecommended': true,
         'travelStyle': surveyResponse.travelStyles.isNotEmpty
             ? surveyResponse.travelStyles[0]
             : '관광지',
         'createdAt': now.toIso8601String(),
+        // 추가 정보 저장
+        'travelPeriod': surveyResponse.travelPeriod,
+        'companions': surveyResponse.companions,
+        'travelStyles': surveyResponse.travelStyles,
+        'accommodationTypes': surveyResponse.accommodationTypes,
+        'considerations': surveyResponse.considerations,
       };
+
+      // 저장할 데이터 확인을 위한 로그
+      print('Saving schedule data: $scheduleData');
 
       await FirebaseFirestore.instance
           .collection(firestoreConstants.usersCollection)
@@ -201,6 +248,7 @@ class _AISchedulePageState extends ConsumerState<AISchedulePage> {
         );
       }
     } catch (e) {
+      print('Error saving schedule: $e'); // 에러 로그 추가
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('저장 실패: $e')),

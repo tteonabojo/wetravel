@@ -43,20 +43,15 @@ final getSchedulesUseCaseProvider = Provider((ref) {
 
 final scheduleProvider = FutureProvider.autoDispose
     .family<TravelSchedule, SurveyResponse>((ref, survey) async {
-  final geminiService = ref.read(geminiServiceProvider);
-  final response = await geminiService.getTravelSchedule(survey);
-  final travelSchedule = TravelSchedule.fromGeminiResponse(response);
-
-  // 환경에 따른 저장소 구분
-  final userId = FirebaseAuth.instance.currentUser?.uid;
-  if (userId != null) {
-    final scheduleRepo = ref.read(_scheduleRepositoryProvider);
-    final schedule =
-        travelSchedule.toSchedule(); // TravelSchedule을 Schedule로 변환
-    await scheduleRepo.saveSchedule(userId, schedule);
+  // 저장된 일정이 있으면 그대로 반환
+  if (survey.savedSchedule != null) {
+    return survey.savedSchedule!;
   }
 
-  return travelSchedule;
+  // 없으면 AI로 새로운 일정 생성
+  final geminiService = ref.read(geminiServiceProvider);
+  final response = await geminiService.getTravelSchedule(survey);
+  return TravelSchedule.fromGeminiResponse(response);
 });
 
 final selectedDayProvider = StateProvider.autoDispose<int>((ref) => 0);
