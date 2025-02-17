@@ -5,6 +5,7 @@ import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/domain/entity/survey_response.dart';
+import 'package:wetravel/presentation/pages/guide_package/filtered_guide_package_page.dart';
 import 'package:wetravel/presentation/provider/survey_provider.dart';
 import 'package:wetravel/presentation/provider/recommendation_provider.dart';
 
@@ -59,7 +60,7 @@ class PlanSelectionPage extends ConsumerWidget {
         ),
         const SizedBox(height: 20),
         const LinearProgressIndicator(
-          value: 3 / 4,
+          value: 5 / 6,
           backgroundColor: AppColors.grayScale_150,
           valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary_450),
         ),
@@ -121,7 +122,17 @@ class PlanSelectionPage extends ConsumerWidget {
   Widget _buildGuideRecommendationCard(BuildContext context) {
     return InkWell(
       onTap: () {
-        Navigator.of(context).pushNamed('/manual-planning');
+        try {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+              builder: (context) => FilteredGuidePackagePage(),
+            ),
+            (route) => false,
+          );
+        } catch (e) {
+          print('Error in guide card tap: $e');
+        }
       },
       child: Container(
         decoration: BoxDecoration(

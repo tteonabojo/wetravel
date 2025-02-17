@@ -122,7 +122,6 @@ class _PackageEditPageState extends State<PackageEditPage> {
             .collection(firestoreConstants.schedulesCollection)
             .doc(scheduleToDelete.id)
             .delete();
-        print('스케줄 삭제 성공: ${scheduleToDelete.id}');
 
         setState(() {
           _schedules[dayIndex].removeAt(scheduleIndex);
@@ -209,7 +208,6 @@ class _PackageEditPageState extends State<PackageEditPage> {
 
       for (var doc in schedulesToDeleteQuery.docs) {
         await doc.reference.delete();
-        print('Day 삭제 성공: ${doc.id}');
       }
 
       setState(() {

@@ -80,13 +80,15 @@ class _AISchedulePageState extends ConsumerState<AISchedulePage> {
                   ),
                   Expanded(
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
                       color: AppColors.grayScale_050,
                       child: Column(
                         children: [
-                          ScheduleDayTabs(
-                              dayCount:
-                                  _getDayCount(surveyResponse.travelDuration)),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+                            child: ScheduleDayTabs(
+                                dayCount: _getDayCount(
+                                    surveyResponse.travelDuration)),
+                          ),
                           Expanded(
                             child: ScheduleList(
                               surveyResponse: surveyResponse,

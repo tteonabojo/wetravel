@@ -19,9 +19,9 @@ class KeywordSelection extends StatefulWidget {
 
 class _KeywordSelectionState extends State<KeywordSelection> {
   static const List<List<String>> _keywordLists = [
-    ['당일치기', '1박 2일', '2박 3일', '3박 4일', '4박 5일', '5박 6일', '6박 7일 이상'],
-    ['혼자', '연인과', '친구와', '반려동물', '가족과'],
-    ['액티비티', '휴양', '유명 관광지', '힐링', '자연', '먹방', '문화/예술/역사'],
+    ['당일치기', '1박 2일', '2박 3일', '3박 4일', '4박 5일', '5박 6일'],
+    ['혼자', '연인과', '친구와', '가족과'],
+    ['액티비티', '휴양', '관광지', '맛집', '문화/예술/역사', '쇼핑'],
   ];
 
   late List<String?> _selectedKeywords;
