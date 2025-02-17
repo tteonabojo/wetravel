@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/domain/entity/survey_response.dart';
+import 'package:wetravel/domain/entity/travel_schedule.dart';
 
 /// 설문 상태를 관리하는 프로바이더
 final surveyProvider =
@@ -11,23 +12,25 @@ final surveyProvider =
 /// 설문 상태 클래스
 class SurveyState {
   final int currentPage;
-  final String? travelPeriod; // 여행 시기
-  final String? travelDuration; // 여행 기간
-  final String? companion; // 동행인
-  final String? travelStyle; // 여행 스타일
-  final String? accommodationType; // 숙소 유형
-  final String? consideration; // 고려사항
-  final String? selectedCity; // 1순위로 선택한 도시
+  final String? travelPeriod;
+  final String? travelDuration;
+  final List<String> companions;
+  final List<String> travelStyles;
+  final List<String> accommodationTypes;
+  final List<String> considerations;
+  final String? selectedCity;
+  final TravelSchedule? savedSchedule;
 
   SurveyState({
     this.currentPage = 0,
     this.travelPeriod,
     this.travelDuration,
-    this.companion,
-    this.travelStyle,
-    this.accommodationType,
-    this.consideration,
-    this.selectedCity, // 선택한 도시
+    this.companions = const [],
+    this.travelStyles = const [],
+    this.accommodationTypes = const [],
+    this.considerations = const [],
+    this.selectedCity,
+    this.savedSchedule,
   });
 
   /// 현재 상태를 복사하여 새로운 상태를 생성
@@ -35,42 +38,58 @@ class SurveyState {
     int? currentPage,
     String? travelPeriod,
     String? travelDuration,
-    String? companion,
-    String? travelStyle,
-    String? accommodationType,
-    String? consideration,
-    String? selectedCity, // 선택한 도시
+    List<String>? companions,
+    List<String>? travelStyles,
+    List<String>? accommodationTypes,
+    List<String>? considerations,
+    String? selectedCity,
+    TravelSchedule? savedSchedule,
   }) {
     return SurveyState(
       currentPage: currentPage ?? this.currentPage,
       travelPeriod: travelPeriod ?? this.travelPeriod,
       travelDuration: travelDuration ?? this.travelDuration,
-      companion: companion ?? this.companion,
-      travelStyle: travelStyle ?? this.travelStyle,
-      accommodationType: accommodationType ?? this.accommodationType,
-      consideration: consideration ?? this.consideration,
-      selectedCity: selectedCity ?? this.selectedCity, // 선택한 도시
+      companions: companions ?? this.companions,
+      travelStyles: travelStyles ?? this.travelStyles,
+      accommodationTypes: accommodationTypes ?? this.accommodationTypes,
+      considerations: considerations ?? this.considerations,
+      selectedCity: selectedCity ?? this.selectedCity,
+      savedSchedule: savedSchedule ?? this.savedSchedule,
+    );
+  }
+
+  /// 초기 상태
+  factory SurveyState.initial() {
+    return SurveyState(
+      currentPage: 0,
+      travelPeriod: null,
+      travelDuration: null,
+      companions: [],
+      travelStyles: [],
+      accommodationTypes: [],
+      considerations: [],
+      selectedCity: null,
+      savedSchedule: null,
     );
   }
 
   /// SurveyState를 SurveyResponse로 변환
   SurveyResponse toSurveyResponse() {
-    print('Converting SurveyState to SurveyResponse:');
-    print('1순위 선택 도시: $selectedCity'); // 디버깅 메시지 수정
-    print('Travel Period: $travelPeriod');
-    print('Travel Duration: $travelDuration');
-    print('Companion: $companion');
-    print('Travel Style: $travelStyle');
+    print('Converting to SurveyResponse:');
+    print('Current selectedCity: ${selectedCity}');
 
-    return SurveyResponse(
-      selectedCity: selectedCity, // 1순위 도시를 SurveyResponse에 전달
+    final response = SurveyResponse(
+      selectedCity: selectedCity, // 선택된 도시 전달
       travelPeriod: travelPeriod ?? '',
       travelDuration: travelDuration ?? '',
-      companions: companion != null ? [companion!] : [],
-      travelStyles: travelStyle != null ? [travelStyle!] : [],
-      accommodationTypes: accommodationType != null ? [accommodationType!] : [],
-      considerations: consideration != null ? [consideration!] : [],
+      companions: companions,
+      travelStyles: travelStyles,
+      accommodationTypes: accommodationTypes,
+      considerations: considerations,
     );
+
+    print('Created response with city: ${response.selectedCity}');
+    return response;
   }
 
   /// 현재 페이지의 입력이 완료되었는지 확인
@@ -79,9 +98,9 @@ class SurveyState {
       case 0: // 여행 기간 페이지
         return travelPeriod != null && travelDuration != null;
       case 1: // 여행 스타일 페이지
-        return companion != null && travelStyle != null;
+        return companions.isNotEmpty && travelStyles.isNotEmpty;
       case 2: // 숙소 및 고려사항 페이지
-        return accommodationType != null && consideration != null;
+        return accommodationTypes.isNotEmpty && considerations.isNotEmpty;
       default:
         return false;
     }
@@ -91,16 +110,25 @@ class SurveyState {
   bool get isComplete {
     return travelPeriod != null &&
         travelDuration != null &&
-        companion != null &&
-        travelStyle != null &&
-        accommodationType != null &&
-        consideration != null;
+        companions.isNotEmpty &&
+        travelStyles.isNotEmpty &&
+        accommodationTypes.isNotEmpty &&
+        considerations.isNotEmpty;
   }
+
+  // UI 호환성을 위한 getter들
+  String? get companion => companions.isNotEmpty ? companions.first : null;
+  String? get travelStyle =>
+      travelStyles.isNotEmpty ? travelStyles.first : null;
+  String? get accommodationType =>
+      accommodationTypes.isNotEmpty ? accommodationTypes.first : null;
+  String? get consideration =>
+      considerations.isNotEmpty ? considerations.first : null;
 }
 
 /// 설문 상태 관리 노티파이어
 class SurveyNotifier extends StateNotifier<SurveyState> {
-  SurveyNotifier() : super(SurveyState());
+  SurveyNotifier() : super(SurveyState.initial());
 
   /// 여행 시기 선택
   void selectTravelPeriod(String period) {
@@ -114,22 +142,24 @@ class SurveyNotifier extends StateNotifier<SurveyState> {
 
   /// 동행인 선택
   void selectCompanion(String companion) {
-    state = state.copyWith(companion: companion);
+    state = state.copyWith(companions: [...state.companions, companion]);
   }
 
   /// 여행 스타일 선택
   void selectTravelStyle(String style) {
-    state = state.copyWith(travelStyle: style);
+    state = state.copyWith(travelStyles: [...state.travelStyles, style]);
   }
 
   /// 숙소 유형 선택
   void selectAccommodationType(String type) {
-    state = state.copyWith(accommodationType: type);
+    state =
+        state.copyWith(accommodationTypes: [...state.accommodationTypes, type]);
   }
 
   /// 고려사항 선택
   void selectConsideration(String consideration) {
-    state = state.copyWith(consideration: consideration);
+    state = state
+        .copyWith(considerations: [...state.considerations, consideration]);
   }
 
   /// 다음 페이지로 이동
@@ -137,20 +167,49 @@ class SurveyNotifier extends StateNotifier<SurveyState> {
     state = state.copyWith(currentPage: state.currentPage + 1);
   }
 
-  /// 1순위 도시 설정
-  void setSelectedCity(String city) {
-    print('Setting selected city as priority: $city'); // 디버깅용
-    state = state.copyWith(selectedCity: city);
-  }
-
-  /// 상태 초기화 (선택된 도시 유지)
+  /// 상태 완전 초기화
   void resetState() {
-    final currentCity = state.selectedCity;
-    state = SurveyState(selectedCity: currentCity);
+    print('Resetting survey state');
+    state = SurveyState.initial();
+    print('Survey state reset, selectedCity is now null');
   }
 
   /// 현재 페이지 설정
   void setCurrentPage(int page) {
     state = state.copyWith(currentPage: page);
+  }
+
+  /// 선택한 도시 설정
+  void setSelectedCity(String city) {
+    print('Setting primary city: $city');
+    state = state.copyWith(selectedCity: city);
+    print('Primary city set to: ${state.selectedCity}');
+  }
+
+  /// 도시 정보만 유지하고 나머지 초기화
+  void resetStateKeepingCity(String? city) {
+    print('Resetting state while keeping city: $city');
+    state = SurveyState.initial().copyWith(
+      selectedCity: city,
+    );
+    print('Reset complete. Current city: ${state.selectedCity}');
+  }
+
+  SurveyResponse toSurveyResponse() {
+    print('Converting to SurveyResponse:');
+    print('Current selectedCity: ${state.selectedCity}');
+
+    final response = SurveyResponse(
+      selectedCity: state.selectedCity, // 선택된 도시 전달
+      travelPeriod: state.travelPeriod ?? '',
+      travelDuration: state.travelDuration ?? '',
+      companions: state.companions,
+      travelStyles: state.travelStyles,
+      accommodationTypes: state.accommodationTypes,
+      considerations: state.considerations,
+    );
+
+    print('Created response with city: ${response.selectedCity}');
+    return response;
   }
 }
