@@ -40,6 +40,72 @@ class Package {
     this.viewCount = 0,
   });
 
+  Package copyWith({
+    String? id,
+    String? userId,
+    String? userName,
+    String? userImageUrl,
+    String? title,
+    String? location,
+    String? description,
+    String? duration,
+    String? imageUrl,
+    List<String>? keywordList,
+    List<String>? scheduleIdList,
+    Timestamp? createdAt,
+    Timestamp? updatedAt,
+    Timestamp? deletedAt,
+    int? reportCount,
+    bool? isHidden,
+    int? viewCount,
+  }) {
+    return Package(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      userName: userName ?? this.userName,
+      userImageUrl: userImageUrl ?? this.userImageUrl,
+      title: title ?? this.title,
+      location: location ?? this.location,
+      description: description ?? this.description,
+      duration: duration ?? this.duration,
+      imageUrl: imageUrl ?? this.imageUrl,
+      keywordList: keywordList ?? this.keywordList,
+      scheduleIdList: scheduleIdList ?? this.scheduleIdList,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      reportCount: reportCount ?? this.reportCount,
+      isHidden: isHidden ?? this.isHidden,
+      viewCount: viewCount ?? this.viewCount,
+    );
+  }
+
+  factory Package.fromJson(Map<String, dynamic> json) {
+    return Package(
+      id: json["id"] as String,
+      userId: json["userId"] as String,
+      userName: json["userName"] as String?,
+      userImageUrl: json["userImageUrl"] as String?,
+      title: json["title"] as String,
+      location: json["location"] as String,
+      description: json["description"] as String?,
+      duration: json["duration"] as String?,
+      imageUrl: json["imageUrl"] as String?,
+      keywordList: (json["keywordList"] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
+      scheduleIdList: (json["scheduleIdList"] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
+      createdAt: json["createdAt"] as Timestamp,
+      updatedAt: json["updatedAt"] as Timestamp?,
+      deletedAt: json["deletedAt"] as Timestamp?,
+      reportCount: json["reportCount"] as int? ?? 0,
+      isHidden: json["isHidden"] as bool? ?? false,
+      viewCount: json["viewCount"] as int? ?? 0,
+    );
+  }
+
   Map<String, dynamic> toJson() => {
         "id": id,
         "userId": userId,

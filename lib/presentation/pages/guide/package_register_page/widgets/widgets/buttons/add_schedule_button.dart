@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wetravel/core/constants/app_border_radius.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
-import 'package:wetravel/core/constants/app_typography.dart';
+import 'package:wetravel/core/constants/app_icons.dart';
 
 class AddScheduleButton extends StatefulWidget {
   final VoidCallback? onPressed;
@@ -49,7 +50,7 @@ class _AddScheduleButtonState extends State<AddScheduleButton> {
           duration: const Duration(milliseconds: 150),
           width: double.infinity,
           height: 48,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: ShapeDecoration(
             color: (_isPressed || _isHovered)
                 ? AppColors.grayScale_250
@@ -59,11 +60,8 @@ class _AddScheduleButtonState extends State<AddScheduleButton> {
             ),
           ),
           child: Center(
-            child: Text(
-              '일정 추가',
-              style: AppTypography.buttonLabelMedium
-                  .copyWith(color: AppColors.grayScale_550),
-            ),
+            child:
+                SvgPicture.asset(AppIcons.plus, color: AppColors.grayScale_450),
           ),
         ),
       ),

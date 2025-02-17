@@ -41,6 +41,7 @@ class SurveyStateNotifier extends StateNotifier<SurveyState> {
   }
 
   void selectTravelPeriod(String period) {
+    print('Updating travel period to: $period');
     state = state.copyWith(travelPeriod: period);
     _updateSurveyStateUseCase.execute(state);
   }
@@ -50,33 +51,58 @@ class SurveyStateNotifier extends StateNotifier<SurveyState> {
     _updateSurveyStateUseCase.execute(state);
   }
 
-  void toggleCompanion(String companion) {
-    final updatedCompanions = List<String>.from(state.companions);
-    if (updatedCompanions.contains(companion)) {
-      updatedCompanions.remove(companion);
-    } else {
-      updatedCompanions.add(companion);
-    }
-    state = state.copyWith(companions: updatedCompanions);
+  void selectCompanion(String companion) {
+    state = state.copyWith(companion: companion);
     _updateSurveyStateUseCase.execute(state);
   }
 
-  void toggleTravelStyle(String style) {
-    // 비슷한 구현
+  void selectTravelStyle(String style) {
+    state = state.copyWith(travelStyle: style);
+    _updateSurveyStateUseCase.execute(state);
   }
 
-  void toggleAccommodationType(String type) {
-    // 비슷한 구현
+  void selectAccommodationType(String type) {
+    state = state.copyWith(accommodationType: type);
+    _updateSurveyStateUseCase.execute(state);
+  }
+
+  void selectConsideration(String consideration) {
+    state = state.copyWith(consideration: consideration);
+    _updateSurveyStateUseCase.execute(state);
+  }
+
+  void previousPage() {
+    if (state.currentPage > 0) {
+      state = state.copyWith(currentPage: state.currentPage - 1);
+      _updateSurveyStateUseCase.execute(state);
+    }
   }
 
   bool isCurrentPageComplete() {
-    // 현재 페이지의 완성도 체크 로직
-    return true;
+    switch (state.currentPage) {
+      case 0:
+        return state.travelPeriod != null && state.travelDuration != null;
+      case 1:
+        return state.companion != null && state.travelStyle != null;
+      case 2:
+        return state.accommodationType != null && state.consideration != null;
+      default:
+        return false;
+    }
   }
 
   void nextPage() {
     state = state.copyWith(currentPage: state.currentPage + 1);
     _updateSurveyStateUseCase.execute(state);
+  }
+
+  bool isAllOptionsSelected() {
+    return state.travelPeriod != null &&
+        state.travelDuration != null &&
+        state.companion != null &&
+        state.travelStyle != null &&
+        state.accommodationType != null &&
+        state.consideration != null;
   }
 
   // 다른 상태 업데이트 메서드들...

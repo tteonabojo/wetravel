@@ -1,89 +1,70 @@
-import 'dart:developer' as dev;
-
 class TravelRecommendation {
   final List<String> destinations;
   final List<String> reasons;
   final List<String> tips;
+  final List<String> preferredCities;
 
   TravelRecommendation({
     required this.destinations,
     required this.reasons,
     required this.tips,
+    this.preferredCities = const [],
   });
 
-  factory TravelRecommendation.fromGeminiResponse(String response) {
-    dev.log('Parsing Gemini response: $response');
+  factory TravelRecommendation.fromGeminiResponse(
+    String response, {
+    List<String> preferredCities = const [],
+  }) {
+    List<String> destinations = [];
+    List<String> reasons = [];
 
     try {
-      final List<String> destinations = [];
-      final Map<String, String> reasonsMap = {}; // 여행지별 이유
-      final Map<String, String> tipsMap = {}; // 여행지별 팁
+      final sections = response.split('---');
+      print('Number of sections: ${sections.length}');
 
-      // 응답을 줄 단위로 분리
-      final lines = response.split('\n');
-      String currentDestination = '';
+      // 각 섹션에서 도시와 이유 추출
+      for (var section in sections) {
+        if (section.trim().isEmpty) continue;
 
-      for (var line in lines) {
-        line = line.trim();
-        if (line.isEmpty) continue;
+        final cityMatch = RegExp(r'도시명:\s*([^*\n]+)').firstMatch(section);
+        final reasonMatch = RegExp(r'추천 이유:\s*([^*\n]+)').firstMatch(section);
 
-        // 마크다운과 특수문자 제거
-        line = line.replaceAll('**', '').replaceAll('*', '');
+        if (cityMatch != null && reasonMatch != null) {
+          final city = cityMatch.group(1)?.trim() ?? '';
+          final reason = reasonMatch.group(1)?.trim() ?? '';
 
-        // 숫자로 시작하는 줄에서 도시 이름 추출
-        final cityPattern = RegExp(r'^\d+\.\s*(.+?)(?:\s*-|$)');
-        final cityMatch = cityPattern.firstMatch(line);
-        if (cityMatch != null) {
-          currentDestination = cityMatch.group(1)?.trim() ?? '';
-          if (currentDestination.isNotEmpty) {
-            destinations.add(currentDestination);
-            dev.log('Found destination: $currentDestination');
-          }
-          continue;
-        }
-
-        if (currentDestination.isEmpty) continue;
-
-        // 추천 이유와 팁 추출
-        if (line.startsWith('-') || line.startsWith('•')) {
-          final content = line.substring(1).trim().toLowerCase();
-
-          if (content.contains('추천 이유:') || content.contains('이유:')) {
-            final reason = content.split(':')[1].trim();
-            reasonsMap[currentDestination] = reason;
-            dev.log('Found reason for $currentDestination: $reason');
-          } else if (content.contains('주의사항/팁:') ||
-              content.contains('주의사항:') ||
-              content.contains('팁:')) {
-            final tip = content.split(':')[1].trim();
-            tipsMap[currentDestination] = tip;
-            dev.log('Found tip for $currentDestination: $tip');
+          if (city.isNotEmpty && reason.isNotEmpty) {
+            destinations.add(city);
+            reasons.add(reason);
           }
         }
       }
 
-      dev.log('Parsed destinations: $destinations');
-      dev.log('Parsed reasons: $reasonsMap');
-      dev.log('Parsed tips: $tipsMap');
+      // 선호 도시가 있는 경우, 해당 도시를 첫 번째로 이동
+      if (preferredCities.isNotEmpty) {
+        final preferredCity = preferredCities[0];
+        final index = destinations.indexWhere(
+          (d) => d.toLowerCase().contains(preferredCity.toLowerCase()),
+        );
 
-      // 파싱된 결과가 없으면 예외 발생
-      if (destinations.isEmpty || reasonsMap.isEmpty) {
-        throw Exception('응답을 파싱할 수 없습니다.');
+        if (index != -1 && index != 0) {
+          // 도시와 이유를 함께 이동
+          final city = destinations.removeAt(index);
+          final reason = reasons.removeAt(index);
+          destinations.insert(0, city);
+          reasons.insert(0, reason);
+        }
       }
-
-      // Map을 List로 변환
-      final reasons = destinations.map((d) => reasonsMap[d] ?? '').toList();
-      final tips =
-          destinations.map((d) => tipsMap[d] ?? '주의사항이 없습니다.').toList();
 
       return TravelRecommendation(
         destinations: destinations,
         reasons: reasons,
-        tips: tips,
+        tips: [],
+        preferredCities: preferredCities,
       );
     } catch (e) {
-      dev.log('Error parsing Gemini response: $e');
-      throw Exception('응답을 파싱할 수 없습니다.');
+      print('Error parsing Gemini response: $e');
+      throw Exception('Failed to parse travel recommendations: $e');
     }
   }
 

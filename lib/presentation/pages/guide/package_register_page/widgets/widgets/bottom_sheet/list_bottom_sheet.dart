@@ -59,12 +59,11 @@ class _ListBottomSheetState extends State<ListBottomSheet> {
 
     final timeParts = widget.time.split(' ');
     if (timeParts.length == 2) {
-      _selectedAmPm = timeParts[0]; // 오전/오후
+      _selectedAmPm = timeParts[0];
       final hourMinute = timeParts[1].split(':');
-      _selectedHour = int.tryParse(hourMinute[0]) ?? 9; // 기본 9시
-      _selectedMinute = int.tryParse(hourMinute[1]) ?? 0; // 기본 00분
+      _selectedHour = int.tryParse(hourMinute[0]) ?? 9; // 기본시간 9시
+      _selectedMinute = int.tryParse(hourMinute[1]) ?? 0;
     } else {
-      // 시간 정보가 없을 경우 기본값 설정
       _selectedAmPm = _amPmList[0];
       _selectedHour = _hourList[8];
       _selectedMinute = _minuteList[0];
@@ -84,144 +83,171 @@ class _ListBottomSheetState extends State<ListBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return StatefulBuilder(
-      builder: (context, setState) {
-        return Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: AppBorderRadius.small12,
-          ),
-          child: Padding(
-            padding: AppSpacing.large20,
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    '시간',
-                    style: AppTypography.headline6.copyWith(
-                      color: AppColors.grayScale_650,
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Container(
-                    decoration: BoxDecoration(
-                        color: AppColors.grayScale_050,
-                        borderRadius: AppBorderRadius.small12),
-                    child: Row(
+    final statusBarHeight = MediaQuery.of(context).padding.top;
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    const appBarHeight = 56.0;
+    final maxBottomSheetHeight =
+        screenHeight - (statusBarHeight + appBarHeight);
+    final bottomPadding = keyboardHeight > maxBottomSheetHeight
+        ? maxBottomSheetHeight
+        : keyboardHeight;
+
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).requestFocus(FocusNode());
+      },
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return AnimatedContainer(
+            duration: const Duration(milliseconds: 100),
+            padding: EdgeInsets.only(bottom: bottomPadding),
+            constraints: BoxConstraints(
+              maxHeight: maxBottomSheetHeight,
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: AppBorderRadius.small12,
+              ),
+              child: Padding(
+                padding: AppSpacing.large20,
+                child: SingleChildScrollView(
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      spacing: 20,
                       children: [
-                        // ✅ 오전/오후 선택
-                        _buildTimePicker(
-                          controller: _amPmController,
-                          items: _amPmList,
-                          selectedItem: _selectedAmPm,
-                          onChanged: (index) {
-                            setState(() {
-                              _selectedAmPm = _amPmList[index];
-                            });
-                          },
-                        ),
-                        // ✅ 시간 선택
-                        _buildTimePicker(
-                          controller: _hourController,
-                          items: _hourList.map((e) => e.toString()).toList(),
-                          selectedItem: _selectedHour.toString(),
-                          onChanged: (index) {
-                            setState(() {
-                              _selectedHour = _hourList[index];
-                            });
-                          },
-                        ),
-                        // ✅ 분 선택
-                        _buildTimePicker(
-                          controller: _minuteController,
-                          items: _minuteList
-                              .map((e) => e.toString().padLeft(2, '0'))
-                              .toList(),
-                          selectedItem:
-                              _selectedMinute.toString().padLeft(2, '0'),
-                          onChanged: (index) {
-                            setState(() {
-                              _selectedMinute = _minuteList[index];
-                            });
-                          },
+                        _buildTimePickerRow(),
+                        _buildInputFields(),
+                        Padding(
+                          padding: EdgeInsets.only(bottom: 12),
+                          child: StandardButton.primary(
+                            sizeType: ButtonSizeType.normal,
+                            text: '등록',
+                            onPressed: () {
+                              if (_formKey.currentState!.validate()) {
+                                String selectedTime =
+                                    '$_selectedAmPm $_selectedHour:${_selectedMinute.toString().padLeft(2, '0')}';
+                                widget.onSave(
+                                  _titleController.text,
+                                  _locationController.text,
+                                  selectedTime,
+                                  _contentController.text,
+                                );
+                                Navigator.pop(context);
+                              }
+                            },
+                          ),
                         ),
                       ],
                     ),
                   ),
-                  SizedBox(height: 20),
-                  CustomInputField(
-                    controller: _titleController,
-                    hintText: '제목을 입력하세요',
-                    keyboardType: TextInputType.text,
-                    maxLength: 15,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return '제목을 입력해주세요.';
-                      }
-                      return null;
-                    },
-                    labelText: '제목',
-                  ),
-                  CustomInputField(
-                    controller: _locationController,
-                    hintText: '위치를 입력하세요',
-                    keyboardType: TextInputType.text,
-                    maxLength: 15,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return '위치를 입력해주세요.';
-                      }
-                      return null;
-                    },
-                    labelText: '위치',
-                  ),
-                  CustomInputField(
-                    controller: _contentController,
-                    hintText: '설명을 입력하세요',
-                    keyboardType: TextInputType.multiline,
-                    maxLength: 100,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return '설명을 입력해주세요.';
-                      }
-                      return null;
-                    },
-                    labelText: '설명',
-                    maxLines: 5,
-                  ),
-                  SizedBox(height: 12),
-                  StandardButton.primary(
-                    sizeType: ButtonSizeType.normal,
-                    text: '등록',
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        String selectedTime =
-                            '$_selectedAmPm $_selectedHour:${_selectedMinute.toString().padLeft(2, '0')}';
-                        widget.onSave(
-                          _titleController.text,
-                          _locationController.text,
-                          selectedTime,
-                          _contentController.text,
-                        );
-                        Navigator.pop(context);
-                        print('일정표 수정완료!');
-                      }
-                    },
-                  ),
-                ],
+                ),
               ),
             ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildInputFields() {
+    return Column(
+      children: [
+        CustomInputField(
+          counterAlignment: Alignment.centerRight,
+          controller: _titleController,
+          hintText: '제목을 입력하세요',
+          keyboardType: TextInputType.text,
+          maxLength: 15,
+          validator: (value) =>
+              value == null || value.trim().isEmpty ? '제목을 입력해주세요.' : null,
+          labelText: '제목',
+        ),
+        CustomInputField(
+          counterAlignment: Alignment.centerRight,
+          controller: _locationController,
+          hintText: '위치를 입력하세요',
+          keyboardType: TextInputType.text,
+          maxLength: 15,
+          validator: (value) =>
+              value == null || value.trim().isEmpty ? '위치를 입력해주세요.' : null,
+          labelText: '위치',
+        ),
+        CustomInputField(
+          counterAlignment: Alignment.centerRight,
+          controller: _contentController,
+          hintText: '설명을 입력하세요',
+          keyboardType: TextInputType.multiline,
+          maxLength: 100,
+          validator: (value) =>
+              value == null || value.trim().isEmpty ? '설명을 입력해주세요.' : null,
+          labelText: '설명',
+          maxLines: 5,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTimePickerRow() {
+    return Column(
+      spacing: 8,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '시간',
+          style: AppTypography.headline6.copyWith(
+            color: AppColors.grayScale_650,
           ),
-        );
-      },
+        ),
+        Container(
+          decoration: BoxDecoration(
+              color: AppColors.grayScale_050,
+              borderRadius: AppBorderRadius.small12),
+          child: Row(
+            children: [
+              _buildTimePicker(
+                controller: _amPmController,
+                items: _amPmList,
+                selectedItem: _selectedAmPm,
+                onChanged: (index) {
+                  setState(() {
+                    _selectedAmPm = _amPmList[index];
+                  });
+                },
+              ),
+              _buildTimePicker(
+                controller: _hourController,
+                items: _hourList.map((e) => e.toString()).toList(),
+                selectedItem: _selectedHour.toString(),
+                onChanged: (index) {
+                  setState(() {
+                    _selectedHour = _hourList[index];
+                  });
+                },
+              ),
+              _buildTimePicker(
+                controller: _minuteController,
+                items: _minuteList
+                    .map((e) => e.toString().padLeft(2, '0'))
+                    .toList(),
+                selectedItem: _selectedMinute.toString().padLeft(2, '0'),
+                onChanged: (index) {
+                  setState(() {
+                    _selectedMinute = _minuteList[index];
+                  });
+                },
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
 
-// ✅ 시간 선택용 공통 위젯
 Widget _buildTimePicker({
   required FixedExtentScrollController controller,
   required List<String> items,

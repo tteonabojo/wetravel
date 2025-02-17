@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:wetravel/core/constants/firestore_constants.dart';
 import 'package:wetravel/data/data_source/schedule_data_source.dart';
 import 'package:wetravel/data/dto/schedule_dto.dart';
 import 'package:wetravel/domain/entity/travel_schedule.dart';
 
-class ScheduleDataSourceImpl implements ScheduleDataSource {
+class ScheduleDataSourceImpl extends FirestoreConstants
+    implements ScheduleDataSource {
   final FirebaseFirestore _firestore;
 
   ScheduleDataSourceImpl(this._firestore);
@@ -12,15 +14,15 @@ class ScheduleDataSourceImpl implements ScheduleDataSource {
   Future<void> saveSchedule(String userId, TravelSchedule schedule) async {
     try {
       await _firestore
-          .collection('users')
+          .collection(usersCollection)
           .doc(userId)
-          .collection('schedules')
+          .collection(schedulesCollection)
           .add({
         'destination': schedule.destination,
         'createdAt': FieldValue.serverTimestamp(),
         'days': schedule.days
             .map((day) => {
-                  'schedules': day.schedules
+                  schedulesCollection: day.schedules
                       .map((item) => {
                             'time': item.time,
                             'title': item.title,
@@ -36,12 +38,38 @@ class ScheduleDataSourceImpl implements ScheduleDataSource {
   }
 
   @override
+  Future<void> saveAISchedule(
+      String userId, Map<String, dynamic> aiScheduleData) async {
+    print('Debug Mode: ${isDebugMode}');
+    print('Users Collection: ${usersCollection}');
+    print('Schedules Collection: ${schedulesCollection}');
+
+    await _firestore
+        .collection(usersCollection)
+        .doc(userId)
+        .collection(schedulesCollection)
+        .add(aiScheduleData);
+  }
+
+  @override
+  Stream<List<Map<String, dynamic>>> watchSchedules(String uid) {
+    return _firestore
+        .collection(usersCollection)
+        .doc(uid)
+        .collection(schedulesCollection)
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) => doc.data()).toList());
+  }
+
+  @override
   Future<List<ScheduleDto>> getSchedulesByIds(List<String> scheduleIds) async {
     final schedules = <ScheduleDto>[];
 
     for (var scheduleId in scheduleIds) {
-      final scheduleSnapshot =
-          await _firestore.collection('schedules').doc(scheduleId).get();
+      final scheduleSnapshot = await _firestore
+          .collection(schedulesCollection)
+          .doc(scheduleId)
+          .get();
       if (scheduleSnapshot.exists) {
         final data = scheduleSnapshot.data()!;
         schedules.add(ScheduleDto.fromJson(data));
@@ -54,9 +82,9 @@ class ScheduleDataSourceImpl implements ScheduleDataSource {
   Future<List<TravelSchedule>> fetchSchedules(String userId) async {
     try {
       final snapshot = await _firestore
-          .collection('users')
+          .collection(usersCollection)
           .doc(userId)
-          .collection('schedules')
+          .collection(schedulesCollection)
           .orderBy('createdAt', descending: true)
           .get();
 

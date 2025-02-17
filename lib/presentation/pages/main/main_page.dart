@@ -14,20 +14,28 @@ class MainPage extends ConsumerStatefulWidget {
 }
 
 class _MainPageState extends ConsumerState<MainPage> {
+  Future<void> _refreshData() async {
+    final vm = ref.read(mainPageViewModel.notifier);
+    await vm.refreshData();
+  }
+
   @override
   Widget build(BuildContext context) {
     final vm = ref.watch(mainPageViewModel);
 
     return SafeArea(
       child: Scaffold(
-        body: SingleChildScrollView(
-          child: Column(
-            children: [
-              MainBanner(),
-              MainRecentlyPackages(recentPackages: vm.recentPackages),
-              SizedBox(height: 12),
-              MainPopularPackages(popularPackages: vm.popularPackages),
-            ],
+        body: RefreshIndicator(
+          onRefresh: _refreshData, // 아래로 당기면 새로고침
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                MainBanner(banners: vm.banners),
+                MainRecentlyPackages(recentPackages: vm.recentPackages),
+                SizedBox(height: 12),
+                MainPopularPackages(popularPackages: vm.popularPackages),
+              ],
+            ),
           ),
         ),
       ),

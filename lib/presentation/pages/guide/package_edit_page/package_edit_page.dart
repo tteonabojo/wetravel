@@ -1,9 +1,15 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
+import 'package:wetravel/core/constants/app_icons.dart';
+import 'package:wetravel/core/constants/app_spacing.dart';
+import 'package:wetravel/core/constants/app_typography.dart';
+import 'package:wetravel/core/constants/firestore_constants.dart';
 import 'package:wetravel/data/dto/schedule_dto.dart';
 import 'package:wetravel/presentation/pages/guide/package_edit_page/edit_schedule_list.dart';
 import 'package:wetravel/presentation/pages/guide/package_edit_page/package_edit_image.dart';
@@ -26,47 +32,53 @@ class _PackageEditPageState extends State<PackageEditPage> {
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _durationController = TextEditingController();
 
+  final FirestoreConstants firestoreConstants = FirestoreConstants();
+
   String _selectedImagePath = "";
-  String _title = '제목';
-  List<String> _keywordList = ['2박 3일', '혼자', '액티비티'];
-  String _location = '위치';
+  String _title = '';
+  List<String> _keywordList = [];
+  String _location = '';
   int _dayCount = 1;
   int _selectedDay = 1;
-  final List<List<ScheduleDto>> _schedules = [];
-
+  final List<List<ScheduleDto>> _schedules = [[]];
+  final GlobalKey<PackageHeaderState> _packageHeaderKey = GlobalKey();
   bool isLoading = true;
+  bool isPublic = true;
 
   @override
   void initState() {
     super.initState();
     _loadPackageData();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('일정 카드를 길게 눌러 순서변경이 가능합니다.')),
+      );
+    });
   }
 
   Future<void> _loadPackageData() async {
     try {
       final doc = await FirebaseFirestore.instance
-          .collection('packages')
+          .collection(firestoreConstants.packagesCollection)
           .doc(widget.packageId)
           .get();
 
       if (doc.exists) {
         final data = doc.data()!;
-        print(data);
 
         final scheduleIdList = List<String>.from(data['scheduleIdList'] ?? []);
-        print(scheduleIdList);
 
         final List<List<ScheduleDto>> loadedSchedules = [];
 
         for (String scheduleId in scheduleIdList) {
           final scheduleDoc = await FirebaseFirestore.instance
-              .collection('schedules')
+              .collection(firestoreConstants.schedulesCollection)
               .doc(scheduleId)
               .get();
 
           final scheduleData = scheduleDoc.data();
           if (scheduleData != null) {
-            print(scheduleData);
             final schedule =
                 ScheduleDto.fromJson({...scheduleData, "id": scheduleDoc.id});
             final day = schedule.day;
@@ -88,7 +100,7 @@ class _PackageEditPageState extends State<PackageEditPage> {
           _keywordList = List<String>.from(data['keywordList'] ?? []);
           _descriptionController.text = data['description'] ?? '';
           _durationController.text = data['duration'] ?? '';
-
+          isPublic = !data['isHidden'];
           _dayCount = loadedSchedules.isNotEmpty ? loadedSchedules.length : 1;
           _schedules.clear();
           _schedules.addAll(loadedSchedules);
@@ -107,10 +119,9 @@ class _PackageEditPageState extends State<PackageEditPage> {
 
       try {
         await FirebaseFirestore.instance
-            .collection('schedules')
+            .collection(firestoreConstants.schedulesCollection)
             .doc(scheduleToDelete.id)
             .delete();
-        print('스케줄 삭제 성공: ${scheduleToDelete.id}');
 
         setState(() {
           _schedules[dayIndex].removeAt(scheduleIndex);
@@ -129,10 +140,10 @@ class _PackageEditPageState extends State<PackageEditPage> {
         _schedules[_selectedDay - 1].add(
           ScheduleDto(
             id: uuid.v4(),
-            time: '오전 9:00',
-            title: '제목',
-            location: '위치',
-            content: '설명',
+            time: '',
+            title: '',
+            location: '',
+            content: '',
             day: _selectedDay,
             order: _schedules[_selectedDay - 1].length + 1,
             packageId: '',
@@ -190,14 +201,13 @@ class _PackageEditPageState extends State<PackageEditPage> {
 
     try {
       final schedulesToDeleteQuery = await FirebaseFirestore.instance
-          .collection('schedules')
+          .collection(firestoreConstants.schedulesCollection)
           .where('packageId', isEqualTo: widget.packageId)
           .where('day', isEqualTo: _selectedDay)
           .get();
 
       for (var doc in schedulesToDeleteQuery.docs) {
         await doc.reference.delete();
-        print('스케줄 삭제 성공: ${doc.id}');
       }
 
       setState(() {
@@ -208,7 +218,7 @@ class _PackageEditPageState extends State<PackageEditPage> {
         }
       });
     } catch (e) {
-      print('스케줄 삭제 실패: $e');
+      print('Day 삭제 실패: $e');
     }
   }
 
@@ -253,6 +263,7 @@ class _PackageEditPageState extends State<PackageEditPage> {
             };
           });
         }).toList(),
+        isHidden: !isPublic,
       );
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('패키지 수정 성공')),
@@ -292,7 +303,9 @@ class _PackageEditPageState extends State<PackageEditPage> {
       return const Scaffold(
         backgroundColor: Colors.white,
         body: Center(
-          child: CircularProgressIndicator(),
+          child: CircularProgressIndicator(
+            color: AppColors.primary_450,
+          ),
         ),
       );
     }
@@ -302,7 +315,26 @@ class _PackageEditPageState extends State<PackageEditPage> {
     }
 
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: GestureDetector(
+          onTap: () {
+            _packageHeaderKey.currentState!.showEditBottomSheet();
+          },
+          child: Text(
+            _title.isEmpty ? '제목을 입력해주세요' : _title,
+            style: AppTypography.headline4.copyWith(
+                color: _title.isEmpty
+                    ? AppColors.grayScale_350
+                    : AppColors.grayScale_950),
+          ),
+        ),
+        leading: IconButton(
+          icon: SvgPicture.asset(AppIcons.chevronLeft),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -330,13 +362,13 @@ class _PackageEditPageState extends State<PackageEditPage> {
                         _location = newLocation;
                       });
                     },
+                    key: _packageHeaderKey,
                   ),
                   divider(1),
                   Padding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 20),
                     child: Column(
-                      spacing: 16,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         DayChipButton(
@@ -345,6 +377,7 @@ class _PackageEditPageState extends State<PackageEditPage> {
                           onSelectDay: _onSelectDay,
                           selectedDay: _selectedDay,
                         ),
+                        SizedBox(height: 16),
                         EditScheduleList(
                           schedules: _schedules[_selectedDay - 1],
                           totalScheduleCount:
@@ -358,6 +391,8 @@ class _PackageEditPageState extends State<PackageEditPage> {
                           onDelete: (dayIndex, scheduleIndex) {
                             _onDelete(dayIndex, scheduleIndex);
                           },
+                          onReorder: (oldIndex, newIndex) => _onReorderSchedule(
+                              _selectedDay - 1, oldIndex, newIndex),
                         ),
                         AddScheduleButton(
                           onPressed: _onAddSchedule,
@@ -368,12 +403,34 @@ class _PackageEditPageState extends State<PackageEditPage> {
                           DeleteDayButton(
                             onPressed: _deleteDay,
                           ),
-                        const SizedBox(height: 40),
-                        StandardButton.primary(
-                          onPressed: _updatePackage,
-                          sizeType: ButtonSizeType.normal,
-                          text: '수정 완료',
+                        Padding(
+                          padding: EdgeInsets.symmetric(vertical: 8),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 8),
+                                child: Text(
+                                  '공개하기',
+                                  style:
+                                      AppTypography.buttonLabelMedium.copyWith(
+                                    color: AppColors.grayScale_650,
+                                  ),
+                                ),
+                              ),
+                              CupertinoSwitch(
+                                activeColor: AppColors.primary_450,
+                                value: isPublic,
+                                onChanged: (bool value) {
+                                  setState(() {
+                                    isPublic = value;
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
                         ),
+                        const SizedBox(height: 40),
                       ],
                     ),
                   ),
@@ -381,6 +438,14 @@ class _PackageEditPageState extends State<PackageEditPage> {
               ),
             ),
           ],
+        ),
+      ),
+      bottomNavigationBar: Container(
+        padding: AppSpacing.medium16.copyWith(bottom: 30),
+        child: StandardButton.primary(
+          onPressed: _updatePackage,
+          sizeType: ButtonSizeType.normal,
+          text: '수정 완료',
         ),
       ),
     );
@@ -394,5 +459,12 @@ class _PackageEditPageState extends State<PackageEditPage> {
         color: AppColors.grayScale_150,
       ),
     );
+  }
+
+  void _onReorderSchedule(int dayIndex, int oldIndex, int newIndex) {
+    setState(() {
+      final item = _schedules[dayIndex].removeAt(oldIndex);
+      _schedules[dayIndex].insert(newIndex, item);
+    });
   }
 }

@@ -10,7 +10,7 @@ class User {
   final String? imageUrl;
   final String? introduction;
   final String loginType;
-  final bool isGuide;
+  final bool isAdmin;
   final Timestamp createdAt;
   final Timestamp? updatedAt;
   final Timestamp? deletedAt;
@@ -28,7 +28,7 @@ class User {
     this.imageUrl,
     this.introduction,
     required this.loginType,
-    required this.isGuide,
+    required this.isAdmin,
     required this.createdAt,
     this.updatedAt,
     this.deletedAt,
@@ -46,7 +46,7 @@ class User {
       imageUrl: dto.imageUrl,
       introduction: dto.introduction,
       loginType: dto.loginType,
-      isGuide: dto.isGuide,
+      isAdmin: dto.isAdmin,
       createdAt: dto.createdAt,
       updatedAt: dto.updatedAt,
       deletedAt: dto.deletedAt,
@@ -63,7 +63,7 @@ class User {
         "imageUrl": imageUrl,
         "introduction": introduction,
         "loginType": loginType,
-        "isGuide": isGuide,
+        "isAdmin": isAdmin,
         "createdAt": createdAt,
         "updatedAt": updatedAt,
         "deletedAt": deletedAt,
@@ -80,7 +80,7 @@ class User {
       imageUrl: imageUrl,
       introduction: introduction,
       loginType: loginType,
-      isGuide: isGuide,
+      isAdmin: isAdmin,
       createdAt: createdAt,
       updatedAt: updatedAt,
       deletedAt: deletedAt,

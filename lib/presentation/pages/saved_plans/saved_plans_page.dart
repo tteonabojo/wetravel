@@ -4,14 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
+import 'package:wetravel/core/constants/firestore_constants.dart';
 import 'package:wetravel/domain/entity/survey_response.dart';
 import 'package:wetravel/presentation/widgets/schedule_card.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:wetravel/domain/entity/schedule.dart';
 import 'package:wetravel/presentation/provider/schedule_actions_provider.dart';
+import 'package:wetravel/domain/entity/travel_schedule.dart';
 
 class SavedPlansPage extends ConsumerWidget {
-  const SavedPlansPage({super.key});
+  SavedPlansPage({super.key});
+  final firestoreConstants = FirestoreConstants();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -32,7 +34,7 @@ class SavedPlansPage extends ConsumerWidget {
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
-            .collection('users')
+            .collection(firestoreConstants.usersCollection)
             .doc(FirebaseAuth.instance.currentUser?.uid)
             .collection('schedule')
             .snapshots(),
@@ -42,7 +44,10 @@ class SavedPlansPage extends ConsumerWidget {
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+                child: CircularProgressIndicator(
+              color: AppColors.primary_450,
+            ));
           }
 
           final schedules = snapshot.data?.docs ?? [];
@@ -55,11 +60,11 @@ class SavedPlansPage extends ConsumerWidget {
             padding: const EdgeInsets.all(16),
             itemCount: schedules.length,
             itemBuilder: (context, index) {
-              final scheduleData =
-                  schedules[index].data() as Map<String, dynamic>;
-              final schedule = Schedule.fromJson(scheduleData);
+              final scheduleDoc = schedules[index];
+              final scheduleData = scheduleDoc.data() as Map<String, dynamic>;
+              final travelSchedule = TravelSchedule.fromFirestore(scheduleData);
               return ScheduleCard(
-                schedule: schedule,
+                schedule: travelSchedule,
                 onDelete: () {
                   showCupertinoDialog(
                     context: context,
@@ -76,7 +81,7 @@ class SavedPlansPage extends ConsumerWidget {
                             try {
                               await ref
                                   .read(scheduleActionsProvider)
-                                  .deleteSchedule(schedule.id);
+                                  .deleteSchedule(scheduleDoc.id);
                               Navigator.pop(context);
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(content: Text('일정이 삭제되었습니다')),
@@ -96,17 +101,25 @@ class SavedPlansPage extends ConsumerWidget {
                   );
                 },
                 onTap: () {
+                  final travelSchedule =
+                      TravelSchedule.fromFirestore(scheduleData);
+
                   Navigator.pushNamed(
                     context,
                     '/ai-schedule',
                     arguments: SurveyResponse(
-                      travelPeriod: '1개월 이내',
-                      travelDuration: '${schedule.duration}일',
-                      companions: ['혼자'],
-                      travelStyles: ['관광지', '맛집'],
-                      accommodationTypes: ['호텔'],
-                      considerations: ['위치'],
-                      selectedCity: schedule.location,
+                      selectedCity: travelSchedule.destination,
+                      travelPeriod: scheduleData['travelPeriod'] ?? '1개월 이내',
+                      travelDuration: scheduleData['duration'] ?? '2박 3일',
+                      companions: List<String>.from(
+                          scheduleData['companions'] ?? ['혼자']),
+                      travelStyles: List<String>.from(
+                          scheduleData['travelStyles'] ?? ['관광지']),
+                      accommodationTypes: List<String>.from(
+                          scheduleData['accommodationTypes'] ?? ['호텔']),
+                      considerations: List<String>.from(
+                          scheduleData['considerations'] ?? ['위치']),
+                      savedSchedule: travelSchedule,
                     ),
                   );
                 },

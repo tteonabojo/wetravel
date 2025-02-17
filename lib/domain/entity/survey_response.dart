@@ -1,11 +1,15 @@
+import 'package:wetravel/domain/entity/survey/survey_state.dart';
+import 'package:wetravel/domain/entity/travel_schedule.dart';
+
 class SurveyResponse {
-  final String travelPeriod; // 여행시기
-  final String travelDuration; // 여행기간
-  final List<String> companions; // 동행인원
-  final List<String> travelStyles; // 여행스타일
-  final List<String> accommodationTypes; // 숙소스타일
-  final List<String> considerations; // 기타 고려사항
-  final String? selectedCity; // 추가
+  final String travelPeriod;
+  final String travelDuration;
+  final List<String> companions;
+  final List<String> travelStyles;
+  final List<String> accommodationTypes;
+  final List<String> considerations;
+  final String? selectedCity; // nullable로 변경
+  final TravelSchedule? savedSchedule; // 저장된 일정 필드 추가
 
   SurveyResponse({
     required this.travelPeriod,
@@ -14,7 +18,8 @@ class SurveyResponse {
     required this.travelStyles,
     required this.accommodationTypes,
     required this.considerations,
-    this.selectedCity, // 선택적 파라미터로 추가
+    this.selectedCity, // optional로 변경
+    this.savedSchedule, // 생성자에 savedSchedule 추가
   });
 
   SurveyResponse copyWith({
@@ -25,6 +30,7 @@ class SurveyResponse {
     List<String>? accommodationTypes,
     List<String>? considerations,
     String? selectedCity,
+    TravelSchedule? savedSchedule,
   }) {
     return SurveyResponse(
       travelPeriod: travelPeriod ?? this.travelPeriod,
@@ -34,6 +40,24 @@ class SurveyResponse {
       accommodationTypes: accommodationTypes ?? this.accommodationTypes,
       considerations: considerations ?? this.considerations,
       selectedCity: selectedCity ?? this.selectedCity,
+      savedSchedule: savedSchedule ?? this.savedSchedule,
+    );
+  }
+
+  // fromState 메서드 수정
+  factory SurveyResponse.fromState(SurveyState state) {
+    return SurveyResponse(
+      travelPeriod: state.travelPeriod ?? '',
+      travelDuration: state.travelDuration ?? '',
+      companions: [if (state.companion != null) state.companion!],
+      travelStyles: [if (state.travelStyle != null) state.travelStyle!],
+      accommodationTypes: [
+        if (state.accommodationType != null) state.accommodationType!
+      ],
+      considerations: [if (state.consideration != null) state.consideration!],
+      selectedCity:
+          state.selectedCities.isNotEmpty ? state.selectedCities.first : null,
+      savedSchedule: null,
     );
   }
 }

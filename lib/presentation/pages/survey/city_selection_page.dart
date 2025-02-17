@@ -4,8 +4,8 @@ import 'package:wetravel/core/constants/app_border_radius.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/presentation/provider/recommendation_provider.dart';
-import 'package:wetravel/domain/entity/survey_response.dart';
 import 'package:wetravel/presentation/widgets/buttons/standard_button.dart';
+import 'package:wetravel/presentation/provider/survey_provider.dart';
 
 // 국가별 도시 데이터를 클래스 외부로 이동
 const Map<String, List<String>> cityCategories = {
@@ -27,45 +27,30 @@ class _CitySelectionPageState extends ConsumerState<CitySelectionPage> {
   @override
   void initState() {
     super.initState();
-    // 페이지 접속 시 상태 초기화
+    // 도시 선택 페이지에 진입할 때 완전히 초기화
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(surveyProvider.notifier).resetState();
       ref.read(recommendationStateProvider.notifier).resetState();
+      ref.invalidate(recommendationProvider);
     });
+  }
+
+  void _onCitySelected(BuildContext context, String city) {
+    ref.read(surveyProvider.notifier).setSelectedCity(city);
+    Navigator.pushReplacementNamed(context, '/survey');
   }
 
   @override
   Widget build(BuildContext context) {
-    void _onCitySelected(BuildContext context, String city) {
-      // 선택된 도시만 설정하고 나머지는 초기화
-      ref.read(recommendationStateProvider.notifier).resetState(
-            selectedCity: city,
-          );
-
-      Navigator.pushNamed(
-        context,
-        '/survey',
-        arguments: SurveyResponse(
-          travelPeriod: '',
-          travelDuration: '',
-          companions: const [],
-          travelStyles: const [],
-          accommodationTypes: const [],
-          considerations: const [],
-          selectedCity: city,
-        ),
-      );
-    }
-
     Widget _buildCityChip(String city) {
-      final isSelected =
-          ref.watch(recommendationStateProvider).selectedCities.contains(city);
+      // surveyProvider의 selectedCity를 확인
+      final isSelected = ref.watch(surveyProvider).selectedCity == city;
 
       return FilterChip(
         label: Text(city),
         selected: isSelected,
         onSelected: (selected) {
           if (selected) {
-            ref.read(recommendationStateProvider.notifier).toggleCity(city);
             _onCitySelected(context, city);
           }
         },
@@ -94,7 +79,7 @@ class _CitySelectionPageState extends ConsumerState<CitySelectionPage> {
               ),
               const SizedBox(height: 20),
               LinearProgressIndicator(
-                value: 0.25,
+                value: 1 / 6,
                 backgroundColor: AppColors.grayScale_150,
                 valueColor:
                     const AlwaysStoppedAnimation<Color>(AppColors.primary_450),
@@ -160,7 +145,6 @@ class _CitySelectionPageState extends ConsumerState<CitySelectionPage> {
                               const SizedBox(height: 10),
                               Wrap(
                                 spacing: 8,
-                                runSpacing: 8,
                                 children: entry.value
                                     .map((city) => _buildCityChip(city))
                                     .toList(),

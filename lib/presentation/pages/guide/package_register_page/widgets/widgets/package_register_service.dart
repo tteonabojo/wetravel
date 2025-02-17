@@ -1,12 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:wetravel/core/constants/firestore_constants.dart';
 
 class PackageRegisterService {
+  final FirestoreConstants firestoreConstants = FirestoreConstants();
+
   Future<void> registerPackage({
     required String title,
     required String location,
-    required String description,
-    required String duration,
     required String imageUrl,
     required List<String> keywordList,
     required List<Map<String, dynamic>> scheduleList,
@@ -18,8 +20,9 @@ class PackageRegisterService {
     }
 
     // 현재 사용자 정보를 Firestore에서 가져오기
-    final userRef =
-        FirebaseFirestore.instance.collection('users').doc(currentUser.uid);
+    final userRef = FirebaseFirestore.instance
+        .collection(firestoreConstants.usersCollection)
+        .doc(currentUser.uid);
     final userSnapshot = await userRef.get();
 
     if (!userSnapshot.exists) {
@@ -31,7 +34,9 @@ class PackageRegisterService {
     final userImageUrl = userData?['imageUrl'] ?? ''; // 사용자의 이미지 URL
 
     // 패키지 ID 생성
-    final packageRef = FirebaseFirestore.instance.collection('packages').doc();
+    final packageRef = FirebaseFirestore.instance
+        .collection(firestoreConstants.packagesCollection)
+        .doc();
     final packageId = packageRef.id;
 
     // 스케줄 문서 리스트 저장
@@ -40,8 +45,10 @@ class PackageRegisterService {
       // 일정들 (scheduleList)을 schedules 컬렉션에 각각 저장
       for (Map schedule in scheduleList) {
         // scheduleId를 packageId를 접두사로 붙여서 생성
-        final scheduleRef = FirebaseFirestore.instance.collection('schedules').doc(
-            '$packageId-${DateTime.now().millisecondsSinceEpoch}'); // 예시: "packageId-timestamp"
+        final scheduleRef = FirebaseFirestore.instance
+            .collection(firestoreConstants.schedulesCollection)
+            .doc(
+                '$packageId-${DateTime.now().millisecondsSinceEpoch}'); // 예시: "packageId-timestamp"
 
         final scheduleData = {
           'id': scheduleRef.id, // 문서 ID는 Firestore에서 자동으로 생성된 값
@@ -69,14 +76,12 @@ class PackageRegisterService {
         'userImageUrl': userImageUrl, // 로그인한 사용자의 이미지 URL 추가
         'title': title,
         'location': location,
-        'description': description,
-        'duration': duration,
         'imageUrl': imageUrl,
         'keywordList': keywordList,
         'scheduleIdList': scheduleIdList, // 생성된 scheduleId 리스트
         'createdAt': Timestamp.now(),
         'reportCount': 0,
-        'isHidden': isHidden, // isHidden 값 추가
+        'isHidden': isHidden,
         'viewCount': 0,
       };
 
@@ -86,7 +91,6 @@ class PackageRegisterService {
     }
   }
 
-  // Update package details
   Future<void> updatePackage({
     required String packageId,
     required String title,
@@ -96,46 +100,54 @@ class PackageRegisterService {
     required String imageUrl,
     required List<String> keywordList,
     required List<Map<String, dynamic>> scheduleList,
+    required bool isHidden,
   }) async {
     final currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) {
       throw Exception('로그인한 사용자 정보를 찾을 수 없습니다.');
     }
 
-    // Get the reference to the existing package
-    final packageRef =
-        FirebaseFirestore.instance.collection('packages').doc(packageId);
+    final packageRef = FirebaseFirestore.instance
+        .collection(firestoreConstants.packagesCollection)
+        .doc(packageId);
 
     try {
-      // 패키지 정보 가져오기
       final packageSnapshot = await packageRef.get();
       final packageData = packageSnapshot.data();
 
-      // 패키지에 userName과 userImageUrl이 없으면 로그인한 사용자의 이름과 이미지 URL을 넣기
+      if (packageData == null) {
+        throw Exception('패키지 정보를 찾을 수 없습니다.');
+      }
+
       final userName =
-          packageData?['userName'] ?? (await _getUserName(currentUser.uid));
-      final userImageUrl = packageData?['userImageUrl'] ??
+          packageData['userName'] ?? (await _getUserName(currentUser.uid));
+      final userImageUrl = packageData['userImageUrl'] ??
           (await _getUserImageUrl(currentUser.uid));
 
-      // Update package data
-      await packageRef.update({
-        'title': title,
-        'location': location,
-        'description': description,
-        'duration': duration,
-        'imageUrl': imageUrl,
-        'keywordList': keywordList,
-        'userName': userName, // 로그인한 사용자의 이름 추가
-        'userImageUrl': userImageUrl, // 로그인한 사용자의 이미지 URL 추가
-      });
+      final oldImageUrl = packageData['imageUrl'] as String;
 
-      // Update schedules
+      // 기존 이미지와 새로운 이미지가 다를 경우 기존 이미지 삭제
+      if (oldImageUrl.isNotEmpty && oldImageUrl != imageUrl) {
+        await _deleteImageFromStorage(oldImageUrl);
+      }
+
+      final schedulesQuerySnapshot = await FirebaseFirestore.instance
+          .collection(firestoreConstants.schedulesCollection)
+          .where('packageId', isEqualTo: packageId)
+          .get();
+
+      for (var doc in schedulesQuerySnapshot.docs) {
+        await doc.reference.delete();
+      }
+
       List<String> updatedScheduleIdList = [];
       for (var schedule in scheduleList) {
-        final scheduleRef = FirebaseFirestore.instance.collection('schedules').doc(
-            '$packageId-${DateTime.now().millisecondsSinceEpoch}'); // 예시: "packageId-timestamp"
+        final scheduleRef = FirebaseFirestore.instance
+            .collection(firestoreConstants.schedulesCollection)
+            .doc();
 
         final scheduleData = {
+          'id': scheduleRef.id,
           'packageId': packageId,
           'day': schedule['day'],
           'time': schedule['time'],
@@ -146,31 +158,50 @@ class PackageRegisterService {
           'order': schedule['order'],
         };
 
-        // Create or update schedule
         await scheduleRef.set(scheduleData);
-
         updatedScheduleIdList.add(scheduleRef.id);
       }
 
-      // Update the package's scheduleIdList with updated schedule IDs
       await packageRef.update({
+        'title': title,
+        'location': location,
+        'description': description,
+        'duration': duration,
+        'imageUrl': imageUrl,
+        'keywordList': keywordList,
+        'userName': userName,
+        'userImageUrl': userImageUrl,
         'scheduleIdList': updatedScheduleIdList,
+        'isHidden': isHidden,
       });
     } catch (e) {
       throw Exception('패키지 업데이트 실패: $e');
     }
   }
 
+  Future<void> _deleteImageFromStorage(String imageUrl) async {
+    try {
+      final ref = FirebaseStorage.instance.refFromURL(imageUrl);
+      await ref.delete();
+    } catch (e) {
+      print('이미지 삭제 실패: $e');
+    }
+  }
+
   // 사용자 이름 가져오기
   Future<String> _getUserName(String userId) async {
-    final userRef = FirebaseFirestore.instance.collection('users').doc(userId);
+    final userRef = FirebaseFirestore.instance
+        .collection(firestoreConstants.usersCollection)
+        .doc(userId);
     final userSnapshot = await userRef.get();
     return userSnapshot.data()?['name'] ?? 'Unknown User';
   }
 
   // 사용자 이미지 URL 가져오기
   Future<String> _getUserImageUrl(String userId) async {
-    final userRef = FirebaseFirestore.instance.collection('users').doc(userId);
+    final userRef = FirebaseFirestore.instance
+        .collection(firestoreConstants.usersCollection)
+        .doc(userId);
     final userSnapshot = await userRef.get();
     return userSnapshot.data()?['imageUrl'] ?? '';
   }

@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:wetravel/core/constants/app_border_radius.dart';
 import 'package:wetravel/presentation/pages/login/widgets/indicator_circle.dart';
 import 'package:wetravel/presentation/pages/login/widgets/indicator_oval.dart';
+import 'package:wetravel/domain/entity/banner.dart' as banner;
 
 class MainBanner extends StatefulWidget {
   /// 메인 페이지 배너 영역
-  const MainBanner({super.key});
+  final List<banner.Banner> banners;
+  const MainBanner({super.key, required this.banners});
 
   @override
   State<MainBanner> createState() => _MainBannerState();
@@ -17,12 +19,8 @@ class _MainBannerState extends State<MainBanner> {
 
   @override
   Widget build(BuildContext context) {
-    final List<String> imageUrls = [
-      'assets/images/login_eiffel.jpg',
-      'assets/images/login_balloon.jpg',
-      'assets/images/login_beach.jpg',
-      'assets/images/login_ocean.jpg',
-    ];
+    final banners = widget.banners;
+    if (banners.isEmpty) return Center(child: CircularProgressIndicator());
 
     return Padding(
       padding: const EdgeInsets.only(top: 20),
@@ -32,16 +30,16 @@ class _MainBannerState extends State<MainBanner> {
         child: Column(
           children: [
             CarouselSlider.builder(
-              itemCount: imageUrls.length,
+              itemCount: banners.length,
               itemBuilder: (context, index, realIndex) {
                 return Padding(
                   padding: EdgeInsets.symmetric(horizontal: 8),
                   child: ClipRRect(
                     borderRadius: AppBorderRadius.small12,
-                    child: Image.asset(
+                    child: Image.network(
                       width: 320,
                       height: double.infinity,
-                      imageUrls[index],
+                      banners[index].imageUrl,
                       fit: BoxFit.cover,
                       errorBuilder: (BuildContext context, Object error,
                           StackTrace? stackTrace) {
@@ -68,7 +66,7 @@ class _MainBannerState extends State<MainBanner> {
             SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: imageUrls.asMap().entries.map((entry) {
+              children: banners.asMap().entries.map((entry) {
                 int index = entry.key;
                 return currentIndex == index
                     ? IndicatorOval()
