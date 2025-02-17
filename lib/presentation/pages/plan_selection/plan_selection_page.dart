@@ -5,6 +5,7 @@ import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/domain/entity/survey_response.dart';
+import 'package:wetravel/presentation/pages/guide_package/filtered_guide_package_page.dart';
 
 class PlanSelectionPage extends ConsumerWidget {
   const PlanSelectionPage({super.key});
@@ -60,8 +61,15 @@ class PlanSelectionPage extends ConsumerWidget {
                       '로 추천받을래요',
                       Icons.person_outline,
                       () {
-                        Navigator.pushReplacementNamed(
-                            context, '/manual-planning');
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) {
+                              return FilteredGuidePackagePage();
+                            },
+                          ),
+                          (route) => false,
+                        );
                       },
                     ),
                   ],

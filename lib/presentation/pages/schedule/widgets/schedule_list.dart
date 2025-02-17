@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
+import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/domain/entity/survey_response.dart';
 import 'package:wetravel/presentation/provider/schedule_provider.dart';
 import 'package:wetravel/presentation/pages/schedule/widgets/schedule_item.dart';
@@ -28,7 +29,7 @@ class ScheduleList extends ConsumerWidget {
             final daySchedule = schedule.days[selectedDay];
             return isEditMode
                 ? ReorderableListView.builder(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    padding: AppSpacing.medium16,
                     itemCount: daySchedule.schedules.length,
                     onReorder: (oldIndex, newIndex) {
                       // TODO: 순서 변경 로직 구현
@@ -55,6 +56,7 @@ class ScheduleList extends ConsumerWidget {
                     },
                   )
                 : ListView.builder(
+                    padding: AppSpacing.medium16,
                     itemCount: daySchedule.schedules.length,
                     itemBuilder: (context, index) {
                       final item = daySchedule.schedules[index];

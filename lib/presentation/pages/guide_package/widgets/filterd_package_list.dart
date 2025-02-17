@@ -56,37 +56,89 @@ class FilteredPackageList extends ConsumerWidget {
                 final packageImageUrl = packageData['imageUrl'] ?? '';
                 final packageKeywords =
                     List<String>.from(packageData['keywordList'] ?? []);
-                final guideImageUrl = packageData['userImageUrl'] ?? '';
-                final guideName = packageData['userName'] ?? 'Unknown Guide';
+                final userId = packageData['userId'] ?? '';
+                final userImageUrl = packageData['userImageUrl'] ?? '';
+                final userName = packageData['userName'] ?? 'no name';
 
-                return Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Container(
-                      decoration:
-                          BoxDecoration(boxShadow: AppShadow.generalShadow),
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => PackageDetailPage(
-                                packageId: packages[index].id,
-                                getPackageUseCase: getPackageUseCase,
-                                getSchedulesUseCase: getSchedulesUseCase,
-                              ),
+                return FutureBuilder<DocumentSnapshot>(
+                  future: FirebaseFirestore.instance
+                      .collection(firestoreConstants.usersCollection)
+                      .doc(userId)
+                      .get(),
+                  builder: (context, userSnapshot) {
+                    if (userSnapshot.connectionState ==
+                        ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    if (userSnapshot.hasError || !userSnapshot.hasData) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Container(
+                          decoration:
+                              BoxDecoration(boxShadow: AppShadow.generalShadow),
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => PackageDetailPage(
+                                    packageId: packages[index].id,
+                                    getPackageUseCase: getPackageUseCase,
+                                    getSchedulesUseCase: getSchedulesUseCase,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: PackageItem(
+                              name: userName,
+                              guideImageUrl: userImageUrl,
+                              title: packageTitle,
+                              location: packageLocation,
+                              packageImageUrl: packageImageUrl,
+                              keywords: packageKeywords,
                             ),
-                          );
-                        },
-                        child: PackageItem(
-                          name: guideName,
-                          guideImageUrl: guideImageUrl,
-                          title: packageTitle,
-                          location: packageLocation,
-                          packageImageUrl: packageImageUrl,
-                          keywords: packageKeywords,
+                          ),
+                        ),
+                      );
+                    }
+
+                    final userData =
+                        userSnapshot.data?.data() as Map<String, dynamic>?;
+                    final guideName = userData?['name'] ?? 'no name';
+                    final guideImageUrl = userData?['imageUrl'] ?? '';
+
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Container(
+                        decoration:
+                            BoxDecoration(boxShadow: AppShadow.generalShadow),
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => PackageDetailPage(
+                                  packageId: packages[index].id,
+                                  getPackageUseCase: getPackageUseCase,
+                                  getSchedulesUseCase: getSchedulesUseCase,
+                                ),
+                              ),
+                            );
+                          },
+                          child: PackageItem(
+                            name: guideName,
+                            guideImageUrl: guideImageUrl,
+                            title: packageTitle,
+                            location: packageLocation,
+                            packageImageUrl: packageImageUrl,
+                            keywords: packageKeywords,
+                          ),
                         ),
                       ),
-                    ));
+                    );
+                  },
+                );
               },
             ),
           ),

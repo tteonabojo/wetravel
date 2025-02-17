@@ -85,7 +85,7 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
   // 이미지 선택 및 Firebase Storage 업로드
   Future<void> _pickImage() async {
     final XFile? pickedFile =
-    await _picker.pickImage(source: ImageSource.gallery);
+        await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile == null) return;
 
     File imageFile = File(pickedFile.path);
@@ -96,44 +96,51 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
 
   // Firebase Storage에 이미지 업로드 후 URL 반환
   Future<void> _uploadImageToFirebase(File image) async {
-  if (_isUploading) return; // 이미 업로드 중이면 실행하지 않음
-  _isUploading = true;
+    if (_isUploading) return; // 이미 업로드 중이면 실행하지 않음
+    _isUploading = true;
 
-  User? user = _auth.currentUser;
-  if (user == null) return;
+    User? user = _auth.currentUser;
+    if (user == null) return;
 
-  try {
-    Uint8List imageBytes = await image.readAsBytes();
-    img.Image? originalImage = img.decodeImage(imageBytes);
-    if (originalImage == null) throw Exception("이미지 디코딩 실패");
+    try {
+      Uint8List imageBytes = await image.readAsBytes();
+      img.Image? originalImage = img.decodeImage(imageBytes);
+      if (originalImage == null) throw Exception("이미지 디코딩 실패");
 
-    img.Image resizedImage = img.copyResize(originalImage, width: 300, height: 300);
-    Uint8List compressedImage = Uint8List.fromList(img.encodeJpg(resizedImage, quality: 85));
+      img.Image resizedImage =
+          img.copyResize(originalImage, width: 300, height: 300);
+      Uint8List compressedImage =
+          Uint8List.fromList(img.encodeJpg(resizedImage, quality: 85));
 
-    String filePath = 'profile_images/${user.uid}.jpg';
-    Reference storageRef = FirebaseStorage.instance.ref().child(filePath);
-    
-    UploadTask uploadTask = storageRef.putData(compressedImage);
-    TaskSnapshot snapshot = await uploadTask.whenComplete(() => {}); // 완료될 때까지 기다림
-    String downloadUrl = await snapshot.ref.getDownloadURL();
+      String filePath = 'profile_images/${user.uid}.jpg';
+      Reference storageRef = FirebaseStorage.instance.ref().child(filePath);
 
-    setState(() {
-      _imageUrl = downloadUrl;
-      _isUploading = false; // 업로드 완료 후 플래그 해제
-    });
+      UploadTask uploadTask = storageRef.putData(compressedImage);
+      TaskSnapshot snapshot =
+          await uploadTask.whenComplete(() => {}); // 완료될 때까지 기다림
+      String downloadUrl = await snapshot.ref.getDownloadURL();
 
-    print("이미지 URL 업데이트됨: $_imageUrl");
+      setState(() {
+        _imageUrl = downloadUrl;
+        _isUploading = false; // 업로드 완료 후 플래그 해제
+      });
 
-    // Firestore에 저장
-    await _firestore.collection(firestoreConstants.usersCollection).doc(user.uid).set(
-      {'imageUrl': downloadUrl},
-      SetOptions(merge: true),
-    );
-  } catch (e) {
-    print("이미지 업로드 오류: $e");
-    _isUploading = false; // 에러 발생 시 플래그 해제
+      print("이미지 URL 업데이트됨: $_imageUrl");
+
+      // Firestore에 저장
+      await _firestore
+          .collection(firestoreConstants.usersCollection)
+          .doc(user.uid)
+          .set(
+        {'imageUrl': downloadUrl},
+        SetOptions(merge: true),
+      );
+    } catch (e) {
+      print("이미지 업로드 오류: $e");
+      _isUploading = false; // 에러 발생 시 플래그 해제
+    }
   }
-}
+
   // 사용자 정보 Firestore에 저장
   Future<void> _saveUserInfo() async {
     User? user = _auth.currentUser;
@@ -233,104 +240,109 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
           backgroundColor: Colors.white,
           elevation: 0,
         ),
-        body: SingleChildScrollView(
-          // 키보드가 올라와도 스크롤 가능하도록 변경
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 20),
-              _buildProfileImage(),
-              const SizedBox(height: 20),
-              CustomInputField(
-                counterAlignment: Alignment.centerRight,
-                controller: _nameController,
-                hintText: _name.isNotEmpty ? _name : '닉네임을 입력하세요.',
-                maxLength: 15,
-                labelText: '닉네임',
-                onChanged: (value) => setState(() {
-                  _name = value;
-                  _isNameValid = value.isNotEmpty;
-                }),
+        body: Stack(
+          children: [
+            SingleChildScrollView(
+              // 키보드가 올라와도 스크롤 가능하도록 변경
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min, // Column 크기를 자식 크기만큼 축소
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 20),
+                  _buildProfileImage(),
+                  const SizedBox(height: 20),
+                  CustomInputField(
+                    counterAlignment: Alignment.centerRight,
+                    controller: _nameController,
+                    hintText: _name.isNotEmpty ? _name : '닉네임을 입력하세요.',
+                    maxLength: 15,
+                    labelText: '닉네임',
+                    onChanged: (value) => setState(() {
+                      _name = value;
+                      _isNameValid = value.isNotEmpty;
+                    }),
+                  ),
+                  const SizedBox(height: 20),
+                  _buildEmailField(),
+                  const SizedBox(height: 20),
+                  CustomInputField(
+                    counterAlignment: Alignment.centerRight,
+                    controller: _introController,
+                    hintText: '멋진 소개를 부탁드려요!',
+                    maxLength: 100,
+                    labelText: '자기소개',
+                    minLines: 6,
+                    maxLines: 6,
+                    onChanged: (value) => setState(() {
+                      _intro = value;
+                      _isIntroValid = value.isNotEmpty;
+                    }),
+                  ),
+                ],
               ),
-              const SizedBox(height: 20),
-              _buildEmailField(),
-              const SizedBox(height: 20),
-              CustomInputField(
-                counterAlignment: Alignment.centerRight,
-                controller: _introController,
-                hintText: '멋진 소개를 부탁드려요!',
-                maxLength: 100,
-                labelText: '자기소개',
-                minLines: 6,
-                maxLines: 6,
-                onChanged: (value) => setState(() {
-                  _intro = value;
-                  _isIntroValid = value.isNotEmpty;
-                }),
-              ),
-              const SizedBox(height: 16),
-              _buildSaveButton(),
-            ],
-          ),
+            ),
+            _buildSaveButton(),
+          ],
         ),
       ),
     );
   }
 
   // 프로필 이미지 위젯
-Widget _buildProfileImage() {
-  bool isValidUrl = _imageUrl != null && _imageUrl!.startsWith('http');
+  Widget _buildProfileImage() {
+    bool isValidUrl = _imageUrl != null && _imageUrl!.startsWith('http');
 
-  return Center(
-    child: Stack(
-      children: [
-        GestureDetector( // 프로필 이미지 전체를 클릭 가능하게 변경
-          onTap: _pickImage,
-          child: ClipOval(
-            child: Container(
-              width: 82,
-              height: 82,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                color: AppColors.primary_250,
-                image: isValidUrl
-                    ? DecorationImage(
-                        image: NetworkImage(_imageUrl!),
-                        fit: BoxFit.cover,
-                      )
-                    : null,
+    return Center(
+      child: Stack(
+        children: [
+          GestureDetector(
+            // 프로필 이미지 전체를 클릭 가능하게 변경
+            onTap: _pickImage,
+            child: ClipOval(
+              child: Container(
+                width: 82,
+                height: 82,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  color: AppColors.primary_250,
+                  image: isValidUrl
+                      ? DecorationImage(
+                          image: NetworkImage(_imageUrl!),
+                          fit: BoxFit.cover,
+                        )
+                      : null,
+                ),
+                child: isValidUrl
+                    ? null
+                    : const Icon(
+                        Icons.person,
+                        color: Colors.white,
+                        size: 40,
+                      ),
               ),
-              child: isValidUrl
-                  ? null
-                  : const Icon(
-                      Icons.person,
-                      color: Colors.white,
-                      size: 40,
-                    ),
             ),
           ),
-        ),
-        Positioned(
-          bottom: 0,
-          right: 0,
-          child: InkWell(
-            onTap: _pickImage, // 기존 아이콘 클릭 기능 유지
-            child: Container(
-              padding: const EdgeInsets.all(6),
-              decoration: const BoxDecoration(
-                color: Colors.grey,
-                shape: BoxShape.circle,
+          Positioned(
+            bottom: 0,
+            right: 0,
+            child: InkWell(
+              onTap: _pickImage, // 기존 아이콘 클릭 기능 유지
+              child: Container(
+                padding: const EdgeInsets.all(6),
+                decoration: const BoxDecoration(
+                  color: Colors.grey,
+                  shape: BoxShape.circle,
+                ),
+                child:
+                    const Icon(Icons.camera_alt, color: Colors.white, size: 20),
               ),
-              child:
-                  const Icon(Icons.camera_alt, color: Colors.white, size: 20),
             ),
           ),
-        ),
-      ],
-    ),
-  );
-}
+        ],
+      ),
+    );
+  }
 
   // 이메일 필드
   Widget _buildEmailField() {
@@ -355,19 +367,32 @@ Widget _buildProfileImage() {
     );
   }
 
-  // 저장 버튼
+  /// 저장 버튼
   Widget _buildSaveButton() {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor:
-            _isFormValid ? AppColors.primary_450 : AppColors.primary_250,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        padding: const EdgeInsets.symmetric(vertical: 16),
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(16, 0, 16, 50),
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor:
+                _isFormValid ? AppColors.primary_450 : AppColors.primary_250,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 16),
+          ),
+          onPressed: _isFormValid ? _saveUserInfo : null,
+          child: const Text(
+            '등록',
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
       ),
-      onPressed: _isFormValid ? _saveUserInfo : null,
-      child: const Text('등록',
-          style: TextStyle(
-              fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
     );
   }
 }

@@ -36,11 +36,11 @@ class MyPage extends ConsumerWidget {
                 _buildProfileBox(context, ref),
                 if (userData?['isAdmin'] ?? false)
                   Column(
-                     children: [
-                       SizedBox(height: 8),
-                       _buildAdminBox(context),
-                     ],
-                   ),
+                    children: [
+                      SizedBox(height: 8),
+                      _buildAdminBox(context),
+                    ],
+                  ),
 //                SizedBox(height: 8),
 //                _buildNoticeBox(context, isAdmin), // isAdmin 값 전달
                 SizedBox(height: 8),
@@ -55,7 +55,10 @@ class MyPage extends ConsumerWidget {
             ),
           );
         },
-        loading: () => Center(child: CircularProgressIndicator(color: AppColors.primary_450,)), // 로딩 중 UI
+        loading: () => Center(
+            child: CircularProgressIndicator(
+          color: AppColors.primary_450,
+        )), // 로딩 중 UI
         error: (error, stack) => Center(child: Text("오류 발생: $error")), // 에러 처리
       ),
     );
@@ -93,7 +96,7 @@ Widget _buildAdminBox(context) {
 
 // Widget _buildNoticeBox(BuildContext context, bool isAdmin) {
 //  return GestureDetector(
- //   onTap: () {
+//   onTap: () {
 //      var userData;
 //      Navigator.push(
 //        context,
@@ -166,31 +169,24 @@ Widget _buildProfileBox(BuildContext context, WidgetRef ref) {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Row(
+                  spacing: 8,
                   children: [
                     Text(
                       name,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: AppTypography.headline5,
                     ),
                     if (isAdmin) //이름 바로 옆에 "관리자" 태그 추가
-                      Padding(
-                        padding: const EdgeInsets.only(left: 8),
-                        child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary_450,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            '관리자',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                      Container(
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary_450,
+                          borderRadius: AppBorderRadius.small4,
+                        ),
+                        child: Text(
+                          '관리자',
+                          style: AppTypography.buttonLabelXSmall
+                              .copyWith(color: Colors.white),
                         ),
                       ),
                   ],
@@ -198,10 +194,8 @@ Widget _buildProfileBox(BuildContext context, WidgetRef ref) {
                 SizedBox(height: 4),
                 Text(
                   (email.length > 25) ? '${email.substring(0, 20)}...' : email,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
+                  style: AppTypography.body3
+                      .copyWith(color: AppColors.grayScale_450),
                 ),
               ],
             ),

@@ -202,8 +202,7 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
               keywordList: package?.keywordList ?? [],
               location: package?.location ?? '위치 정보 없음',
               onUpdate: (newTitle, newKeywordList, newLocation) {},
-              userImageUrl: package!.userImageUrl,
-              userName: package!.userName,
+              userId: package!.userId,
             ),
             divider(1),
             Padding(
