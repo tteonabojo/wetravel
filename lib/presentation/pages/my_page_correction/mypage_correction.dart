@@ -4,11 +4,11 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
+import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/core/constants/firestore_constants.dart';
 import 'package:wetravel/presentation/provider/user_provider.dart';
@@ -97,7 +97,7 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
     await _uploadImageToFirebase(imageFile);
   }
 
-// Firebase Storage에 이미지 업로드 후 URL 반환
+  // Firebase Storage에 이미지 업로드 후 URL 반환
   Future<void> _uploadImageToFirebase(File image) async {
     if (_isUploading) return; // 이미 업로드 중이면 실행하지 않음
     _isUploading = true;
@@ -382,7 +382,7 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
     return Align(
       alignment: Alignment.centerLeft, // 왼쪽 정렬
       child: Padding(
-        padding: const EdgeInsets.only(left: 16), // 왼쪽 여백 16 추가
+        padding: AppSpacing.medium16,
         child: GestureDetector(
           onTap: () {
             _showDeleteAccountDialog(context, ref);
@@ -390,9 +390,9 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
           child: Text(
             '회원탈퇴',
             style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[600],
-            ),
+                fontSize: 14,
+                color: Colors.grey[600],
+                decoration: TextDecoration.underline),
           ),
         ),
       ),
