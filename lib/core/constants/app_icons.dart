@@ -74,4 +74,9 @@ class AppIcons {
 
   // AI Package Icon
   static const String lightFill = 'assets/icons/light_fill.svg';
+  static const String light = 'assets/icons/light.svg';
+
+  // Mypage Icon
+  static const String note = 'assets/icons/note.svg';
+  static const String noteSearch = 'assets/icons/note_search.svg';
 }
