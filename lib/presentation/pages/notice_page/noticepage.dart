@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:intl/intl.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/domain/entity/user.dart';
@@ -78,7 +77,7 @@ class _NoticePageState extends State<NoticePage> {
                       // Timestamp -> DateTime 변환 후 yyyy-MM-dd 형식으로 변환
                       String formattedDate = '';
                       if (data['date'] is Timestamp) {
-                        formattedDate = DateFormat('yyyy-MM-dd').format((data['date'] as Timestamp).toDate());
+                      //  formattedDate = DateFormat('yyyy-MM-dd').format((data['date'] as Timestamp).toDate());
                       }
 
                       return Container(

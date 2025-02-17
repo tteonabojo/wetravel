@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
 
 class NoticeEditPage extends StatefulWidget {
@@ -130,7 +129,7 @@ class _NoticeEditPageState extends State<NoticeEditPage> {
                           color: Colors.black,
                         ),
                         controller: TextEditingController(
-                          text: _selectedDate != null ? DateFormat('yyyy-MM-dd').format(_selectedDate!) : '',
+                        //  text: _selectedDate != null ? DateFormat('yyyy-MM-dd').format(_selectedDate!) : '',
                         ),
                       ),
                     ),
