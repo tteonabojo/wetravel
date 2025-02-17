@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -181,6 +183,9 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
       );
     }
 
+    final currentUser = FirebaseAuth.instance.currentUser;
+    final isOwner = currentUser?.uid == package!.userId;
+
     return Scaffold(
       appBar: AppBar(
           title: Text(
@@ -189,103 +194,93 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
           color: AppColors.grayScale_950,
         ),
       )),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            PackageDetailImage(
-              imagePath: package?.imageUrl ?? '',
-              onImageSelected: (String value) {},
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                PackageDetailImage(
+                  imagePath: package?.imageUrl ?? '',
+                  onImageSelected: (String value) {},
+                ),
+                PackageDetailHeader(
+                  title: package?.title ?? '제목 없음',
+                  keywordList: package?.keywordList ?? [],
+                  location: package?.location ?? '위치 정보 없음',
+                  onUpdate: (newTitle, newKeywordList, newLocation) {},
+                  userId: package!.userId,
+                ),
+                divider(1),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16, top: 16),
+                  child: DetailDayChipButton(
+                    onPressed: () {},
+                    currentDayCount: scheduleMap.keys.length,
+                    onSelectDay: (day) {
+                      setState(() {
+                        selectedDay = day;
+                      });
+                    },
+                    selectedDay: selectedDay,
+                  ),
+                ),
+                Padding(
+                  padding: AppSpacing.medium16,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for (var schedule in scheduleMap[selectedDay] ?? [])
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: DetailScheduleList(
+                            schedules: [
+                              {
+                                'time': '${schedule.time ?? ''}',
+                                'title': '${schedule.title ?? ''}',
+                                'location': '${schedule.location ?? ''}',
+                                'content': '${schedule.content ?? ''}',
+                                'imageUrl': '${schedule.imageUrl ?? ''}',
+                              }
+                            ],
+                            totalScheduleCount:
+                                scheduleMap[selectedDay]?.length ?? 0,
+                            dayIndex: selectedDay - 1,
+                            onSave: (time, title, location, content, index) {},
+                            onDelete: (dayIndex, scheduleIndex) {},
+                            key: ValueKey(selectedDay),
+                          ),
+                        ),
+                      const SizedBox(height: 40),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            PackageDetailHeader(
-              title: package?.title ?? '제목 없음',
-              keywordList: package?.keywordList ?? [],
-              location: package?.location ?? '위치 정보 없음',
-              onUpdate: (newTitle, newKeywordList, newLocation) {},
-              userImageUrl: package!.userImageUrl,
-              userName: package!.userName,
-            ),
-            divider(1),
-            Padding(
-              padding: const EdgeInsets.only(left: 16, top: 16),
-              child: DetailDayChipButton(
-                onPressed: () {},
-                currentDayCount: scheduleMap.keys.length,
-                onSelectDay: (day) {
-                  setState(() {
-                    selectedDay = day;
-                  });
-                },
-                selectedDay: selectedDay,
-              ),
-            ),
-            Padding(
-              padding: AppSpacing.medium16,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+          ),
+          if (!isOwner && package!.isHidden)
+            Positioned.fill(
+              child: Stack(
                 children: [
-                  for (var schedule in scheduleMap[selectedDay] ?? [])
-                    Builder(
-                      builder: (context) {
-                        try {
-                          final scheduleData = {
-                            'id': schedule.id ?? 'ID 없음',
-                            'time': schedule.time?.toString() ?? '시간 정보 없음',
-                            'title': schedule.title ?? '제목 없음',
-                            'location': schedule.location ?? '위치 정보 없음',
-                            'content': schedule.content ?? '내용 없음',
-                            'imageUrl': schedule.imageUrl ?? '',
-                            'day': schedule.day?.toString() ?? '0',
-                          };
-
-                          scheduleData.forEach((key, value) {
-                            if (value == null) {
-                              print('경고: $key 필드가 null입니다.');
-                            }
-                          });
-
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 16),
-                            child: DetailScheduleList(
-                              schedules: [
-                                {
-                                  'time': '${schedule.time ?? ''}',
-                                  'title': '${schedule.title ?? ''}',
-                                  'location': '${schedule.location ?? ''}',
-                                  'content': '${schedule.content ?? ''}',
-                                  'imageUrl': '${schedule.imageUrl ?? ''}',
-                                }
-                              ],
-                              totalScheduleCount:
-                                  scheduleMap[selectedDay]?.length ?? 0,
-                              dayIndex: selectedDay - 1,
-                              onSave:
-                                  (time, title, location, content, index) {},
-                              onDelete: (dayIndex, scheduleIndex) {},
-                              key: ValueKey(selectedDay),
-                            ),
-                          );
-                        } catch (e, stacktrace) {
-                          print('❌ DetailScheduleList 오류 발생: $e');
-                          print('문제의 스케줄 데이터: ${schedule.toString()}');
-                          print('Stacktrace: $stacktrace');
-
-                          return Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              '❗ 이 스케줄을 불러오는 중 오류가 발생했습니다.',
-                              style: const TextStyle(color: Colors.red),
-                            ),
-                          );
-                        }
-                      },
+                  BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                    child: Container(
+                      color: Colors.black.withOpacity(0.5),
                     ),
-                  const SizedBox(height: 40),
+                  ),
+                  Center(
+                    child: Text(
+                      '비공개 패키지 입니다',
+                      style: AppTypography.headline4.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
-          ],
-        ),
+        ],
       ),
       bottomNavigationBar: Padding(
         padding: AppSpacing.medium16.copyWith(bottom: 30),

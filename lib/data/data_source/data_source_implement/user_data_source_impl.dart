@@ -22,8 +22,6 @@ class UserDataSourceImpl extends FirestoreConstants implements UserDataSource {
           _firestore.collection(usersCollection).doc(currentUser.uid);
       final userDoc = await userRef.get();
       if (userDoc.exists) {
-        print("Found user: ${userDoc.id}");
-        print("User data: ${userDoc.data()}");
         return UserDto.fromJson(userDoc.data() ?? {});
       } else {
         print("No user found in Firestore");
