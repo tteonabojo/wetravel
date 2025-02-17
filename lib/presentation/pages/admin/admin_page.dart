@@ -28,7 +28,7 @@ class AdminPage extends ConsumerStatefulWidget {
 
 class _AdminPageState extends ConsumerState<AdminPage> {
   bool showHiddenPackages = false;
-  String selectedFilter = '전체';
+  String selectedFilter = '전체 패키지';
   final FirestoreConstants firestoreConstants = FirestoreConstants();
 
   @override
