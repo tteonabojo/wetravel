@@ -5,11 +5,12 @@ import 'package:http/http.dart' as http;
 import 'package:wetravel/core/constants/app_border_radius.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_shadow.dart';
-import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/domain/entity/survey_response.dart';
 import 'package:wetravel/presentation/provider/recommendation_provider.dart';
+import 'package:wetravel/presentation/provider/survey_provider.dart';
 import 'package:wetravel/presentation/widgets/buttons/standard_button.dart';
+import 'package:lottie/lottie.dart';
 
 class AIRecommendationPage extends ConsumerStatefulWidget {
   const AIRecommendationPage({super.key});
@@ -24,109 +25,137 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
   final Map<String, String> _imageCache = {};
   List<String> destinations = [];
   List<String> reasons = [];
+  bool _isLoading = true;
 
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
+    _loadRecommendations();
+  }
+
+  Future<void> _loadRecommendations() async {
     try {
-      final args = ModalRoute.of(context)?.settings.arguments;
-      if (args == null) {
-        print('No arguments received in AIRecommendationPage');
-        return _buildErrorScreen('No survey data received');
+      final surveyResponse = ref.read(surveyProvider).toSurveyResponse();
+      final selectedCity = surveyResponse.selectedCity;
+
+      // 로딩 시작
+      setState(() => _isLoading = true);
+
+      // AI 추천 요청
+      final recommendationState = await ref
+          .read(recommendationStateProvider.notifier)
+          .getRecommendations(
+            surveyResponse,
+            preferredCities: selectedCity != null ? [selectedCity] : null,
+          );
+
+      // 상태 업데이트
+      setState(() {
+        destinations = recommendationState.destinations;
+        reasons = recommendationState.reasons;
+        _isLoading = false;
+      });
+    } catch (e) {
+      // 에러 처리
+      setState(() {
+        _isLoading = false;
+        destinations = [];
+        reasons = [];
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('추천을 가져오는데 실패했습니다: $e')),
+        );
       }
-
-      final surveyResponse = args as SurveyResponse;
-      print('AIRecommendationPage received survey response:');
-      print('Travel Period: ${surveyResponse.travelPeriod}');
-      print('Travel Duration: ${surveyResponse.travelDuration}');
-
-      return WillPopScope(
-        onWillPop: () async => false,
-        child: ref.watch(recommendationProvider(surveyResponse)).when(
-              data: (recommendation) {
-                if (destinations.isEmpty) {
-                  setState(() {
-                    if (recommendation.preferredCities.isNotEmpty) {
-                      // 선호 도시가 있는 경우
-                      destinations = recommendation.destinations;
-                      reasons = recommendation.reasons;
-                    } else {
-                      // AI 추천 결과 사용
-                      destinations = recommendation.destinations;
-                      reasons = recommendation.reasons;
-                    }
-                  });
-                }
-                return _buildScaffold(surveyResponse);
-              },
-              loading: () => _buildLoadingScreen(),
-              error: (error, stack) {
-                print('Error in recommendation: $error');
-                print('Stack trace: $stack');
-                return _buildErrorScreen(error);
-              },
-            ),
-      );
-    } catch (e, stack) {
-      print('Error in AIRecommendationPage build: $e');
-      print('Stack trace: $stack');
-      return _buildErrorScreen(e);
     }
   }
 
-  Widget _buildScaffold(SurveyResponse surveyResponse) {
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: _buildAppBar(),
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildHeader(),
-            const SizedBox(height: 16),
-            Expanded(child: _buildDestinationList()),
-            const SizedBox(height: 20),
-            _buildBottomButtons(surveyResponse),
-          ],
-        ),
-      ),
-    );
-  }
-
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-      title: Text(
-        'AI 맞춤 여행지 추천',
-        style: AppTypography.headline4.copyWith(
-          color: AppColors.grayScale_950,
-        ),
-      ),
-      backgroundColor: Colors.white,
-      automaticallyImplyLeading: false,
-      actions: [
-        IconButton(
-          icon: Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: const Icon(Icons.close),
-          ),
-          onPressed: () => Navigator.pushNamed(context, '/'),
-        ),
-      ],
+      body: _isLoading
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Lottie.asset(
+                    'assets/lottie/loading_animation.json',
+                    width: 200,
+                    height: 200,
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    'AI가 여행지를 추천하고 있어요',
+                    style: AppTypography.body1.copyWith(
+                      color: AppColors.grayScale_450,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          : SafeArea(
+              child: Column(
+                children: [
+                  // 앱바
+                  AppBar(
+                    backgroundColor: Colors.white,
+                    automaticallyImplyLeading: false,
+                    title: Text(
+                      'AI 맞춤 여행지 추천',
+                      style: AppTypography.headline4.copyWith(
+                        color: AppColors.grayScale_950,
+                      ),
+                    ),
+                    centerTitle: true,
+                    actions: [
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.pushNamedAndRemoveUntil(
+                          context,
+                          '/',
+                          (route) => false,
+                        ),
+                      ),
+                    ],
+                  ),
+                  // 메인 컨텐츠
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildHeader(),
+                          const SizedBox(height: 16),
+                          Expanded(child: _buildDestinationList()),
+                          const SizedBox(height: 20),
+                          _buildBottomButtons(
+                            ref.read(surveyProvider).toSurveyResponse(),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
     );
   }
 
   Widget _buildHeader() {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16),
-      child: Container(
-        width: double.infinity,
-        padding: AppSpacing.medium16,
-        decoration: BoxDecoration(
-            color: AppColors.grayScale_050,
-            borderRadius: AppBorderRadius.small12),
-        child: Text('리스트를 확인하고 나에게 맞는 여행지를 선택해주세요',
-            style: AppTypography.body2.copyWith(
-              color: AppColors.grayScale_450,
-            )),
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      decoration: BoxDecoration(
+        color: AppColors.grayScale_050,
+        borderRadius: AppBorderRadius.small12,
+      ),
+      child: Text(
+        '리스트를 확인하고 나에게 맞는 여행지를 선택해주세요',
+        style: AppTypography.body2.copyWith(
+          color: AppColors.grayScale_450,
+        ),
       ),
     );
   }
@@ -148,25 +177,22 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
                 selectedDestination = destination;
               });
             },
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Container(
-                margin: const EdgeInsets.only(bottom: 16.0),
-                decoration: BoxDecoration(
-                  boxShadow: AppShadow.generalShadow,
-                  border: Border.all(
-                    color: selectedDestination == destination
-                        ? AppColors.primary_450
-                        : Colors.transparent,
-                    width: 1,
-                  ),
-                  borderRadius: BorderRadius.circular(16),
+            child: Container(
+              margin: const EdgeInsets.only(bottom: 16.0),
+              decoration: BoxDecoration(
+                boxShadow: AppShadow.generalShadow,
+                border: Border.all(
+                  color: selectedDestination == destination
+                      ? AppColors.primary_450
+                      : Colors.transparent,
+                  width: 1,
                 ),
-                child: _buildDestinationCard(
-                  destination,
-                  reason,
-                  matchPercent,
-                ),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: _buildDestinationCard(
+                destination,
+                reason,
+                matchPercent,
               ),
             ),
           );
@@ -398,23 +424,6 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
     }
 
     return {'tags': cityTags.take(2).toList()}; // 최대 2개의 태그만 반환
-  }
-
-  Widget _buildLoadingScreen() {
-    return const Scaffold(
-      backgroundColor: Colors.white,
-      body: Center(
-        child: CircularProgressIndicator(
-          color: AppColors.primary_450,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildErrorScreen(Object error) {
-    return Scaffold(
-      body: Center(child: Text('Error: $error')),
-    );
   }
 
   Widget _buildBottomButtons(SurveyResponse surveyResponse) {

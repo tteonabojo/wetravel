@@ -18,6 +18,7 @@ class RecommendationState {
   final List<String> selectedKeywords;
   final List<String> destinations;
   final List<String> reasons;
+  final List<String> tips;
 
   /// 도시-카테고리 매핑 정보
   final Map<String, List<String>> cityCategories = {
@@ -40,6 +41,7 @@ class RecommendationState {
     this.selectedKeywords = const [],
     required this.destinations,
     required this.reasons,
+    this.tips = const [],
   });
 
   /// 상태 복사 메서드
@@ -55,6 +57,7 @@ class RecommendationState {
     List<String>? selectedKeywords,
     List<String>? destinations,
     List<String>? reasons,
+    List<String>? tips,
   }) {
     return RecommendationState(
       currentPage: currentPage ?? this.currentPage,
@@ -68,6 +71,7 @@ class RecommendationState {
       selectedKeywords: selectedKeywords ?? this.selectedKeywords,
       destinations: destinations ?? this.destinations,
       reasons: reasons ?? this.reasons,
+      tips: tips ?? this.tips,
     );
   }
 
@@ -95,7 +99,9 @@ class RecommendationState {
 
 /// 여행 추천 상태 관리 노티파이어
 class RecommendationNotifier extends StateNotifier<RecommendationState> {
-  RecommendationNotifier()
+  final GeminiService _geminiService;
+
+  RecommendationNotifier(this._geminiService)
       : super(RecommendationState(
           destinations: [],
           reasons: [],
@@ -144,6 +150,7 @@ class RecommendationNotifier extends StateNotifier<RecommendationState> {
       selectedCities: state.selectedCities,
       destinations: state.destinations,
       reasons: state.reasons,
+      tips: state.tips,
     );
   }
 
@@ -160,6 +167,7 @@ class RecommendationNotifier extends StateNotifier<RecommendationState> {
       selectedCities: state.selectedCities,
       destinations: state.destinations,
       reasons: state.reasons,
+      tips: state.tips,
     );
   }
 
@@ -176,6 +184,7 @@ class RecommendationNotifier extends StateNotifier<RecommendationState> {
       selectedCities: state.selectedCities,
       destinations: state.destinations,
       reasons: state.reasons,
+      tips: state.tips,
     );
   }
 
@@ -212,6 +221,7 @@ class RecommendationNotifier extends StateNotifier<RecommendationState> {
       selectedCities: state.selectedCities,
       destinations: state.destinations,
       reasons: state.reasons,
+      tips: state.tips,
     );
   }
 
@@ -307,6 +317,7 @@ class RecommendationNotifier extends StateNotifier<RecommendationState> {
       considerations: survey.considerations,
       destinations: [], // 빈 배열로 초기화
       reasons: [], // 빈 배열로 초기화
+      tips: [],
     );
   }
 
@@ -324,16 +335,52 @@ class RecommendationNotifier extends StateNotifier<RecommendationState> {
       selectedKeywords: [],
       destinations: [],
       reasons: [],
+      tips: [],
     );
   }
 
   void previousPage() {}
+
+  /// AI 추천 요청
+  Future<RecommendationState> getRecommendations(
+    SurveyResponse surveyResponse, {
+    List<String>? preferredCities,
+  }) async {
+    try {
+      final response = await _geminiService.getTravelRecommendation(
+        surveyResponse,
+        preferredCities: preferredCities,
+      );
+
+      final recommendation = TravelRecommendation.fromGeminiResponse(
+        response,
+        preferredCities: preferredCities ?? [],
+      );
+
+      // 새로운 상태 생성
+      final newState = state.copyWith(
+        destinations: recommendation.destinations,
+        reasons: recommendation.reasons,
+        tips: recommendation.tips,
+        travelStyles: surveyResponse.travelStyles,
+      );
+
+      // 상태 업데이트
+      state = newState;
+
+      // 새로운 상태 반환
+      return newState;
+    } catch (e) {
+      print('Error getting recommendations: $e');
+      rethrow;
+    }
+  }
 }
 
 /// 추천 상태 프로바이더
 final recommendationStateProvider =
     StateNotifierProvider<RecommendationNotifier, RecommendationState>(
-        (ref) => RecommendationNotifier());
+        (ref) => RecommendationNotifier(ref.read(geminiServiceProvider)));
 
 /// AI 추천 프로바이더
 final recommendationProvider = FutureProvider.autoDispose
