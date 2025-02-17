@@ -31,7 +31,7 @@ class _SurveyPageState extends ConsumerState<SurveyPage> {
 
     // 현재 페이지에 따른 진행률 계산
     double progressValue =
-        0.4 + (state.currentPage * 0.2); // 40% 시작, 각 단계마다 20% 증가
+        1 / 3 + (state.currentPage * 1 / 6); // 1/3 시작, 각 단계마다 1/6 증가
 
     return Scaffold(
       backgroundColor: Colors.white,
