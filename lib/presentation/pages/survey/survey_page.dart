@@ -21,7 +21,12 @@ class _SurveyPageState extends ConsumerState<SurveyPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(surveyProvider.notifier).resetState();
+      // 현재 선택된 도시 저장
+      final currentCity = ref.read(surveyProvider).selectedCity;
+      print('Preserving selected city: $currentCity');
+
+      // 도시 정보만 유지하고 나머지 초기화
+      ref.read(surveyProvider.notifier).resetStateKeepingCity(currentCity);
     });
   }
 

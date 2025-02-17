@@ -11,6 +11,7 @@ import 'package:wetravel/presentation/provider/recommendation_provider.dart';
 import 'package:wetravel/presentation/provider/survey_provider.dart';
 import 'package:wetravel/presentation/widgets/buttons/standard_button.dart';
 import 'package:lottie/lottie.dart';
+import 'package:flutter/scheduler.dart';
 
 class AIRecommendationPage extends ConsumerStatefulWidget {
   const AIRecommendationPage({super.key});
@@ -26,52 +27,76 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
   List<String> destinations = [];
   List<String> reasons = [];
   bool _isLoading = true;
+  bool _isFirstLoad = true;
 
   @override
-  void initState() {
-    super.initState();
-    _loadRecommendations();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_isFirstLoad) {
+      // 전달받은 설문 응답 확인
+      final args =
+          ModalRoute.of(context)?.settings.arguments as SurveyResponse?;
+      if (args != null) {
+        print('Received survey response:');
+        print('Travel Period: ${args.travelPeriod}');
+        print('Selected City: ${args.selectedCity}');
+      }
+      _loadRecommendations();
+      _isFirstLoad = false;
+    }
+  }
+
+  @override
+  void dispose() {
+    // 페이지를 나갈 때 캐시 초기화
+    _imageCache.clear();
+    super.dispose();
   }
 
   Future<void> _loadRecommendations() async {
+    if (!mounted) return;
+
     try {
-      final surveyResponse = ref.read(surveyProvider).toSurveyResponse();
-      final selectedCity = surveyResponse.selectedCity;
-
-      setState(() => _isLoading = true);
-
-      print('Selected city before recommendation: $selectedCity');
-
-      final recommendationState = await ref
-          .read(recommendationStateProvider.notifier)
-          .getRecommendations(
-            surveyResponse,
-            preferredCities: selectedCity != null ? [selectedCity] : null,
-          );
-
       setState(() {
-        destinations = recommendationState.destinations;
-        reasons = recommendationState.reasons;
-        _isLoading = false;
-        if (selectedCity != null) {
-          selectedDestination = selectedCity;
-        }
+        _isLoading = true;
+        destinations = [];
+        reasons = [];
+        selectedDestination = null;
       });
 
-      print('Loaded destinations: $destinations');
-      print('Loaded reasons: $reasons');
+      final args =
+          ModalRoute.of(context)?.settings.arguments as SurveyResponse?;
+      if (args == null) {
+        throw Exception('No survey response provided');
+      }
+
+      print('Loading recommendations for:');
+      print('Travel Period: ${args.travelPeriod}');
+      print('Selected City: ${args.selectedCity}');
+
+      final recommendation =
+          await ref.read(recommendationProvider(args).future);
+
+      if (!mounted) return;
+
+      setState(() {
+        destinations = recommendation.destinations;
+        reasons = recommendation.reasons;
+        _isLoading = false;
+      });
     } catch (e) {
       print('Error in _loadRecommendations: $e');
+      if (!mounted) return;
+
       setState(() {
         _isLoading = false;
         destinations = [];
         reasons = [];
       });
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('추천을 가져오는데 실패했습니다: $e')),
-        );
-      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('추천을 가져오는데 실패했습니다: $e')),
+      );
     }
   }
 
@@ -135,9 +160,7 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
                           const SizedBox(height: 16),
                           Expanded(child: _buildDestinationList()),
                           const SizedBox(height: 20),
-                          _buildBottomButtons(
-                            ref.read(surveyProvider).toSurveyResponse(),
-                          ),
+                          _buildBottomButtons(context),
                         ],
                       ),
                     ),
@@ -429,38 +452,40 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
     return {'tags': cityTags.take(2).toList()}; // 최대 2개의 태그만 반환
   }
 
-  Widget _buildBottomButtons(SurveyResponse surveyResponse) {
+  Widget _buildBottomButtons(BuildContext context) {
+    final args = ModalRoute.of(context)?.settings.arguments as SurveyResponse?;
+    if (args == null) return const SizedBox.shrink();
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
           Expanded(
-              child: StandardButton.secondary(
-            sizeType: ButtonSizeType.normal,
-            onPressed: () {
-              // TODO 다시 추천받기 기능 넣을것
-            },
-            text: '다시 추천받기',
-          )),
+            child: StandardButton.secondary(
+              sizeType: ButtonSizeType.normal,
+              onPressed: () => _loadRecommendations(),
+              text: '다시 추천받기',
+            ),
+          ),
           const SizedBox(width: 16),
           Expanded(
-              child: StandardButton.primary(
-                  sizeType: ButtonSizeType.normal,
-                  onPressed: selectedDestination != null
-                      ? () {
-                          // 선택된 도시로 SurveyResponse 업데이트
-                          final updatedSurveyResponse = surveyResponse.copyWith(
-                            selectedCity: selectedDestination,
-                          );
-
-                          Navigator.pushNamed(
-                            context,
-                            '/ai-schedule',
-                            arguments: updatedSurveyResponse,
-                          );
-                        }
-                      : null,
-                  text: '다음으로')),
+            child: StandardButton.primary(
+              sizeType: ButtonSizeType.normal,
+              onPressed: selectedDestination != null
+                  ? () {
+                      final updatedSurveyResponse = args.copyWith(
+                        selectedCity: selectedDestination,
+                      );
+                      Navigator.pushNamed(
+                        context,
+                        '/ai-schedule',
+                        arguments: updatedSurveyResponse,
+                      );
+                    }
+                  : null,
+              text: '다음으로',
+            ),
+          ),
         ],
       ),
     );

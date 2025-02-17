@@ -19,71 +19,48 @@ class TravelRecommendation {
   }) {
     List<String> destinations = [];
     List<String> reasons = [];
-    List<String> categories = [];
 
     try {
       final sections = response.split('---');
-      print('Number of sections: ${sections.length}'); // 디버깅 로그 추가
+      print('Number of sections: ${sections.length}');
 
+      // 각 섹션에서 도시와 이유 추출
       for (var section in sections) {
         if (section.trim().isEmpty) continue;
 
-        final cityMatch =
-            RegExp(r'도시명:\s*\**([^*\n]+)\**(?=\n|$)').firstMatch(section);
-        final categoryMatch =
-            RegExp(r'카테고리:\s*\**([^*\n]+)\**(?=\n|$)').firstMatch(section);
-        final reasonMatch =
-            RegExp(r'추천 이유:\s*\**([^*\n]+)\**(?=\n|$)').firstMatch(section);
+        final cityMatch = RegExp(r'도시명:\s*([^*\n]+)').firstMatch(section);
+        final reasonMatch = RegExp(r'추천 이유:\s*([^*\n]+)').firstMatch(section);
 
         if (cityMatch != null && reasonMatch != null) {
-          final cityWithCountry = cityMatch.group(1)?.trim() ?? '';
-          final category = categoryMatch?.group(1)?.trim() ?? '';
+          final city = cityMatch.group(1)?.trim() ?? '';
           final reason = reasonMatch.group(1)?.trim() ?? '';
 
-          if (cityWithCountry.isNotEmpty && reason.isNotEmpty) {
-            destinations.add(cityWithCountry);
+          if (city.isNotEmpty && reason.isNotEmpty) {
+            destinations.add(city);
             reasons.add(reason);
-            categories.add(category);
           }
         }
       }
 
-      print('Parsed destinations: $destinations'); // 디버깅 로그 추가
-      print('Parsed reasons: $reasons'); // 디버깅 로그 추가
-
-      // 선호하는 도시가 있는 경우에만 처리
+      // 선호 도시가 있는 경우, 해당 도시를 첫 번째로 이동
       if (preferredCities.isNotEmpty) {
-        final preferredCity = preferredCities.first;
-        print('Processing preferred city: $preferredCity');
+        final preferredCity = preferredCities[0];
+        final index = destinations.indexWhere(
+          (d) => d.toLowerCase().contains(preferredCity.toLowerCase()),
+        );
 
-        final index = destinations.indexWhere((d) =>
-            d.toLowerCase().split(',').first.trim() ==
-            preferredCity.toLowerCase());
-
-        print('Found preferred city at index: $index');
-
-        if (index == -1) {
-          print('Adding preferred city to recommendations');
-          destinations.insert(0, '$preferredCity, 대한민국');
-          reasons.insert(0, '사용자가 선택한 선호 도시입니다.');
-          categories.insert(0, categories.firstOrNull ?? '일반 관광지');
-        } else if (index > 0) {
+        if (index != -1 && index != 0) {
+          // 도시와 이유를 함께 이동
           final city = destinations.removeAt(index);
           final reason = reasons.removeAt(index);
-          final category = categories.removeAt(index);
-
           destinations.insert(0, city);
           reasons.insert(0, reason);
-          categories.insert(0, category);
         }
       }
 
-      print('Final destinations: $destinations');
-      print('Final reasons: $reasons');
-
       return TravelRecommendation(
-        destinations: destinations, // take(3) 제거
-        reasons: reasons, // take(3) 제거
+        destinations: destinations,
+        reasons: reasons,
         tips: [],
         preferredCities: preferredCities,
       );
