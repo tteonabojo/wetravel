@@ -133,10 +133,7 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
         _isUploading = false; // 업로드 완료 후 플래그 해제
       });
 
-      setState(() {
-        _imageUrl = downloadUrl;
-        _isUploading = false; // 업로드 완료 후 플래그 해제
-      });
+      print("이미지 URL 업데이트됨: $_imageUrl");
 
       // Firestore에 저장
       await _firestore
@@ -521,30 +518,17 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
 
   // 저장 버튼
   Widget _buildSaveButton() {
-    return Align(
-      alignment: Alignment.bottomCenter,
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(16, 0, 16, 50),
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor:
-                _isFormValid ? AppColors.primary_450 : AppColors.primary_250,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            padding: const EdgeInsets.symmetric(vertical: 16),
-          ),
-          onPressed: _isFormValid ? _saveUserInfo : null,
-          child: const Text(
-            '등록',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor:
+            _isFormValid ? AppColors.primary_450 : AppColors.primary_250,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        padding: const EdgeInsets.symmetric(vertical: 16),
       ),
+      onPressed: _isFormValid ? _saveUserInfo : null,
+      child: const Text('등록',
+          style: TextStyle(
+              fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
     );
   }
 }
