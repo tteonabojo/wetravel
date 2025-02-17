@@ -253,9 +253,17 @@ class PackageItem extends StatelessWidget {
               height: 16,
               color: AppColors.primary_250,
               child: (guideImageUrl != null && guideImageUrl!.isNotEmpty)
-                  ? Image.network(
-                      guideImageUrl!,
+                  ? CachedNetworkImage(
+                      imageUrl: guideImageUrl!,
                       fit: BoxFit.cover,
+                      cacheKey: guideImageUrl!,
+                      errorWidget: (context, url, error) => Container(
+                        margin: EdgeInsets.all(2),
+                        child: SvgPicture.asset(
+                          AppIcons.userRound,
+                          color: Colors.white,
+                        ),
+                      ),
                     )
                   : Container(
                       margin: EdgeInsets.all(2),
