@@ -347,32 +347,39 @@ class RecommendationNotifier extends StateNotifier<RecommendationState> {
     List<String>? preferredCities,
   }) async {
     try {
+      print('Getting recommendations for survey:');
+      print('Selected City: ${surveyResponse.selectedCity}');
+
+      // 선호 도시가 있는 경우 해당 도시만 전달
+      List<String>? selectedCity;
+      if (surveyResponse.selectedCity != null &&
+          surveyResponse.selectedCity!.isNotEmpty) {
+        selectedCity = [surveyResponse.selectedCity!];
+        print('Setting preferred city: ${surveyResponse.selectedCity}');
+      }
+
       final response = await _geminiService.getTravelRecommendation(
         surveyResponse,
-        preferredCities: preferredCities,
+        preferredCities: selectedCity, // 선호 도시만 전달
       );
+
+      print('Raw Gemini response: $response');
 
       final recommendation = TravelRecommendation.fromGeminiResponse(
         response,
-        preferredCities: preferredCities ?? [],
+        preferredCities: selectedCity ?? [], // 선호 도시만 전달
       );
 
-      // 새로운 상태 생성
-      final newState = state.copyWith(
+      print('Final recommendations: ${recommendation.destinations}');
+
+      return RecommendationState(
         destinations: recommendation.destinations,
         reasons: recommendation.reasons,
-        tips: recommendation.tips,
-        travelStyles: surveyResponse.travelStyles,
       );
-
-      // 상태 업데이트
-      state = newState;
-
-      // 새로운 상태 반환
-      return newState;
     } catch (e) {
-      print('Error getting recommendations: $e');
-      rethrow;
+      print('Error in getRecommendations: $e');
+      return RecommendationState(
+          destinations: [], reasons: []); // initial() 대신 빈 상태 반환
     }
   }
 }

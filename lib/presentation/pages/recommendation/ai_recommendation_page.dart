@@ -38,10 +38,10 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
       final surveyResponse = ref.read(surveyProvider).toSurveyResponse();
       final selectedCity = surveyResponse.selectedCity;
 
-      // 로딩 시작
       setState(() => _isLoading = true);
 
-      // AI 추천 요청
+      print('Selected city before recommendation: $selectedCity');
+
       final recommendationState = await ref
           .read(recommendationStateProvider.notifier)
           .getRecommendations(
@@ -49,14 +49,19 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
             preferredCities: selectedCity != null ? [selectedCity] : null,
           );
 
-      // 상태 업데이트
       setState(() {
         destinations = recommendationState.destinations;
         reasons = recommendationState.reasons;
         _isLoading = false;
+        if (selectedCity != null) {
+          selectedDestination = selectedCity;
+        }
       });
+
+      print('Loaded destinations: $destinations');
+      print('Loaded reasons: $reasons');
     } catch (e) {
-      // 에러 처리
+      print('Error in _loadRecommendations: $e');
       setState(() {
         _isLoading = false;
         destinations = [];
@@ -161,43 +166,41 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
   }
 
   Widget _buildDestinationList() {
-    return Expanded(
-      child: ListView.builder(
-        key: const PageStorageKey('destination_list'),
-        itemCount: destinations.length,
-        itemBuilder: (context, index) {
-          final destination = destinations[index];
-          final reason = reasons[index];
-          final matchPercent = 95 - (index * 10);
+    return ListView.builder(
+      key: const PageStorageKey('destination_list'),
+      itemCount: destinations.length, // destinations 길이만큼 카드 생성
+      itemBuilder: (context, index) {
+        final destination = destinations[index];
+        final reason = index < reasons.length ? reasons[index] : '';
+        final matchPercent = 95 - (index * 10);
 
-          return GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () {
-              setState(() {
-                selectedDestination = destination;
-              });
-            },
-            child: Container(
-              margin: const EdgeInsets.only(bottom: 16.0),
-              decoration: BoxDecoration(
-                boxShadow: AppShadow.generalShadow,
-                border: Border.all(
-                  color: selectedDestination == destination
-                      ? AppColors.primary_450
-                      : Colors.transparent,
-                  width: 1,
-                ),
-                borderRadius: BorderRadius.circular(16),
+        return GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () {
+            setState(() {
+              selectedDestination = destination;
+            });
+          },
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 16.0),
+            decoration: BoxDecoration(
+              boxShadow: AppShadow.generalShadow,
+              border: Border.all(
+                color: selectedDestination == destination
+                    ? AppColors.primary_450
+                    : Colors.transparent,
+                width: 1,
               ),
-              child: _buildDestinationCard(
-                destination,
-                reason,
-                matchPercent,
-              ),
+              borderRadius: BorderRadius.circular(16),
             ),
-          );
-        },
-      ),
+            child: _buildDestinationCard(
+              destination,
+              reason,
+              matchPercent,
+            ),
+          ),
+        );
+      },
     );
   }
 

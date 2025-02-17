@@ -26,26 +26,77 @@ class GeminiService {
   /// [survey]: 사용자의 설문 응답
   /// [preferredCities]: 선호하는 도시 목록 (선택 사항)
   Future<String> getTravelRecommendation(
-    SurveyResponse survey, {
+    SurveyResponse surveyResponse, {
     List<String>? preferredCities,
   }) async {
-    try {
-      print('Received preferred cities: $preferredCities');
-      final prompt =
-          _buildRecommendationPrompt(survey, preferredCities: preferredCities);
-      print('Generated prompt: $prompt');
+    final prompt = '''
+다음 여행 선호도를 바탕으로 전세계의 여행지를 추천해주세요.
+${preferredCities != null && preferredCities.isNotEmpty ? '''
+선호하는 도시: ${preferredCities.join(', ')}
 
+반드시 아래 순서와 형식으로 정확히 3개의 도시를 추천해주세요:
+
+첫 번째 도시:
+도시명: ${preferredCities.first}
+카테고리: [도시의 주요 특징]
+추천 이유: [사용자의 여행 선호도와 스타일을 반영한 이유]
+---
+두 번째 도시:
+도시명: [도시명], [국가명]
+카테고리: [첫 번째 도시와 동일한 카테고리]
+추천 이유: [사용자의 여행 선호도와 스타일을 반영한 이유]
+---
+세 번째 도시:
+도시명: [도시명], [국가명]
+카테고리: [첫 번째 도시와 동일한 카테고리]
+추천 이유: [사용자의 여행 선호도와 스타일을 반영한 이유]
+''' : '''
+반드시 아래 형식으로 3개의 도시를 추천해주세요:
+
+첫 번째 도시:
+도시명: [도시명], [국가명]
+카테고리: [도시의 주요 특징]
+추천 이유: [사용자의 여행 선호도와 스타일을 반영한 이유]
+---
+두 번째 도시:
+도시명: [도시명], [국가명]
+카테고리: [첫 번째 도시와 동일한 카테고리]
+추천 이유: [사용자의 여행 선호도와 스타일을 반영한 이유]
+---
+세 번째 도시:
+도시명: [도시명], [국가명]
+카테고리: [첫 번째 도시와 동일한 카테고리]
+추천 이유: [사용자의 여행 선호도와 스타일을 반영한 이유]
+'''}
+
+여행 정보:
+- 여행 시기: ${surveyResponse.travelPeriod}
+- 여행 기간: ${surveyResponse.travelDuration}
+- 동행인: ${surveyResponse.companions.join(', ')}
+- 여행 스타일: ${surveyResponse.travelStyles.join(', ')}
+- 숙소 타입: ${surveyResponse.accommodationTypes.join(', ')}
+- 고려사항: ${surveyResponse.considerations.join(', ')}
+
+주의사항:
+1. 반드시 위 형식을 정확히 지켜주세요.
+2. 정확히 3개의 도시를 추천해야 합니다.
+3. 각 도시는 "도시명: [도시명], [국가명]" 형식으로 작성해주세요.
+4. 각 도시 추천 사이에는 반드시 "---" 구분자를 넣어주세요.
+5. 추천 이유는 여행자의 선호도를 구체적으로 반영해주세요.
+6. 선호 도시가 있는 경우, 반드시 첫 번째로 추천하고 나머지는 같은 카테고리의 도시를 추천해주세요.
+''';
+
+    try {
       final content = [Content.text(prompt)];
       final response = await model.generateContent(content);
-
       if (response.text == null) {
         throw Exception('Gemini returned null response');
       }
-
+      print('Gemini Response: ${response.text}');
       return response.text!;
-    } catch (e, stackTrace) {
-      print('Error in Gemini service: $e\n$stackTrace');
-      rethrow;
+    } catch (e) {
+      print('Error in getTravelRecommendation: $e');
+      throw Exception('Failed to get travel recommendations: $e');
     }
   }
 
