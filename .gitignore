@@ -80,3 +80,4 @@ android/build/ios/XCBuildData/PIFCache/
 **/ios/**/profile
 **/ios/**/xcuserdata
 **/ios/.generated/
+**/ios/build/ios/XCBuildData/PIFCache/
