@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -53,18 +54,21 @@ class _MainBannerState extends State<MainBanner> {
                     },
                     child: ClipRRect(
                       borderRadius: AppBorderRadius.small12,
-                      child: Image.network(
+                      child: CachedNetworkImage(
                         width: 320,
                         height: double.infinity,
-                        banners[index].imageUrl,
+                        imageUrl: banners[index].imageUrl,
                         fit: BoxFit.cover,
-                        errorBuilder: (BuildContext context, Object error,
-                            StackTrace? stackTrace) {
-                          return SizedBox(
-                            height: 240,
-                            width: 320,
-                          );
-                        },
+                        placeholder: (context, url) => Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                        errorWidget: (context, url, error) => SizedBox(
+                          height: 240,
+                          width: 320,
+                          child: Center(
+                              child: Icon(Icons.error,
+                                  size: 40, color: Colors.red)),
+                        ),
                       ),
                     ),
                   ),
