@@ -10,6 +10,8 @@ import 'package:wetravel/domain/entity/survey_response.dart';
 import 'package:wetravel/presentation/provider/recommendation_provider.dart';
 import 'package:wetravel/presentation/widgets/buttons/standard_button.dart';
 import 'package:lottie/lottie.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'dart:io' show Platform;
 
 class AIRecommendationPage extends ConsumerStatefulWidget {
   const AIRecommendationPage({super.key});
@@ -26,6 +28,11 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
   List<String> reasons = [];
   bool _isLoading = true;
   bool _isFirstLoad = true;
+  RewardedAd? _rewardedAd;
+  final String _adUnitId = Platform.isAndroid
+      ? 'ca-app-pub-3940256099942544/5224354917' // Android 테스트 광고 ID
+      : 'ca-app-pub-3940256099942544/1712485313'; // iOS 테스트 광고 ID
+  bool _isAdLoading = false;
 
   @override
   void didChangeDependencies() {
@@ -39,9 +46,16 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _loadRewardedAd();
+  }
+
+  @override
   void dispose() {
     // 페이지를 나갈 때 캐시 초기화
     _imageCache.clear();
+    _rewardedAd?.dispose();
     super.dispose();
   }
 
@@ -84,6 +98,103 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('추천을 가져오는데 실패했습니다: $e')),
       );
+    }
+  }
+
+  Future<void> _loadRewardedAd() async {
+    if (_isAdLoading) return;
+
+    setState(() {
+      _isAdLoading = true;
+    });
+
+    try {
+      await RewardedAd.load(
+        adUnitId: _adUnitId,
+        request: const AdRequest(),
+        rewardedAdLoadCallback: RewardedAdLoadCallback(
+          onAdLoaded: (ad) {
+            debugPrint('광고 로드 성공');
+            setState(() {
+              _rewardedAd = ad;
+              _isAdLoading = false;
+            });
+
+            ad.fullScreenContentCallback = FullScreenContentCallback(
+              onAdDismissedFullScreenContent: (ad) {
+                debugPrint('광고 시청 완료');
+                ad.dispose();
+                _rewardedAd = null;
+                _loadRecommendations();
+                _loadRewardedAd();
+              },
+              onAdFailedToShowFullScreenContent: (ad, error) {
+                debugPrint('광고 표시 실패: ${error.message}');
+                ad.dispose();
+                _rewardedAd = null;
+                _isAdLoading = false;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('광고 표시에 실패했습니다. 다시 시도해주세요.')),
+                );
+              },
+              onAdShowedFullScreenContent: (ad) {
+                debugPrint('광고 표시됨');
+              },
+            );
+          },
+          onAdFailedToLoad: (LoadAdError error) {
+            debugPrint('광고 로드 실패: ${error.message}');
+            setState(() {
+              _isAdLoading = false;
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('광고를 불러오는데 실패했습니다. 다시 시도해주세요.')),
+            );
+          },
+        ),
+      );
+    } catch (e) {
+      debugPrint('광고 로드 중 예외 발생: $e');
+      setState(() {
+        _isAdLoading = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('광고 서비스를 초기화하는데 실패했습니다.')),
+        );
+      }
+    }
+  }
+
+  Future<void> _showRewardedAd() async {
+    if (_isAdLoading) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('광고를 불러오는 중입니다. 잠시만 기다려주세요.')),
+      );
+      return;
+    }
+
+    if (_rewardedAd == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('광고를 불러오는 중입니다. 잠시 후 다시 시도해주세요.')),
+      );
+      _loadRewardedAd();
+      return;
+    }
+
+    try {
+      await _rewardedAd!.show(
+        onUserEarnedReward: (_, reward) {
+          debugPrint('리워드 획득: ${reward.amount}');
+          _loadRecommendations();
+        },
+      );
+    } catch (e) {
+      debugPrint('광고 표시 중 오류 발생: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('광고 표시 중 오류가 발생했습니다. 다시 시도해주세요.')),
+      );
+      _loadRewardedAd();
     }
   }
 
@@ -450,8 +561,8 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
           Expanded(
             child: StandardButton.secondary(
               sizeType: ButtonSizeType.normal,
-              onPressed: () => _loadRecommendations(),
-              text: '다시 추천받기',
+              onPressed: _isAdLoading ? null : () => _showRewardedAd(),
+              text: _isAdLoading ? '광고 로딩 중...' : '다시 추천받기',
             ),
           ),
           const SizedBox(width: 16),
