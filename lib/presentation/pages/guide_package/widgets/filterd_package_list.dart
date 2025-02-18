@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wetravel/core/constants/app_border_radius.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_shadow.dart';
 import 'package:wetravel/core/constants/firestore_constants.dart';
@@ -50,98 +51,61 @@ class FilteredPackageList extends ConsumerWidget {
           return const Center(child: Text('조건에 맞는 패키지가 없습니다.'));
         }
 
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+        return Expanded(
+          // Column 내부에서 사용하려면 Expanded로 감싸기
           child: ListView.builder(
-            shrinkWrap: true,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             itemCount: packages.length,
             itemBuilder: (context, index) {
-              final packageData =
-                  packages[index].data() as Map<String, dynamic>;
-              final packageTitle = packageData['title'] ?? 'Untitled';
-              final packageLocation = packageData['location'] ?? 'Unknown';
-              final packageImageUrl = packageData['imageUrl'] ?? '';
-              final packageKeywords =
-                  List<String>.from(packageData['keywordList'] ?? []);
-              final userId = packageData['userId'] ?? '';
-              final userImageUrl = packageData['userImageUrl'] ?? '';
-              final userName = packageData['userName'] ?? 'no name';
-
+              final package = packages[index];
               return FutureBuilder<DocumentSnapshot>(
                 future: FirebaseFirestore.instance
-                    .collection(firestoreConstants.usersCollection)
-                    .doc(userId)
+                    .collection('users')
+                    .doc(package['userId'])
                     .get(),
-                builder: (context, userSnapshot) {
-                  if (userSnapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                        child: CircularProgressIndicator(
-                      color: AppColors.primary_450,
-                    ));
-                  }
-
-                  if (userSnapshot.hasError || !userSnapshot.hasData) {
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Container(
-                        decoration:
-                            BoxDecoration(boxShadow: AppShadow.generalShadow),
-                        child: GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => PackageDetailPage(
-                                  packageId: packages[index].id,
-                                  getPackageUseCase: getPackageUseCase,
-                                  getSchedulesUseCase: getSchedulesUseCase,
-                                ),
-                              ),
-                            );
-                          },
-                          child: PackageItem(
-                            name: userName,
-                            guideImageUrl: userImageUrl,
-                            title: packageTitle,
-                            location: packageLocation,
-                            packageImageUrl: packageImageUrl,
-                            keywords: packageKeywords,
-                          ),
-                        ),
-                      ),
-                    );
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return CircularProgressIndicator();
                   }
 
                   final userData =
-                      userSnapshot.data?.data() as Map<String, dynamic>?;
-                  final guideName = userData?['name'] ?? 'no name';
-                  final guideImageUrl = userData?['imageUrl'] ?? '';
+                      snapshot.data?.data() as Map<String, dynamic>? ?? {};
+                  final userName = userData['name'] ?? 'no name';
+                  final userImageUrl = userData['imageUrl'] ?? '';
 
                   return Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Container(
-                      decoration:
-                          BoxDecoration(boxShadow: AppShadow.generalShadow),
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => PackageDetailPage(
-                                packageId: packages[index].id,
-                                getPackageUseCase: getPackageUseCase,
-                                getSchedulesUseCase: getSchedulesUseCase,
-                              ),
+                    padding: EdgeInsets.only(
+                      bottom: index == packages.length - 1 ? 40 : 8,
+                    ),
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PackageDetailPage(
+                              packageId: package.id,
+                              getPackageUseCase: getPackageUseCase,
+                              getSchedulesUseCase: getSchedulesUseCase,
                             ),
-                          );
-                        },
-                        child: PackageItem(
-                          name: guideName,
-                          guideImageUrl: guideImageUrl,
-                          title: packageTitle,
-                          location: packageLocation,
-                          packageImageUrl: packageImageUrl,
-                          keywords: packageKeywords,
+                          ),
+                        );
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          boxShadow: AppShadow.generalShadow,
+                          borderRadius: AppBorderRadius.small12,
+                        ),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: PackageItem(
+                            name: userName,
+                            guideImageUrl: userImageUrl,
+                            title: package['title'] ?? 'Untitled',
+                            location: package['location'] ?? 'Unknown',
+                            packageImageUrl: package['imageUrl'] ?? '',
+                            keywords:
+                                List<String>.from(package['keywordList'] ?? []),
+                          ),
                         ),
                       ),
                     ),
