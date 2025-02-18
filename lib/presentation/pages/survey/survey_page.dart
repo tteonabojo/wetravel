@@ -128,7 +128,6 @@ class SurveyChipList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Wrap(
       spacing: 8,
-      runSpacing: 8,
       children: items
           .map((item) => _buildFilterChip(item, selectedItem, onSelected))
           .toList(),
