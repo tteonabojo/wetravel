@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wetravel/core/constants/firestore_constants.dart';
 import 'package:wetravel/data/data_source/schedule_data_source.dart';
@@ -40,9 +42,9 @@ class ScheduleDataSourceImpl extends FirestoreConstants
   @override
   Future<void> saveAISchedule(
       String userId, Map<String, dynamic> aiScheduleData) async {
-    print('Debug Mode: ${isDebugMode}');
-    print('Users Collection: ${usersCollection}');
-    print('Schedules Collection: ${schedulesCollection}');
+    log('Debug Mode: ${isDebugMode}');
+    log('Users Collection: ${usersCollection}');
+    log('Schedules Collection: ${schedulesCollection}');
 
     await _firestore
         .collection(usersCollection)

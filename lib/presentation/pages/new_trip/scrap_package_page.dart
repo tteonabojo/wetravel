@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -38,7 +40,7 @@ class _ScrapPackagesPageState extends ConsumerState<ScrapPackagesPage> {
 
       final userId = auth.currentUser?.uid;
       if (userId == null) {
-        print("User is not logged in!");
+        log("User is not logged in!");
         return;
       }
 
@@ -81,7 +83,7 @@ class _ScrapPackagesPageState extends ConsumerState<ScrapPackagesPage> {
       }
       return {'name': 'no name', 'imageUrl': ''};
     } catch (e) {
-      print('Error fetching user data: $e');
+      log('Error fetching user data: $e');
       return {'name': 'no name', 'imageUrl': ''};
     }
   }

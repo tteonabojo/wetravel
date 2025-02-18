@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
@@ -209,7 +211,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         showHiddenPackages = !showHiddenPackages;
       });
     } catch (e) {
-      print('isHidden 변경 실패: $e');
+      log('isHidden 변경 실패: $e');
     }
   }
 
@@ -245,7 +247,7 @@ class _AdminPageState extends ConsumerState<AdminPage> {
 
       setState(() {});
     } catch (e) {
-      print('패키지 및 관련 스케줄 삭제 실패: $e');
+      log('패키지 및 관련 스케줄 삭제 실패: $e');
     }
   }
 
@@ -263,8 +265,8 @@ class _AdminPageState extends ConsumerState<AdminPage> {
         firestoreConstants.packagesCollection: packages,
       };
     } catch (e, stackTrace) {
-      print('Admin loadData 에러: $e');
-      print('에러 위치: $stackTrace');
+      log('Admin loadData 에러: $e');
+      log('에러 위치: $stackTrace');
       rethrow;
     }
   }

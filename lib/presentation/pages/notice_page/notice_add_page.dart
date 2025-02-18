@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wetravel/core/constants/app_colors.dart'; // AppColors 정의 필요
@@ -42,7 +44,8 @@ class _NoticeAddPageState extends State<NoticeAddPage> {
     try {
       String title = _titleController.text;
       String content = _contentController.text;
-      String date = '${_selectedDate.year}.${_selectedDate.month}.${_selectedDate.day}';
+      String date =
+          '${_selectedDate.year}.${_selectedDate.month}.${_selectedDate.day}';
 
       await FirebaseFirestore.instance.collection('notices_test').add({
         'title': title,
@@ -56,7 +59,7 @@ class _NoticeAddPageState extends State<NoticeAddPage> {
 
       Navigator.pop(context);
     } catch (error) {
-      print('Error saving notice: $error');
+      log('Error saving notice: $error');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('공지 저장에 실패했습니다.')),
       );

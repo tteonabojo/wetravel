@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 class TravelRecommendation {
   final List<String> destinations;
   final List<String> reasons;
@@ -20,7 +22,7 @@ class TravelRecommendation {
 
     try {
       final sections = response.split('---');
-      print('Number of sections: ${sections.length}');
+      log('Number of sections: ${sections.length}');
 
       // 각 섹션에서 도시와 이유 추출
       for (var section in sections) {
@@ -63,7 +65,7 @@ class TravelRecommendation {
         preferredCities: preferredCities,
       );
     } catch (e) {
-      print('Error parsing Gemini response: $e');
+      log('Error parsing Gemini response: $e');
       throw Exception('Failed to parse travel recommendations: $e');
     }
   }

@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -142,7 +143,7 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
         SetOptions(merge: true), // 기존 데이터와 병합
       );
     } catch (e) {
-      print("이미지 업로드 오류: $e");
+      log("이미지 업로드 오류: $e");
       setState(() {
         _isUploading = false; // 에러 발생 시 플래그 해제
       });
@@ -455,7 +456,7 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
               FirebaseStorage.instance.refFromURL(profileImageUrl);
           await storageRef.delete();
         } catch (e) {
-          print("프로필 이미지 삭제 실패: $e");
+          log("프로필 이미지 삭제 실패: $e");
         }
       }
 
@@ -470,7 +471,7 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
       // 로그아웃 처리
       await ref.read(signOutUsecaseProvider).signOut();
     } catch (e) {
-      print("회원 탈퇴 실패: $e");
+      log("회원 탈퇴 실패: $e");
     }
   }
 
@@ -499,7 +500,7 @@ class _MyPageCorrectionState extends State<MyPageCorrection> {
         await user.reauthenticateWithProvider(appleProvider);
       }
     } catch (e) {
-      print("재인증 실패: $e");
+      log("재인증 실패: $e");
       throw FirebaseAuthException(
           code: 'reauthentication-failed', message: "재인증에 실패했습니다.");
     }

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:wetravel/domain/entity/schedule.dart';
 
 class TravelSchedule {
@@ -80,7 +82,7 @@ class TravelSchedule {
         }
       }
     } catch (e) {
-      print('Error parsing schedule: $e');
+      log('Error parsing schedule: $e');
     }
 
     return TravelSchedule(
@@ -115,8 +117,8 @@ class TravelSchedule {
         }
       }
     } catch (e) {
-      print('Error parsing days from Firestore: $e');
-      print('Data structure: $data');
+      log('Error parsing days from Firestore: $e');
+      log('Data structure: $data');
     }
 
     return TravelSchedule(

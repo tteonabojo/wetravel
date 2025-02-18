@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -76,8 +77,8 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
         scheduleMap = tempScheduleMap;
       });
     } catch (e, stacktrace) {
-      print('Error loading data: $e');
-      print('Stacktrace: $stacktrace');
+      log('Error loading data: $e');
+      log('Stacktrace: $stacktrace');
     }
   }
 
@@ -85,7 +86,7 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
     try {
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser == null) {
-        print('사용자가 로그인되어 있지 않습니다.');
+        log('사용자가 로그인되어 있지 않습니다.');
         return;
       }
 
@@ -109,10 +110,10 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
 
         await userRef.update({'recentPackages': recentPackages});
       } else {
-        print('사용자 데이터를 찾을 수 없습니다.');
+        log('사용자 데이터를 찾을 수 없습니다.');
       }
     } catch (e) {
-      print('오류 발생: $e');
+      log('오류 발생: $e');
     }
   }
 
@@ -127,10 +128,10 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
         final currentViewCount = packageSnapshot.data()?['viewCount'] ?? 0;
         await packageRef.update({'viewCount': currentViewCount + 1});
       } else {
-        print('패키지 문서를 찾을 수 없습니다.');
+        log('패키지 문서를 찾을 수 없습니다.');
       }
     } catch (e) {
-      print('viewCount 업데이트 실패: $e');
+      log('viewCount 업데이트 실패: $e');
     }
   }
 
@@ -138,7 +139,7 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
     try {
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser == null) {
-        print('사용자가 로그인되어 있지 않습니다.');
+        log('사용자가 로그인되어 있지 않습니다.');
         return;
       }
 
@@ -163,10 +164,10 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
           );
         }
       } else {
-        print('사용자 데이터를 찾을 수 없습니다.');
+        log('사용자 데이터를 찾을 수 없습니다.');
       }
     } catch (e) {
-      print('오류 발생: $e');
+      log('오류 발생: $e');
     }
   }
 

@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -89,7 +90,7 @@ class _PackageEditPageState extends State<PackageEditPage> {
 
             loadedSchedules[day - 1].add(schedule);
           } else {
-            print('스케줄 데이터를 불러오는 데 실패했습니다.');
+            log('스케줄 데이터를 불러오는 데 실패했습니다.');
           }
         }
 
@@ -108,7 +109,7 @@ class _PackageEditPageState extends State<PackageEditPage> {
         });
       }
     } catch (e) {
-      print('패키지 데이터 불러오기 실패: $e');
+      log('패키지 데이터 불러오기 실패: $e');
     }
   }
 
@@ -127,7 +128,7 @@ class _PackageEditPageState extends State<PackageEditPage> {
           _schedules[dayIndex].removeAt(scheduleIndex);
         });
       } catch (e) {
-        print('스케줄 삭제 실패: $e');
+        log('스케줄 삭제 실패: $e');
       }
     }
   }
@@ -218,7 +219,7 @@ class _PackageEditPageState extends State<PackageEditPage> {
         }
       });
     } catch (e) {
-      print('Day 삭제 실패: $e');
+      log('Day 삭제 실패: $e');
     }
   }
 
@@ -310,7 +311,7 @@ class _PackageEditPageState extends State<PackageEditPage> {
       String downloadUrl = await uploadTask.ref.getDownloadURL();
       return downloadUrl;
     } catch (e) {
-      print('Error uploading image: $e');
+      log('Error uploading image: $e');
       return null;
     }
   }

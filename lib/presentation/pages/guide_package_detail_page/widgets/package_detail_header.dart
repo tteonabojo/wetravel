@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_svg/svg.dart';
@@ -53,10 +55,10 @@ class _PackageDetailHeaderState extends State<PackageDetailHeader> {
           userImageUrl = userDoc['imageUrl'];
         });
       } else {
-        print("탈퇴한 작성자 userId: ${widget.userId}");
+        log("탈퇴한 작성자 userId: ${widget.userId}");
       }
     } catch (e) {
-      print("Error fetching user data: $e");
+      log("Error fetching user data: $e");
     }
   }
 

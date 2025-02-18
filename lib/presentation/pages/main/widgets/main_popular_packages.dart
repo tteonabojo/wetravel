@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/core/constants/app_border_radius.dart';
@@ -34,7 +36,7 @@ class MainPopularPackages extends ConsumerWidget {
         };
       }
     } catch (e) {
-      print('Error fetching user info: $e');
+      log('Error fetching user info: $e');
     }
     return {'name': 'no name', 'imageUrl': ''};
   }

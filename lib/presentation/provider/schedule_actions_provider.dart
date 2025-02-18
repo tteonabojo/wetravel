@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,9 +22,9 @@ class ScheduleActions {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) throw Exception('User not logged in');
 
-      print('Attempting to delete schedule:');
-      print('User ID: ${user.uid}');
-      print('Schedule ID: $scheduleId');
+      log('Attempting to delete schedule:');
+      log('User ID: ${user.uid}');
+      log('Schedule ID: $scheduleId');
 
       await FirebaseFirestore.instance
           .collection(firestoreConstants.usersCollection)
@@ -31,10 +33,10 @@ class ScheduleActions {
           .doc(scheduleId)
           .delete();
 
-      print('Schedule deleted successfully: $scheduleId');
+      log('Schedule deleted successfully: $scheduleId');
     } catch (e, stackTrace) {
-      print('Error deleting schedule: $e');
-      print('Stack trace: $stackTrace');
+      log('Error deleting schedule: $e');
+      log('Stack trace: $stackTrace');
       throw Exception('Failed to delete schedule: $e');
     }
   }

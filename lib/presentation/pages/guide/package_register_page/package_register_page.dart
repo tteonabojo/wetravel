@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
@@ -102,7 +103,7 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
         };
       });
     } else {
-      print("Invalid index: dayIndex=$dayIndex, scheduleIndex=$scheduleIndex");
+      log("Invalid index: dayIndex=$dayIndex, scheduleIndex=$scheduleIndex");
     }
   }
 
@@ -268,7 +269,7 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
       String downloadUrl = await uploadTask.ref.getDownloadURL();
       return downloadUrl;
     } catch (e) {
-      print('Error uploading image: $e');
+      log('Error uploading image: $e');
       return null;
     }
   }

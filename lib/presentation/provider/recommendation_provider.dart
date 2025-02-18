@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/domain/entity/survey_response.dart';
 import 'package:wetravel/domain/entity/travel_recommendation.dart';
@@ -339,8 +341,8 @@ class RecommendationNotifier extends StateNotifier<RecommendationState> {
     List<String>? preferredCities,
   }) async {
     try {
-      print('Getting recommendations for survey:');
-      print('Selected City: ${surveyResponse.selectedCity}');
+      log('Getting recommendations for survey:');
+      log('Selected City: ${surveyResponse.selectedCity}');
 
       // 추천 결과 초기화
       state = state.copyWith(
@@ -356,7 +358,7 @@ class RecommendationNotifier extends StateNotifier<RecommendationState> {
         final recommendedCities =
             getRecommendedCitiesFromSameCategory(surveyResponse.selectedCity!);
         selectedCities = [surveyResponse.selectedCity!, ...recommendedCities];
-        print('Using preferred cities: $selectedCities');
+        log('Using preferred cities: $selectedCities');
       }
 
       final response = await _geminiService.getTravelRecommendation(
@@ -364,21 +366,21 @@ class RecommendationNotifier extends StateNotifier<RecommendationState> {
         preferredCities: selectedCities,
       );
 
-      print('Raw Gemini response: $response');
+      log('Raw Gemini response: $response');
 
       final recommendation = TravelRecommendation.fromGeminiResponse(
         response,
         preferredCities: selectedCities ?? [],
       );
 
-      print('Final recommendations: ${recommendation.destinations}');
+      log('Final recommendations: ${recommendation.destinations}');
 
       return RecommendationState(
         destinations: recommendation.destinations,
         reasons: recommendation.reasons,
       );
     } catch (e) {
-      print('Error in getRecommendations: $e');
+      log('Error in getRecommendations: $e');
       return RecommendationState(destinations: [], reasons: []);
     }
   }
@@ -409,7 +411,7 @@ final recommendationProvider = FutureProvider.autoDispose
       preferredCities: preferredCities ?? [],
     );
   } catch (e) {
-    print('Error in recommendation provider: $e');
+    log('Error in recommendation provider: $e');
     rethrow;
   }
 });

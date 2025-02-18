@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/domain/entity/user.dart';
 import 'package:wetravel/presentation/provider/user_provider.dart';
@@ -25,7 +27,7 @@ class LoginPageViewModel extends Notifier<User?> {
     try {
       return true;
     } catch (e) {
-      print('LoginPageViewModel::signOut $e');
+      log('LoginPageViewModel::signOut $e');
       return false;
     }
   }

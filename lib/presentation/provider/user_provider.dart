@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -87,7 +89,7 @@ final schedulesStreamProvider = StreamProvider<List<Schedule>>((ref) {
       .collection(firestoreConstants.schedulesCollection)
       .snapshots()
       .map((snapshot) {
-    print('Schedules collection data: ${snapshot.docs}');
+    log('Schedules collection data: ${snapshot.docs}');
     return snapshot.docs
         .map((doc) => Schedule.fromJson({...doc.data(), 'id': doc.id}))
         .toList();
@@ -115,14 +117,14 @@ class ScheduleActions {
           .doc(user.uid)
           .collection(firestoreConstants.schedulesCollection);
 
-      print('Adding schedule with ID: ${schedule.id}');
-      print('Schedule data: ${schedule.toJson()}');
+      log('Adding schedule with ID: ${schedule.id}');
+      log('Schedule data: ${schedule.toJson()}');
 
       await schedulesRef.doc(schedule.id).set(schedule.toJson());
-      print('Schedule added successfully');
+      log('Schedule added successfully');
     } catch (e, stack) {
-      print('Failed to add schedule: $e');
-      print('Stack trace: $stack');
+      log('Failed to add schedule: $e');
+      log('Stack trace: $stack');
     }
   }
 
@@ -138,9 +140,9 @@ class ScheduleActions {
           .doc(scheduleId)
           .delete();
 
-      print('Schedule deleted successfully');
+      log('Schedule deleted successfully');
     } catch (e) {
-      print('Failed to delete schedule: $e');
+      log('Failed to delete schedule: $e');
     }
   }
 }

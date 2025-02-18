@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:wetravel/core/constants/firestore_constants.dart';
@@ -173,7 +175,7 @@ class PackageDataSourceImpl extends FirestoreConstants
         });
       }).toList();
     } catch (e) {
-      print(e);
+      log('e');
       return [];
     }
   }
@@ -235,7 +237,7 @@ class PackageDataSourceImpl extends FirestoreConstants
           });
         }).toList();
       } catch (e) {
-        print('Error fetching recent packages: $e');
+        log('Error fetching recent packages: $e');
         return [];
       }
     });

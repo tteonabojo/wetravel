@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/core/constants/app_border_radius.dart';
@@ -131,7 +133,7 @@ class PlanSelectionPage extends ConsumerWidget {
             (route) => false,
           );
         } catch (e) {
-          print('Error in guide card tap: $e');
+          log('Error in guide card tap: $e');
         }
       },
       child: Container(

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/data/repository/survey_repository_impl.dart';
 import 'package:wetravel/domain/entity/survey/survey_state.dart';
@@ -41,7 +43,7 @@ class SurveyStateNotifier extends StateNotifier<SurveyState> {
   }
 
   void selectTravelPeriod(String period) {
-    print('Updating travel period to: $period');
+    log('Updating travel period to: $period');
     state = state.copyWith(travelPeriod: period);
     _updateSurveyStateUseCase.execute(state);
   }

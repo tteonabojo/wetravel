@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -24,11 +26,11 @@ class UserDataSourceImpl extends FirestoreConstants implements UserDataSource {
       if (userDoc.exists) {
         return UserDto.fromJson(userDoc.data() ?? {});
       } else {
-        print("No user found in Firestore");
+        log("No user found in Firestore");
         throw Exception('유저 정보를 찾을 수 없습니다.');
       }
     } catch (e) {
-      print("Error fetching user: $e");
+      log("Error fetching user: $e");
       rethrow;
     }
   }
@@ -107,7 +109,7 @@ class UserDataSourceImpl extends FirestoreConstants implements UserDataSource {
 
       throw Exception('사용자 정보를 찾을 수 없음');
     } catch (e) {
-      print('로그인 중 오류 발생: $e');
+      log('로그인 중 오류 발생: $e');
       rethrow;
     }
   }
