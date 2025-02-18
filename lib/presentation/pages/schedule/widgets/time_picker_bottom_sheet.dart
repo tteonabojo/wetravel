@@ -100,7 +100,7 @@ class _TimePickerBottomSheetState extends State<TimePickerBottomSheet> {
                   items[index],
                   style: AppTypography.body1.copyWith(
                     color: isSelected
-                        ? AppColors.primary_450
+                        ? AppColors.primary_550
                         : AppColors.grayScale_950,
                   ),
                 ),
