@@ -131,9 +131,52 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
     });
   }
 
+  bool _isValidPackage() {
+    if (_selectedImagePath.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('이미지를 등록해주세요.')),
+      );
+      return false;
+    }
+    if (_title.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('제목을 입력해주세요.')),
+      );
+      return false;
+    }
+    if (_location.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('위치를 입력해주세요.')),
+      );
+      return false;
+    }
+    if (_keywordList.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('키워드를 최소 1개 이상 입력해주세요.')),
+      );
+      return false;
+    }
+    for (var daySchedules in _schedules) {
+      for (var schedule in daySchedules) {
+        if (schedule['time']!.isEmpty ||
+            schedule['title']!.isEmpty ||
+            schedule['location']!.isEmpty ||
+            schedule['content']!.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('모든 일정의 필드를 입력해주세요.')),
+          );
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
   final _packageRegisterService = PackageRegisterService();
 
   void _registerPackage() async {
+    if (!_isValidPackage()) return;
+
     setState(() {
       isLoading = true;
     });

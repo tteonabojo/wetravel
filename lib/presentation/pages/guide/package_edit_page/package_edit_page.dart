@@ -225,6 +225,19 @@ class _PackageEditPageState extends State<PackageEditPage> {
   final _packageRegisterService = PackageRegisterService();
 
   void _updatePackage() async {
+    if (_title.isEmpty ||
+        _location.isEmpty ||
+        _descriptionController.text.isEmpty ||
+        _durationController.text.isEmpty ||
+        _selectedImagePath.isEmpty ||
+        _keywordList.isEmpty ||
+        _schedules.expand((day) => day).isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('모든 일정의 필드를 입력해주세요.')),
+      );
+      return;
+    }
+
     setState(() {
       isLoading = true;
     });
@@ -237,6 +250,9 @@ class _PackageEditPageState extends State<PackageEditPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('이미지를 등록해주세요.')),
       );
+      setState(() {
+        isLoading = false;
+      });
       return;
     }
 
@@ -264,7 +280,9 @@ class _PackageEditPageState extends State<PackageEditPage> {
           });
         }).toList(),
         isHidden: !isPublic,
+        context: context,
       );
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('패키지 수정 성공')),
       );

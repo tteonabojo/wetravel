@@ -78,9 +78,6 @@ class TravelSchedule {
 
   // Firebase에서 데이터를 불러올 때 사용하는 팩토리 메서드
   factory TravelSchedule.fromFirestore(Map<String, dynamic> data) {
-    print('=== Firestore Data Debug ===');
-    print('Raw data: $data');
-
     List<DaySchedule> days = [];
 
     try {
