@@ -418,8 +418,13 @@ class _PackageEditPageState extends State<PackageEditPage> {
                               _schedules[_selectedDay - 1].length,
                         ),
                         if (_dayCount > 1)
-                          DeleteDayButton(
-                            onPressed: _deleteDay,
+                          Column(
+                            children: [
+                              SizedBox(height: 12),
+                              DeleteDayButton(
+                                onPressed: isLoading ? null : _deleteDay,
+                              ),
+                            ],
                           ),
                         Padding(
                           padding: EdgeInsets.symmetric(vertical: 8),
