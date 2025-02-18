@@ -12,6 +12,8 @@ import 'package:wetravel/presentation/widgets/buttons/standard_button.dart';
 import 'package:lottie/lottie.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'dart:io' show Platform;
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter/foundation.dart'; // kDebugMode를 사용하기 위한 import
 
 class AIRecommendationPage extends ConsumerStatefulWidget {
   const AIRecommendationPage({super.key});
@@ -30,8 +32,12 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
   bool _isFirstLoad = true;
   RewardedAd? _rewardedAd;
   final String _adUnitId = Platform.isAndroid
-      ? 'ca-app-pub-3940256099942544/5224354917' // Android 테스트 광고 ID
-      : 'ca-app-pub-3940256099942544/1712485313'; // iOS 테스트 광고 ID
+      ? kDebugMode
+          ? 'ca-app-pub-3940256099942544/5224354917' // Android 테스트 광고 ID
+          : 'ca-app-pub-5444380029598582~2875801159' // Android 실제 광고 ID
+      : kDebugMode
+          ? 'ca-app-pub-3940256099942544/1712485313' // iOS 테스트 광고 ID
+          : 'ca-app-pub-5444380029598582~2875801159'; // iOS 실제 광고 ID
   bool _isAdLoading = false;
 
   @override
@@ -114,7 +120,6 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
         request: const AdRequest(),
         rewardedAdLoadCallback: RewardedAdLoadCallback(
           onAdLoaded: (ad) {
-            debugPrint('광고 로드 성공');
             setState(() {
               _rewardedAd = ad;
               _isAdLoading = false;
@@ -122,14 +127,12 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
 
             ad.fullScreenContentCallback = FullScreenContentCallback(
               onAdDismissedFullScreenContent: (ad) {
-                debugPrint('광고 시청 완료');
                 ad.dispose();
                 _rewardedAd = null;
                 _loadRecommendations();
                 _loadRewardedAd();
               },
               onAdFailedToShowFullScreenContent: (ad, error) {
-                debugPrint('광고 표시 실패: ${error.message}');
                 ad.dispose();
                 _rewardedAd = null;
                 _isAdLoading = false;
@@ -137,13 +140,10 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
                   const SnackBar(content: Text('광고 표시에 실패했습니다. 다시 시도해주세요.')),
                 );
               },
-              onAdShowedFullScreenContent: (ad) {
-                debugPrint('광고 표시됨');
-              },
+              onAdShowedFullScreenContent: (ad) {},
             );
           },
           onAdFailedToLoad: (LoadAdError error) {
-            debugPrint('광고 로드 실패: ${error.message}');
             setState(() {
               _isAdLoading = false;
             });
@@ -154,7 +154,6 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
         ),
       );
     } catch (e) {
-      debugPrint('광고 로드 중 예외 발생: $e');
       setState(() {
         _isAdLoading = false;
       });
@@ -167,34 +166,49 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
   }
 
   Future<void> _showRewardedAd() async {
-    if (_isAdLoading) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('광고를 불러오는 중입니다. 잠시만 기다려주세요.')),
-      );
-      return;
-    }
+    // 다이얼로그 표시
+    final bool? shouldShowAd = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('알림'),
+          content: Text('광고 시청 후 다시 추천 받기가 가능합니다'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child:
+                  Text('취소', style: TextStyle(color: AppColors.grayScale_450)),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text('확인', style: TextStyle(color: AppColors.primary_450)),
+            ),
+          ],
+        );
+      },
+    );
 
-    if (_rewardedAd == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('광고를 불러오는 중입니다. 잠시 후 다시 시도해주세요.')),
-      );
-      _loadRewardedAd();
-      return;
-    }
+    // 사용자가 '확인'을 선택한 경우에만 광고 표시
+    if (shouldShowAd == true) {
+      if (_isAdLoading) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('광고를 불러오는 중입니다. 잠시만 기다려주세요.')),
+        );
+        return;
+      }
 
-    try {
-      await _rewardedAd!.show(
-        onUserEarnedReward: (_, reward) {
-          debugPrint('리워드 획득: ${reward.amount}');
-          _loadRecommendations();
-        },
-      );
-    } catch (e) {
-      debugPrint('광고 표시 중 오류 발생: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('광고 표시 중 오류가 발생했습니다. 다시 시도해주세요.')),
-      );
-      _loadRewardedAd();
+      if (_rewardedAd == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('광고를 불러오는데 실패했습니다. 다시 시도해주세요.')),
+        );
+        return;
+      }
+
+      try {
+        await _rewardedAd!.show(onUserEarnedReward: (_, reward) {});
+      } catch (e) {
+        debugPrint('광고 표시 중 오류 발생: $e');
+      }
     }
   }
 
@@ -558,10 +572,32 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
       child: Row(
         children: [
           Expanded(
-            child: StandardButton.secondary(
-              sizeType: ButtonSizeType.normal,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                side: BorderSide(color: AppColors.primary_450),
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
               onPressed: _isAdLoading ? null : () => _showRewardedAd(),
-              text: _isAdLoading ? '광고 로딩 중...' : '다시 추천받기',
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (!_isAdLoading) ...[
+                    SvgPicture.asset(
+                      'assets/icons/play.svg',
+                      color: AppColors.primary_450,
+                      height: 16,
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                  Text(
+                    _isAdLoading ? '광고 로딩 중...' : '다시 추천받기',
+                    style: AppTypography.buttonLabelSmall.copyWith(
+                      color: AppColors.primary_450,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           const SizedBox(width: 16),
