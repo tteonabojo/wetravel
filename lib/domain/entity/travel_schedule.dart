@@ -13,6 +13,20 @@ class TravelSchedule {
     String? duration,
   }) : _duration = duration;
 
+  TravelSchedule copyWith({
+    String? id,
+    String? destination,
+    List<DaySchedule>? days,
+    String? duration,
+  }) {
+    return TravelSchedule(
+      id: id ?? this.id,
+      destination: destination ?? this.destination,
+      days: days ?? this.days,
+      duration: duration ?? this._duration,
+    );
+  }
+
   // ScheduleCard에서 사용하는 getter들 추가
   String get location => destination;
   String get duration {
@@ -78,9 +92,6 @@ class TravelSchedule {
 
   // Firebase에서 데이터를 불러올 때 사용하는 팩토리 메서드
   factory TravelSchedule.fromFirestore(Map<String, dynamic> data) {
-    print('=== Firestore Data Debug ===');
-    print('Raw data: $data');
-
     List<DaySchedule> days = [];
 
     try {
@@ -132,12 +143,28 @@ class TravelSchedule {
       order: 0,
     );
   }
+
+  factory TravelSchedule.fromJson(Map<String, dynamic> json) {
+    return TravelSchedule(
+      id: json['id'] as String,
+      destination: json['location'] as String,
+      days: (json['days'] as List)
+          .map((day) => DaySchedule(schedules: day))
+          .toList(),
+    );
+  }
 }
 
 class DaySchedule {
   final List<ScheduleItem> schedules;
 
   DaySchedule({required this.schedules});
+
+  DaySchedule copyWith({List<ScheduleItem>? schedules}) {
+    return DaySchedule(
+      schedules: schedules ?? this.schedules,
+    );
+  }
 
   Map<String, dynamic> toJson() {
     return {
@@ -162,4 +189,16 @@ class ScheduleItem {
     required this.title,
     required this.location,
   });
+
+  ScheduleItem copyWith({
+    String? time,
+    String? title,
+    String? location,
+  }) {
+    return ScheduleItem(
+      time: time ?? this.time,
+      title: title ?? this.title,
+      location: location ?? this.location,
+    );
+  }
 }

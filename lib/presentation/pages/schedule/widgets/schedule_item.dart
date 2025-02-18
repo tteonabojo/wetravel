@@ -7,7 +7,7 @@ import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/core/constants/app_icons.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-class ScheduleItem extends StatelessWidget {
+class ScheduleItemWidget extends StatelessWidget {
   final String time;
   final String title;
   final String location;
@@ -15,7 +15,7 @@ class ScheduleItem extends StatelessWidget {
   final VoidCallback? onTap;
   final Key itemKey;
 
-  const ScheduleItem({
+  const ScheduleItemWidget({
     required this.time,
     required this.title,
     required this.location,

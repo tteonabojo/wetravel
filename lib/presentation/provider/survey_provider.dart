@@ -89,11 +89,11 @@ class SurveyState {
   /// 현재 페이지의 입력이 완료되었는지 확인
   bool isCurrentPageComplete() {
     switch (currentPage) {
-      case 0: // 여행 기간 페이지
+      case 0:
         return travelPeriod != null && travelDuration != null;
-      case 1: // 여행 스타일 페이지
+      case 1:
         return companions.isNotEmpty && travelStyles.isNotEmpty;
-      case 2: // 숙소 및 고려사항 페이지
+      case 2:
         return accommodationTypes.isNotEmpty && considerations.isNotEmpty;
       default:
         return false;
@@ -111,18 +111,17 @@ class SurveyState {
   }
 
   // UI 호환성을 위한 getter들
-  String? get companion => companions.isNotEmpty ? companions.first : null;
-  String? get travelStyle =>
-      travelStyles.isNotEmpty ? travelStyles.first : null;
+  String? get companion => companions.isNotEmpty ? companions[0] : null;
+  String? get travelStyle => travelStyles.isNotEmpty ? travelStyles[0] : null;
   String? get accommodationType =>
-      accommodationTypes.isNotEmpty ? accommodationTypes.first : null;
+      accommodationTypes.isNotEmpty ? accommodationTypes[0] : null;
   String? get consideration =>
-      considerations.isNotEmpty ? considerations.first : null;
+      considerations.isNotEmpty ? considerations[0] : null;
 }
 
 /// 설문 상태 관리 노티파이어
 class SurveyNotifier extends StateNotifier<SurveyState> {
-  SurveyNotifier() : super(SurveyState.initial());
+  SurveyNotifier() : super(SurveyState());
 
   /// 여행 시기 선택
   void selectTravelPeriod(String period) {
@@ -136,24 +135,22 @@ class SurveyNotifier extends StateNotifier<SurveyState> {
 
   /// 동행인 선택
   void selectCompanion(String companion) {
-    state = state.copyWith(companions: [...state.companions, companion]);
+    state = state.copyWith(companions: [companion]);
   }
 
   /// 여행 스타일 선택
   void selectTravelStyle(String style) {
-    state = state.copyWith(travelStyles: [...state.travelStyles, style]);
+    state = state.copyWith(travelStyles: [style]);
   }
 
   /// 숙소 유형 선택
   void selectAccommodationType(String type) {
-    state =
-        state.copyWith(accommodationTypes: [...state.accommodationTypes, type]);
+    state = state.copyWith(accommodationTypes: [type]);
   }
 
   /// 고려사항 선택
   void selectConsideration(String consideration) {
-    state = state
-        .copyWith(considerations: [...state.considerations, consideration]);
+    state = state.copyWith(considerations: [consideration]);
   }
 
   /// 다음 페이지로 이동
