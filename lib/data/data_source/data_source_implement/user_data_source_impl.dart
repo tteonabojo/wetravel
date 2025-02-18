@@ -42,10 +42,9 @@ class UserDataSourceImpl extends FirestoreConstants implements UserDataSource {
       if (provider == AuthProviders.google) {
         // 구글 로그인 자격 증명 생성
         final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-        if (googleUser == null) throw Exception('로그인 취소');
 
         final GoogleSignInAuthentication googleAuth =
-            await googleUser.authentication;
+            await googleUser!.authentication;
 
         credential = GoogleAuthProvider.credential(
           accessToken: googleAuth.accessToken,
