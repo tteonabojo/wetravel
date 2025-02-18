@@ -14,6 +14,12 @@ class MainPage extends ConsumerStatefulWidget {
 }
 
 class _MainPageState extends ConsumerState<MainPage> {
+  @override
+  void initState() {
+    ref.read(mainPageViewModel.notifier).watchRecentPackages();
+    super.initState();
+  }
+
   Future<void> _refreshData() async {
     final vm = ref.read(mainPageViewModel.notifier);
     await vm.refreshData();
