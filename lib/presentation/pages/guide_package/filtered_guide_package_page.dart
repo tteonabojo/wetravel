@@ -84,18 +84,18 @@ class FilteredGuidePackagePage extends ConsumerWidget {
                   return const Center(child: Text('조건에 맞는 패키지가 없습니다.'));
                 }
 
-                return SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      GuideFilters(
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    GuideFilters(
+                      selectedKeywords: selectedKeywords,
+                    ),
+                    Expanded(
+                      child: FilteredPackageList(
                         selectedKeywords: selectedKeywords,
                       ),
-                      FilteredPackageList(
-                        selectedKeywords: selectedKeywords,
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 );
               },
             )
