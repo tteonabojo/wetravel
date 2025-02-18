@@ -85,10 +85,9 @@ class ProfileData {
   });
 
   factory ProfileData.fromMap(Map<String, dynamic> map) {
-    final uid = map['uid'] ?? '';
     final name = map['name']?.isNotEmpty == true
         ? map['name']
-        : "AppleUser_${uid.substring(0, 6)}";
+        : '닉네임없음';
     return ProfileData(
       name: name,
       email: map['email'] ?? '이메일 없음',
