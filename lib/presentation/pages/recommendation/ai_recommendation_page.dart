@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
@@ -209,19 +210,19 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
 
   /// 광고 시청 확인 다이얼로그
   Future<bool?> _showAdConfirmDialog() {
-    return showDialog<bool>(
+    return showCupertinoDialog<bool>(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
+        return CupertinoAlertDialog(
           title: const Text('알림'),
           content: const Text('광고 시청 후 다시 추천 받기가 가능합니다'),
           actions: [
-            TextButton(
+            CupertinoDialogAction(
               onPressed: () => Navigator.of(context).pop(false),
               child:
                   Text('취소', style: TextStyle(color: AppColors.grayScale_450)),
             ),
-            TextButton(
+            CupertinoDialogAction(
               onPressed: () => Navigator.of(context).pop(true),
               child: Text('확인', style: TextStyle(color: AppColors.primary_450)),
             ),
