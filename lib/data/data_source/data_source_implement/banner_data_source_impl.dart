@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wetravel/core/constants/firestore_constants.dart';
 import 'package:wetravel/data/data_source/banner_data_source.dart';
@@ -19,9 +21,9 @@ class BannerDataSourceImpl extends FirestoreConstants
           .where('endDate', isGreaterThanOrEqualTo: now)
           .orderBy('order', descending: false)
           .get();
-
       return banners.docs.map((e) => BannerDto.fromJson(e.data())).toList();
     } on Exception catch (e) {
+      log('$e');
       return [];
     }
   }
