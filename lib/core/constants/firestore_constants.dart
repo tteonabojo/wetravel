@@ -6,7 +6,8 @@ class FirestoreConstants {
 
   String get usersCollection => isDebugMode ? 'users_test' : 'users';
   String get packagesCollection => isDebugMode ? 'packages_test' : 'packages';
-  String get schedulesCollection => isDebugMode ? 'schedules_test' : 'schedules';
+  String get schedulesCollection =>
+      isDebugMode ? 'schedules_test' : 'schedules';
   String get bannersCollection => isDebugMode ? 'banners_test' : 'banners';
   String get noticesCollection => isDebugMode ? 'notices_test' : 'notices';
 }
