@@ -196,35 +196,32 @@ class _PackageEditPageState extends State<PackageEditPage> {
     });
   }
 
-  void _deleteDay() async {
+  void _deleteDay() {
     if (_selectedDay <= 0 || _selectedDay > _dayCount) return;
 
-    try {
-      final schedulesToDeleteQuery = await FirebaseFirestore.instance
-          .collection(firestoreConstants.schedulesCollection)
-          .where('packageId', isEqualTo: widget.packageId)
-          .where('day', isEqualTo: _selectedDay)
-          .get();
-
-      for (var doc in schedulesToDeleteQuery.docs) {
-        await doc.reference.delete();
+    setState(() {
+      _schedules.removeAt(_selectedDay - 1);
+      _dayCount--;
+      if (_selectedDay > _dayCount) {
+        _selectedDay = _dayCount;
       }
-
-      setState(() {
-        _schedules.removeAt(_selectedDay - 1);
-        _dayCount--;
-        if (_selectedDay > _dayCount) {
-          _selectedDay = _dayCount;
-        }
-      });
-    } catch (e) {
-      print('Day 삭제 실패: $e');
-    }
+    });
   }
 
   final _packageRegisterService = PackageRegisterService();
 
   void _updatePackage() async {
+    if (_title.isEmpty ||
+        _location.isEmpty ||
+        _selectedImagePath.isEmpty ||
+        _keywordList.isEmpty ||
+        _schedules.expand((day) => day).isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('모든 일정의 필드를 입력해주세요.')),
+      );
+      return;
+    }
+
     setState(() {
       isLoading = true;
     });
@@ -237,6 +234,9 @@ class _PackageEditPageState extends State<PackageEditPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('이미지를 등록해주세요.')),
       );
+      setState(() {
+        isLoading = false;
+      });
       return;
     }
 
@@ -264,7 +264,9 @@ class _PackageEditPageState extends State<PackageEditPage> {
           });
         }).toList(),
         isHidden: !isPublic,
+        context: context,
       );
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('패키지 수정 성공')),
       );
@@ -400,8 +402,13 @@ class _PackageEditPageState extends State<PackageEditPage> {
                               _schedules[_selectedDay - 1].length,
                         ),
                         if (_dayCount > 1)
-                          DeleteDayButton(
-                            onPressed: _deleteDay,
+                          Column(
+                            children: [
+                              SizedBox(height: 12),
+                              DeleteDayButton(
+                                onPressed: isLoading ? null : _deleteDay,
+                              ),
+                            ],
                           ),
                         Padding(
                           padding: EdgeInsets.symmetric(vertical: 8),

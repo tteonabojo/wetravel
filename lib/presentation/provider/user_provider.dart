@@ -56,18 +56,23 @@ final userProvider = FutureProvider((ref) async {
   return await fetchUserUsecase.execute();
 });
 
-final userStreamProvider = StreamProvider.autoDispose((ref) {
-  final uid = FirebaseAuth.instance.currentUser?.uid;
-  final firestoreConstants = FirestoreConstants();
-  if (uid == null) return Stream.value(null);
+final userStreamProvider =
+    StreamProvider.autoDispose<Map<String, dynamic>?>((ref) {
+  final authState = ref.watch(authStateChangesProvider);
 
-  return FirebaseFirestore.instance
-      .collection(firestoreConstants.usersCollection)
-      .doc(uid)
-      .snapshots()
-      .map((snapshot) {
-    return snapshot.data();
-  });
+  return authState.when(
+    data: (user) {
+      if (user == null) return Stream.value(null);
+      final firestoreConstants = FirestoreConstants();
+      return FirebaseFirestore.instance
+          .collection(firestoreConstants.usersCollection)
+          .doc(user.uid)
+          .snapshots()
+          .map((snapshot) => snapshot.data());
+    },
+    loading: () => Stream.value(null),
+    error: (error, stack) => Stream.value(null),
+  );
 });
 
 // 현재 사용자의 schedules 컬렉션을 실시간으로 감시하는 provider

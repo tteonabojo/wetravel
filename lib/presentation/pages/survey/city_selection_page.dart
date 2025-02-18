@@ -104,7 +104,7 @@ class _CitySelectionPageState extends ConsumerState<CitySelectionPage> {
                       const SizedBox(height: 10),
                       InkWell(
                         onTap: () {
-                          Navigator.pushNamed(context, '/survey');
+                          Navigator.pushReplacementNamed(context, '/survey');
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
 import 'package:wetravel/core/constants/firestore_constants.dart';
 
 class PackageRegisterService {
@@ -92,6 +93,7 @@ class PackageRegisterService {
   }
 
   Future<void> updatePackage({
+    required BuildContext context,
     required String packageId,
     required String title,
     required String location,
@@ -105,6 +107,24 @@ class PackageRegisterService {
     final currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) {
       throw Exception('로그인한 사용자 정보를 찾을 수 없습니다.');
+    }
+
+    // 스케줄 리스트에 공란 데이터가 있는지 검증
+    for (var schedule in scheduleList) {
+      if (schedule['title'] == null ||
+          schedule['title'].toString().trim().isEmpty ||
+          schedule['location'] == null ||
+          schedule['location'].toString().trim().isEmpty ||
+          schedule['content'] == null ||
+          schedule['content'].toString().trim().isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('일정 정보가 누락되었습니다. 모든 필드를 입력해주세요.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return; // 업데이트 중단
+      }
     }
 
     final packageRef = FirebaseFirestore.instance
@@ -131,6 +151,7 @@ class PackageRegisterService {
         await _deleteImageFromStorage(oldImageUrl);
       }
 
+      // 기존 스케줄 삭제
       final schedulesQuerySnapshot = await FirebaseFirestore.instance
           .collection(firestoreConstants.schedulesCollection)
           .where('packageId', isEqualTo: packageId)
@@ -140,6 +161,7 @@ class PackageRegisterService {
         await doc.reference.delete();
       }
 
+      // 새로운 스케줄 저장
       List<String> updatedScheduleIdList = [];
       for (var schedule in scheduleList) {
         final scheduleRef = FirebaseFirestore.instance
@@ -162,6 +184,7 @@ class PackageRegisterService {
         updatedScheduleIdList.add(scheduleRef.id);
       }
 
+      // 패키지 업데이트
       await packageRef.update({
         'title': title,
         'location': location,

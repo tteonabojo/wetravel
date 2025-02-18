@@ -31,6 +31,7 @@ class OnBoardingPage extends StatelessWidget {
       backgroundColor: Colors.white,
       body: PageView.builder(
         controller: controller,
+        physics: NeverScrollableScrollPhysics(),
         itemBuilder: (context, index) {
           return OnBoardingScreen(
             image: images[index],

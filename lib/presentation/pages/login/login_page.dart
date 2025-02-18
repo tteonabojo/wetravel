@@ -164,7 +164,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                         Text(
                           'Apple로 로그인',
                           style: AppTypography.buttonLabelMedium
-                              .copyWith(color: AppColors.grayScale_250),
+                              .copyWith(color: Colors.white),
                         ),
                         Spacer()
                       ],
