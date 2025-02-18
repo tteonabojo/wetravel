@@ -17,9 +17,7 @@ class GeminiService {
       model: 'gemini-pro',
       apiKey: apiKey,
     );
-    if (kDebugMode) {
-      print('[log] Gemini model initialized with API key');
-    }
+    if (kDebugMode) {}
   }
 
   /// 여행지 추천 요청

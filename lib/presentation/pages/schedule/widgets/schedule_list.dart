@@ -33,7 +33,7 @@ class ScheduleList extends ConsumerWidget {
             final daySchedule = currentSchedule.days[selectedDay];
             return isEditMode
                 ? ReorderableListView.builder(
-                    padding: AppSpacing.medium16,
+                    padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
                     itemCount: daySchedule.schedules.length,
                     onReorder: (oldIndex, newIndex) {
                       // TODO: 순서 변경 로직 구현
@@ -60,7 +60,7 @@ class ScheduleList extends ConsumerWidget {
                     },
                   )
                 : ListView.builder(
-                    padding: AppSpacing.medium16,
+                    padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
                     itemCount: daySchedule.schedules.length,
                     itemBuilder: (context, index) {
                       final item = daySchedule.schedules[index];

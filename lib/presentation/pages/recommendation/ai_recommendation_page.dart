@@ -249,18 +249,14 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
                   ),
                   // 메인 컨텐츠
                   Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildHeader(),
-                          const SizedBox(height: 16),
-                          Expanded(child: _buildDestinationList()),
-                          const SizedBox(height: 20),
-                          _buildBottomButtons(context),
-                        ],
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildHeader(),
+                        Expanded(child: _buildDestinationList()),
+                        const SizedBox(height: 20),
+                        _buildBottomButtons(context),
+                      ],
                     ),
                   ),
                 ],
@@ -270,17 +266,20 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
   }
 
   Widget _buildHeader() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-      decoration: BoxDecoration(
-        color: AppColors.grayScale_050,
-        borderRadius: AppBorderRadius.small12,
-      ),
-      child: Text(
-        '리스트를 확인하고 나에게 맞는 여행지를 선택해주세요',
-        style: AppTypography.body2.copyWith(
-          color: AppColors.grayScale_450,
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        decoration: BoxDecoration(
+          color: AppColors.grayScale_050,
+          borderRadius: AppBorderRadius.small12,
+        ),
+        child: Text(
+          '리스트를 확인하고 나에게 맞는 여행지를 선택해주세요',
+          style: AppTypography.body2.copyWith(
+            color: AppColors.grayScale_450,
+          ),
         ),
       ),
     );
@@ -303,7 +302,7 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
             });
           },
           child: Container(
-            margin: const EdgeInsets.only(bottom: 16.0),
+            margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             decoration: BoxDecoration(
               boxShadow: AppShadow.generalShadow,
               border: Border.all(

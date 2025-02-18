@@ -122,7 +122,6 @@ class _PackageEditPageState extends State<PackageEditPage> {
             .collection(firestoreConstants.schedulesCollection)
             .doc(scheduleToDelete.id)
             .delete();
-        print('스케줄 삭제 성공: ${scheduleToDelete.id}');
 
         setState(() {
           _schedules[dayIndex].removeAt(scheduleIndex);
@@ -209,7 +208,6 @@ class _PackageEditPageState extends State<PackageEditPage> {
 
       for (var doc in schedulesToDeleteQuery.docs) {
         await doc.reference.delete();
-        print('Day 삭제 성공: ${doc.id}');
       }
 
       setState(() {
@@ -227,6 +225,19 @@ class _PackageEditPageState extends State<PackageEditPage> {
   final _packageRegisterService = PackageRegisterService();
 
   void _updatePackage() async {
+    if (_title.isEmpty ||
+        _location.isEmpty ||
+        _descriptionController.text.isEmpty ||
+        _durationController.text.isEmpty ||
+        _selectedImagePath.isEmpty ||
+        _keywordList.isEmpty ||
+        _schedules.expand((day) => day).isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('모든 일정의 필드를 입력해주세요.')),
+      );
+      return;
+    }
+
     setState(() {
       isLoading = true;
     });
@@ -239,6 +250,9 @@ class _PackageEditPageState extends State<PackageEditPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('이미지를 등록해주세요.')),
       );
+      setState(() {
+        isLoading = false;
+      });
       return;
     }
 
@@ -266,7 +280,9 @@ class _PackageEditPageState extends State<PackageEditPage> {
           });
         }).toList(),
         isHidden: !isPublic,
+        context: context,
       );
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('패키지 수정 성공')),
       );
