@@ -16,25 +16,21 @@ class PackageDataSourceImpl extends FirestoreConstants
 
   @override
   Future<List<PackageDto>> fetchPackages() async {
-    final collectionRef = _firestore.collection('packages');
+    final collectionRef = _firestore.collection(packagesCollection);
     final snapshot = await collectionRef.get();
     final documentSnapshot = snapshot.docs;
-    for (var docSnapshot in documentSnapshot) {
-      print(docSnapshot.id);
-      print(docSnapshot.data());
-    }
     return documentSnapshot.map((e) => PackageDto.fromJson(e.data())).toList();
   }
 
   @override
   Future<void> addPackage(Map<String, dynamic> packageData) async {
-    await _firestore.collection('packages').add(packageData);
+    await _firestore.collection(packagesCollection).add(packageData);
   }
 
   @override
   Future<List<PackageDto>> fetchPackagesByUserId(String userId) async {
     final snapshot = await _firestore
-        .collection('packages')
+        .collection(packagesCollection)
         .where('userId', isEqualTo: userId)
         .get();
 
@@ -46,7 +42,7 @@ class PackageDataSourceImpl extends FirestoreConstants
   @override
   Future<PackageDto> getPackageById(String packageId) async {
     final packageSnapshot =
-        await _firestore.collection('packages').doc(packageId).get();
+        await _firestore.collection(packagesCollection).doc(packageId).get();
     if (packageSnapshot.exists) {
       final data = packageSnapshot.data()!;
       return PackageDto.fromMap(data);
@@ -61,8 +57,10 @@ class PackageDataSourceImpl extends FirestoreConstants
     Map<int, List<Map<String, String>>> schedules = {};
 
     for (String scheduleId in scheduleIds) {
-      final scheduleSnapshot =
-          await _firestore.collection('schedules').doc(scheduleId).get();
+      final scheduleSnapshot = await _firestore
+          .collection(schedulesCollection)
+          .doc(scheduleId)
+          .get();
       if (scheduleSnapshot.exists) {
         final data = scheduleSnapshot.data()!;
         final day = data['day'] as int; // day를 int로 처리

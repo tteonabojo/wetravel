@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -5,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
+import 'package:wetravel/core/constants/firestore_constants.dart';
 import 'package:wetravel/domain/entity/package.dart';
 import 'package:wetravel/domain/entity/schedule.dart';
 import 'package:wetravel/domain/usecase/get_package_usecase.dart';
@@ -35,6 +38,7 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
   int selectedDay = 1;
   Package? package;
   Map<int, List<Schedule>> scheduleMap = {};
+  final FirestoreConstants firestoreConstants = FirestoreConstants();
 
   late final GetPackageUseCase getPackageUseCase;
   late final GetSchedulesUsecase getSchedulesUseCase;
@@ -49,18 +53,14 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
 
   Future<void> _loadData() async {
     try {
-      print('패키지 데이터 로드 시작: ${widget.packageId}');
       final fetchedPackage = await getPackageUseCase.execute(widget.packageId);
-      print('패키지 데이터 로드 완료: ${fetchedPackage.toString()}');
 
       final scheduleIdList = fetchedPackage!.scheduleIdList;
       if (scheduleIdList == null || scheduleIdList.isEmpty) {
         throw Exception('패키지에 연결된 스케줄이 없습니다.');
       }
 
-      print('스케줄 ID 목록: $scheduleIdList');
       final schedules = await getSchedulesUseCase.execute(scheduleIdList);
-      print('스케줄 데이터 로드 완료: ${schedules.toString()}');
 
       final tempScheduleMap = <int, List<Schedule>>{};
 
@@ -89,8 +89,9 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
         return;
       }
 
-      final userRef =
-          FirebaseFirestore.instance.collection('users').doc(currentUser.uid);
+      final userRef = FirebaseFirestore.instance
+          .collection(firestoreConstants.usersCollection) // 수정된 부분
+          .doc(currentUser.uid);
 
       final userSnapshot = await userRef.get();
       if (userSnapshot.exists) {
@@ -107,7 +108,6 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
         }
 
         await userRef.update({'recentPackages': recentPackages});
-        print('최근 본 패키지 리스트 업데이트: $recentPackages');
       } else {
         print('사용자 데이터를 찾을 수 없습니다.');
       }
@@ -118,14 +118,14 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
 
   Future<void> _incrementViewCount(String packageId) async {
     try {
-      final packageRef =
-          FirebaseFirestore.instance.collection('packages').doc(packageId);
+      final packageRef = FirebaseFirestore.instance
+          .collection(firestoreConstants.packagesCollection) // 수정된 부분
+          .doc(packageId);
 
       final packageSnapshot = await packageRef.get();
       if (packageSnapshot.exists) {
         final currentViewCount = packageSnapshot.data()?['viewCount'] ?? 0;
         await packageRef.update({'viewCount': currentViewCount + 1});
-        print('viewCount가 증가했습니다: ${currentViewCount + 1}');
       } else {
         print('패키지 문서를 찾을 수 없습니다.');
       }
@@ -142,8 +142,9 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
         return;
       }
 
-      final userRef =
-          FirebaseFirestore.instance.collection('users').doc(currentUser.uid);
+      final userRef = FirebaseFirestore.instance
+          .collection(firestoreConstants.usersCollection) // 수정된 부분
+          .doc(currentUser.uid);
       final userSnapshot = await userRef.get();
       if (userSnapshot.exists) {
         final data = userSnapshot.data();
@@ -175,10 +176,15 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
       return const Scaffold(
         backgroundColor: Colors.white,
         body: Center(
-          child: CircularProgressIndicator(),
+          child: CircularProgressIndicator(
+            color: AppColors.primary_450,
+          ),
         ),
       );
     }
+
+    final currentUser = FirebaseAuth.instance.currentUser;
+    final isOwner = currentUser?.uid == package!.userId;
 
     return Scaffold(
       appBar: AppBar(
@@ -188,104 +194,93 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
           color: AppColors.grayScale_950,
         ),
       )),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            PackageDetailImage(
-              imagePath: package?.imageUrl ?? '',
-              onImageSelected: (String value) {},
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                PackageDetailImage(
+                  imagePath: package?.imageUrl ?? '',
+                  onImageSelected: (String value) {},
+                ),
+                PackageDetailHeader(
+                  title: package?.title ?? '제목 없음',
+                  keywordList: package?.keywordList ?? [],
+                  location: package?.location ?? '위치 정보 없음',
+                  onUpdate: (newTitle, newKeywordList, newLocation) {},
+                  userId: package!.userId,
+                ),
+                divider(1),
+                Padding(
+                  padding: const EdgeInsets.only(left: 16, top: 16),
+                  child: DetailDayChipButton(
+                    onPressed: () {},
+                    currentDayCount: scheduleMap.keys.length,
+                    onSelectDay: (day) {
+                      setState(() {
+                        selectedDay = day;
+                      });
+                    },
+                    selectedDay: selectedDay,
+                  ),
+                ),
+                Padding(
+                  padding: AppSpacing.medium16,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for (var schedule in scheduleMap[selectedDay] ?? [])
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: DetailScheduleList(
+                            schedules: [
+                              {
+                                'time': '${schedule.time ?? ''}',
+                                'title': '${schedule.title ?? ''}',
+                                'location': '${schedule.location ?? ''}',
+                                'content': '${schedule.content ?? ''}',
+                                'imageUrl': '${schedule.imageUrl ?? ''}',
+                              }
+                            ],
+                            totalScheduleCount:
+                                scheduleMap[selectedDay]?.length ?? 0,
+                            dayIndex: selectedDay - 1,
+                            onSave: (time, title, location, content, index) {},
+                            onDelete: (dayIndex, scheduleIndex) {},
+                            key: ValueKey(selectedDay),
+                          ),
+                        ),
+                      const SizedBox(height: 40),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            PackageDetailHeader(
-              title: package?.title ?? '제목 없음',
-              keywordList: package?.keywordList ?? [],
-              location: package?.location ?? '위치 정보 없음',
-              onUpdate: (newTitle, newKeywordList, newLocation) {},
-              userImageUrl: package!.userImageUrl,
-              userName: package!.userName,
-            ),
-            divider(1),
-            Padding(
-              padding: const EdgeInsets.only(left: 16, top: 16),
-              child: DetailDayChipButton(
-                onPressed: () {},
-                currentDayCount: scheduleMap.keys.length,
-                onSelectDay: (day) {
-                  setState(() {
-                    selectedDay = day;
-                  });
-                },
-                selectedDay: selectedDay,
-              ),
-            ),
-            Padding(
-              padding: AppSpacing.medium16,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+          ),
+          if (!isOwner && package!.isHidden)
+            Positioned.fill(
+              child: Stack(
                 children: [
-                  for (var schedule in scheduleMap[selectedDay] ?? [])
-                    Builder(
-                      builder: (context) {
-                        try {
-                          print('디버깅: 스케줄 데이터 - ${schedule.toString()}');
-
-                          final scheduleData = {
-                            'id': schedule.id ?? 'ID 없음',
-                            'time': schedule.time?.toString() ?? '시간 정보 없음',
-                            'title': schedule.title ?? '제목 없음',
-                            'location': schedule.location ?? '위치 정보 없음',
-                            'content': schedule.content ?? '내용 없음',
-                            'imageUrl': schedule.imageUrl ?? '',
-                            'day': schedule.day?.toString() ?? '0',
-                          };
-
-                          scheduleData.forEach((key, value) {
-                            if (value == null) {
-                              print('경고: $key 필드가 null입니다.');
-                            }
-                          });
-
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 16),
-                            child: DetailScheduleList(
-                              schedules: [
-                                {
-                                  'time': '${schedule.time ?? ''}',
-                                  'title': '${schedule.title ?? ''}',
-                                  'location': '${schedule.location ?? ''}',
-                                  'content': '${schedule.content ?? ''}',
-                                  'imageUrl': '${schedule.imageUrl ?? ''}',
-                                }
-                              ],
-                              totalScheduleCount:
-                                  scheduleMap[selectedDay]?.length ?? 0,
-                              dayIndex: selectedDay - 1,
-                              onSave:
-                                  (time, title, location, content, index) {},
-                              onDelete: (dayIndex, scheduleIndex) {},
-                            ),
-                          );
-                        } catch (e, stacktrace) {
-                          print('❌ DetailScheduleList 오류 발생: $e');
-                          print('문제의 스케줄 데이터: ${schedule.toString()}');
-                          print('Stacktrace: $stacktrace');
-
-                          return Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              '❗ 이 스케줄을 불러오는 중 오류가 발생했습니다.',
-                              style: const TextStyle(color: Colors.red),
-                            ),
-                          );
-                        }
-                      },
+                  BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+                    child: Container(
+                      color: Colors.black.withOpacity(0.5),
                     ),
-                  const SizedBox(height: 40),
+                  ),
+                  Center(
+                    child: Text(
+                      '비공개 패키지 입니다',
+                      style: AppTypography.headline4.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
-          ],
-        ),
+        ],
       ),
       bottomNavigationBar: Padding(
         padding: AppSpacing.medium16.copyWith(bottom: 30),

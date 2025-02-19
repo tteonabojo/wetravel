@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:wetravel/core/constants/app_border_radius.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_icons.dart';
+import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
+import 'package:wetravel/core/constants/firestore_constants.dart';
 
-class PackageDetailHeader extends StatelessWidget {
+class PackageDetailHeader extends StatefulWidget {
   final String title;
   final List<String> keywordList;
   final String location;
-  final String? userImageUrl; // 작성자 프로필 이미지
-  final String? userName; // 작성자 이름
+  final String? userId;
   final Function(String, List<String>, String) onUpdate;
 
   const PackageDetailHeader({
@@ -18,15 +19,52 @@ class PackageDetailHeader extends StatelessWidget {
     required this.title,
     required this.keywordList,
     required this.location,
-    this.userImageUrl,
-    this.userName,
+    this.userId,
     required this.onUpdate,
   });
 
   @override
+  _PackageDetailHeaderState createState() => _PackageDetailHeaderState();
+}
+
+class _PackageDetailHeaderState extends State<PackageDetailHeader> {
+  String? userName;
+  String? userImageUrl;
+  final FirestoreConstants firestoreConstants = FirestoreConstants();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.userId != null) {
+      _fetchUserInfo();
+    }
+  }
+
+  /// 사용자 정보를 Firestore에서 가져오기
+  Future<void> _fetchUserInfo() async {
+    try {
+      final userDoc = await FirebaseFirestore.instance
+          .collection(firestoreConstants.usersCollection)
+          .doc(widget.userId)
+          .get();
+      if (userDoc.exists) {
+        setState(() {
+          userName = userDoc['name'];
+          userImageUrl = userDoc['imageUrl'];
+        });
+      } else {
+        print("탈퇴한 작성자 userId: ${widget.userId}");
+      }
+    } catch (e) {
+      print("Error fetching user data: $e");
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    List<String?> selectedKeywords =
-        keywordList.isNotEmpty ? List.from(keywordList) : [null, null, null];
+    List<String?> selectedKeywords = widget.keywordList.isNotEmpty
+        ? List.from(widget.keywordList)
+        : [null, null, null];
 
     return Container(
       width: double.infinity,
@@ -39,45 +77,38 @@ class PackageDetailHeader extends StatelessWidget {
             width: double.infinity,
             child: Row(
               children: [
-                Container(
-                  width: 24,
-                  height: 24,
-                  decoration: ShapeDecoration(
-                    image: DecorationImage(
-                      image: (userImageUrl != null &&
-                              userImageUrl!.startsWith('http'))
-                          ? NetworkImage(userImageUrl!)
-                          : const AssetImage('assets/images/sample_profile.jpg')
-                              as ImageProvider,
-                      fit: BoxFit.cover,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: AppBorderRadius.small12,
-                    ),
+                ClipOval(
+                  child: Container(
+                    width: 24,
+                    height: 24,
+                    color: AppColors.primary_250,
+                    child: userImageUrl?.isNotEmpty ?? false
+                        ? Image.network(
+                            userImageUrl!,
+                            fit: BoxFit.cover,
+                          )
+                        : Container(
+                            margin: AppSpacing.small4,
+                            child: SvgPicture.asset(
+                              AppIcons.userRound,
+                              color: Colors.white,
+                            ),
+                          ),
                   ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    userName ?? '작성자 없음',
-                    style: AppTypography.body2.copyWith(
-                      color: AppColors.grayScale_950,
-                    ),
+                    userName?.trim().isNotEmpty ?? false
+                        ? userName!
+                        : 'no name',
+                    style: AppTypography.body2
+                        .copyWith(color: AppColors.grayScale_950),
                   ),
                 ),
               ],
             ),
           ),
-          // const SizedBox(height: 8),
-          // SizedBox(
-          //   width: double.infinity,
-          //   child: Text(
-          //     title,
-          //     style: AppTypography.headline2.copyWith(
-          //       color: AppColors.grayScale_950,
-          //     ),
-          //   ),
-          // ),
           const SizedBox(height: 8),
           SizedBox(
             width: double.infinity,
@@ -102,7 +133,7 @@ class PackageDetailHeader extends StatelessWidget {
                             ),
                             if (index < selectedKeywords.length - 1)
                               const SizedBox(
-                                height: 12, // 높이 조절
+                                height: 12,
                                 child: VerticalDivider(
                                   color: AppColors.grayScale_450,
                                   thickness: 1,
@@ -125,7 +156,7 @@ class PackageDetailHeader extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      location,
+                      widget.location,
                       style: AppTypography.body2.copyWith(
                         color: AppColors.grayScale_550,
                       ),

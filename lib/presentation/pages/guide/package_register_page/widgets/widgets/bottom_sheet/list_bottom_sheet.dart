@@ -157,24 +157,27 @@ class _ListBottomSheetState extends State<ListBottomSheet> {
     return Column(
       children: [
         CustomInputField(
+          counterAlignment: Alignment.centerRight,
           controller: _titleController,
           hintText: '제목을 입력하세요',
           keyboardType: TextInputType.text,
-          maxLength: 15,
+          maxLength: 30,
           validator: (value) =>
               value == null || value.trim().isEmpty ? '제목을 입력해주세요.' : null,
           labelText: '제목',
         ),
         CustomInputField(
+          counterAlignment: Alignment.centerRight,
           controller: _locationController,
           hintText: '위치를 입력하세요',
           keyboardType: TextInputType.text,
-          maxLength: 15,
+          maxLength: 30,
           validator: (value) =>
               value == null || value.trim().isEmpty ? '위치를 입력해주세요.' : null,
           labelText: '위치',
         ),
         CustomInputField(
+          counterAlignment: Alignment.centerRight,
           controller: _contentController,
           hintText: '설명을 입력하세요',
           keyboardType: TextInputType.multiline,

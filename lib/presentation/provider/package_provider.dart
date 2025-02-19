@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wetravel/core/constants/firestore_constants.dart';
 import 'package:wetravel/core/di/injection_container.dart';
 import 'package:wetravel/data/data_source/data_source_implement/package_data_source_impl.dart';
 import 'package:wetravel/data/data_source/package_data_source.dart';
 import 'package:wetravel/data/repository/package_repository_impl.dart';
+import 'package:wetravel/domain/entity/package.dart';
 import 'package:wetravel/domain/repository/package_repository.dart';
 import 'package:wetravel/domain/usecase/add_package_usecase.dart';
 import 'package:wetravel/domain/usecase/fetch_package_schedule_usecase.dart';
@@ -14,6 +16,7 @@ import 'package:wetravel/domain/usecase/fetch_recent_packages_usecase.dart';
 import 'package:wetravel/domain/usecase/fetch_user_packages_usecase.dart';
 import 'package:wetravel/domain/usecase/get_package_usecase.dart';
 import 'package:wetravel/domain/usecase/watch_recent_packages_usecase.dart';
+import 'package:wetravel/presentation/provider/user_provider.dart';
 
 final _packageDataSourceProvider = Provider<PackageDataSource>((ref) {
   return PackageDataSourceImpl(FirebaseFirestore.instance);
@@ -82,15 +85,15 @@ final watchRecentPackagesProvider = Provider(
 final scrapPackagesProvider = StreamProvider<List<Map<String, dynamic>>>((ref) {
   final firestore = FirebaseFirestore.instance;
   final auth = FirebaseAuth.instance;
+  final firestoreConstants = FirestoreConstants();
 
   final userId = auth.currentUser?.uid;
-  print('호출됨 : $userId');
   if (userId == null) {
     return Stream.value([]);
   }
 
-  final userDocRef = firestore.collection('users').doc(userId);
-  print('호출됨');
+  final userDocRef =
+      firestore.collection(firestoreConstants.usersCollection).doc(userId);
 
   return userDocRef.snapshots().asyncMap((userSnapshot) async {
     if (!userSnapshot.exists) {
@@ -99,7 +102,6 @@ final scrapPackagesProvider = StreamProvider<List<Map<String, dynamic>>>((ref) {
 
     final scrapIdList =
         List<String>.from(userSnapshot.data()?['scrapIdList'] ?? []);
-    print('scrapIdList : $scrapIdList');
 
     if (scrapIdList.isEmpty) {
       return [];
@@ -111,7 +113,7 @@ final scrapPackagesProvider = StreamProvider<List<Map<String, dynamic>>>((ref) {
           i, i + 10 > scrapIdList.length ? scrapIdList.length : i + 10);
 
       final packageDocs = await firestore
-          .collection('packages')
+          .collection(firestoreConstants.packagesCollection)
           .where(FieldPath.documentId, whereIn: batchIds)
           .get();
 
@@ -123,4 +125,45 @@ final scrapPackagesProvider = StreamProvider<List<Map<String, dynamic>>>((ref) {
 
     return allPackages;
   });
+});
+
+final packagesProvider = StreamProvider<List<Package>>((ref) {
+  final authState = ref.watch(authStateChangesProvider); // Firebase 인증 상태 감지
+  final FirestoreConstants firestoreConstants = FirestoreConstants();
+
+  return authState.when(
+    data: (user) {
+      if (user == null) {
+        return Stream.value([]); // 유저가 없으면 빈 리스트 반환
+      }
+      final fetchPackagesUsecase = ref.watch(fetchPackagesUsecaseProvider);
+      final firestore = FirebaseFirestore.instance;
+
+      return fetchPackagesUsecase.watch().asyncMap((packages) async {
+        return Future.wait(packages.map((package) async {
+          if (package.userId.isEmpty) {
+            return package.copyWith(userName: 'no name', userImageUrl: '');
+          }
+
+          final userDoc = await firestore
+              .collection(firestoreConstants.usersCollection)
+              .doc(package.userId)
+              .get();
+
+          if (!userDoc.exists) {
+            return package.copyWith(userName: 'no name', userImageUrl: '');
+          }
+
+          final userData = userDoc.data();
+          final guideName = userData?['name'] as String? ?? 'no name';
+          final guideImageUrl = userData?['imageUrl'] as String? ?? '';
+
+          return package.copyWith(
+              userName: guideName, userImageUrl: guideImageUrl);
+        }));
+      });
+    },
+    loading: () => Stream.value([]), // 로딩 중일 때 빈 리스트 반환
+    error: (_, __) => Stream.value([]), // 오류 발생 시 빈 리스트 반환
+  );
 });

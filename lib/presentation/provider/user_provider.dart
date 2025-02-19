@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wetravel/core/constants/firestore_constants.dart';
 import 'package:wetravel/data/data_source/data_source_implement/user_data_source_impl.dart';
 import 'package:wetravel/data/data_source/user_data_source.dart';
 import 'package:wetravel/data/repository/user_repository_impl.dart';
@@ -55,28 +56,35 @@ final userProvider = FutureProvider((ref) async {
   return await fetchUserUsecase.execute();
 });
 
-final userStreamProvider = StreamProvider.autoDispose((ref) {
-  final uid = FirebaseAuth.instance.currentUser?.uid;
-  if (uid == null) return Stream.value(null);
+final userStreamProvider =
+    StreamProvider.autoDispose<Map<String, dynamic>?>((ref) {
+  final authState = ref.watch(authStateChangesProvider);
 
-  return FirebaseFirestore.instance
-      .collection('users')
-      .doc(uid)
-      .snapshots()
-      .map((snapshot) {
-    return snapshot.data();
-  });
+  return authState.when(
+    data: (user) {
+      if (user == null) return Stream.value(null);
+      final firestoreConstants = FirestoreConstants();
+      return FirebaseFirestore.instance
+          .collection(firestoreConstants.usersCollection)
+          .doc(user.uid)
+          .snapshots()
+          .map((snapshot) => snapshot.data());
+    },
+    loading: () => Stream.value(null),
+    error: (error, stack) => Stream.value(null),
+  );
 });
 
 // 현재 사용자의 schedules 컬렉션을 실시간으로 감시하는 provider
 final schedulesStreamProvider = StreamProvider<List<Schedule>>((ref) {
   final user = ref.watch(userProvider).value;
+  final firestoreConstants = FirestoreConstants();
   if (user == null) return Stream.value([]);
 
   return FirebaseFirestore.instance
-      .collection('users')
+      .collection(firestoreConstants.usersCollection)
       .doc(user.id)
-      .collection('schedules')
+      .collection(firestoreConstants.schedulesCollection)
       .snapshots()
       .map((snapshot) {
     print('Schedules collection data: ${snapshot.docs}');
@@ -86,20 +94,26 @@ final schedulesStreamProvider = StreamProvider<List<Schedule>>((ref) {
   });
 });
 
+final authStateChangesProvider = StreamProvider<User?>((ref) {
+  final firebaseAuth = ref.watch(_firebaseAuthProvider);
+  return firebaseAuth.authStateChanges(); // 인증 상태 변화를 실시간으로 추적
+});
+
 // 스케줄 관리를 위한 provider
 final scheduleActionsProvider = Provider((ref) => ScheduleActions());
 
 // 스케줄 관리 클래스
 class ScheduleActions {
+  final firestoreConstants = FirestoreConstants();
   Future<void> addSchedule(Schedule schedule) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
     try {
       final schedulesRef = FirebaseFirestore.instance
-          .collection('users')
+          .collection(firestoreConstants.usersCollection)
           .doc(user.uid)
-          .collection('schedules');
+          .collection(firestoreConstants.schedulesCollection);
 
       print('Adding schedule with ID: ${schedule.id}');
       print('Schedule data: ${schedule.toJson()}');
@@ -118,9 +132,9 @@ class ScheduleActions {
 
     try {
       await FirebaseFirestore.instance
-          .collection('users')
+          .collection(firestoreConstants.usersCollection)
           .doc(user.uid)
-          .collection('schedules')
+          .collection(firestoreConstants.schedulesCollection)
           .doc(scheduleId)
           .delete();
 

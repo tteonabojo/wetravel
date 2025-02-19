@@ -24,7 +24,7 @@ class ScheduleDataSourceImpl extends FirestoreConstants
         'createdAt': FieldValue.serverTimestamp(),
         'days': schedule.days
             .map((day) => {
-                  'schedules': day.schedules
+                  schedulesCollection: day.schedules
                       .map((item) => {
                             'time': item.time,
                             'title': item.title,
@@ -40,12 +40,38 @@ class ScheduleDataSourceImpl extends FirestoreConstants
   }
 
   @override
+  Future<void> saveAISchedule(
+      String userId, Map<String, dynamic> aiScheduleData) async {
+    print('Debug Mode: ${isDebugMode}');
+    print('Users Collection: ${usersCollection}');
+    print('Schedules Collection: ${schedulesCollection}');
+
+    await _firestore
+        .collection(usersCollection)
+        .doc(userId)
+        .collection(schedulesCollection)
+        .add(aiScheduleData);
+  }
+
+  @override
+  Stream<List<Map<String, dynamic>>> watchSchedules(String uid) {
+    return _firestore
+        .collection(usersCollection)
+        .doc(uid)
+        .collection(schedulesCollection)
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) => doc.data()).toList());
+  }
+
+  @override
   Future<List<ScheduleDto>> getSchedulesByIds(List<String> scheduleIds) async {
     final schedules = <ScheduleDto>[];
 
     for (var scheduleId in scheduleIds) {
-      final scheduleSnapshot =
-          await _firestore.collection('schedules').doc(scheduleId).get();
+      final scheduleSnapshot = await _firestore
+          .collection(schedulesCollection)
+          .doc(scheduleId)
+          .get();
       if (scheduleSnapshot.exists) {
         final data = scheduleSnapshot.data()!;
         schedules.add(ScheduleDto.fromJson(data));
@@ -58,9 +84,9 @@ class ScheduleDataSourceImpl extends FirestoreConstants
   Future<List<TravelSchedule>> fetchSchedules(String userId) async {
     try {
       final snapshot = await _firestore
-          .collection('users')
+          .collection(usersCollection)
           .doc(userId)
-          .collection('schedules')
+          .collection(schedulesCollection)
           .orderBy('createdAt', descending: true)
           .get();
 

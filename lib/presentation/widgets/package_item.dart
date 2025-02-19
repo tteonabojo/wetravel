@@ -1,9 +1,10 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:wetravel/core/constants/app_border_radius.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_icons.dart';
-import 'package:wetravel/core/constants/app_shadow.dart';
 import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 
@@ -44,7 +45,6 @@ class PackageItem extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: AppBorderRadius.small12,
         ),
-        // shadows: AppShadow.generalShadow,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -69,6 +69,7 @@ class PackageItem extends StatelessWidget {
                   aspectRatio: 1,
                   child: Container(
                     decoration: ShapeDecoration(
+                      color: AppColors.primary_050,
                       image:
                           packageImageUrl != null && packageImageUrl!.isNotEmpty
                               ? DecorationImage(
@@ -98,33 +99,30 @@ class PackageItem extends StatelessWidget {
 
   Widget _buildImageWithLoader(String imageUrl) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(8), // 모서리를 둥글게 할 반경 설정
-      child: Image.network(
-        imageUrl,
+      borderRadius: AppBorderRadius.small8,
+      child: CachedNetworkImage(
+        imageUrl: imageUrl,
         fit: BoxFit.cover,
-        loadingBuilder: (BuildContext context, Widget child,
-            ImageChunkEvent? loadingProgress) {
-          if (loadingProgress == null) {
-            return child; // 이미지가 로드되면 실제 이미지를 반환
-          } else {
-            return Center(
-              child: SizedBox(
-                width: 20, // 로딩 인디케이터의 크기 가로 20
-                height: 20, // 로딩 인디케이터의 크기 세로 20
-                child: CircularProgressIndicator(
-                  value: loadingProgress.expectedTotalBytes != null
-                      ? loadingProgress.cumulativeBytesLoaded /
-                          (loadingProgress.expectedTotalBytes ?? 1)
-                      : null,
-                  strokeWidth: 2, // 로딩 인디케이터의 두께 조정
-                ),
-              ),
-            );
-          }
-        },
-        errorBuilder: (context, error, stackTrace) {
+        cacheKey: imageUrl,
+        progressIndicatorBuilder: (context, url, downloadProgress) {
           return Center(
-              child: Icon(Icons.error, color: Colors.red)); // 로딩 실패 시 에러 아이콘 표시
+            child: downloadProgress.progress == null
+                ? Container()
+                : SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      value: downloadProgress.progress,
+                      color: Colors.white,
+                      strokeWidth: 2,
+                    ),
+                  ),
+          );
+        },
+        errorWidget: (context, url, error) {
+          return Center(
+            child: Icon(Icons.error, color: AppColors.red),
+          );
         },
       ),
     );
@@ -249,26 +247,38 @@ class PackageItem extends StatelessWidget {
       child: Row(
         spacing: 6,
         children: [
-          Container(
-            width: 16,
-            height: 16,
-            decoration: ShapeDecoration(
-              image: DecorationImage(
-                image: guideImageUrl != null && guideImageUrl!.isNotEmpty
-                    ? NetworkImage(guideImageUrl!)
-                    : AssetImage("assets/images/sample_profile.jpg")
-                        as ImageProvider,
-                fit: BoxFit.cover,
-              ),
-              shape: CircleBorder(),
+          ClipOval(
+            child: Container(
+              width: 16,
+              height: 16,
+              color: AppColors.primary_250,
+              child: (guideImageUrl != null && guideImageUrl!.isNotEmpty)
+                  ? CachedNetworkImage(
+                      imageUrl: guideImageUrl!,
+                      fit: BoxFit.cover,
+                      cacheKey: guideImageUrl!,
+                      errorWidget: (context, url, error) => Container(
+                        margin: EdgeInsets.all(2),
+                        child: SvgPicture.asset(
+                          AppIcons.userRound,
+                          color: Colors.white,
+                        ),
+                      ),
+                    )
+                  : Container(
+                      margin: EdgeInsets.all(2),
+                      child: SvgPicture.asset(
+                        AppIcons.userRound,
+                        color: Colors.white,
+                      ),
+                    ),
             ),
           ),
           Expanded(
-            child: SizedBox(
-              child: Text(name!,
-                  style: AppTypography.body3.copyWith(
-                    color: AppColors.grayScale_750,
-                  )),
+            child: Text(
+              name?.trim().isNotEmpty ?? false ? name! : 'no name',
+              style:
+                  AppTypography.body3.copyWith(color: AppColors.grayScale_750),
             ),
           ),
         ],

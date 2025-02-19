@@ -5,13 +5,30 @@ import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/domain/entity/survey_response.dart';
+import 'package:wetravel/presentation/pages/guide_package/filtered_guide_package_page.dart';
+import 'package:wetravel/presentation/provider/survey_provider.dart';
 import 'package:wetravel/presentation/provider/recommendation_provider.dart';
 
+/// 여행 계획 방식 선택 페이지
 class PlanSelectionPage extends ConsumerWidget {
   const PlanSelectionPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pop(context);
+      });
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    final surveyResponse = args as SurveyResponse;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -20,76 +37,10 @@ class PlanSelectionPage extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () => Navigator.pop(context),
-              ),
-              const SizedBox(height: 20),
-              const LinearProgressIndicator(
-                value: 0.75,
-                backgroundColor: AppColors.grayScale_150,
-                valueColor:
-                    AlwaysStoppedAnimation<Color>(AppColors.primary_450),
-              ),
-              const SizedBox(height: 40),
-              Text('어떤 방식으로\n여행 일정을 추천받으시겠어요?', style: AppTypography.headline2),
+              _buildHeader(context),
               const SizedBox(height: 40),
               Expanded(
-                child: GridView.count(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 16,
-                  crossAxisSpacing: 16,
-                  childAspectRatio: 1,
-                  children: [
-                    _buildSelectionCard(
-                      'AI',
-                      '로 추천받을래요',
-                      Icons.auto_awesome,
-                      () {
-                        final surveyState =
-                            ref.read(recommendationStateProvider);
-                        final selectedCity =
-                            surveyState.selectedCities.isNotEmpty
-                                ? surveyState.selectedCities.first
-                                : null;
-
-                        final surveyResponse = SurveyResponse(
-                          travelPeriod: surveyState.travelPeriod ?? '1개월 이내',
-                          travelDuration: surveyState.travelDuration ?? '3박 4일',
-                          companions: surveyState.companions.isEmpty
-                              ? ['혼자']
-                              : surveyState.companions,
-                          travelStyles: surveyState.travelStyles.isEmpty
-                              ? ['관광지', '맛집']
-                              : surveyState.travelStyles,
-                          accommodationTypes:
-                              surveyState.accommodationTypes.isEmpty
-                                  ? ['호텔']
-                                  : surveyState.accommodationTypes,
-                          considerations: surveyState.considerations.isEmpty
-                              ? ['위치']
-                              : surveyState.considerations,
-                          selectedCity: selectedCity,
-                        );
-
-                        Navigator.pushReplacementNamed(
-                          context,
-                          '/ai-recommendation',
-                          arguments: surveyResponse,
-                        );
-                      },
-                    ),
-                    _buildSelectionCard(
-                      '가이드',
-                      '로 추천받을래요',
-                      Icons.person_outline,
-                      () {
-                        Navigator.pushReplacementNamed(
-                            context, '/manual-planning');
-                      },
-                    ),
-                  ],
-                ),
+                child: _buildSelectionGrid(context, surveyResponse, ref),
               ),
             ],
           ),
@@ -98,32 +49,122 @@ class PlanSelectionPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildSelectionCard(
-      String title, String subtitle, IconData icon, VoidCallback onTap) {
+  /// 헤더 영역 구성
+  Widget _buildHeader(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+        const SizedBox(height: 20),
+        const LinearProgressIndicator(
+          value: 5 / 6,
+          backgroundColor: AppColors.grayScale_150,
+          valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary_450),
+        ),
+        const SizedBox(height: 40),
+        Text('어떤 방식으로\n여행 일정을 추천받으시겠어요?', style: AppTypography.headline2),
+      ],
+    );
+  }
+
+  /// 선택 그리드 구성
+  Widget _buildSelectionGrid(
+      BuildContext context, SurveyResponse surveyResponse, WidgetRef ref) {
+    return GridView.count(
+      crossAxisCount: 2,
+      mainAxisSpacing: 16,
+      crossAxisSpacing: 16,
+      childAspectRatio: 1,
+      children: [
+        _buildAIRecommendationCard(context, surveyResponse, ref),
+        _buildGuideRecommendationCard(context),
+      ],
+    );
+  }
+
+  /// AI 추천 카드 구성
+  Widget _buildAIRecommendationCard(
+      BuildContext context, SurveyResponse surveyResponse, WidgetRef ref) {
     return InkWell(
-      onTap: onTap,
+      onTap: () {
+        try {
+          if (ModalRoute.of(context)?.settings.arguments == null) {
+            ref.read(surveyProvider.notifier).resetState();
+          }
+
+          ref.read(recommendationStateProvider.notifier).resetState();
+          ref.invalidate(recommendationProvider);
+
+          Navigator.of(context).pushNamed(
+            '/ai-recommendation',
+            arguments: surveyResponse,
+          );
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('오류가 발생했습니다: $e')),
+          );
+        }
+      },
       child: Container(
         decoration: BoxDecoration(
           color: AppColors.primary_050,
           borderRadius: AppBorderRadius.small12,
         ),
-        child: Padding(
-          padding: AppSpacing.large20,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(title,
-                  style: AppTypography.headline3.copyWith(
-                    color: AppColors.grayScale_750,
-                  )),
-              const SizedBox(height: 8),
-              Text(subtitle,
-                  style: AppTypography.body2.copyWith(
-                    color: AppColors.grayScale_550,
-                  )),
-            ],
-          ),
+        child: _buildCardContent('AI', '로 추천받을래요'),
+      ),
+    );
+  }
+
+  /// 가이드 추천 카드 구성
+  Widget _buildGuideRecommendationCard(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        try {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+              builder: (context) => FilteredGuidePackagePage(),
+            ),
+            (route) => false,
+          );
+        } catch (e) {
+          print('Error in guide card tap: $e');
+        }
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.primary_050,
+          borderRadius: AppBorderRadius.small12,
         ),
+        child: _buildCardContent('가이드', '로 추천받을래요'),
+      ),
+    );
+  }
+
+  /// 카드 내용 구성
+  Widget _buildCardContent(String title, String subtitle) {
+    return Padding(
+      padding: AppSpacing.large20,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            title,
+            style: AppTypography.headline3.copyWith(
+              color: AppColors.grayScale_750,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            subtitle,
+            style: AppTypography.body2.copyWith(
+              color: AppColors.grayScale_550,
+            ),
+          ),
+        ],
       ),
     );
   }
