@@ -60,7 +60,7 @@ class _PackageHeroImageState extends State<PackageHeroImage> {
 
     if (image == null) throw Exception('이미지 리사이즈 실패');
 
-    final resizedImage = img.copyResize(image, width: 400);
+    final resizedImage = img.copyResize(image, width: 500);
     return File(pickedFile.path)..writeAsBytesSync(img.encodeJpg(resizedImage));
   }
 
