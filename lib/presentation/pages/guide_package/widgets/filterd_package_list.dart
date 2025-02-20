@@ -25,7 +25,8 @@ class FilteredPackageList extends ConsumerWidget {
 
     final query = FirebaseFirestore.instance
         .collection(firestoreConstants.packagesCollection)
-        .where('keywordList', arrayContainsAny: selectedKeywords);
+        .where('keywordList', arrayContainsAny: selectedKeywords)
+        .where('isHidden', isEqualTo: false);
 
     if (selectedCity != null && selectedCity!.isNotEmpty) {
       query.where('location', isEqualTo: selectedCity);
@@ -52,7 +53,6 @@ class FilteredPackageList extends ConsumerWidget {
         }
 
         return Expanded(
-          // Column 내부에서 사용하려면 Expanded로 감싸기
           child: ListView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             itemCount: packages.length,
