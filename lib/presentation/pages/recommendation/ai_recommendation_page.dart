@@ -34,14 +34,10 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
   RewardedAd? _rewardedAd;
   bool _isAdLoading = false;
 
-  /// 광고 ID 설정 (디버그/릴리즈 모드에 따라 다른 ID 사용)
+  /// 광고 ID 설정 (릴리즈/디버그 모드 동일하게 실제 광고 ID 사용)
   final String _adUnitId = Platform.isAndroid
-      ? kDebugMode
-          ? 'ca-app-pub-3940256099942544/5224354917' // Android 테스트 광고 ID
-          : 'ca-app-pub-5444380029598582~2875801159' // Android 실제 광고 ID
-      : kDebugMode
-          ? 'ca-app-pub-3940256099942544/1712485313' // iOS 테스트 광고 ID
-          : 'ca-app-pub-5444380029598582~2875801159'; // iOS 실제 광고 ID
+      ? 'ca-app-pub-5444380029598582/3444349489' // Android 실제 광고 ID
+      : 'ca-app-pub-5444380029598582/6818185842'; // iOS 실제 광고 ID
 
   @override
   void didChangeDependencies() {
@@ -154,6 +150,16 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
     setState(() {
       _isAdLoading = false;
     });
+
+    // 에러 정보 로깅
+    if (kDebugMode) {
+      print('Ad failed to load with error:');
+      print('Message: ${error.message}');
+      print('Code: ${error.code}');
+      print('Domain: ${error.domain}');
+      print('Response info: ${error.responseInfo}');
+    }
+
     _showErrorSnackBar('광고를 불러오는데 실패했습니다. 다시 시도해주세요.');
   }
 

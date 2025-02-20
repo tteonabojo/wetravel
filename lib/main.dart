@@ -23,6 +23,7 @@ import 'package:wetravel/presentation/pages/my_page/my_page.dart';
 import 'package:wetravel/presentation/pages/saved_plans/saved_plans_page.dart';
 import 'package:wetravel/theme.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 final analyticsProvider = Provider<FirebaseAnalytics>((ref) {
   return FirebaseAnalytics.instance;
@@ -38,6 +39,9 @@ void main() async {
       FirebaseAuth.instance.currentUser == null ? '/login' : '/';
   await dotenv.load(fileName: "assets/.env"); // .env 파일 로드
   FlutterNativeSplash.remove(); // 스플래시 제거
+
+  // AdMob 초기화 추가
+  MobileAds.instance.initialize();
 
   // 앱 실행 시 상태 표시줄 글씨 색을 검은색으로 설정
   SystemChrome.setSystemUIOverlayStyle(
