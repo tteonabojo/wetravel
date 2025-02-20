@@ -43,12 +43,41 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
   late final GetPackageUseCase getPackageUseCase;
   late final GetSchedulesUsecase getSchedulesUseCase;
 
+  bool isAdmin = false;
+
   @override
   void initState() {
     super.initState();
     getPackageUseCase = widget.getPackageUseCase;
     getSchedulesUseCase = widget.getSchedulesUseCase;
+    _checkAdminStatus();
     _loadData();
+  }
+
+  Future<void> _checkAdminStatus() async {
+    try {
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) {
+        print('사용자가 로그인되어 있지 않습니다.');
+        return;
+      }
+
+      final userRef = FirebaseFirestore.instance
+          .collection(firestoreConstants.usersCollection)
+          .doc(currentUser.uid);
+
+      final userSnapshot = await userRef.get();
+      if (userSnapshot.exists) {
+        final data = userSnapshot.data();
+        setState(() {
+          isAdmin = data?['isAdmin'] ?? false;
+        });
+      } else {
+        print('사용자 데이터를 찾을 수 없습니다.');
+      }
+    } catch (e) {
+      print('isAdmin 상태 확인 오류: $e');
+    }
   }
 
   Future<void> _loadData() async {
@@ -258,7 +287,7 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
               ],
             ),
           ),
-          if (!isOwner && package!.isHidden)
+          if (!isOwner && !isAdmin && package!.isHidden)
             Positioned.fill(
               child: Stack(
                 children: [
