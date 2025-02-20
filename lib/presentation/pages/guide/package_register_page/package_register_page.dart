@@ -150,12 +150,13 @@ class _PackageRegisterPageState extends State<PackageRegisterPage> {
       );
       return false;
     }
-    if (_keywordList.isEmpty) {
+    if (_keywordList.length < 3) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('키워드를 최소 1개 이상 입력해주세요.')),
+        const SnackBar(content: Text('키워드를 3개 모두 선택해주세요.')),
       );
       return false;
     }
+
     for (var daySchedules in _schedules) {
       for (var schedule in daySchedules) {
         if (schedule['time']!.isEmpty ||

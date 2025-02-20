@@ -62,7 +62,7 @@ class _HeaderBottomSheetState extends State<HeaderBottomSheet> {
       controller: _titleController,
       hintText: '제목을 입력하세요',
       keyboardType: TextInputType.text,
-      maxLength: 15,
+      maxLength: 30,
       validator: (value) => _validateField(value, '제목을'),
       labelText: '제목',
     );
@@ -74,7 +74,7 @@ class _HeaderBottomSheetState extends State<HeaderBottomSheet> {
       controller: _locationController,
       hintText: '위치를 입력하세요',
       keyboardType: TextInputType.text,
-      maxLength: 15,
+      maxLength: 30,
       validator: (value) => _validateField(value, '위치를'),
       labelText: '위치',
     );

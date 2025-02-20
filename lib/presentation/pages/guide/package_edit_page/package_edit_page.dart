@@ -222,6 +222,21 @@ class _PackageEditPageState extends State<PackageEditPage> {
       return;
     }
 
+    // EditScheduleList의 각 필드 유효성 검사
+    for (var daySchedules in _schedules) {
+      for (var schedule in daySchedules) {
+        if (schedule.time.isEmpty ||
+            schedule.title.isEmpty ||
+            schedule.location.isEmpty ||
+            schedule.content.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('모든 일정의 필드를 입력해주세요.')),
+          );
+          return;
+        }
+      }
+    }
+
     setState(() {
       isLoading = true;
     });
