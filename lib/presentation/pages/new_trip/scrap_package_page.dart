@@ -9,9 +9,7 @@ import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/core/constants/firestore_constants.dart';
 import 'package:wetravel/presentation/pages/guide_package_detail_page/package_detail_page.dart';
 import 'package:wetravel/presentation/provider/package_provider.dart';
-import 'package:wetravel/presentation/provider/schedule_provider.dart';
 import 'package:wetravel/presentation/widgets/package_item.dart';
-import 'package:wetravel/core/constants/app_spacing.dart';
 
 class ScrapPackagesPage extends ConsumerStatefulWidget {
   const ScrapPackagesPage({super.key});
@@ -88,9 +86,6 @@ class _ScrapPackagesPageState extends ConsumerState<ScrapPackagesPage> {
 
   @override
   Widget build(BuildContext context) {
-    final getPackageUseCase = ref.read(getPackageUseCaseProvider);
-    final getSchedulesUseCase = ref.read(getSchedulesUseCaseProvider);
-
     final scrapPackagesFuture =
         ref.watch(scrapPackagesProvider.future); // 자동 리빌드를 사용
 
@@ -181,9 +176,6 @@ class _ScrapPackagesPageState extends ConsumerState<ScrapPackagesPage> {
                                       builder: (context) {
                                         return PackageDetailPage(
                                           packageId: packageId,
-                                          getPackageUseCase: getPackageUseCase,
-                                          getSchedulesUseCase:
-                                              getSchedulesUseCase,
                                         );
                                       },
                                     ),
