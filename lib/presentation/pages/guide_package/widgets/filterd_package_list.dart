@@ -6,8 +6,6 @@ import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_shadow.dart';
 import 'package:wetravel/core/constants/firestore_constants.dart';
 import 'package:wetravel/presentation/pages/guide_package_detail_page/package_detail_page.dart';
-import 'package:wetravel/presentation/provider/package_provider.dart';
-import 'package:wetravel/presentation/provider/schedule_provider.dart';
 import 'package:wetravel/presentation/widgets/package_item.dart';
 
 class FilteredPackageList extends ConsumerWidget {
@@ -20,9 +18,6 @@ class FilteredPackageList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final getPackageUseCase = ref.read(getPackageUseCaseProvider);
-    final getSchedulesUseCase = ref.read(getSchedulesUseCaseProvider);
-
     final query = FirebaseFirestore.instance
         .collection(firestoreConstants.packagesCollection)
         .where('keywordList', arrayContainsAny: selectedKeywords)
@@ -60,7 +55,7 @@ class FilteredPackageList extends ConsumerWidget {
               final package = packages[index];
               return FutureBuilder<DocumentSnapshot>(
                 future: FirebaseFirestore.instance
-                    .collection('users')
+                    .collection(firestoreConstants.usersCollection)
                     .doc(package['userId'])
                     .get(),
                 builder: (context, snapshot) {
@@ -84,8 +79,6 @@ class FilteredPackageList extends ConsumerWidget {
                           MaterialPageRoute(
                             builder: (context) => PackageDetailPage(
                               packageId: package.id,
-                              getPackageUseCase: getPackageUseCase,
-                              getSchedulesUseCase: getSchedulesUseCase,
                             ),
                           ),
                         );

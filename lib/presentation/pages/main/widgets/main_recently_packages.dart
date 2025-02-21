@@ -6,8 +6,6 @@ import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/domain/entity/package.dart';
 import 'package:wetravel/presentation/pages/guide_package_detail_page/package_detail_page.dart';
 import 'package:wetravel/presentation/pages/main/widgets/main_label.dart';
-import 'package:wetravel/presentation/provider/package_provider.dart';
-import 'package:wetravel/presentation/provider/schedule_provider.dart';
 import 'package:wetravel/presentation/widgets/package_item.dart';
 
 class MainRecentlyPackages extends ConsumerWidget {
@@ -17,9 +15,6 @@ class MainRecentlyPackages extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
-    final getPackageUseCase = ref.read(getPackageUseCaseProvider);
-    final getSchedulesUseCase = ref.read(getSchedulesUseCaseProvider);
-
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 16),
@@ -44,8 +39,6 @@ class MainRecentlyPackages extends ConsumerWidget {
                                 builder: (context) {
                                   return PackageDetailPage(
                                     packageId: recentPackages[index].id,
-                                    getPackageUseCase: getPackageUseCase,
-                                    getSchedulesUseCase: getSchedulesUseCase,
                                   );
                                 },
                               ),

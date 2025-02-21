@@ -16,18 +16,16 @@ import 'package:wetravel/presentation/pages/guide_package_detail_page/widgets/de
 import 'package:wetravel/presentation/pages/guide_package_detail_page/widgets/package_detail_header.dart';
 import 'package:wetravel/presentation/pages/guide_package_detail_page/widgets/package_detail_image.dart';
 import 'package:wetravel/presentation/pages/guide_package_detail_page/widgets/detail_day_chip_button.dart';
+import 'package:wetravel/presentation/provider/package_provider.dart';
+import 'package:wetravel/presentation/provider/schedule_provider.dart';
 import 'package:wetravel/presentation/widgets/buttons/standard_button.dart';
 
 class PackageDetailPage extends ConsumerStatefulWidget {
   final String packageId;
-  final GetPackageUseCase getPackageUseCase;
-  final GetSchedulesUsecase getSchedulesUseCase;
 
   const PackageDetailPage({
     super.key,
     required this.packageId,
-    required this.getPackageUseCase,
-    required this.getSchedulesUseCase,
   });
 
   @override
@@ -48,8 +46,8 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
   @override
   void initState() {
     super.initState();
-    getPackageUseCase = widget.getPackageUseCase;
-    getSchedulesUseCase = widget.getSchedulesUseCase;
+    getPackageUseCase = ref.read(getPackageUseCaseProvider);
+    getSchedulesUseCase = ref.read(getSchedulesUseCaseProvider);
     _checkAdminStatus();
     _loadData();
   }
