@@ -8,14 +8,14 @@ import 'package:wetravel/data/data_source/package_data_source.dart';
 import 'package:wetravel/data/repository/package_repository_impl.dart';
 import 'package:wetravel/domain/entity/package.dart';
 import 'package:wetravel/domain/repository/package_repository.dart';
-import 'package:wetravel/domain/usecase/add_package_usecase.dart';
-import 'package:wetravel/domain/usecase/fetch_package_schedule_usecase.dart';
-import 'package:wetravel/domain/usecase/fetch_packages_usecase.dart';
-import 'package:wetravel/domain/usecase/fetch_popular_packages_usecase.dart';
-import 'package:wetravel/domain/usecase/fetch_recent_packages_usecase.dart';
-import 'package:wetravel/domain/usecase/fetch_user_packages_usecase.dart';
-import 'package:wetravel/domain/usecase/get_package_usecase.dart';
-import 'package:wetravel/domain/usecase/watch_recent_packages_usecase.dart';
+import 'package:wetravel/domain/usecase/package/add_package_usecase.dart';
+import 'package:wetravel/domain/usecase/schedule/fetch_package_schedule_usecase.dart';
+import 'package:wetravel/domain/usecase/package/fetch_packages_usecase.dart';
+import 'package:wetravel/domain/usecase/package/fetch_popular_packages_usecase.dart';
+import 'package:wetravel/domain/usecase/package/fetch_recent_packages_usecase.dart';
+import 'package:wetravel/domain/usecase/package/fetch_user_packages_usecase.dart';
+import 'package:wetravel/domain/usecase/package/get_package_usecase.dart';
+import 'package:wetravel/domain/usecase/package/watch_recent_packages_usecase.dart';
 import 'package:wetravel/presentation/provider/user_provider.dart';
 
 final _packageDataSourceProvider = Provider<PackageDataSource>((ref) {

@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:wetravel/domain/entity/user.dart';
 import 'package:wetravel/domain/repository/user_repository.dart';
-import 'package:wetravel/domain/usecase/fetch_user_usecase.dart';
+import 'package:wetravel/domain/usecase/user/fetch_user_usecase.dart';
 
 class MockUserRepository extends Mock implements UserRepository {}
 
