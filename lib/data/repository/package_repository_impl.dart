@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:wetravel/core/constants/firestore_constants.dart';
 import 'package:wetravel/data/data_source/package_data_source.dart';
 import 'package:wetravel/domain/entity/package.dart';
@@ -102,5 +103,43 @@ class PackageRepositoryImpl extends FirestoreConstants
     yield* _packageDataSource
         .watchRecentPackages()
         .map((packages) => packages.map((e) => e.toEntity()).toList());
+  }
+
+  @override
+  Future<void> toggleIsHidden(String packageId, bool currentStatus) async {
+    await FirebaseFirestore.instance
+        .collection(packagesCollection)
+        .doc(packageId)
+        .update({'isHidden': !currentStatus});
+  }
+
+  @override
+  Future<void> deletePackage(String packageId) async {
+    final packageDoc = await FirebaseFirestore.instance
+        .collection(packagesCollection)
+        .doc(packageId)
+        .get();
+
+    if (packageDoc.exists) {
+      final imageUrl = packageDoc.data()?['imageUrl'] as String?;
+      if (imageUrl != null && imageUrl.isNotEmpty) {
+        final storageRef = FirebaseStorage.instance.refFromURL(imageUrl);
+        await storageRef.delete();
+      }
+    }
+
+    final schedulesQuerySnapshot = await FirebaseFirestore.instance
+        .collection(schedulesCollection)
+        .where('packageId', isEqualTo: packageId)
+        .get();
+
+    await FirebaseFirestore.instance
+        .collection(packagesCollection)
+        .doc(packageId)
+        .delete();
+
+    for (var scheduleDoc in schedulesQuerySnapshot.docs) {
+      await scheduleDoc.reference.delete();
+    }
   }
 }

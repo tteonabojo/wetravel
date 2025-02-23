@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -31,7 +29,7 @@ class AdminPageViewModel extends ChangeNotifier {
     isLoading = true;
     notifyListeners();
     try {
-      packages = await ref.read(packagesProvider.future);
+      packages = await ref.read(loadPackagesUseCaseProvider).execute();
       isLoading = false;
       notifyListeners();
     } catch (e) {
@@ -43,11 +41,9 @@ class AdminPageViewModel extends ChangeNotifier {
 
   Future<void> toggleIsHidden(String packageId, bool currentStatus) async {
     try {
-      final firestoreConstants = ref.read(firestoreConstantsProvider);
-      await FirebaseFirestore.instance
-          .collection(firestoreConstants.packagesCollection)
-          .doc(packageId)
-          .update({'isHidden': !currentStatus});
+      await ref
+          .read(toggleIsHiddenUseCaseProvider)
+          .execute(packageId, currentStatus);
       showHiddenPackages = !showHiddenPackages;
       loadPackages();
       notifyListeners();
@@ -58,35 +54,7 @@ class AdminPageViewModel extends ChangeNotifier {
 
   Future<void> deletePackage(String packageId) async {
     try {
-      final firestoreConstants = ref.read(firestoreConstantsProvider);
-      final packageDoc = await FirebaseFirestore.instance
-          .collection(firestoreConstants.packagesCollection)
-          .doc(packageId)
-          .get();
-
-      if (packageDoc.exists) {
-        final imageUrl = packageDoc.data()?['imageUrl'] as String?;
-
-        if (imageUrl != null && imageUrl.isNotEmpty) {
-          final storageRef = FirebaseStorage.instance.refFromURL(imageUrl);
-          await storageRef.delete();
-        }
-      }
-
-      final schedulesQuerySnapshot = await FirebaseFirestore.instance
-          .collection(firestoreConstants.schedulesCollection)
-          .where('packageId', isEqualTo: packageId)
-          .get();
-
-      await FirebaseFirestore.instance
-          .collection(firestoreConstants.packagesCollection)
-          .doc(packageId)
-          .delete();
-
-      for (var scheduleDoc in schedulesQuerySnapshot.docs) {
-        await scheduleDoc.reference.delete();
-      }
-
+      await ref.read(deletePackageUseCaseProvider).execute(packageId);
       loadPackages();
       notifyListeners();
     } catch (e) {
