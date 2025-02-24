@@ -9,9 +9,7 @@ import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/core/constants/firestore_constants.dart';
 import 'package:wetravel/presentation/pages/guide_package_detail_page/package_detail_page.dart';
 import 'package:wetravel/presentation/provider/package_provider.dart';
-import 'package:wetravel/presentation/provider/schedule_provider.dart';
 import 'package:wetravel/presentation/widgets/package_item.dart';
-import 'package:wetravel/core/constants/app_spacing.dart';
 
 class ScrapPackagesPage extends ConsumerStatefulWidget {
   const ScrapPackagesPage({super.key});
@@ -88,9 +86,6 @@ class _ScrapPackagesPageState extends ConsumerState<ScrapPackagesPage> {
 
   @override
   Widget build(BuildContext context) {
-    final getPackageUseCase = ref.read(getPackageUseCaseProvider);
-    final getSchedulesUseCase = ref.read(getSchedulesUseCaseProvider);
-
     final scrapPackagesFuture =
         ref.watch(scrapPackagesProvider.future); // 자동 리빌드를 사용
 
@@ -122,137 +117,123 @@ class _ScrapPackagesPageState extends ConsumerState<ScrapPackagesPage> {
               ),
             ),
           ),
-          body: Padding(
-            padding: AppSpacing.medium16,
-            child: FutureBuilder<List<dynamic>>(
-              future: scrapPackagesFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                      child: CircularProgressIndicator(
-                    color: AppColors.primary_450,
-                  ));
-                }
-                if (snapshot.hasError) {
-                  return Center(child: Text('오류 발생: ${snapshot.error}'));
-                }
-                final packages = snapshot.data ?? [];
+          body: FutureBuilder<List<dynamic>>(
+            future: scrapPackagesFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                    child: CircularProgressIndicator(
+                  color: AppColors.primary_450,
+                ));
+              }
+              if (snapshot.hasError) {
+                return Center(child: Text('오류 발생: ${snapshot.error}'));
+              }
+              final packages = snapshot.data ?? [];
 
-                if (packages.isEmpty) {
-                  return const Center(child: Text('스크랩한 패키지가 없습니다.'));
-                }
+              if (packages.isEmpty) {
+                return const Center(child: Text('스크랩한 패키지가 없습니다.'));
+              }
 
-                return Column(
-                  children: [
-                    Expanded(
-                      child: ListView.separated(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemCount: packages.length,
-                        separatorBuilder: (_, __) => const SizedBox(height: 12),
-                        itemBuilder: (context, index) {
-                          final package = packages[index];
-                          final packageId = package['id'];
-                          final userId = package['userId'];
-                          return FutureBuilder<Map<String, String>>(
-                            future: fetchUserNameAndImageUrl(userId),
-                            builder: (context, userSnapshot) {
-                              if (userSnapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return const Center(
-                                    child: CircularProgressIndicator(
-                                  color: AppColors.primary_450,
-                                ));
-                              }
-                              if (userSnapshot.hasError) {
-                                return Center(
-                                    child: Text(
-                                        '사용자 정보 불러오기 실패: ${userSnapshot.error}'));
-                              }
+              return Column(
+                children: [
+                  Expanded(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: packages.length,
+                      itemBuilder: (context, index) {
+                        final package = packages[index];
+                        final packageId = package['id'];
+                        final userId = package['userId'];
+                        return FutureBuilder<Map<String, String>>(
+                          future: fetchUserNameAndImageUrl(userId),
+                          builder: (context, userSnapshot) {
+                            if (userSnapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const Center(
+                                  child: CircularProgressIndicator(
+                                color: AppColors.primary_450,
+                              ));
+                            }
+                            if (userSnapshot.hasError) {
+                              return Center(
+                                  child: Text(
+                                      '사용자 정보 불러오기 실패: ${userSnapshot.error}'));
+                            }
 
-                              final userData = userSnapshot.data ??
-                                  {'name': 'no name', 'imageUrl': ''};
+                            final userData = userSnapshot.data ??
+                                {'name': 'no name', 'imageUrl': ''};
 
-                              return Container(
-                                decoration: BoxDecoration(
-                                    boxShadow: AppShadow.generalShadow),
-                                child: GestureDetector(
-                                  onTap: () async {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) {
-                                          return PackageDetailPage(
-                                            packageId: packageId,
-                                            getPackageUseCase:
-                                                getPackageUseCase,
-                                            getSchedulesUseCase:
-                                                getSchedulesUseCase,
-                                          );
-                                        },
-                                      ),
-                                    );
+                            return Container(
+                              margin: EdgeInsets.fromLTRB(16, 12, 16, 0),
+                              decoration: BoxDecoration(
+                                  boxShadow: AppShadow.generalShadow),
+                              child: GestureDetector(
+                                onTap: () async {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) {
+                                        return PackageDetailPage(
+                                          packageId: packageId,
+                                        );
+                                      },
+                                    ),
+                                  );
+                                },
+                                child: PackageItem(
+                                  title: package['title'] ?? '제목 없음',
+                                  location: package['location'] ?? '위치 정보 없음',
+                                  packageImageUrl: package['imageUrl'] ?? '',
+                                  guideImageUrl: userData['imageUrl'] ?? '',
+                                  name: userData['name'] ?? '가이드 정보 없음',
+                                  keywords: List<String>.from(
+                                      package['keywordList'] ?? []),
+                                  icon: const Icon(Icons.bookmark,
+                                      color: AppColors.red),
+                                  onIconTap: () async {
+                                    final confirmed =
+                                        await showCupertinoDialog<bool>(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return CupertinoAlertDialog(
+                                                  title: const Text("패키지 삭제"),
+                                                  content: const Text(
+                                                      "스크랩 목록에서 삭제하시겠습니까?"),
+                                                  actions: [
+                                                    CupertinoDialogAction(
+                                                      onPressed: () =>
+                                                          Navigator.of(context)
+                                                              .pop(false),
+                                                      child: const Text("아니오"),
+                                                    ),
+                                                    CupertinoDialogAction(
+                                                      onPressed: () =>
+                                                          Navigator.of(context)
+                                                              .pop(true),
+                                                      isDestructiveAction: true,
+                                                      child: const Text("네"),
+                                                    ),
+                                                  ],
+                                                );
+                                              },
+                                            ) ??
+                                            false;
+                                    if (confirmed) {
+                                      await _removeScrapPackage(packageId);
+                                    }
                                   },
-                                  child: PackageItem(
-                                    title: package['title'] ?? '제목 없음',
-                                    location: package['location'] ?? '위치 정보 없음',
-                                    packageImageUrl: package['imageUrl'] ?? '',
-                                    guideImageUrl: userData['imageUrl'] ?? '',
-                                    name: userData['name'] ?? '가이드 정보 없음',
-                                    keywords: List<String>.from(
-                                        package['keywordList'] ?? []),
-                                    icon: const Icon(Icons.bookmark,
-                                        color: AppColors.red),
-                                    onIconTap: () async {
-                                      final confirmed =
-                                          await showCupertinoDialog<bool>(
-                                                context: context,
-                                                builder:
-                                                    (BuildContext context) {
-                                                  return CupertinoAlertDialog(
-                                                    title: const Text("패키지 삭제"),
-                                                    content: const Text(
-                                                        "스크랩 목록에서 삭제하시겠습니까?"),
-                                                    actions: [
-                                                      CupertinoDialogAction(
-                                                        onPressed: () =>
-                                                            Navigator.of(
-                                                                    context)
-                                                                .pop(false),
-                                                        child:
-                                                            const Text("아니오"),
-                                                      ),
-                                                      CupertinoDialogAction(
-                                                        onPressed: () =>
-                                                            Navigator.of(
-                                                                    context)
-                                                                .pop(true),
-                                                        isDestructiveAction:
-                                                            true,
-                                                        child: const Text("네"),
-                                                      ),
-                                                    ],
-                                                  );
-                                                },
-                                              ) ??
-                                              false;
-                                      if (confirmed) {
-                                        await _removeScrapPackage(packageId);
-                                      }
-                                    },
-                                  ),
                                 ),
-                              );
-                            },
-                          );
-                        },
-                      ),
+                              ),
+                            );
+                          },
+                        );
+                      },
                     ),
-                    SizedBox(height: 100),
-                  ],
-                );
-              },
-            ),
+                  ),
+                ],
+              );
+            },
           ),
         );
       },

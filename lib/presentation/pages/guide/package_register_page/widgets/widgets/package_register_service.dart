@@ -109,24 +109,6 @@ class PackageRegisterService {
       throw Exception('로그인한 사용자 정보를 찾을 수 없습니다.');
     }
 
-    // 스케줄 리스트에 공란 데이터가 있는지 검증
-    for (var schedule in scheduleList) {
-      if (schedule['title'] == null ||
-          schedule['title'].toString().trim().isEmpty ||
-          schedule['location'] == null ||
-          schedule['location'].toString().trim().isEmpty ||
-          schedule['content'] == null ||
-          schedule['content'].toString().trim().isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('일정 정보가 누락되었습니다. 모든 필드를 입력해주세요.'),
-            backgroundColor: Colors.red,
-          ),
-        );
-        return; // 업데이트 중단
-      }
-    }
-
     final packageRef = FirebaseFirestore.instance
         .collection(firestoreConstants.packagesCollection)
         .doc(packageId);

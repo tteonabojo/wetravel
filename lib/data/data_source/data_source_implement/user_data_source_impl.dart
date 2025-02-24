@@ -122,4 +122,13 @@ class UserDataSourceImpl extends FirestoreConstants implements UserDataSource {
       return false;
     }
   }
+
+  @override
+  Future<List<UserDto>> fetchUsersByIds(List<String> ids) async {
+    final results = await _firestore
+        .collection(usersCollection)
+        .where('id', whereIn: ids)
+        .get();
+    return results.docs.map((e) => UserDto.fromJson(e.data())).toList();
+  }
 }

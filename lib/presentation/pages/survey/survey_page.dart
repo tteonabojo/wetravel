@@ -82,7 +82,51 @@ class _SurveyPageState extends ConsumerState<SurveyPage> {
                 height: 50,
                 child: StandardButton.primary(
                   sizeType: ButtonSizeType.normal,
-                  onPressed: () => _onNextPressed(state),
+                  onPressed: () {
+                    if (!state.isCurrentPageComplete()) {
+                      String message = '';
+                      switch (state.currentPage) {
+                        case 0:
+                          if (state.travelPeriod == null &&
+                              state.travelDuration == null) {
+                            message = '여행 시기와 기간을 선택해주세요.';
+                          } else if (state.travelPeriod == null) {
+                            message = '여행 시기를 선택해주세요.';
+                          } else {
+                            message = '여행 기간을 선택해주세요.';
+                          }
+                          break;
+                        case 1:
+                          if (state.companion == null &&
+                              state.travelStyle == null) {
+                            message = '동행인과 여행 스타일을 선택해주세요.';
+                          } else if (state.companion == null) {
+                            message = '동행인을 선택해주세요.';
+                          } else {
+                            message = '여행 스타일을 선택해주세요.';
+                          }
+                          break;
+                        case 2:
+                          if (state.accommodationType == null &&
+                              state.consideration == null) {
+                            message = '숙소 스타일과 고려사항을 선택해주세요.';
+                          } else if (state.accommodationType == null) {
+                            message = '숙소 스타일을 선택해주세요.';
+                          } else {
+                            message = '고려사항을 선택해주세요.';
+                          }
+                          break;
+                      }
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(message),
+                          duration: const Duration(seconds: 2),
+                        ),
+                      );
+                      return;
+                    }
+                    _onNextPressed(state);
+                  },
                   text: '다음으로',
                 ),
               ),

@@ -3,29 +3,35 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/domain/entity/banner.dart';
 import 'package:wetravel/domain/entity/package.dart';
+import 'package:wetravel/domain/entity/user.dart';
 import 'package:wetravel/presentation/provider/banner_provider.dart';
 import 'package:wetravel/presentation/provider/package_provider.dart';
+import 'package:wetravel/presentation/provider/user_provider.dart';
 
 class MainPageState {
   final List<Package> recentPackages;
   final List<Package> popularPackages;
   final List<Banner> banners;
+  final Map<String, User> userMap; // 최신화된 유저 정보
 
   const MainPageState({
     required this.recentPackages,
     required this.popularPackages,
     required this.banners,
+    required this.userMap,
   });
 
   MainPageState copyWith({
     List<Package>? recentPackages,
     List<Package>? popularPackages,
     List<Banner>? banners,
+    Map<String, User>? userMap,
   }) {
     return MainPageState(
       recentPackages: recentPackages ?? this.recentPackages,
       popularPackages: popularPackages ?? this.popularPackages,
       banners: banners ?? this.banners,
+      userMap: userMap ?? this.userMap,
     );
   }
 }
@@ -40,10 +46,26 @@ class MainPageViewModel extends AutoDisposeNotifier<MainPageState> {
       recentPackages: [],
       popularPackages: [],
       banners: [],
+      userMap: {},
     );
   }
 
   StreamSubscription? _streamSubscription;
+
+  Future<void> _fetchUserInfo(List<Package> packages) async {
+    final existIds = state.userMap.entries.map((e) => e.key);
+
+    final ids = packages
+        .where((e) => !existIds.contains(e.userId))
+        .map((e) => e.id)
+        .toList();
+    final results = await ref.read(fetchUsersByIdsUsecaseProvider).execute(ids);
+    final newUserMap = state.userMap;
+    for (var e in results) {
+      newUserMap[e.id] = e;
+    }
+    state = state.copyWith(userMap: newUserMap);
+  }
 
   /// 최근에 본 패키지 목록
   void watchRecentPackages() {
@@ -60,6 +82,7 @@ class MainPageViewModel extends AutoDisposeNotifier<MainPageState> {
     try {
       final popularPackages =
           await ref.read(fetchPopularPackagesProvider).execute();
+      await _fetchUserInfo(popularPackages);
       state = state.copyWith(popularPackages: popularPackages);
     } catch (e) {
       state = state.copyWith(popularPackages: []);
