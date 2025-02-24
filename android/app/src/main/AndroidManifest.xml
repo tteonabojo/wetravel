@@ -33,7 +33,7 @@
         <!-- AdMob 앱 ID -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-5444380029598582~2875801159"/>
+            android:value="ca-app-pub-5444380029598582~8970978783"/>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and
@@ -46,4 +46,9 @@
             <data android:mimeType="text/plain"/>
         </intent>
     </queries>
+    <application>
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-5444380029598582~8970978783"/>
+    </application>
 </manifest>

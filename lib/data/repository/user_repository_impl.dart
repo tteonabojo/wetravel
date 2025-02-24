@@ -59,4 +59,10 @@ class UserRepositoryImpl extends FirestoreConstants implements UserRepository {
     // TODO: implement signIn
     throw UnimplementedError();
   }
+
+  @override
+  Future<List<User>> fetchUsersByIds(List<String> ids) async {
+    final userDtos = await _userDataSource.fetchUsersByIds(ids);
+    return userDtos.map((e) => User.fromDto(e)).toList();
+  }
 }

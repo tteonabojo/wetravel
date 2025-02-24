@@ -14,7 +14,6 @@ import 'package:wetravel/core/constants/firestore_constants.dart';
 import 'package:wetravel/presentation/pages/guide/package_edit_page/package_edit_page.dart';
 import 'package:wetravel/presentation/pages/guide_package_detail_page/package_detail_page.dart';
 import 'package:wetravel/presentation/provider/package_provider.dart';
-import 'package:wetravel/presentation/provider/schedule_provider.dart';
 import 'package:wetravel/presentation/provider/user_provider.dart';
 import 'package:wetravel/presentation/widgets/buttons/chip_button.dart';
 import 'package:wetravel/presentation/widgets/package_item.dart';
@@ -34,8 +33,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
   @override
   Widget build(BuildContext context) {
     final packagesAsync = ref.watch(packagesProvider);
-    final getPackageUseCase = ref.read(getPackageUseCaseProvider);
-    final getSchedulesUseCase = ref.read(getSchedulesUseCaseProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -97,8 +94,6 @@ class _AdminPageState extends ConsumerState<AdminPage> {
                               builder: (context) {
                                 return PackageDetailPage(
                                   packageId: package.id,
-                                  getPackageUseCase: getPackageUseCase,
-                                  getSchedulesUseCase: getSchedulesUseCase,
                                 );
                               },
                             ));

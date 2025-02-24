@@ -71,7 +71,7 @@ class ScheduleDetailItem extends StatelessWidget {
             ),
           ],
         ),
-        SizedBox(height: 12),
+        SizedBox(height: 8),
         ExpandableText(content: content, bodyStyle: bodyStyle),
       ],
     );

@@ -19,9 +19,38 @@ class ExpandableText extends StatefulWidget {
 
 class _ExpandableTextState extends State<ExpandableText> {
   bool _isExpanded = false;
+  bool _isSingleLine = true;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _checkSingleLine();
+  }
+
+  void _checkSingleLine() {
+    final textPainter = TextPainter(
+      text: TextSpan(text: widget.content, style: widget.bodyStyle),
+      maxLines: 1,
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout(maxWidth: MediaQuery.of(context).size.width - 100);
+    _isSingleLine = textPainter.didExceedMaxLines == false;
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_isSingleLine) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Text(
+            widget.content,
+            style: widget.bodyStyle,
+          ),
+        ],
+      );
+    }
+
     return GestureDetector(
       onTap: () {
         setState(() {
