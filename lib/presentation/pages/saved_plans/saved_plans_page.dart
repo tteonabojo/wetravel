@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
+import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/core/constants/firestore_constants.dart';
 import 'package:wetravel/domain/entity/survey_response.dart';
@@ -57,7 +58,7 @@ class SavedPlansPage extends ConsumerWidget {
           }
 
           return ListView.builder(
-            padding: const EdgeInsets.all(16),
+            padding: AppSpacing.medium16,
             itemCount: schedules.length,
             itemBuilder: (context, index) {
               final scheduleDoc = schedules[index];

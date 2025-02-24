@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:wetravel/core/constants/app_border_radius.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_shadow.dart';
+import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/domain/entity/survey_response.dart';
 import 'package:wetravel/presentation/provider/recommendation_provider.dart';
@@ -478,7 +479,7 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
     required int matchPercent,
   }) {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: AppSpacing.medium16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

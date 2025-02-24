@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/core/constants/app_border_radius.dart';
+import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 
 class GuideFilters extends ConsumerWidget {
@@ -13,7 +14,7 @@ class GuideFilters extends ConsumerWidget {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.all(16),
+          padding: AppSpacing.medium16,
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(

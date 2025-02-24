@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -23,10 +22,7 @@ import 'package:wetravel/presentation/widgets/buttons/standard_button.dart';
 class PackageDetailPage extends ConsumerStatefulWidget {
   final String packageId;
 
-  const PackageDetailPage({
-    super.key,
-    required this.packageId,
-  });
+  const PackageDetailPage({super.key, required this.packageId});
 
   @override
   _PackageDetailPageState createState() => _PackageDetailPageState();
@@ -36,67 +32,57 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
   int selectedDay = 1;
   Package? package;
   Map<int, List<Schedule>> scheduleMap = {};
-  final FirestoreConstants firestoreConstants = FirestoreConstants();
+  bool isAdmin = false;
 
   late final GetPackageUseCase getPackageUseCase;
   late final GetSchedulesUsecase getSchedulesUseCase;
-
-  bool isAdmin = false;
 
   @override
   void initState() {
     super.initState();
     getPackageUseCase = ref.read(getPackageUseCaseProvider);
     getSchedulesUseCase = ref.read(getSchedulesUseCaseProvider);
-    _checkAdminStatus();
-    _loadData();
+    _initializePage();
+  }
+
+  Future<void> _initializePage() async {
+    await _checkAdminStatus();
+    await _loadData();
   }
 
   Future<void> _checkAdminStatus() async {
     try {
       final currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser == null) {
-        print('사용자가 로그인되어 있지 않습니다.');
-        return;
-      }
-
+      if (currentUser == null) return;
       final userRef = FirebaseFirestore.instance
-          .collection(firestoreConstants.usersCollection)
+          .collection(FirestoreConstants().usersCollection)
           .doc(currentUser.uid);
-
       final userSnapshot = await userRef.get();
       if (userSnapshot.exists) {
         final data = userSnapshot.data();
         setState(() {
           isAdmin = data?['isAdmin'] ?? false;
         });
-      } else {
-        print('사용자 데이터를 찾을 수 없습니다.');
       }
     } catch (e) {
-      print('isAdmin 상태 확인 오류: $e');
+      print('Admin check failed: $e');
     }
   }
 
   Future<void> _loadData() async {
     try {
       final fetchedPackage = await getPackageUseCase.execute(widget.packageId);
-
-      final scheduleIdList = fetchedPackage!.scheduleIdList;
-      if (scheduleIdList == null || scheduleIdList.isEmpty) {
-        throw Exception('패키지에 연결된 스케줄이 없습니다.');
-      }
-
+      final scheduleIdList = fetchedPackage?.scheduleIdList ?? [];
+      if (scheduleIdList.isEmpty) throw Exception('No schedules available.');
       final schedules = await getSchedulesUseCase.execute(scheduleIdList);
 
       final tempScheduleMap = <int, List<Schedule>>{};
-
       for (var schedule in schedules) {
         tempScheduleMap.putIfAbsent(schedule.day, () => []).add(schedule);
       }
 
-      await _incrementViewCount(fetchedPackage.id);
-      await _updateRecentPackages(fetchedPackage.id);
+      await _incrementViewCount(fetchedPackage?.id ?? '');
+      await _updateRecentPackages(fetchedPackage?.id ?? '');
 
       setState(() {
         package = fetchedPackage;
@@ -108,93 +94,71 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
     }
   }
 
+  Future<void> _incrementViewCount(String packageId) async {
+    try {
+      final packageRef = FirebaseFirestore.instance
+          .collection(FirestoreConstants().packagesCollection)
+          .doc(packageId);
+      final packageSnapshot = await packageRef.get();
+      if (packageSnapshot.exists) {
+        final currentViewCount = packageSnapshot.data()?['viewCount'] ?? 0;
+        await packageRef.update({'viewCount': currentViewCount + 1});
+      }
+    } catch (e) {
+      print('View count update failed: $e');
+    }
+  }
+
   Future<void> _updateRecentPackages(String packageId) async {
     try {
       final currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser == null) {
-        print('사용자가 로그인되어 있지 않습니다.');
-        return;
-      }
-
+      if (currentUser == null) return;
       final userRef = FirebaseFirestore.instance
-          .collection(firestoreConstants.usersCollection) // 수정된 부분
+          .collection(FirestoreConstants().usersCollection)
           .doc(currentUser.uid);
-
       final userSnapshot = await userRef.get();
       if (userSnapshot.exists) {
         final data = userSnapshot.data();
         List<String> recentPackages =
             List<String>.from(data?['recentPackages'] ?? []);
-
         recentPackages.remove(packageId);
-
         recentPackages.insert(0, packageId);
-
-        if (recentPackages.length > 3) {
-          recentPackages.removeLast();
-        }
-
+        if (recentPackages.length > 3) recentPackages.removeLast();
         await userRef.update({'recentPackages': recentPackages});
-      } else {
-        print('사용자 데이터를 찾을 수 없습니다.');
       }
     } catch (e) {
-      print('오류 발생: $e');
-    }
-  }
-
-  Future<void> _incrementViewCount(String packageId) async {
-    try {
-      final packageRef = FirebaseFirestore.instance
-          .collection(firestoreConstants.packagesCollection) // 수정된 부분
-          .doc(packageId);
-
-      final packageSnapshot = await packageRef.get();
-      if (packageSnapshot.exists) {
-        final currentViewCount = packageSnapshot.data()?['viewCount'] ?? 0;
-        await packageRef.update({'viewCount': currentViewCount + 1});
-      } else {
-        print('패키지 문서를 찾을 수 없습니다.');
-      }
-    } catch (e) {
-      print('viewCount 업데이트 실패: $e');
+      print('Failed to update recent packages: $e');
     }
   }
 
   Future<void> _addToScrapList() async {
     try {
       final currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser == null) {
-        print('사용자가 로그인되어 있지 않습니다.');
-        return;
-      }
-
+      if (currentUser == null) return;
       final userRef = FirebaseFirestore.instance
-          .collection(firestoreConstants.usersCollection) // 수정된 부분
+          .collection(FirestoreConstants().usersCollection)
           .doc(currentUser.uid);
       final userSnapshot = await userRef.get();
       if (userSnapshot.exists) {
         final data = userSnapshot.data();
         List<String> scrapIdList =
             List<String>.from(data?['scrapIdList'] ?? []);
-
         if (scrapIdList.contains(package?.id)) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('이미 담긴 패키지입니다.')),
-          );
+          _showSnackBar('이미 담긴 패키지입니다.');
         } else {
           scrapIdList.add(package?.id ?? '');
           await userRef.update({'scrapIdList': scrapIdList});
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('패키지가 담겼습니다.')),
-          );
+          _showSnackBar('패키지가 담겼습니다.');
         }
-      } else {
-        print('사용자 데이터를 찾을 수 없습니다.');
       }
     } catch (e) {
-      print('오류 발생: $e');
+      print('Failed to add to scrap list: $e');
     }
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -203,10 +167,7 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
       return const Scaffold(
         backgroundColor: Colors.white,
         body: Center(
-          child: CircularProgressIndicator(
-            color: AppColors.primary_450,
-          ),
-        ),
+            child: CircularProgressIndicator(color: AppColors.primary_450)),
       );
     }
 
@@ -215,12 +176,10 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
 
     return Scaffold(
       appBar: AppBar(
-          title: Text(
-        package?.title ?? '패키지 상세',
-        style: AppTypography.headline4.copyWith(
-          color: AppColors.grayScale_950,
-        ),
-      )),
+        title: Text(package?.title ?? '패키지 상세',
+            style: AppTypography.headline4
+                .copyWith(color: AppColors.grayScale_950)),
+      ),
       body: Stack(
         children: [
           SingleChildScrollView(
@@ -228,9 +187,8 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 PackageDetailImage(
-                  imagePath: package?.imageUrl ?? '',
-                  onImageSelected: (String value) {},
-                ),
+                    imagePath: package?.imageUrl ?? '',
+                    onImageSelected: (_) {}),
                 PackageDetailHeader(
                   title: package?.title ?? '제목 없음',
                   keywordList: package?.keywordList ?? [],
@@ -244,11 +202,7 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
                   child: DetailDayChipButton(
                     onPressed: () {},
                     currentDayCount: scheduleMap.keys.length,
-                    onSelectDay: (day) {
-                      setState(() {
-                        selectedDay = day;
-                      });
-                    },
+                    onSelectDay: (day) => setState(() => selectedDay = day),
                     selectedDay: selectedDay,
                   ),
                 ),
@@ -291,18 +245,12 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
                 children: [
                   BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-                    child: Container(
-                      color: Colors.black.withOpacity(0.5),
-                    ),
+                    child: Container(color: Colors.black.withOpacity(0.5)),
                   ),
                   Center(
-                    child: Text(
-                      '비공개 패키지 입니다',
-                      style: AppTypography.headline4.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    child: Text('비공개 패키지 입니다',
+                        style: AppTypography.headline4.copyWith(
+                            color: Colors.white, fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),
@@ -321,11 +269,8 @@ class _PackageDetailPageState extends ConsumerState<PackageDetailPage> {
 
   Container divider(double height) {
     return Container(
-      width: double.infinity,
-      height: height,
-      decoration: const BoxDecoration(
-        color: AppColors.grayScale_150,
-      ),
-    );
+        width: double.infinity,
+        height: height,
+        decoration: const BoxDecoration(color: AppColors.grayScale_150));
   }
 }
