@@ -1,13 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
+import 'package:wetravel/core/constants/app_spacing.dart';
 
 class NoticeEditPage extends StatefulWidget {
   final Map<String, dynamic> noticeData;
   final String noticeId;
 
-  const NoticeEditPage({Key? key, required this.noticeData, required this.noticeId})
-      : super(key: key);
+  const NoticeEditPage(
+      {super.key, required this.noticeData, required this.noticeId});
 
   @override
   _NoticeEditPageState createState() => _NoticeEditPageState();
@@ -22,7 +23,8 @@ class _NoticeEditPageState extends State<NoticeEditPage> {
   void initState() {
     super.initState();
     _titleController = TextEditingController(text: widget.noticeData['title']);
-    _contentController = TextEditingController(text: widget.noticeData['content'] ?? '');
+    _contentController =
+        TextEditingController(text: widget.noticeData['content'] ?? '');
 
     // Firestore에서 가쟈온 Timestamp 값을 DateTime으로 변환
     Timestamp? timestamp = widget.noticeData['date'] as Timestamp?;
@@ -45,7 +47,7 @@ class _NoticeEditPageState extends State<NoticeEditPage> {
       lastDate: DateTime(2100),
     );
     if (picked != null) {
-      setState(()  {
+      setState(() {
         _selectedDate = picked;
       });
     }
@@ -72,7 +74,9 @@ class _NoticeEditPageState extends State<NoticeEditPage> {
                   .doc(widget.noticeId)
                   .update({
                 'title': _titleController.text,
-                'date': _selectedDate != null ? Timestamp.fromDate(_selectedDate!) : null,
+                'date': _selectedDate != null
+                    ? Timestamp.fromDate(_selectedDate!)
+                    : null,
                 'content': _contentController.text,
               });
               Navigator.pop(context);
@@ -83,7 +87,6 @@ class _NoticeEditPageState extends State<NoticeEditPage> {
             ),
           ),
         ],
-
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -91,7 +94,7 @@ class _NoticeEditPageState extends State<NoticeEditPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: AppSpacing.medium16,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(8),
@@ -129,8 +132,8 @@ class _NoticeEditPageState extends State<NoticeEditPage> {
                           color: Colors.black,
                         ),
                         controller: TextEditingController(
-                        //  text: _selectedDate != null ? DateFormat('yyyy-MM-dd').format(_selectedDate!) : '',
-                        ),
+                            //  text: _selectedDate != null ? DateFormat('yyyy-MM-dd').format(_selectedDate!) : '',
+                            ),
                       ),
                     ),
                   ),
@@ -138,7 +141,8 @@ class _NoticeEditPageState extends State<NoticeEditPage> {
               ),
             ),
             const SizedBox(height: 24),
-            Expanded( // 남은 공간을 모두 차지하도록 Expanded 추가
+            Expanded(
+              // 남은 공간을 모두 차지하도록 Expanded 추가
               child: TextFormField(
                 controller: _contentController,
                 expands: true, // 내용이 여러 줄에 걸쳐 입력될 수 있도록 expands: true

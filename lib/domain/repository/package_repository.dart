@@ -22,4 +22,7 @@ abstract interface class PackageRepository {
 
   /// 최근에 본 패키지 목록
   Stream<List<Package>> watchRecentPackages();
+
+  Future<void> toggleIsHidden(String packageId, bool currentStatus);
+  Future<void> deletePackage(String packageId);
 }

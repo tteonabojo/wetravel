@@ -4,7 +4,7 @@ import '../../data/data_source/package_data_source.dart';
 import '../../data/data_source/data_source_implement/package_data_source_impl.dart';
 import '../../data/repository/package_repository_impl.dart';
 import '../../domain/repository/package_repository.dart';
-import '../../domain/usecase/add_package_usecase.dart';
+import '../../domain/usecase/package/add_package_usecase.dart';
 
 final sl = GetIt.instance;
 

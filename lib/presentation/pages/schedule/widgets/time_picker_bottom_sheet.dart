@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
+import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 
 class TimePickerBottomSheet extends StatefulWidget {
@@ -139,7 +140,7 @@ class _TimePickerBottomSheetState extends State<TimePickerBottomSheet> {
           const SizedBox(height: 8),
           Container(
             height: 160,
-            padding: const EdgeInsets.all(16),
+            padding: AppSpacing.medium16,
             decoration: BoxDecoration(
               color: AppColors.grayScale_150,
               borderRadius: BorderRadius.circular(12),

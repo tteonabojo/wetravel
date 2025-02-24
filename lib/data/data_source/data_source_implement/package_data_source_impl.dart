@@ -159,12 +159,12 @@ class PackageDataSourceImpl extends FirestoreConstants
 
       final Map<String, Map<String, dynamic>> userMap = {};
       for (var userDoc in userSnapshot.docs) {
-        userMap[userDoc.id] = userDoc.data() as Map<String, dynamic>;
+        userMap[userDoc.id] = userDoc.data();
       }
 
       return packageSnapshot.docs.map((doc) {
         final packageData = doc.data();
-        final userId = packageData['userId'] as String;
+        final userId = packageData['userId'];
         final userData = userMap[userId];
         return PackageDto.fromJson({
           ...packageData,
