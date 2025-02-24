@@ -254,7 +254,7 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Lottie.asset(
-            'assets/lottie/loading_animation.json',
+            'assets/animations/loading_animation.json',
             width: 200,
             height: 200,
           ),
