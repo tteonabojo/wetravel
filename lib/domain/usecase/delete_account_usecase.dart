@@ -1,14 +1,11 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:wetravel/domain/repository/user_repository.dart';
 
-class DeleteAccountUsecase {
-  final FirebaseAuth _auth;
+class DeleteAccountUseCase {
+  final UserRepository _userRepository;
 
-  DeleteAccountUsecase(this._auth);
+  DeleteAccountUseCase(this._userRepository);
 
-  Future<void> deleteAccount() async {
-    final user = _auth.currentUser;
-    if (user != null) {
-      await user.delete(); // Firebase 계정 삭제
-    }
+  Future<void> execute() async {
+    return await _userRepository.deleteAccount();
   }
 }

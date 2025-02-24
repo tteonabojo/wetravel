@@ -8,4 +8,12 @@ abstract interface class UserDataSource {
 
   /// 로그아웃
   Future<bool> signOut();
+
+  Future<UserDto> getUserData();
+
+  Future<void> updateUserProfile(UserDto userDto);
+
+  Future<void> deleteAccount();
+
+  
 }

@@ -18,6 +18,36 @@ class UserRepositoryImpl extends FirestoreConstants implements UserRepository {
   final FirebaseAuth.FirebaseAuth _firebaseAuth;
 
   @override
+  Future<User> getUserData() async {
+    try {
+      final userDto = await _userDataSource.getUserData();
+      return userDto.toEntity();
+    } catch (e) {
+      throw Exception("Failed to get user data: $e");
+    }
+  }
+
+  @override
+  Future<void> updateUserProfile(User user) async {
+    try {
+      final userDto = user.toDto();
+      var _updateUserProfile;
+      await _updateUserProfile.updateUserProfile(userDto);
+    } catch (e) {
+      throw Exception("Failed to update user profile: $e");
+    }
+  }
+
+  @override
+  Future<void> deleteAccount() async {
+    try {
+      await _userDataSource.deleteAccount();
+    } catch (e) {
+      throw Exception("Failed to delete account: $e");
+    }
+  }
+
+  @override
   Future<User> fetchUser() async {
     final userId = _firebaseAuth.currentUser?.uid;
     if (userId == null) {
@@ -32,7 +62,7 @@ class UserRepositoryImpl extends FirestoreConstants implements UserRepository {
     }
 
     // UserDto에서 User로 변환
-    return User.fromDto(UserDto.fromJson(docSnapshot.data() ?? {}));
+    return User.fromDto(UserDto.fromJson(docSnapshot.data()?? {}));
   }
 
   @override

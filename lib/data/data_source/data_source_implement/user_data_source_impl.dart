@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
@@ -10,7 +11,24 @@ import 'package:wetravel/data/dto/user_dto.dart';
 
 class UserDataSourceImpl extends FirestoreConstants implements UserDataSource {
   final FirebaseFirestore _firestore;
-  UserDataSourceImpl(this._firestore);
+  UserDataSourceImpl(this._firestore, instance);
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final firestoreConstants = FirestoreConstants();
+
+  Future<UserDto> _fetchUserFromFirestore(String userId) async {
+    try {
+      final userRef = _firestore.collection(usersCollection).doc(userId);
+      final userDoc = await userRef.get();
+      if (userDoc.exists) {
+        return UserDto.fromJson(userDoc.data()?? {});
+      } else {
+        throw Exception('유저 정보를 찾을 수 없습니다.');
+      }
+    } catch (e) {
+      print("Error fetching user: $e");
+      rethrow;
+    }
+  }
 
   Future<UserDto> fetchUser() async {
     try {
@@ -18,15 +36,7 @@ class UserDataSourceImpl extends FirestoreConstants implements UserDataSource {
       if (currentUser == null) {
         throw Exception('사용자가 로그인되지 않았습니다.');
       }
-      final userRef =
-          _firestore.collection(usersCollection).doc(currentUser.uid);
-      final userDoc = await userRef.get();
-      if (userDoc.exists) {
-        return UserDto.fromJson(userDoc.data() ?? {});
-      } else {
-        print("No user found in Firestore");
-        throw Exception('유저 정보를 찾을 수 없습니다.');
-      }
+      return await _fetchUserFromFirestore(currentUser.uid);
     } catch (e) {
       print("Error fetching user: $e");
       rethrow;
@@ -113,12 +123,133 @@ class UserDataSourceImpl extends FirestoreConstants implements UserDataSource {
   }
 
   @override
-  Future<bool> signOut() async {
+  Future<UserDto> getUserData() async {
     try {
-      await FirebaseAuth.instance.signOut();
-      return true;
+      final user = _auth.currentUser;
+      if (user == null) {
+        throw Exception('사용자 정보를 찾을 수 없습니다.');
+      }
+
+      final doc = await _firestore.collection(firestoreConstants.usersCollection).doc(user.uid).get(); // await 추가
+      if (!doc.exists) {
+        throw Exception('사용자 정보를 찾을 수 없습니다.');
+      }
+      final data = doc.data()!;
+      var isAdmin = null;
+      var createdAt = null;
+      return UserDto(
+        id: user.uid,
+        name: data['name']?? '',
+        introduction: data['intro']?? '', // introduction 필드 사용
+        imageUrl: data['imageUrl'], email: '', 
+        loginType: '',
+        isAdmin: isAdmin, 
+        createdAt: createdAt, 
+        recentPackages: [],
+      );
     } catch (e) {
-      return false;
+      // 에러 처리
+      rethrow;
     }
+  }
+
+  @override
+  Future<void> updateUserProfile(UserDto user) async {
+    try {
+      final currentUser = _auth.currentUser;
+      if (currentUser == null) {
+        throw Exception('사용자 정보를 찾을 수 없습니다.');
+      }
+      _firestore.collection(firestoreConstants.usersCollection).doc(currentUser.uid).set({
+        'name': user.name,
+        'intro': user.introduction, // user.introduction 사용
+        'imageUrl': user.imageUrl,
+      }, SetOptions(merge: true));
+    } catch (e) {
+      // 에러 처리
+    }
+  }
+
+  @override
+  Future<void> deleteAccount() async {
+    final user = _auth.currentUser;
+    if (user == null) {
+      throw Exception('사용자 정보를 찾을 수 없습니다.');
+    }
+
+    try {
+      // 먼저 재인증 실행 (Firebase에서 필수 요구사항)
+      await _reauthenticateUser(user);
+
+      // Firestore에서 유저 데이터 삭제
+      final userDoc = await FirebaseFirestore.instance
+        .collection(firestoreConstants.usersCollection)
+        .doc(user.uid)
+        .get();
+      final profileImageUrl =
+          userDoc.data()?['profileImageUrl'] as String?? '';
+
+      await FirebaseFirestore.instance
+        .collection(firestoreConstants.usersCollection)
+        .doc(user.uid)
+        .delete();
+
+      // Firebase Storage에 저장된 프로필 이미지 삭제
+      if (profileImageUrl.isNotEmpty) {
+        try {
+          final storageRef =
+              FirebaseStorage.instance.refFromURL(profileImageUrl);
+          await storageRef.delete();
+        } catch (e) {
+          print("프로필 이미지 삭제 실패: $e");
+        }
+      }
+
+      // Firebase Authentication 계정 삭제 (마지막 단계)
+      await user.delete();
+
+    } catch (e) {
+      print("회원 탈퇴 실패: $e");
+      throw FirebaseAuthException(
+          code: 'reauthentication-failed', message: "재인증에 실패했습니다.");
+    }
+  }
+
+  Future<void> _reauthenticateUser(User user) async {
+    try {
+      final providerData = user.providerData;
+      if (providerData.isEmpty) return;
+
+      final providerId = providerData.first.providerId;
+
+      if (providerId == 'google.com') {
+        final GoogleAuthProvider googleProvider = GoogleAuthProvider();
+        await user.reauthenticateWithProvider(googleProvider);
+      } else if (providerId == 'apple.com') {
+        final OAuthProvider appleProvider = OAuthProvider('apple.com');
+        await user.reauthenticateWithProvider(appleProvider);
+      }
+    } catch (e) {
+      print("재인증 실패: $e");
+      throw FirebaseAuthException(
+          code: 'reauthentication-failed', message: "재인증에 실패했습니다.");
+    }
+    }
+    
+      @override
+      Future<bool> signOut() {
+    // TODO: implement signOut
+    throw UnimplementedError();
+      }
+  }
+
+  @override
+Future<bool> signOut() async {
+  try {
+    await FirebaseAuth.instance.signOut();
+    return true;
+  } catch (e) {
+    print("로그아웃 실패: $e");
+    return false;
   }
 }
