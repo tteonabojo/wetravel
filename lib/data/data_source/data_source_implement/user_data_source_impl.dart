@@ -1,13 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:riverpod/src/provider.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:wetravel/core/constants/auth_providers.dart';
 import 'package:wetravel/core/constants/firestore_constants.dart';
 import 'package:wetravel/data/data_source/user_data_source.dart';
 import 'package:wetravel/data/dto/user_dto.dart';
+import 'package:wetravel/domain/repository/user_repository.dart';
+import 'package:wetravel/presentation/provider/my_page_correction_provider.dart';
+import 'package:wetravel/presentation/provider/user_provider.dart';
 
 class UserDataSourceImpl extends FirestoreConstants implements UserDataSource {
   final FirebaseFirestore _firestore;
@@ -140,7 +146,7 @@ class UserDataSourceImpl extends FirestoreConstants implements UserDataSource {
       return UserDto(
         id: user.uid,
         name: data['name']?? '',
-        introduction: data['intro']?? '', // introduction 필드 사용
+        introduction: data['intro']?? '',
         imageUrl: data['imageUrl'], email: '', 
         loginType: '',
         isAdmin: isAdmin, 
@@ -162,7 +168,7 @@ class UserDataSourceImpl extends FirestoreConstants implements UserDataSource {
       }
       _firestore.collection(firestoreConstants.usersCollection).doc(currentUser.uid).set({
         'name': user.name,
-        'intro': user.introduction, // user.introduction 사용
+        'intro': user.introduction,
         'imageUrl': user.imageUrl,
       }, SetOptions(merge: true));
     } catch (e) {
@@ -172,7 +178,7 @@ class UserDataSourceImpl extends FirestoreConstants implements UserDataSource {
 
   @override
   Future<void> deleteAccount() async {
-    final user = _auth.currentUser;
+    final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       throw Exception('사용자 정보를 찾을 수 없습니다.');
     }
@@ -186,8 +192,7 @@ class UserDataSourceImpl extends FirestoreConstants implements UserDataSource {
         .collection(firestoreConstants.usersCollection)
         .doc(user.uid)
         .get();
-      final profileImageUrl =
-          userDoc.data()?['profileImageUrl'] as String?? '';
+      final profileImageUrl = userDoc.data()?['imageUrl'] ?? '';
 
       await FirebaseFirestore.instance
         .collection(firestoreConstants.usersCollection)
@@ -205,9 +210,9 @@ class UserDataSourceImpl extends FirestoreConstants implements UserDataSource {
         }
       }
 
-      // Firebase Authentication 계정 삭제 (마지막 단계)
+      // Firebase Authentication 계정 삭제
       await user.delete();
-
+      print("회원 탈퇴 성공");
     } catch (e) {
       print("회원 탈퇴 실패: $e");
       throw FirebaseAuthException(
@@ -215,6 +220,7 @@ class UserDataSourceImpl extends FirestoreConstants implements UserDataSource {
     }
   }
 
+  // 재인증 메서드 수정
   Future<void> _reauthenticateUser(User user) async {
     try {
       final providerData = user.providerData;
@@ -223,9 +229,26 @@ class UserDataSourceImpl extends FirestoreConstants implements UserDataSource {
       final providerId = providerData.first.providerId;
 
       if (providerId == 'google.com') {
-        final GoogleAuthProvider googleProvider = GoogleAuthProvider();
-        await user.reauthenticateWithProvider(googleProvider);
+        print("Google 로그인 사용자 재인증 진행");
+
+        // GoogleSignIn을 사용하여 새 토큰 가져오기
+        final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+        if (googleUser == null) {
+          throw FirebaseAuthException(
+              code: 'google-sign-in-cancelled', message: "Google 로그인 취소됨.");
+        }
+
+        final GoogleSignInAuthentication googleAuth =
+            await googleUser.authentication;
+
+        final AuthCredential credential = GoogleAuthProvider.credential(
+          idToken: googleAuth.idToken,
+          accessToken: googleAuth.accessToken,
+        );
+
+        await user.reauthenticateWithCredential(credential);
       } else if (providerId == 'apple.com') {
+        print("Apple 로그인 사용자 재인증 진행");
         final OAuthProvider appleProvider = OAuthProvider('apple.com');
         await user.reauthenticateWithProvider(appleProvider);
       }
@@ -234,9 +257,9 @@ class UserDataSourceImpl extends FirestoreConstants implements UserDataSource {
       throw FirebaseAuthException(
           code: 'reauthentication-failed', message: "재인증에 실패했습니다.");
     }
-    }
-    
-      @override
+  }
+
+@override
 Future<bool> signOut() async {
   try {
     await FirebaseAuth.instance.signOut();
