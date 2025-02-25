@@ -17,15 +17,6 @@ class UserRepositoryImpl extends FirestoreConstants implements UserRepository {
   final FirebaseFirestore _firebaseFirestore;
   final FirebaseAuth.FirebaseAuth _firebaseAuth;
 
-  @override
-  Future<User> getUserData() async {
-    try {
-      final userDto = await _userDataSource.getUserData();
-      return userDto.toEntity();
-    } catch (e) {
-      throw Exception("Failed to get user data: $e");
-    }
-  }
 
   @override
   Future<void> updateUserProfile(User user) async {
