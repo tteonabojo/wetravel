@@ -41,7 +41,6 @@ final myPageCorrectionViewModelProvider = ChangeNotifierProvider<MyPageCorrectio
   return MyPageCorrectionViewModel(
     updateUserProfileUseCase: updateUserProfileUseCase,
     uploadProfileImageUseCase: uploadProfileImageUseCase,
-    getUserDataUseCase: getUserDataUseCase,
     deleteAccountUseCase: deleteAccountUseCase,
   );
 });
