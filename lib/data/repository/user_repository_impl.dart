@@ -6,7 +6,7 @@ import 'package:wetravel/domain/entity/user.dart';
 import 'package:wetravel/domain/repository/user_repository.dart';
 import 'package:wetravel/data/dto/user_dto.dart';
 
-class UserRepositoryImpl extends FirestoreConstants implements UserRepository {
+class UserRepositoryImpl implements UserRepository {
   UserRepositoryImpl(
     this._userDataSource,
     this._firebaseFirestore,
@@ -16,14 +16,13 @@ class UserRepositoryImpl extends FirestoreConstants implements UserRepository {
   final UserDataSource _userDataSource;
   final FirebaseFirestore _firebaseFirestore;
   final FirebaseAuth.FirebaseAuth _firebaseAuth;
-
+  final FirestoreConstants firestoreConstants = FirestoreConstants();
 
   @override
   Future<void> updateUserProfile(User user) async {
     try {
       final userDto = user.toDto();
-      var _updateUserProfile;
-      await _updateUserProfile.updateUserProfile(userDto);
+      await _userDataSource.updateUserProfile(userDto); // _userDataSource 사용
     } catch (e) {
       throw Exception("Failed to update user profile: $e");
     }
@@ -46,7 +45,7 @@ class UserRepositoryImpl extends FirestoreConstants implements UserRepository {
     }
 
     final docSnapshot =
-        await _firebaseFirestore.collection(usersCollection).doc(userId).get();
+        await _firebaseFirestore.collection(firestoreConstants.usersCollection).doc(userId).get();
 
     if (!docSnapshot.exists) {
       throw Exception('User not found');
@@ -80,10 +79,10 @@ class UserRepositoryImpl extends FirestoreConstants implements UserRepository {
     // TODO: implement signIn
     throw UnimplementedError();
   }
-}
 
   @override
   Future<List<User>> fetchUsersByIds(List<String> ids) async {
     final userDtos = await _userDataSource.fetchUsersByIds(ids);
     return userDtos.map((e) => User.fromDto(e)).toList();
   }
+}
