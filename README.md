@@ -1,4 +1,4 @@
-## ✈️ 위트
+## ✈️ 여행의 가치를 더하는, 나만의 패키지 여행 - **위트(WeTravel)**  
 ![readme_banner](https://github.com/user-attachments/assets/d1df8478-d2e9-41fc-9081-5c924452cfad)
 <div align="center">
   <table border="0" width="100%" align="center">
