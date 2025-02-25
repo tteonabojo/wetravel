@@ -6,7 +6,6 @@ import 'package:wetravel/core/constants/app_icons.dart';
 import 'package:wetravel/core/constants/app_shadow.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/presentation/pages/my_page_correction/mypage_correction.dart';
-import 'package:wetravel/presentation/pages/my_page_correction/mypage_correction_view_model.dart';
 
 class ProfileBox extends StatelessWidget {
   final Map<String, dynamic>? userData;
@@ -66,7 +65,7 @@ class ProfileBox extends StatelessWidget {
           Spacer(),
           IconButton(
             onPressed: () => Navigator.push(
-                context, MaterialPageRoute(builder: (_) => MyPageCorrectionPage())),
+                context, MaterialPageRoute(builder: (_) => MyPageCorrection())),
             icon: SvgPicture.asset(AppIcons.pen, width: 20, height: 20),
           ),
         ],
