@@ -1,9 +1,9 @@
-# ✈️ 위트
-<img src="assets/read_me/read_me_banner.png">
+## ✈️ 위트
+![readme_banner](https://github.com/user-attachments/assets/d1df8478-d2e9-41fc-9081-5c924452cfad)
 <div align="center">
   <table style="border-collapse: collapse; border: none; width: 100%;">
     <tr>
-      <td style="border: none; width: 90%;">
+      <td style="border: none; width: 80%;">
         여행의 가치를 더하는, 나만의 패키지 여행 - <strong>위트(WeTravel)</strong><br>
         AI 기반 여행지 및 여행일정 추천 / 나만의 패키지 작성 앱 <br><br>
         ✈️ 아직 여행지를 못 정했을 때 <br>
@@ -12,13 +12,20 @@
         ✈️ 내가 만든 여행일정을 다른 사람들과 공유하고 싶다면 <br><br>
         위트 있는 여행 앱 <strong>'위트'</strong>에서 여행일정을 만들어보세요!
       </td>
-      <td style="border: none; text-align: center;">
-        <img src="assets/read_me/install_qr.png"/>
+      <td style="border: none; text-align: center; width: 20%;">
+        <img src="https://github.com/user-attachments/assets/5720ff54-2929-4921-adc3-f8a1ee90c7b9" width="250"/>
         <p> 🌐 앱스토어 QR 🌐</p>
       </td>
     </tr>
   </table>
 </div>
+
+## 🎬 실행화면
+<img src="https://github.com/user-attachments/assets/c9fcd06a-98a6-445f-b64a-b9ebd688659d" width="18%" alt="app_image_1"/>
+<img src="https://github.com/user-attachments/assets/3c36209d-3b56-472b-8a8a-9e0867009af4" width="18%" alt="app_image_2"/>
+<img src="https://github.com/user-attachments/assets/5aac7c11-970c-4ded-882b-79e2404dc0db" width="18%" alt="app_image_3"/>
+<img src="https://github.com/user-attachments/assets/2befc169-5ef6-465e-8c83-4fbecac8962a" width="18%" alt="app_image_4"/>
+<img src="https://github.com/user-attachments/assets/2c55b38a-862e-4ac5-a362-7157c71e6c8c" width="18%" alt="app_image_5"/>
 
 
 ## 📅 프로젝트 기간
@@ -371,7 +378,7 @@ Firestore
 
 
 ## 🛠️ 기술 스택 및 툴
-![Flutter](https://img.shields.io/badge/Flutter-02569B?style=flat&logo=flutter&logoColor=white) ![Dart](https://img.shields.io/badge/Dart-0175C2?style=flat&logo=dart&logoColor=white) ![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=flat&logo=firebase&logoColor=black) ![GitHub](https://img.shields.io/badge/GitHub-181717?style=flat&logo=github&logoColor=white) ![Git](https://img.shields.io/badge/Git-F05032?style=flat&logo=git&logoColor=white) ![Figma](https://img.shields.io/badge/Figma-F24E1E?style=flat&logo=figma&logoColor=white) ![Slack](https://img.shields.io/badge/Slack-4A154B?style=flat&logo=slack&logoColor=white)
+![Flutter](https://img.shields.io/badge/Flutter-02569B?style=flat&logo=flutter&logoColor=white) ![Clean Architecture](https://img.shields.io/badge/Clean%20Architecture-%232F74C0.svg?style=flat) ![Dart](https://img.shields.io/badge/Dart-0175C2?style=flat&logo=dart&logoColor=white) ![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=flat&logo=firebase&logoColor=black) ![GitHub](https://img.shields.io/badge/GitHub-181717?style=flat&logo=github&logoColor=white) ![Git](https://img.shields.io/badge/Git-F05032?style=flat&logo=git&logoColor=white) ![Figma](https://img.shields.io/badge/Figma-F24E1E?style=flat&logo=figma&logoColor=white) ![Slack](https://img.shields.io/badge/Slack-4A154B?style=flat&logo=slack&logoColor=white)
 
 ## 로고
 <img src="assets/icons/app_logo/logo_bg_blue_24x24.svg" height="50" alt="wetravel Logo"/> <img src="assets/icons/app_logo/logo_letter.svg" height="50" alt="wetravel Text Logo"/>
