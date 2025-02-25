@@ -237,19 +237,18 @@ class UserDataSourceImpl extends FirestoreConstants implements UserDataSource {
     }
     
       @override
-      Future<bool> signOut() {
-    // TODO: implement signOut
-    throw UnimplementedError();
-      }
-  }
-
-  @override
 Future<bool> signOut() async {
   try {
     await FirebaseAuth.instance.signOut();
-    return true;
+    if (FirebaseAuth.instance.currentUser == null) {
+      return true;
+    } else {
+      print("로그아웃 실패: 사용자 정보가 남아 있음.");
+      return false;
+    }
   } catch (e) {
     print("로그아웃 실패: $e");
     return false;
   }
+}
 }
