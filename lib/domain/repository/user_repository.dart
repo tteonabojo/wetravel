@@ -3,8 +3,6 @@ import 'package:wetravel/domain/entity/user.dart';
 abstract interface class UserRepository {
   Future<User> fetchUser();
 
-  Future<User> getUserData();
-
   Future<void> updateUserProfile(User user);
   
   Future<void> deleteAccount();
