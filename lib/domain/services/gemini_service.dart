@@ -2,6 +2,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:wetravel/domain/entity/survey_response.dart';
 import 'package:flutter/foundation.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 /// Gemini AI 서비스를 관리하는 클래스
 class GeminiService {
@@ -14,8 +16,13 @@ class GeminiService {
       throw Exception('GEMINI_API_KEY not found in environment variables');
     }
     model = GenerativeModel(
-      model: 'gemini-pro',
+      model: 'gemini-1.5-pro',
       apiKey: apiKey,
+      generationConfig: GenerationConfig(
+        temperature: 0.7,
+        topK: 40,
+        topP: 0.95,
+      ),
     );
     if (kDebugMode) {}
   }
@@ -27,6 +34,16 @@ class GeminiService {
     SurveyResponse surveyResponse, {
     List<String>? preferredCities,
   }) async {
+    // 도시 카테고리 정보 추가
+    final cityCategories = '''
+도시 카테고리 정보:
+- 일본: 도쿄, 오사카, 교토, 나라, 후쿠오카, 삿포로
+- 한국: 서울, 부산, 제주, 강릉, 여수, 경주
+- 동남아시아: 방콕, 싱가포르, 발리, 세부, 다낭, 하노이
+- 미국: 뉴욕, 로스앤젤레스, 샌프란시스코, 라스베가스, 하와이
+- 유럽: 파리, 런던, 로마, 바르셀로나, 암스테르담, 프라하, 베니스
+''';
+
     final prompt = '''
 다음 여행 선호도를 바탕으로 전세계의 여행지를 추천해주세요.
 
@@ -38,13 +55,13 @@ class GeminiService {
 - 숙소 타입: ${surveyResponse.accommodationTypes.join(', ')}
 - 고려사항: ${surveyResponse.considerations.join(', ')}
 
+$cityCategories
+
 ${preferredCities != null && preferredCities.isNotEmpty ? '''
 [중요] 사용자가 선택한 도시: ${preferredCities.first}
-이 도시는 반드시 첫 번째 추천 도시여야 하며, 두 번째와 세 번째 추천 도시는 같은 국가/지역의 도시여야 합니다.
-
-예시:
-- 사용자가 "도쿄"를 선택한 경우: 도쿄(1순위) -> 오사카, 교토(2,3순위)
-- 사용자가 "파리"를 선택한 경우: 파리(1순위) -> 니스, 마르세유(2,3순위)
+이 도시는 반드시 첫 번째 추천 도시여야 합니다.
+두 번째와 세 번째 추천 도시는 첫 번째 도시와 같은 카테고리에 속한 도시여야 합니다.
+예를 들어, 사용자가 "도쿄"를 선택했다면 2,3순위는 "오사카", "교토" 등 일본의 다른 도시여야 합니다.
 
 반드시 아래 형식으로 정확히 3개의 도시를 추천해주세요.
 각 도시 추천 사이에는 반드시 "---" 구분자를 넣어주세요:
@@ -53,15 +70,18 @@ ${preferredCities != null && preferredCities.isNotEmpty ? '''
 도시명: ${preferredCities.first}
 추천 이유: [사용자의 여행 선호도와 스타일을 반영한 이유]
 ---
-두 번째 도시 (추가 추천):
+두 번째 도시 (같은 카테고리의 다른 도시):
 도시명: [도시명]
 추천 이유: [사용자의 여행 선호도와 스타일을 반영한 이유]
 ---
-세 번째 도시 (추가 추천):
+세 번째 도시 (같은 카테고리의 또 다른 도시):
 도시명: [도시명]
 추천 이유: [사용자의 여행 선호도와 스타일을 반영한 이유]
 ''' : '''
-반드시 아래 형식으로 정확히 3개의 도시를 추천해주세요.
+[중요] 사용자가 선택한 도시가 없으므로, 서로 다른 카테고리에서 3개의 도시를 추천해주세요.
+예를 들어, 일본의 도시 1개, 유럽의 도시 1개, 동남아시아의 도시 1개와 같이 다양한 지역에서 추천해주세요.
+
+반드시 아래 형식으로 서로 다른 카테고리의 도시 3개를 추천해주세요.
 각 도시 추천 사이에는 반드시 "---" 구분자를 넣어주세요:
 
 첫 번째 도시:
@@ -80,19 +100,47 @@ ${preferredCities != null && preferredCities.isNotEmpty ? '''
 [중요 지시사항]
 1. 선택된 도시가 있는 경우:
    - 반드시 첫 번째 도시로 추천
-   - 2,3순위는 같은 국가/지역의 도시로 추천
-2. 각 도시 추천은 반드시 "---" 구분자로 구분
-3. 정확히 3개의 도시를 추천
-4. 각 도시는 "도시명:"과 "추천 이유:" 형식을 준수
+   - 2,3순위는 첫 번째 도시와 같은 카테고리의 도시로 추천 (위 카테고리 정보 참조)
+2. 선택된 도시가 없는 경우:
+   - 서로 다른 카테고리에서 3개의 도시를 추천 (다양성 확보)
+3. 각 도시 추천은 반드시 "---" 구분자로 구분
+4. 정확히 3개의 도시를 추천
+5. 각 도시는 "도시명:"과 "추천 이유:" 형식을 준수
 ''';
 
+    final apiKey = dotenv.env['GEMINI_API_KEY'];
+
+    final url = Uri.parse(
+        'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=$apiKey');
+
     try {
-      final content = [Content.text(prompt)];
-      final response = await model.generateContent(content);
-      if (response.text == null) {
-        throw Exception('Gemini returned null response');
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'contents': [
+            {
+              'parts': [
+                {'text': prompt}
+              ]
+            }
+          ],
+          'generationConfig': {
+            'temperature': 0.7,
+            'topK': 40,
+            'topP': 0.95,
+          }
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final text = data['candidates'][0]['content']['parts'][0]['text'];
+        return text;
+      } else {
+        throw Exception(
+            'Failed to get travel recommendations: ${response.body}');
       }
-      return response.text!;
     } catch (e) {
       throw Exception('Failed to get travel recommendations: $e');
     }
@@ -102,9 +150,41 @@ ${preferredCities != null && preferredCities.isNotEmpty ? '''
   /// [survey]: 사용자의 설문 응답
   Future<String> getTravelSchedule(SurveyResponse survey) async {
     final prompt = _buildSchedulePrompt(survey);
-    final content = [Content.text(prompt)];
-    final response = await model.generateContent(content);
-    return response.text!;
+
+    final apiKey = dotenv.env['GEMINI_API_KEY'];
+    final url = Uri.parse(
+        'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=$apiKey');
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'contents': [
+            {
+              'parts': [
+                {'text': prompt}
+              ]
+            }
+          ],
+          'generationConfig': {
+            'temperature': 0.7,
+            'topK': 40,
+            'topP': 0.95,
+          }
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final text = data['candidates'][0]['content']['parts'][0]['text'];
+        return text;
+      } else {
+        throw Exception('Failed to get travel schedule: ${response.body}');
+      }
+    } catch (e) {
+      throw Exception('Failed to get travel schedule: $e');
+    }
   }
 
   /// 여행 일정을 위한 프롬프트 생성
