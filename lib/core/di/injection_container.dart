@@ -5,7 +5,6 @@ import 'package:wetravel/data/data_source/user_data_source.dart';
 import 'package:wetravel/data/repository/user_repository_impl.dart';
 import 'package:wetravel/domain/repository/firebase_storage_repository.dart';
 import 'package:wetravel/domain/repository/user_repository.dart';
-import 'package:wetravel/domain/usecase/get_user_data_usecase.dart';
 import 'package:wetravel/domain/usecase/update_user_profile_usecase.dart';
 import 'package:wetravel/domain/usecase/upload_profile_image_usecase.dart';
 import 'package:wetravel/domain/usecase/delete_account_usecase.dart';
@@ -39,10 +38,6 @@ void init() {
   // UploadProfileImageUseCase
   sl.registerLazySingleton<UploadProfileImageUseCase>(
       () => UploadProfileImageUseCase(sl<FirebaseStorageRepository>()));
-
-  // GetUserDataUseCase
-  sl.registerLazySingleton<GetUserDataUseCase>(
-      () => GetUserDataUseCase(sl<UserRepository>()));
 
   // DeleteAccountUseCase
   sl.registerLazySingleton<DeleteAccountUseCase>(
