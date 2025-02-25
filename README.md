@@ -1,31 +1,34 @@
 ## ✈️ 위트
 ![readme_banner](https://github.com/user-attachments/assets/d1df8478-d2e9-41fc-9081-5c924452cfad)
 <div align="center">
-  <table style="border-collapse: collapse; border: none; width: 100%;">
+  <table border="0" width="100%" align="center">
     <tr>
-      <td style="border: none; width: 80%;">
-        여행의 가치를 더하는, 나만의 패키지 여행 - <strong>위트(WeTravel)</strong><br>
-        AI 기반 여행지 및 여행일정 추천 / 나만의 패키지 작성 앱 <br><br>
-        ✈️ 아직 여행지를 못 정했을 때 <br>
-        ✈️ 나 혼자 여행일정을 만들기 어려울 때 <br>
-        ✈️ 다른 사람들은 여행일정을 어떻게 만드는지 궁금하다면 <br>
-        ✈️ 내가 만든 여행일정을 다른 사람들과 공유하고 싶다면 <br><br>
-        위트 있는 여행 앱 <strong>'위트'</strong>에서 여행일정을 만들어보세요!
-      </td>
-      <td style="border: none; text-align: center; width: 20%;">
-        <img src="https://github.com/user-attachments/assets/5720ff54-2929-4921-adc3-f8a1ee90c7b9" width="250"/>
-        <p> 🌐 앱스토어 QR 🌐</p>
-      </td>
+        <td width="80%" valign="top">
+            여행의 가치를 더하는, 나만의 패키지 여행 - <strong>위트(WeTravel)</strong><br>
+            AI 기반 여행지 및 여행일정 추천 / 나만의 패키지 작성 앱 <br><br>
+            ✈️ 아직 여행지를 못 정했을 때 <br>
+            ✈️ 나 혼자 여행일정을 만들기 어려울 때 <br>
+            ✈️ 다른 사람들은 여행일정을 어떻게 만드는지 궁금하다면 <br>
+            ✈️ 내가 만든 여행일정을 다른 사람들과 공유하고 싶다면 <br><br>
+            위트 있는 여행 앱 <strong>'위트'</strong>에서 여행일정을 만들어보세요!
+        </td>
+        <td width="20%" align="center">
+            <img src="https://github.com/user-attachments/assets/5720ff54-2929-4921-adc3-f8a1ee90c7b9" width="250"/>
+            <p> 앱스토어 QR</p>
+        </td>
     </tr>
   </table>
 </div>
 
+
 ## 🎬 실행화면
-<img src="https://github.com/user-attachments/assets/c9fcd06a-98a6-445f-b64a-b9ebd688659d" width="18%" alt="app_image_1"/>
-<img src="https://github.com/user-attachments/assets/3c36209d-3b56-472b-8a8a-9e0867009af4" width="18%" alt="app_image_2"/>
-<img src="https://github.com/user-attachments/assets/5aac7c11-970c-4ded-882b-79e2404dc0db" width="18%" alt="app_image_3"/>
-<img src="https://github.com/user-attachments/assets/2befc169-5ef6-465e-8c83-4fbecac8962a" width="18%" alt="app_image_4"/>
-<img src="https://github.com/user-attachments/assets/2c55b38a-862e-4ac5-a362-7157c71e6c8c" width="18%" alt="app_image_5"/>
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/c9fcd06a-98a6-445f-b64a-b9ebd688659d" width="18%" alt="app_image_1"/>
+  <img src="https://github.com/user-attachments/assets/3c36209d-3b56-472b-8a8a-9e0867009af4" width="18%" alt="app_image_2"/>
+  <img src="https://github.com/user-attachments/assets/5aac7c11-970c-4ded-882b-79e2404dc0db" width="18%" alt="app_image_3"/>
+  <img src="https://github.com/user-attachments/assets/2befc169-5ef6-465e-8c83-4fbecac8962a" width="18%" alt="app_image_4"/>
+  <img src="https://github.com/user-attachments/assets/2c55b38a-862e-4ac5-a362-7157c71e6c8c" width="18%" alt="app_image_5"/>
+</div>
 
 
 ## 📅 프로젝트 기간
