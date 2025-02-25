@@ -178,6 +178,7 @@ Firestore
 │   │   └── user_dto.dart
 │   └── repository
 │       ├── banner_repository_impl.dart
+│       ├── firebase_storage_repository_impl.dart
 │       ├── package_repository_impl.dart
 │       ├── schedule_repository_impl.dart
 │       ├── survey_repository_impl.dart
@@ -195,6 +196,7 @@ Firestore
 │   │   └── user.dart
 │   ├── repository
 │   │   ├── banner_repository.dart
+│   │   ├── firebase_storage_repository.dart
 │   │   ├── package_repository.dart
 │   │   ├── schedule_repository.dart
 │   │   ├── survey_repository.dart
@@ -216,6 +218,8 @@ Firestore
 │       ├── get_schedules_usecase.dart
 │       ├── sign_in_with_provider_usecase.dart
 │       ├── sign_out_usecase.dart
+│       ├── update_user_profile_usecase.dart
+│       ├── upload_profile_image_usecase.dart
 │       ├── survey
 │       │   ├── get_survey_state_usecase.dart
 │       │   ├── update_survey_state_usecase.dart
@@ -294,6 +298,7 @@ Firestore
 │   │   │       ├── profile_box.dart
 │   │   │       └── terms_and_privacy_box.dart
 │   │   ├── my_page_correction
+│   │   │   ├── mypage_correction_view_model.dart
 │   │   │   └── mypage_correction.dart
 │   │   ├── new_trip
 │   │   │   ├── new_trip_page.dart
@@ -344,6 +349,9 @@ Firestore
 │   │   ├── banner_provider.dart
 │   │   ├── delete_account_usecase_provider.dart
 │   │   ├── firebase_providers.dart
+│   │   ├── my_page_correction_provider.dart
+│   │   ├── update_user_profile_usecase_provider.dart
+│   │   ├── upload_profile_image_usecase_provider.dart
 │   │   ├── package_provider.dart
 │   │   ├── recommendation_provider.dart
 │   │   ├── schedule_actions_provider.dart

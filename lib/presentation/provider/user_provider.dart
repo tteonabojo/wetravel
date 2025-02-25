@@ -21,7 +21,8 @@ final _firebaseAuthProvider = Provider<FirebaseAuth>((ref) {
 
 final _userDataSourceProvider = Provider<UserDataSource>((ref) {
   final firebaseFirestore = ref.watch(_firebaseFirestoreProvider);
-  return UserDataSourceImpl(firebaseFirestore);
+  final FirebaseAuth = ref.watch(_firebaseAuthProvider);
+  return UserDataSourceImpl(firebaseFirestore, FirebaseAuth);
 });
 
 final userRepositoryProvider = Provider<UserRepository>(
