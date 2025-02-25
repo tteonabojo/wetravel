@@ -49,15 +49,15 @@ class ScheduleItemWidget extends StatelessWidget {
                 Text(title,
                     style: AppTypography.headline5
                         .copyWith(color: AppColors.grayScale_950)),
-                Row(
-                  spacing: 4,
-                  children: [
-                    SvgPicture.asset(AppIcons.mapPin,
-                        color: AppColors.grayScale_550, height: 16),
-                    Text(location,
-                        style: AppTypography.body2
-                            .copyWith(color: AppColors.grayScale_650)),
-                  ],
+                Container(
+                  constraints: BoxConstraints(
+                      maxWidth: MediaQuery.of(context).size.width * 0.6),
+                  child: Text(
+                    location,
+                    style: AppTypography.body2
+                        .copyWith(color: AppColors.grayScale_650),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ],
             ),
