@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
-import 'package:wetravel/core/constants/app_icons.dart';
 import 'package:wetravel/core/constants/app_border_radius.dart';
 import 'package:wetravel/core/constants/app_shadow.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
@@ -18,7 +17,10 @@ class LogoutBox extends StatelessWidget {
       onTap: () async {
         final signOutUsecase = ref.read(signOutUsecaseProvider);
         await signOutUsecase.signOut();
-        Navigator.pushReplacementNamed(context, '/login');
+
+        if (context.mounted) {
+          Navigator.pushReplacementNamed(context, '/login');
+        }
       },
       child: _buildBoxContainer('로그아웃'),
     );

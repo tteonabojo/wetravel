@@ -15,7 +15,6 @@ import 'package:wetravel/presentation/pages/guide/package_edit_page/package_edit
 import 'package:wetravel/presentation/pages/guide/package_register_page/package_register_page.dart';
 import 'package:wetravel/presentation/pages/guide_package_detail_page/package_detail_page.dart';
 import 'package:wetravel/presentation/pages/login/login_page.dart';
-import 'package:wetravel/presentation/provider/schedule_provider.dart';
 import 'package:wetravel/presentation/provider/user_provider.dart';
 import 'package:wetravel/presentation/provider/package_provider.dart';
 import 'package:wetravel/presentation/widgets/buttons/chip_button.dart';
@@ -137,8 +136,6 @@ class _GuidePackageListPageState extends ConsumerState<GuidePackageListPage> {
 
   @override
   Widget build(BuildContext context) {
-    final getPackageUseCase = ref.read(getPackageUseCaseProvider);
-    final getSchedulesUseCase = ref.read(getSchedulesUseCaseProvider);
     double screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
@@ -231,9 +228,6 @@ class _GuidePackageListPageState extends ConsumerState<GuidePackageListPage> {
                                     builder: (context) {
                                       return PackageDetailPage(
                                         packageId: package.id,
-                                        getPackageUseCase: getPackageUseCase,
-                                        getSchedulesUseCase:
-                                            getSchedulesUseCase,
                                       );
                                     },
                                   ));

@@ -196,30 +196,16 @@ class _PackageEditPageState extends State<PackageEditPage> {
     });
   }
 
-  void _deleteDay() async {
+  void _deleteDay() {
     if (_selectedDay <= 0 || _selectedDay > _dayCount) return;
 
-    try {
-      final schedulesToDeleteQuery = await FirebaseFirestore.instance
-          .collection(firestoreConstants.schedulesCollection)
-          .where('packageId', isEqualTo: widget.packageId)
-          .where('day', isEqualTo: _selectedDay)
-          .get();
-
-      for (var doc in schedulesToDeleteQuery.docs) {
-        await doc.reference.delete();
+    setState(() {
+      _schedules.removeAt(_selectedDay - 1);
+      _dayCount--;
+      if (_selectedDay > _dayCount) {
+        _selectedDay = _dayCount;
       }
-
-      setState(() {
-        _schedules.removeAt(_selectedDay - 1);
-        _dayCount--;
-        if (_selectedDay > _dayCount) {
-          _selectedDay = _dayCount;
-        }
-      });
-    } catch (e) {
-      print('Day 삭제 실패: $e');
-    }
+    });
   }
 
   final _packageRegisterService = PackageRegisterService();
@@ -227,8 +213,6 @@ class _PackageEditPageState extends State<PackageEditPage> {
   void _updatePackage() async {
     if (_title.isEmpty ||
         _location.isEmpty ||
-        _descriptionController.text.isEmpty ||
-        _durationController.text.isEmpty ||
         _selectedImagePath.isEmpty ||
         _keywordList.isEmpty ||
         _schedules.expand((day) => day).isEmpty) {
@@ -236,6 +220,21 @@ class _PackageEditPageState extends State<PackageEditPage> {
         const SnackBar(content: Text('모든 일정의 필드를 입력해주세요.')),
       );
       return;
+    }
+
+    // EditScheduleList의 각 필드 유효성 검사
+    for (var daySchedules in _schedules) {
+      for (var schedule in daySchedules) {
+        if (schedule.time.isEmpty ||
+            schedule.title.isEmpty ||
+            schedule.location.isEmpty ||
+            schedule.content.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('모든 일정의 필드를 입력해주세요.')),
+          );
+          return;
+        }
+      }
     }
 
     setState(() {
@@ -418,8 +417,13 @@ class _PackageEditPageState extends State<PackageEditPage> {
                               _schedules[_selectedDay - 1].length,
                         ),
                         if (_dayCount > 1)
-                          DeleteDayButton(
-                            onPressed: _deleteDay,
+                          Column(
+                            children: [
+                              SizedBox(height: 12),
+                              DeleteDayButton(
+                                onPressed: isLoading ? null : _deleteDay,
+                              ),
+                            ],
                           ),
                         Padding(
                           padding: EdgeInsets.symmetric(vertical: 8),

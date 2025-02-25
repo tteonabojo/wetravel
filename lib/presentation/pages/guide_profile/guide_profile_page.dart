@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wetravel/core/constants/app_spacing.dart';
 
 class GuideProfilePage extends StatelessWidget {
   final String author;
@@ -10,7 +11,7 @@ class GuideProfilePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16), // 좌우 여백 16 유지
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -24,7 +25,7 @@ class GuideProfilePage extends StatelessWidget {
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 20), // 닉네임과 "자기소개" 사이 간격 20 추가
+            const SizedBox(height: 20),
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
@@ -34,24 +35,24 @@ class GuideProfilePage extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Container(
-              width: double.infinity, // 가득 차게 설정
+              width: double.infinity,
               height: 80,
-              padding: const EdgeInsets.all(16), // 내부 패딩 추가
+              padding: AppSpacing.medium16,
               decoration: BoxDecoration(
-                color: Colors.white, // 배경색 추가
-                borderRadius: BorderRadius.circular(12), // 모서리 R 값 12
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
                 '이곳에 자기소개 내용을 입력합니다.',
                 style: TextStyle(fontSize: 14, color: Colors.black87),
               ),
             ),
-            const SizedBox(height: 20), // 자기소개 박스와 여행 일정 사이 여백 20 추가
+            const SizedBox(height: 20),
             Align(
-              alignment: Alignment.centerLeft, // 왼쪽 정렬
+              alignment: Alignment.centerLeft,
               child: Text(
                 '등록한 여행 일정',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold), // 폰트 크기 18
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
             const SizedBox(height: 12), // 리스트 추가될 공간 미리 확보

@@ -82,7 +82,51 @@ class _SurveyPageState extends ConsumerState<SurveyPage> {
                 height: 50,
                 child: StandardButton.primary(
                   sizeType: ButtonSizeType.normal,
-                  onPressed: () => _onNextPressed(state),
+                  onPressed: () {
+                    if (!state.isCurrentPageComplete()) {
+                      String message = '';
+                      switch (state.currentPage) {
+                        case 0:
+                          if (state.travelPeriod == null &&
+                              state.travelDuration == null) {
+                            message = '여행 시기와 기간을 선택해주세요.';
+                          } else if (state.travelPeriod == null) {
+                            message = '여행 시기를 선택해주세요.';
+                          } else {
+                            message = '여행 기간을 선택해주세요.';
+                          }
+                          break;
+                        case 1:
+                          if (state.companion == null &&
+                              state.travelStyle == null) {
+                            message = '동행인과 여행 스타일을 선택해주세요.';
+                          } else if (state.companion == null) {
+                            message = '동행인을 선택해주세요.';
+                          } else {
+                            message = '여행 스타일을 선택해주세요.';
+                          }
+                          break;
+                        case 2:
+                          if (state.accommodationType == null &&
+                              state.consideration == null) {
+                            message = '숙소 스타일과 고려사항을 선택해주세요.';
+                          } else if (state.accommodationType == null) {
+                            message = '숙소 스타일을 선택해주세요.';
+                          } else {
+                            message = '고려사항을 선택해주세요.';
+                          }
+                          break;
+                      }
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(message),
+                          duration: const Duration(seconds: 2),
+                        ),
+                      );
+                      return;
+                    }
+                    _onNextPressed(state);
+                  },
                   text: '다음으로',
                 ),
               ),
@@ -128,36 +172,31 @@ class SurveyChipList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Wrap(
       spacing: 8,
-      children: items
-          .map((item) => _buildFilterChip(item, selectedItem, onSelected))
-          .toList(),
-    );
-  }
-
-  Widget _buildFilterChip(
-      String label, String selectedItem, Function(String) onSelected) {
-    final isSelected = label == selectedItem;
-    return FilterChip(
-      label: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (isSelected) ...[
-            const Icon(Icons.check, size: 16, color: Colors.white),
-            const SizedBox(width: 4),
-          ],
-          Text(label),
-        ],
-      ),
-      selected: isSelected,
-      onSelected: (selected) => selected ? onSelected(label) : null,
-      showCheckmark: false,
-      side: const BorderSide(style: BorderStyle.none),
-      shape: RoundedRectangleBorder(borderRadius: AppBorderRadius.large20),
-      backgroundColor: AppColors.grayScale_050,
-      selectedColor: AppColors.grayScale_650,
-      labelStyle: TextStyle(
-        color: isSelected ? Colors.white : AppColors.grayScale_350,
-      ),
+      children: items.map((item) {
+        final isSelected = item == selectedItem;
+        return FilterChip(
+          label: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (isSelected) ...[
+                const Icon(Icons.check, size: 16, color: Colors.white),
+                const SizedBox(width: 4),
+              ],
+              Text(item),
+            ],
+          ),
+          selected: isSelected,
+          onSelected: (_) => onSelected(item), // 항상 선택 가능하도록
+          showCheckmark: false,
+          side: const BorderSide(style: BorderStyle.none),
+          shape: RoundedRectangleBorder(borderRadius: AppBorderRadius.large20),
+          backgroundColor: AppColors.grayScale_050,
+          selectedColor: AppColors.grayScale_650,
+          labelStyle: TextStyle(
+            color: isSelected ? Colors.white : AppColors.grayScale_350,
+          ),
+        );
+      }).toList(),
     );
   }
 }
@@ -200,7 +239,16 @@ class TravelPeriodPage extends ConsumerWidget {
           selectedItem: state.travelPeriod ?? '',
           onSelected: (selected) {
             notifier.selectTravelPeriod(selected);
-            _checkAndNavigate(context, ref);
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              final updatedState = ref.read(surveyProvider);
+              if (updatedState.isCurrentPageComplete()) {
+                ref.read(surveyProvider.notifier).nextPage();
+                pageController.nextPage(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                );
+              }
+            });
           },
         ),
         const SizedBox(height: 30),
@@ -210,22 +258,20 @@ class TravelPeriodPage extends ConsumerWidget {
           selectedItem: state.travelDuration ?? '',
           onSelected: (selected) {
             notifier.selectTravelDuration(selected);
-            _checkAndNavigate(context, ref);
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              final updatedState = ref.read(surveyProvider);
+              if (updatedState.isCurrentPageComplete()) {
+                ref.read(surveyProvider.notifier).nextPage();
+                pageController.nextPage(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                );
+              }
+            });
           },
         ),
       ],
     );
-  }
-
-  void _checkAndNavigate(BuildContext context, WidgetRef ref) {
-    final state = ref.read(surveyProvider);
-    if (state.isCurrentPageComplete()) {
-      ref.read(surveyProvider.notifier).nextPage();
-      pageController.nextPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-    }
   }
 }
 
@@ -252,7 +298,16 @@ class TravelStylePage extends ConsumerWidget {
           selectedItem: state.companion ?? '',
           onSelected: (value) {
             ref.read(surveyProvider.notifier).selectCompanion(value);
-            _checkAndNavigate(context, ref);
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              final updatedState = ref.read(surveyProvider);
+              if (updatedState.isCurrentPageComplete()) {
+                ref.read(surveyProvider.notifier).nextPage();
+                pageController.nextPage(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                );
+              }
+            });
           },
         ),
         const SizedBox(height: 30),
@@ -262,22 +317,20 @@ class TravelStylePage extends ConsumerWidget {
           selectedItem: state.travelStyle ?? '',
           onSelected: (value) {
             ref.read(surveyProvider.notifier).selectTravelStyle(value);
-            _checkAndNavigate(context, ref);
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              final updatedState = ref.read(surveyProvider);
+              if (updatedState.isCurrentPageComplete()) {
+                ref.read(surveyProvider.notifier).nextPage();
+                pageController.nextPage(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                );
+              }
+            });
           },
         ),
       ],
     );
-  }
-
-  void _checkAndNavigate(BuildContext context, WidgetRef ref) {
-    final state = ref.read(surveyProvider);
-    if (state.isCurrentPageComplete()) {
-      ref.read(surveyProvider.notifier).nextPage();
-      pageController.nextPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-    }
   }
 }
 
@@ -308,7 +361,17 @@ class AccommodationPage extends ConsumerWidget {
           selectedItem: state.accommodationType ?? '',
           onSelected: (type) {
             surveyNotifier.selectAccommodationType(type);
-            _checkAndNavigate(context, ref);
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              final updatedState = ref.read(surveyProvider);
+              if (updatedState.isCurrentPageComplete()) {
+                final surveyResponse = updatedState.toSurveyResponse();
+                Navigator.pushNamed(
+                  context,
+                  '/plan-selection',
+                  arguments: surveyResponse,
+                );
+              }
+            });
           },
         ),
         const SizedBox(height: 30),
@@ -318,27 +381,20 @@ class AccommodationPage extends ConsumerWidget {
           selectedItem: state.consideration ?? '',
           onSelected: (consideration) {
             surveyNotifier.selectConsideration(consideration);
-            _checkAndNavigate(context, ref);
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              final updatedState = ref.read(surveyProvider);
+              if (updatedState.isCurrentPageComplete()) {
+                final surveyResponse = updatedState.toSurveyResponse();
+                Navigator.pushNamed(
+                  context,
+                  '/plan-selection',
+                  arguments: surveyResponse,
+                );
+              }
+            });
           },
         ),
       ],
     );
-  }
-
-  void _checkAndNavigate(BuildContext context, WidgetRef ref) {
-    final state = ref.read(surveyProvider);
-    if (state.isCurrentPageComplete()) {
-      if (state.currentPage == 2) {
-        final surveyResponse = state.toSurveyResponse();
-        Navigator.pushNamed(context, '/plan-selection',
-            arguments: surveyResponse);
-      } else {
-        ref.read(surveyProvider.notifier).nextPage();
-        pageController.nextPage(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-        );
-      }
-    }
   }
 }

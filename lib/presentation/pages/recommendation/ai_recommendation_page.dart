@@ -1,15 +1,21 @@
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:wetravel/core/constants/app_border_radius.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_shadow.dart';
+import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/domain/entity/survey_response.dart';
 import 'package:wetravel/presentation/provider/recommendation_provider.dart';
 import 'package:wetravel/presentation/widgets/buttons/standard_button.dart';
 import 'package:lottie/lottie.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'dart:io' show Platform;
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter/foundation.dart'; // kDebugMode를 사용하기 위한 import
 
 class AIRecommendationPage extends ConsumerStatefulWidget {
   const AIRecommendationPage({super.key});
@@ -20,31 +26,44 @@ class AIRecommendationPage extends ConsumerStatefulWidget {
 }
 
 class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
+  // 상태 변수들
   String? selectedDestination;
   final Map<String, String> _imageCache = {};
   List<String> destinations = [];
   List<String> reasons = [];
   bool _isLoading = true;
   bool _isFirstLoad = true;
+  RewardedAd? _rewardedAd;
+  bool _isAdLoading = false;
+
+  /// 광고 ID 설정 (릴리즈/디버그 모드 동일하게 실제 광고 ID 사용)
+  final String _adUnitId = Platform.isAndroid
+      ? 'ca-app-pub-5444380029598582/3444349489' // Android 실제 광고 ID
+      : 'ca-app-pub-5444380029598582/6818185842'; // iOS 실제 광고 ID
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_isFirstLoad) {
-      final args =
-          ModalRoute.of(context)?.settings.arguments as SurveyResponse?;
       _loadRecommendations();
       _isFirstLoad = false;
     }
   }
 
   @override
+  void initState() {
+    super.initState();
+    _loadRewardedAd();
+  }
+
+  @override
   void dispose() {
-    // 페이지를 나갈 때 캐시 초기화
     _imageCache.clear();
+    _rewardedAd?.dispose();
     super.dispose();
   }
 
+  /// AI 추천 목록을 로드하는 함수
   Future<void> _loadRecommendations() async {
     if (!mounted) return;
 
@@ -87,76 +106,221 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
     }
   }
 
+  /// 보상형 광고 로드 함수
+  Future<void> _loadRewardedAd() async {
+    if (_isAdLoading) return;
+
+    setState(() {
+      _isAdLoading = true;
+    });
+
+    try {
+      await RewardedAd.load(
+        adUnitId: _adUnitId,
+        request: const AdRequest(),
+        rewardedAdLoadCallback: RewardedAdLoadCallback(
+          onAdLoaded: _handleAdLoaded,
+          onAdFailedToLoad: _handleAdFailedToLoad,
+        ),
+      );
+    } catch (e) {
+      _handleAdError();
+    }
+  }
+
+  /// 광고 로드 성공 핸들러
+  void _handleAdLoaded(RewardedAd ad) {
+    setState(() {
+      _rewardedAd = ad;
+      _isAdLoading = false;
+    });
+
+    ad.fullScreenContentCallback = FullScreenContentCallback(
+      onAdDismissedFullScreenContent: (ad) {
+        ad.dispose();
+        _rewardedAd = null;
+        _loadRecommendations();
+        _loadRewardedAd();
+      },
+      onAdFailedToShowFullScreenContent: _handleAdShowError,
+      onAdShowedFullScreenContent: (ad) {},
+    );
+  }
+
+  /// 광고 로드 실패 핸들러
+  void _handleAdFailedToLoad(LoadAdError error) {
+    setState(() {
+      _isAdLoading = false;
+    });
+
+    // 에러 정보 로깅
+    if (kDebugMode) {
+      print('Ad failed to load with error:');
+      print('Message: ${error.message}');
+      print('Code: ${error.code}');
+      print('Domain: ${error.domain}');
+      print('Response info: ${error.responseInfo}');
+    }
+
+    _showErrorSnackBar('광고를 불러오는데 실패했습니다. 다시 시도해주세요.');
+  }
+
+  /// 광고 표시 실패 핸들러
+  void _handleAdShowError(RewardedAd ad, AdError error) {
+    ad.dispose();
+    _rewardedAd = null;
+    _isAdLoading = false;
+    _showErrorSnackBar('광고 표시에 실패했습니다. 다시 시도해주세요.');
+  }
+
+  /// 광고 초기화 에러 핸들러
+  void _handleAdError() {
+    setState(() {
+      _isAdLoading = false;
+    });
+    if (mounted) {
+      _showErrorSnackBar('광고 서비스를 초기화하는데 실패했습니다.');
+    }
+  }
+
+  /// 에러 메시지 표시 함수
+  void _showErrorSnackBar(String message) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+    }
+  }
+
+  /// 보상형 광고 표시 함수
+  Future<void> _showRewardedAd() async {
+    final bool? shouldShowAd = await _showAdConfirmDialog();
+
+    if (shouldShowAd != true) return;
+
+    if (_isAdLoading) {
+      _showErrorSnackBar('광고를 불러오는 중입니다. 잠시만 기다려주세요.');
+      return;
+    }
+
+    if (_rewardedAd == null) {
+      _showErrorSnackBar('광고를 불러오는데 실패했습니다. 다시 시도해주세요.');
+      return;
+    }
+
+    try {
+      await _rewardedAd!.show(onUserEarnedReward: (_, reward) {});
+    } catch (e) {
+      debugPrint('광고 표시 중 오류 발생: $e');
+    }
+  }
+
+  /// 광고 시청 확인 다이얼로그
+  Future<bool?> _showAdConfirmDialog() {
+    return showCupertinoDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return CupertinoAlertDialog(
+          title: const Text('알림'),
+          content: const Text('광고 시청 후 다시 추천 받기가 가능합니다'),
+          actions: [
+            CupertinoDialogAction(
+              onPressed: () => Navigator.of(context).pop(false),
+              child:
+                  Text('취소', style: TextStyle(color: AppColors.grayScale_450)),
+            ),
+            CupertinoDialogAction(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text('확인', style: TextStyle(color: AppColors.primary_450)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: _isLoading
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Lottie.asset(
-                    'assets/lottie/loading_animation.json',
-                    width: 200,
-                    height: 200,
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    'AI가 여행지를 추천하고 있어요',
-                    style: AppTypography.body1.copyWith(
-                      color: AppColors.grayScale_450,
-                    ),
-                  ),
-                ],
-              ),
-            )
-          : SafeArea(
-              child: Column(
-                children: [
-                  // 앱바
-                  AppBar(
-                    backgroundColor: Colors.white,
-                    automaticallyImplyLeading: false,
-                    title: Text(
-                      'AI 맞춤 여행지 추천',
-                      style: AppTypography.headline4.copyWith(
-                        color: AppColors.grayScale_950,
-                      ),
-                    ),
-                    centerTitle: true,
-                    actions: [
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () => Navigator.pushNamedAndRemoveUntil(
-                          context,
-                          '/',
-                          (route) => false,
-                        ),
-                      ),
-                    ],
-                  ),
-                  // 메인 컨텐츠
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildHeader(),
-                        Expanded(child: _buildDestinationList()),
-                        const SizedBox(height: 20),
-                        _buildBottomButtons(context),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
+      body: _isLoading ? _buildLoadingView() : _buildMainContent(),
     );
   }
 
+  /// 로딩 화면 위젯
+  Widget _buildLoadingView() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Lottie.asset(
+            'assets/animations/loading_animation.json',
+            width: 200,
+            height: 200,
+          ),
+          const SizedBox(height: 20),
+          Text(
+            'AI가 여행지를 추천하고 있어요',
+            style: AppTypography.body1.copyWith(
+              color: AppColors.grayScale_450,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 메인 컨텐츠 위젯
+  Widget _buildMainContent() {
+    return SafeArea(
+      child: Column(
+        children: [
+          _buildAppBar(),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHeader(),
+                Expanded(child: _buildDestinationList()),
+                const SizedBox(height: 20),
+                _buildBottomButtons(context),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 앱바 위젯
+  Widget _buildAppBar() {
+    return AppBar(
+      backgroundColor: Colors.white,
+      automaticallyImplyLeading: false,
+      title: Text(
+        'AI 맞춤 여행지 추천',
+        style: AppTypography.headline4.copyWith(
+          color: AppColors.grayScale_950,
+        ),
+      ),
+      centerTitle: true,
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.close),
+          onPressed: () => Navigator.pushNamedAndRemoveUntil(
+            context,
+            '/',
+            (route) => false,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// 헤더 위젯
   Widget _buildHeader() {
     return Padding(
-      padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
@@ -174,47 +338,61 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
     );
   }
 
+  /// 여행지 목록 위젯
   Widget _buildDestinationList() {
     return ListView.builder(
       key: const PageStorageKey('destination_list'),
-      itemCount: destinations.length, // destinations 길이만큼 카드 생성
+      itemCount: destinations.length,
       itemBuilder: (context, index) {
         final destination = destinations[index];
         final reason = index < reasons.length ? reasons[index] : '';
         final matchPercent = 95 - (index * 10);
 
-        return GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () {
-            setState(() {
-              selectedDestination = destination;
-            });
-          },
-          child: Container(
-            margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            decoration: BoxDecoration(
-              boxShadow: AppShadow.generalShadow,
-              border: Border.all(
-                color: selectedDestination == destination
-                    ? AppColors.primary_450
-                    : Colors.transparent,
-                width: 1,
-              ),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: _buildDestinationCard(
-              destination,
-              reason,
-              matchPercent,
-            ),
-          ),
+        return _buildDestinationListItem(
+          destination: destination,
+          reason: reason,
+          matchPercent: matchPercent,
         );
       },
     );
   }
 
-  Widget _buildDestinationCard(
-      String destination, String reason, int matchPercent) {
+  /// 여행지 목록 아이템 위젯
+  Widget _buildDestinationListItem({
+    required String destination,
+    required String reason,
+    required int matchPercent,
+  }) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => setState(() => selectedDestination = destination),
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+        decoration: BoxDecoration(
+          boxShadow: AppShadow.generalShadow,
+          border: Border.all(
+            color: selectedDestination == destination
+                ? AppColors.primary_450
+                : Colors.transparent,
+            width: 1,
+          ),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: _buildDestinationCard(
+          destination: destination,
+          reason: reason,
+          matchPercent: matchPercent,
+        ),
+      ),
+    );
+  }
+
+  /// 여행지 카드 위젯
+  Widget _buildDestinationCard({
+    required String destination,
+    required String reason,
+    required int matchPercent,
+  }) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -223,102 +401,123 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AspectRatio(
-            aspectRatio: 16 / 9,
-            child: Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(16),
-                  ),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: FutureBuilder<String>(
-                      future: _getCachedImage(destination),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                              child: CircularProgressIndicator(
-                            color: AppColors.primary_450,
-                          ));
-                        }
-                        if (snapshot.hasError || !snapshot.hasData) {
-                          return Container(
-                            color: Colors.grey[200],
-                            child: const Icon(Icons.error),
-                          );
-                        }
-                        return Image.network(
-                          snapshot.data!,
-                          fit: BoxFit.cover,
-                          key: ValueKey(destination),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-                // 태그들
-                Positioned(
-                  bottom: 16,
-                  left: 16,
-                  child: Wrap(
-                    spacing: 8,
-                    children: getCityTags(
-                            destination,
-                            ref
-                                .read(recommendationStateProvider)
-                                .travelStyles)['tags']!
-                        .map((tag) => _buildTag(tag))
-                        .toList(),
-                  ),
-                ),
-              ],
+          _buildDestinationImage(destination),
+          _buildDestinationInfo(
+            destination: destination,
+            reason: reason,
+            matchPercent: matchPercent,
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 여행지 이미지 위젯
+  Widget _buildDestinationImage(String destination) {
+    return AspectRatio(
+      aspectRatio: 16 / 9,
+      child: Stack(
+        children: [
+          ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+            child: SizedBox(
+              width: double.infinity,
+              child: _buildCachedImage(destination),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        destination,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        const Icon(Icons.star,
-                            color: AppColors.primary_450, size: 16),
-                        Text(' $matchPercent% 일치',
-                            style: AppTypography.body2.copyWith(
-                              color: AppColors.primary_450,
-                            )),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                SizedBox(
-                  height: 60,
-                  child: Text(
-                    reason,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.black87,
-                    ),
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
+          Positioned(
+            bottom: 16,
+            left: 16,
+            child: _buildDestinationTags(destination),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 캐시된 이미지 위젯
+  Widget _buildCachedImage(String destination) {
+    return FutureBuilder<String>(
+      future: _getCachedImage(destination),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(color: AppColors.primary_450),
+          );
+        }
+        if (snapshot.hasError || !snapshot.hasData) {
+          return Container(
+            color: Colors.grey[200],
+            child: const Icon(Icons.error),
+          );
+        }
+        return Image.network(
+          snapshot.data!,
+          fit: BoxFit.cover,
+          key: ValueKey(destination),
+        );
+      },
+    );
+  }
+
+  /// 여행지 태그 위젯
+  Widget _buildDestinationTags(String destination) {
+    final tags = getCityTags(
+      destination,
+      ref.read(recommendationStateProvider).travelStyles,
+    )['tags']!;
+
+    return Wrap(
+      spacing: 8,
+      children: tags.map((tag) => _buildTag(tag)).toList(),
+    );
+  }
+
+  Widget _buildDestinationInfo({
+    required String destination,
+    required String reason,
+    required int matchPercent,
+  }) {
+    return Padding(
+      padding: AppSpacing.medium16,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  destination,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-              ],
+              ),
+              Row(
+                children: [
+                  const Icon(Icons.star,
+                      color: AppColors.primary_450, size: 16),
+                  Text(' $matchPercent% 일치',
+                      style: AppTypography.body2.copyWith(
+                        color: AppColors.primary_450,
+                      )),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            height: 60,
+            child: Text(
+              reason,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.black87,
+              ),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
@@ -447,10 +646,32 @@ class _AIRecommendationPageState extends ConsumerState<AIRecommendationPage> {
       child: Row(
         children: [
           Expanded(
-            child: StandardButton.secondary(
-              sizeType: ButtonSizeType.normal,
-              onPressed: () => _loadRecommendations(),
-              text: '다시 추천받기',
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                side: BorderSide(color: AppColors.primary_450),
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
+              onPressed: _isAdLoading ? null : () => _showRewardedAd(),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (!_isAdLoading) ...[
+                    SvgPicture.asset(
+                      'assets/icons/play.svg',
+                      color: AppColors.primary_450,
+                      height: 16,
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                  Text(
+                    _isAdLoading ? '광고 로딩 중...' : '다시 추천받기',
+                    style: AppTypography.buttonLabelSmall.copyWith(
+                      color: AppColors.primary_450,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           const SizedBox(width: 16),

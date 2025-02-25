@@ -1,89 +1,124 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:wetravel/core/constants/app_colors.dart';
-import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/domain/entity/survey_response.dart';
-import 'package:wetravel/presentation/provider/schedule_provider.dart';
+import 'package:wetravel/domain/entity/travel_schedule.dart';
 import 'package:wetravel/presentation/pages/schedule/widgets/schedule_item.dart';
+import 'package:wetravel/presentation/provider/schedule_provider.dart';
 import 'package:wetravel/presentation/pages/schedule/widgets/time_picker_bottom_sheet.dart';
+import 'package:flutter/services.dart';
 
 class ScheduleList extends ConsumerWidget {
   final SurveyResponse surveyResponse;
   final bool isEditMode;
+  final TravelSchedule schedule;
+  final Function(TravelSchedule)? onScheduleUpdate;
 
   const ScheduleList({
     super.key,
     required this.surveyResponse,
     required this.isEditMode,
+    required this.schedule,
+    this.onScheduleUpdate,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // savedSchedule이 있으면 그것을 사용하고, 없으면 AI로 새로 생성
-    return ref.watch(scheduleProvider(surveyResponse)).when(
-          data: (schedule) {
-            // savedSchedule이 있으면 그것을 사용
-            final currentSchedule = surveyResponse.savedSchedule ?? schedule;
+    final selectedDay = ref.watch(selectedDayProvider);
+    if (selectedDay >= schedule.days.length) {
+      return const SizedBox();
+    }
 
-            final selectedDay = ref.watch(selectedDayProvider);
-            if (selectedDay >= currentSchedule.days.length) {
-              return const SizedBox();
-            }
+    final daySchedule = schedule.days[selectedDay];
+    return isEditMode
+        ? Expanded(
+            child: ReorderableListView.builder(
+              padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
+              buildDefaultDragHandles: false,
+              physics: const AlwaysScrollableScrollPhysics(),
+              proxyDecorator: (child, index, animation) {
+                return Material(
+                  elevation: 4.0,
+                  color: Colors.transparent,
+                  shadowColor: Colors.black38,
+                  child: child,
+                );
+              },
+              onReorder: (oldIndex, newIndex) {
+                HapticFeedback.mediumImpact();
 
-            final daySchedule = currentSchedule.days[selectedDay];
-            return isEditMode
-                ? ReorderableListView.builder(
-                    padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
-                    itemCount: daySchedule.schedules.length,
-                    onReorder: (oldIndex, newIndex) {
-                      // TODO: 순서 변경 로직 구현
-                    },
-                    itemBuilder: (context, index) {
-                      final item = daySchedule.schedules[index];
-                      return ScheduleItem(
-                        key: ValueKey('${item.time}-${item.title}'),
-                        itemKey: ValueKey('${item.time}-${item.title}'),
-                        time: item.time,
-                        title: item.title,
-                        location: item.location,
-                        isEditMode: isEditMode,
-                        onTap: () => _showEditDialog(
-                          context,
-                          item.time,
-                          item.title,
-                          item.location,
-                          (time, title, location) {
-                            // TODO: 수정 로직 구현
-                          },
-                        ),
-                      );
-                    },
-                  )
-                : ListView.builder(
-                    padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
-                    itemCount: daySchedule.schedules.length,
-                    itemBuilder: (context, index) {
-                      final item = daySchedule.schedules[index];
-                      return ScheduleItem(
-                        key: ValueKey('${item.time}-${item.title}'),
-                        time: item.time,
-                        title: item.title,
-                        location: item.location,
-                        isEditMode: isEditMode,
-                        itemKey: ValueKey('${item.time}-${item.title}'),
-                      );
-                    },
-                  );
-          },
-          loading: () => const Center(
-            child: CircularProgressIndicator(
-              color: AppColors.primary_450,
+                if (oldIndex < newIndex) {
+                  newIndex -= 1;
+                }
+
+                final item = daySchedule.schedules.removeAt(oldIndex);
+                daySchedule.schedules.insert(newIndex, item);
+
+                final updatedSchedule = schedule.copyWith(
+                  days: List.from(schedule.days)..[selectedDay] = daySchedule,
+                );
+                onScheduleUpdate?.call(updatedSchedule);
+              },
+              itemCount: daySchedule.schedules.length,
+              itemBuilder: (context, index) {
+                final item = daySchedule.schedules[index];
+                return ReorderableDelayedDragStartListener(
+                  key: ValueKey(item),
+                  index: index,
+                  enabled: isEditMode,
+                  child: ScheduleItemWidget(
+                    key: ValueKey(item.hashCode),
+                    itemKey: ValueKey(item.hashCode),
+                    time: item.time,
+                    title: item.title,
+                    location: item.location,
+                    isEditMode: isEditMode,
+                    onTap: isEditMode
+                        ? () async {
+                            HapticFeedback.selectionClick();
+                            _showEditDialog(
+                              context,
+                              item.time,
+                              item.title,
+                              item.location,
+                              (newTime, newTitle, newLocation) {
+                                final updatedSchedule = schedule.copyWith(
+                                  days: List.from(schedule.days)
+                                    ..[selectedDay] =
+                                        schedule.days[selectedDay].copyWith(
+                                      schedules:
+                                          List.from(daySchedule.schedules)
+                                            ..[index] = item.copyWith(
+                                              time: newTime,
+                                              title: newTitle,
+                                              location: newLocation,
+                                            ),
+                                    ),
+                                );
+                                onScheduleUpdate?.call(updatedSchedule);
+                              },
+                            );
+                          }
+                        : null,
+                  ),
+                );
+              },
             ),
-          ),
-          error: (error, stack) => Center(
-            child: Text('Error: $error'),
-          ),
-        );
+          )
+        : ListView.builder(
+            padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
+            itemCount: daySchedule.schedules.length,
+            itemBuilder: (context, index) {
+              final item = daySchedule.schedules[index];
+              return ScheduleItemWidget(
+                key: ValueKey('${item.time}-${item.title}'),
+                itemKey: ValueKey('${item.time}-${item.title}'),
+                time: item.time,
+                title: item.title,
+                location: item.location,
+                isEditMode: isEditMode,
+              );
+            },
+          );
   }
 
   void _showEditDialog(
