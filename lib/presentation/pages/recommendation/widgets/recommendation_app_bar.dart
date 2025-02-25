@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 
+/// AI 추천 페이지의 앱바
 class RecommendationAppBar extends StatelessWidget
     implements PreferredSizeWidget {
   const RecommendationAppBar({super.key});
