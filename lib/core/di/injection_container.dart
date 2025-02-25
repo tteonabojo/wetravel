@@ -7,7 +7,7 @@ import 'package:wetravel/domain/repository/firebase_storage_repository.dart';
 import 'package:wetravel/domain/repository/user_repository.dart';
 import 'package:wetravel/domain/usecase/update_user_profile_usecase.dart';
 import 'package:wetravel/domain/usecase/upload_profile_image_usecase.dart';
-import 'package:wetravel/domain/usecase/delete_account_usecase.dart';
+import 'package:wetravel/domain/usecase/user/delete_account_usecase.dart';
 import '../../data/data_source/package_data_source.dart';
 import '../../data/data_source/data_source_implement/package_data_source_impl.dart';
 import '../../data/repository/package_repository_impl.dart';

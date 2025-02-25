@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/data/dto/user_dto.dart';
 
 abstract interface class UserDataSource {
