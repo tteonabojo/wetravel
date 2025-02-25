@@ -272,13 +272,13 @@ Future<bool> signOut() async {
   } catch (e) {
     print("로그아웃 실패: $e");
     return false;
-  Future<List<UserDto>> fetchUsersByIds(List<String> ids) async {
+  }
+}
+Future<List<UserDto>> fetchUsersByIds(List<String> ids) async {
     final results = await _firestore
         .collection(usersCollection)
         .where('id', whereIn: ids)
         .get();
     return results.docs.map((e) => UserDto.fromJson(e.data())).toList();
   }
-}
-}
 }
