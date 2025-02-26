@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
-import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
-import 'package:wetravel/presentation/pages/my_page_correction/mypage_correction_view_model.dart';
 import 'package:wetravel/presentation/pages/my_page_correction/mypage_correction_view_model.dart';
 import 'package:wetravel/presentation/provider/my_page_correction_provider.dart';
 import 'package:wetravel/presentation/widgets/custom_input_field.dart';
+import 'package:wetravel/presentation/pages/my_page_correction/widgets/profile_image.dart';
+import 'package:wetravel/presentation/pages/my_page_correction/widgets/email_field.dart';
+import 'package:wetravel/presentation/pages/my_page_correction/widgets/delete_account.dart';
+import 'package:wetravel/presentation/pages/my_page_correction/widgets/save_button.dart';
 
 class MyPageCorrection extends ConsumerStatefulWidget {
   const MyPageCorrection({super.key});
@@ -117,7 +119,7 @@ class _MyPageCorrectionState extends ConsumerState<MyPageCorrection> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 20),
-              _buildProfileImage(viewModel),
+              const ProfileImageWidget(), // 프로필 이미지 위젯
               const SizedBox(height: 20),
               CustomInputField(
                 counterAlignment: Alignment.centerRight,
@@ -128,7 +130,7 @@ class _MyPageCorrectionState extends ConsumerState<MyPageCorrection> {
                 onChanged: (value) => viewModel.setName(value),
               ),
               const SizedBox(height: 12),
-              _buildEmailField(state.userEmail),
+              const EmailFieldWidget(), // 이메일 필드 위젯
               const SizedBox(height: 20),
               CustomInputField(
                 counterAlignment: Alignment.centerRight,
@@ -141,163 +143,15 @@ class _MyPageCorrectionState extends ConsumerState<MyPageCorrection> {
                 onChanged: (value) => viewModel.setIntro(value),
               ),
               const SizedBox(height: 8),
-              _buildDeleteAccount(context, ref, viewModel),
+              const DeleteAccountWidget(), // 회원 탈퇴 위젯
             ],
           ),
         ),
-        bottomNavigationBar: Padding(
-          padding: const EdgeInsets.only(bottom: 42, left: 16, right: 16),
-          child: _buildSaveButton(viewModel),
+        bottomNavigationBar: const Padding(
+          padding: EdgeInsets.only(bottom: 42, left: 16, right: 16),
+          child: SaveButtonWidget(), // 저장 버튼 위젯
         ),
       ),
     );
   }
-
-  Widget _buildProfileImage(MyPageCorrectionViewModel viewModel) {
-    bool isValidUrl =
-        viewModel.imageUrl != null && viewModel.imageUrl!.startsWith('http');
-    bool hasTempImage = viewModel.tempImageFile != null; // 임시 이미지 보여줌
-
-    return Center(
-      child: Stack(
-        children: [
-          GestureDetector(
-            onTap: viewModel.pickImage,
-            child: ClipOval(
-              child: Container(
-                width: 82,
-                height: 82,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: AppColors.primary_250,
-                  image: hasTempImage // 임시 이미지 있을때
-                      ? DecorationImage(
-                          image: FileImage(viewModel.tempImageFile!),
-                          fit: BoxFit.cover,
-                        )
-                      : isValidUrl // 기존 imageUrl 있을때
-                          ? DecorationImage(
-                               image: NetworkImage(viewModel.imageUrl!),
-                               fit: BoxFit.cover,
-                          )
-                      : null,
-                ),
-                child: !hasTempImage && !isValidUrl // 수정중 이미지, 기존 이미지 없을때
-                    ? const Icon(
-                        Icons.person,
-                        color: Colors.white,
-                        size: 40,
-                      )
-                    : null,
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: 0,
-            right: 0,
-            child: InkWell(
-              onTap: viewModel.pickImage,
-              child: Container(
-                padding: const EdgeInsets.all(6),
-                decoration: const BoxDecoration(
-                  color: Colors.grey,
-                  shape: BoxShape.circle,
-                ),
-                child:
-                    const Icon(Icons.camera_alt, color: Colors.white, size: 20),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmailField(String? email) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('이메일 주소',
-            style: AppTypography.headline6
-                .copyWith(color: AppColors.grayScale_650)),
-        const SizedBox(height: 8),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          decoration: BoxDecoration(
-              color: AppColors.grayScale_150,
-              borderRadius: BorderRadius.circular(12)),
-          child: Text(email ?? '이메일 정보 없음', // email 그대로 표시
-              style:
-                  AppTypography.body1.copyWith(color: AppColors.grayScale_550)),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDeleteAccount(
-      BuildContext context, WidgetRef ref, MyPageCorrectionViewModel viewModel) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Padding(
-        padding: AppSpacing.medium16,
-        child: GestureDetector(
-          onTap: () {
-            _showDeleteAccountDialog(context, ref, viewModel);
-          },
-          child: Text(
-            '회원탈퇴',
-            style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-                decoration: TextDecoration.underline),
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _showDeleteAccountDialog(
-      BuildContext context, WidgetRef ref, MyPageCorrectionViewModel viewModel) {
-    showCupertinoDialog(
-      context: context,
-      builder: (BuildContext dialogContext) {
-        return CupertinoAlertDialog(
-          title: const Text('회원탈퇴'),
-          content: const Text('탈퇴 확인을 위해 재인증이 필요합니다.\n이 작업은 되돌릴 수 없습니다.'),
-          actions: [
-            CupertinoDialogAction(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('취소'),
-            ),
-            CupertinoDialogAction(
-              isDestructiveAction: true,
-              onPressed: () async {
-                Navigator.of(dialogContext).pop();
-                await viewModel.deleteAccount(context);
-              },
-              child: const Text('탈퇴'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _buildSaveButton(MyPageCorrectionViewModel viewModel) {
-  return ElevatedButton(
-    style: ElevatedButton.styleFrom(
-      backgroundColor: viewModel.isFormValid
-        ? AppColors.primary_450
-        : AppColors.primary_250,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      padding: const EdgeInsets.symmetric(vertical: 16),
-    ),
-    onPressed:
-        viewModel.isFormValid? () => viewModel.saveUserInfo(context): null,
-    child: const Text('등록',
-        style: TextStyle(
-            fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),
-  );
-}
 }
