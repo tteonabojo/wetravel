@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wetravel/core/constants/app_colors.dart';
+import 'package:wetravel/core/constants/app_spacing.dart';
 import 'package:wetravel/core/constants/app_typography.dart';
 import 'package:wetravel/core/constants/app_shadow.dart';
 import 'destination_image.dart';
@@ -49,7 +50,7 @@ class DestinationCard extends StatelessWidget {
 
   Widget _buildInfo() {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: AppSpacing.medium16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

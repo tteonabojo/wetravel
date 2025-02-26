@@ -27,6 +27,7 @@ class _AISchedulePageState extends ConsumerState<AISchedulePage> {
   bool isEditMode = false;
   TravelSchedule? editedSchedule;
   final firestoreConstants = FirestoreConstants();
+  bool _isSaving = false;
 
   /// 파이어베이스에서 일정을 가져오는 함수
   Future<TravelSchedule> _loadSchedule(SurveyResponse surveyResponse) {
@@ -295,7 +296,6 @@ class _AISchedulePageState extends ConsumerState<AISchedulePage> {
       child: Container(
         color: AppColors.grayScale_050,
         child: Row(
-          spacing: 16,
           children: [
             Expanded(
               child: StandardButton.secondary(
@@ -304,11 +304,37 @@ class _AISchedulePageState extends ConsumerState<AISchedulePage> {
                 text: '뒤로가기',
               ),
             ),
+            const SizedBox(width: 16),
             Expanded(
               child: StandardButton.primary(
                 sizeType: ButtonSizeType.normal,
-                onPressed: () => _saveSchedule(surveyResponse),
-                text: '일정 담기',
+                onPressed: _isSaving
+                    ? null
+                    : () async {
+                        setState(() {
+                          _isSaving = true;
+                        });
+                        try {
+                          await _saveSchedule(surveyResponse);
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('일정이 저장되었습니다')),
+                            );
+                          }
+                        } catch (e) {
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('저장 중 오류가 발생했습니다: $e')),
+                            );
+                          }
+                        } finally {
+                          if (mounted)
+                            setState(() {
+                              _isSaving = false;
+                            });
+                        }
+                      },
+                text: _isSaving ? '저장 중...' : '일정 담기',
               ),
             ),
           ],

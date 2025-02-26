@@ -7,9 +7,9 @@ import 'package:wetravel/data/data_source/user_data_source.dart';
 import 'package:wetravel/data/repository/user_repository_impl.dart';
 import 'package:wetravel/domain/entity/schedule.dart';
 import 'package:wetravel/domain/repository/user_repository.dart';
-import 'package:wetravel/domain/usecase/fetch_user_usecase.dart';
-import 'package:wetravel/domain/usecase/fetch_users_by_ids_usecase.dart';
-import 'package:wetravel/domain/usecase/sign_in_with_provider_usecase.dart';
+import 'package:wetravel/domain/usecase/user/fetch_user_usecase.dart';
+import 'package:wetravel/domain/usecase/user/fetch_users_by_ids_usecase.dart';
+import 'package:wetravel/domain/usecase/user/sign_in_with_provider_usecase.dart';
 
 final _firebaseFirestoreProvider = Provider<FirebaseFirestore>((ref) {
   return FirebaseFirestore.instance;
@@ -21,7 +21,8 @@ final _firebaseAuthProvider = Provider<FirebaseAuth>((ref) {
 
 final _userDataSourceProvider = Provider<UserDataSource>((ref) {
   final firebaseFirestore = ref.watch(_firebaseFirestoreProvider);
-  return UserDataSourceImpl(firebaseFirestore);
+  final FirebaseAuth = ref.watch(_firebaseAuthProvider);
+  return UserDataSourceImpl(firebaseFirestore, FirebaseAuth);
 });
 
 final userRepositoryProvider = Provider<UserRepository>(

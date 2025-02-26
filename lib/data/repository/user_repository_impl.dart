@@ -6,7 +6,7 @@ import 'package:wetravel/domain/entity/user.dart';
 import 'package:wetravel/domain/repository/user_repository.dart';
 import 'package:wetravel/data/dto/user_dto.dart';
 
-class UserRepositoryImpl extends FirestoreConstants implements UserRepository {
+class UserRepositoryImpl implements UserRepository {
   UserRepositoryImpl(
     this._userDataSource,
     this._firebaseFirestore,
@@ -16,6 +16,26 @@ class UserRepositoryImpl extends FirestoreConstants implements UserRepository {
   final UserDataSource _userDataSource;
   final FirebaseFirestore _firebaseFirestore;
   final FirebaseAuth.FirebaseAuth _firebaseAuth;
+  final FirestoreConstants firestoreConstants = FirestoreConstants();
+
+  @override
+  Future<void> updateUserProfile(User user) async {
+    try {
+      final userDto = user.toDto();
+      await _userDataSource.updateUserProfile(userDto); // _userDataSource 사용
+    } catch (e) {
+      throw Exception("Failed to update user profile: $e");
+    }
+  }
+
+  @override
+  Future<void> deleteAccount() async {
+    try {
+      await _userDataSource.deleteAccount();
+    } catch (e) {
+      throw Exception("Failed to delete account: $e");
+    }
+  }
 
   @override
   Future<User> fetchUser() async {
@@ -25,14 +45,14 @@ class UserRepositoryImpl extends FirestoreConstants implements UserRepository {
     }
 
     final docSnapshot =
-        await _firebaseFirestore.collection(usersCollection).doc(userId).get();
+        await _firebaseFirestore.collection(firestoreConstants.usersCollection).doc(userId).get();
 
     if (!docSnapshot.exists) {
       throw Exception('User not found');
     }
 
     // UserDto에서 User로 변환
-    return User.fromDto(UserDto.fromJson(docSnapshot.data() ?? {}));
+    return User.fromDto(UserDto.fromJson(docSnapshot.data()?? {}));
   }
 
   @override

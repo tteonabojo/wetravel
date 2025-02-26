@@ -3,6 +3,9 @@ import 'package:wetravel/domain/entity/user.dart';
 abstract interface class UserRepository {
   Future<User> fetchUser();
 
+  Future<void> updateUserProfile(User user);
+  
+  Future<void> deleteAccount();
   Future<List<User>> fetchUsersByIds(List<String> ids);
 
   // /// 일반 회원가입

@@ -2,6 +2,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wetravel/domain/entity/survey_response.dart';
 import 'package:wetravel/domain/entity/travel_recommendation.dart';
 import 'package:wetravel/domain/services/gemini_service.dart';
+import 'package:wetravel/domain/usecase/recommendation/get_recommendation_usecase.dart';
+import 'package:wetravel/domain/usecase/recommendation/get_city_tags_usecase.dart';
+import 'package:wetravel/domain/repository/recommendation_repository.dart';
+import 'package:wetravel/data/repository/recommendation_repository_impl.dart';
 
 final geminiServiceProvider = Provider((ref) => GeminiService());
 
@@ -19,6 +23,9 @@ class RecommendationState {
   final List<String> destinations;
   final List<String> reasons;
   final List<String> tips;
+  final bool isLoading;
+  final String? selectedDestination;
+  final String? error;
 
   /// 도시-카테고리 매핑 정보
   final Map<String, List<String>> cityCategories = {
@@ -39,9 +46,12 @@ class RecommendationState {
     this.considerations = const [],
     this.selectedCities = const [],
     this.selectedKeywords = const [],
-    required this.destinations,
-    required this.reasons,
+    this.destinations = const [],
+    this.reasons = const [],
     this.tips = const [],
+    this.isLoading = true,
+    this.selectedDestination,
+    this.error,
   });
 
   /// 상태 복사 메서드
@@ -58,6 +68,9 @@ class RecommendationState {
     List<String>? destinations,
     List<String>? reasons,
     List<String>? tips,
+    bool? isLoading,
+    String? selectedDestination,
+    String? error,
   }) {
     return RecommendationState(
       currentPage: currentPage ?? this.currentPage,
@@ -72,6 +85,9 @@ class RecommendationState {
       destinations: destinations ?? this.destinations,
       reasons: reasons ?? this.reasons,
       tips: tips ?? this.tips,
+      isLoading: isLoading ?? this.isLoading,
+      selectedDestination: selectedDestination ?? this.selectedDestination,
+      error: error ?? this.error,
     );
   }
 
@@ -100,9 +116,17 @@ class RecommendationState {
 /// 여행 추천 상태 관리 노티파이어
 class RecommendationNotifier extends StateNotifier<RecommendationState> {
   final GeminiService _geminiService;
+  final GetRecommendationUseCase _getRecommendationUseCase;
+  final GetCityTagsUseCase _getCityTagsUseCase;
 
-  RecommendationNotifier(this._geminiService)
-      : super(RecommendationState(
+  RecommendationNotifier({
+    required GeminiService geminiService,
+    required GetRecommendationUseCase getRecommendationUseCase,
+    required GetCityTagsUseCase getCityTagsUseCase,
+  })  : _geminiService = geminiService,
+        _getRecommendationUseCase = getRecommendationUseCase,
+        _getCityTagsUseCase = getCityTagsUseCase,
+        super(RecommendationState(
           destinations: [],
           reasons: [],
         ));
@@ -339,9 +363,6 @@ class RecommendationNotifier extends StateNotifier<RecommendationState> {
     List<String>? preferredCities,
   }) async {
     try {
-      print('Getting recommendations for survey:');
-      print('Selected City: ${surveyResponse.selectedCity}');
-
       // 추천 결과 초기화
       state = state.copyWith(
         destinations: [],
@@ -349,67 +370,100 @@ class RecommendationNotifier extends StateNotifier<RecommendationState> {
         tips: [],
       );
 
-      // 선호 도시가 있는 경우 해당 도시의 카테고리에서 추가 도시 가져오기
-      List<String>? selectedCities;
+      // 선호 도시만 전달하고 Gemini가 같은 카테고리의 도시를 추천하도록 함
+      List<String>? preferredCities;
       if (surveyResponse.selectedCity != null &&
           surveyResponse.selectedCity!.isNotEmpty) {
-        final recommendedCities =
-            getRecommendedCitiesFromSameCategory(surveyResponse.selectedCity!);
-        selectedCities = [surveyResponse.selectedCity!, ...recommendedCities];
-        print('Using preferred cities: $selectedCities');
+        preferredCities = [surveyResponse.selectedCity!];
       }
 
       final response = await _geminiService.getTravelRecommendation(
         surveyResponse,
-        preferredCities: selectedCities,
+        preferredCities: preferredCities,
       );
-
-      print('Raw Gemini response: $response');
 
       final recommendation = TravelRecommendation.fromGeminiResponse(
         response,
-        preferredCities: selectedCities ?? [],
+        preferredCities: preferredCities ?? [],
       );
-
-      print('Final recommendations: ${recommendation.destinations}');
 
       return RecommendationState(
         destinations: recommendation.destinations,
         reasons: recommendation.reasons,
       );
     } catch (e) {
-      print('Error in getRecommendations: $e');
       return RecommendationState(destinations: [], reasons: []);
+    }
+  }
+
+  void selectDestination(String destination) {
+    state = state.copyWith(selectedDestination: destination);
+  }
+
+  Future<void> loadRecommendations(SurveyResponse survey) async {
+    state = state.copyWith(isLoading: true);
+
+    try {
+      // 선택한 도시가 있는 경우 preferredCities 리스트에 추가
+      List<String>? preferredCities;
+      if (survey.selectedCity != null && survey.selectedCity!.isNotEmpty) {
+        preferredCities = [survey.selectedCity!];
+      }
+
+      final response = await _geminiService.getTravelRecommendation(
+        survey,
+        preferredCities: preferredCities,
+      );
+
+      final recommendation = TravelRecommendation.fromGeminiResponse(response);
+
+      state = state.copyWith(
+        destinations: recommendation.destinations,
+        reasons: recommendation.reasons,
+        isLoading: false,
+      );
+    } catch (e) {
+      state = state.copyWith(error: e.toString(), isLoading: false);
     }
   }
 }
 
 /// 추천 상태 프로바이더
 final recommendationStateProvider =
-    StateNotifierProvider<RecommendationNotifier, RecommendationState>(
-        (ref) => RecommendationNotifier(ref.read(geminiServiceProvider)));
+    StateNotifierProvider<RecommendationNotifier, RecommendationState>((ref) {
+  return RecommendationNotifier(
+    geminiService: ref.read(geminiServiceProvider),
+    getRecommendationUseCase: ref.read(getRecommendationUseCaseProvider),
+    getCityTagsUseCase: ref.read(getCityTagsUseCaseProvider),
+  );
+});
+
+final getRecommendationUseCaseProvider = Provider((ref) {
+  return GetRecommendationUseCase(ref.watch(recommendationRepositoryProvider));
+});
+
+final getCityTagsUseCaseProvider = Provider((ref) {
+  return GetCityTagsUseCase();
+});
 
 /// AI 추천 프로바이더
 final recommendationProvider = FutureProvider.autoDispose
     .family<TravelRecommendation, SurveyResponse>((ref, survey) async {
-  try {
-    final geminiService = ref.read(geminiServiceProvider);
+  final geminiService = ref.read(geminiServiceProvider);
+  final response = await geminiService.getTravelRecommendation(survey);
+  return TravelRecommendation.fromGeminiResponse(response);
+});
 
-    // 사용자가 선택한 도시가 있으면 해당 도시를 1순위로 전달
-    final preferredCities =
-        survey.selectedCity != null ? [survey.selectedCity!] : null;
+final recommendationRepositoryProvider =
+    Provider<RecommendationRepository>((ref) {
+  return RecommendationRepositoryImpl(ref.watch(geminiServiceProvider));
+});
 
-    final response = await geminiService.getTravelRecommendation(
-      survey,
-      preferredCities: preferredCities, // 선택된 도시를 1순위로 전달
-    );
-
-    return TravelRecommendation.fromGeminiResponse(
-      response,
-      preferredCities: preferredCities ?? [],
-    );
-  } catch (e) {
-    print('Error in recommendation provider: $e');
-    rethrow;
-  }
+final recommendationNotifierProvider =
+    StateNotifierProvider<RecommendationNotifier, RecommendationState>((ref) {
+  return RecommendationNotifier(
+    geminiService: ref.read(geminiServiceProvider),
+    getRecommendationUseCase: ref.read(getRecommendationUseCaseProvider),
+    getCityTagsUseCase: ref.read(getCityTagsUseCaseProvider),
+  );
 });
