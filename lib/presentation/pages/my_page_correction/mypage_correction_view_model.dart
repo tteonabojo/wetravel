@@ -33,7 +33,11 @@ class MyPageCorrectionViewModel extends ChangeNotifier {
 
   String? get imageUrl => _imageUrl;
   String get name => _name;
-  bool get isFormValid => isNameValid && isIntroValid;
+  bool get isFormValid => _name.isNotEmpty && _intro.isNotEmpty;
+  bool get isChanged =>
+    name != nameController.text ||
+    _intro != introController.text ||
+    _tempImageFile != null;
   File? _tempImageFile;
   File? get tempImageFile => _tempImageFile;
 
@@ -88,18 +92,16 @@ class MyPageCorrectionViewModel extends ChangeNotifier {
   }
 
   // 닉네임 변경
-  void setName(String value) {
-    _name = value;
-    isNameValid = _name.isNotEmpty; // 닉네임 유효성 검사
-    notifyListeners();
-  }
+  void setName(String name) {
+  this._name = name;
+  notifyListeners();
+}
 
   // 자기소개 변경
-  void setIntro(String value) {
-    _intro = value;
-    isIntroValid = _intro.isNotEmpty; // 자기소개 유효성 검사
-    notifyListeners();
-  }
+  void setIntro(String intro) {
+  this._intro = intro;
+  notifyListeners();
+}
 
   void setImageUrl(String url) {
     _imageUrl = url;
@@ -160,11 +162,11 @@ Future<void> _uploadImage() async {
       throw Exception("이미지 디코딩 실패");
     }
 
-    // 이미지 리사이징 (예: 가로/세로 최대 500px)
+    // 이미지 리사이징
     img.Image resizedImage = img.copyResize(
       originalImage,
-      width: 400, // 원하는 크기로 조정
-      height: 400, // 원하는 크기로 조정
+      width: 400,
+      height: 400,
     );
 
     // 리사이징된 이미지 파일로 저장 (임시 파일)
@@ -186,11 +188,6 @@ Future<void> _uploadImage() async {
     notifyListeners();
   }
 }
-
-  bool get isChanged =>
-      _name!= nameController.text ||
-      _intro!= introController.text ||
-      _imageFile!= null;
 
   // 회원 탈퇴 메서드
   Future<void> deleteAccount(BuildContext context) async {
