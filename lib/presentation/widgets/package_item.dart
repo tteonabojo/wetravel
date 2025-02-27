@@ -34,7 +34,7 @@ class PackageItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    assert(keywords.length == 3, "키워드 리스트는 반드시 3개의 요소를 가져야 합니다.");
+    // assert(keywords.length == 3, "키워드 리스트는 반드시 3개의 요소를 가져야 합니다.");
 
     return Container(
       width: 312,

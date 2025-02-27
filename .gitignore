@@ -52,6 +52,7 @@ ios/Runner/GoogleService-Info.plist
 # Cache 파일 업로드 제외
 lib/build/ios/XCBuildData/PIFCache/
 android/build/ios/XCBuildData/PIFCache/
+android/app/.cxx/
 
 # Android specific
 **/android/**/gradle-wrapper.jar
